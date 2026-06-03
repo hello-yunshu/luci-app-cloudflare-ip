@@ -39,9 +39,10 @@ STARTUP_DELAY=""
 _STOPPED_SERVICE=""
 _OPENCLASH_ENABLE_SAVED=""
 
-declare -A OPENCLASH_TEMPLATE_TEXT=()
-declare -A OPENCLASH_TEMPLATE_BASE_NAME=()
-declare -A OPENCLASH_SEEN=()
+OPENCLASH_TEMPLATE_DOMAINS=()
+OPENCLASH_TEMPLATE_TEXT=()
+OPENCLASH_TEMPLATE_BASE_NAME=()
+OPENCLASH_SEEN=()
 OPENCLASH_MATCHED_DOMAIN=""
 
 RELEASE_API="${RELEASE_API:-https://api.github.com/repos/XIU2/CloudflareSpeedTest/releases/latest}"
@@ -771,21 +772,51 @@ openclash_domain_matches() {
 	return 1
 }
 
+openclash_template_index() {
+	local domain="$1" idx
+
+	for idx in "${!OPENCLASH_TEMPLATE_DOMAINS[@]}"; do
+		[[ "${OPENCLASH_TEMPLATE_DOMAINS[$idx]}" == "$domain" ]] || continue
+		printf '%s\n' "$idx"
+		return 0
+	done
+	return 1
+}
+
+openclash_seen_has() {
+	local key="$1" seen
+
+	((${#OPENCLASH_SEEN[@]} > 0)) || return 1
+	for seen in "${OPENCLASH_SEEN[@]}"; do
+		[[ "$seen" == "$key" ]] && return 0
+	done
+	return 1
+}
+
+openclash_seen_add() {
+	local key="$1"
+
+	openclash_seen_has "$key" || OPENCLASH_SEEN+=("$key")
+}
+
 remember_openclash_template() {
 	local base_name="$1" domain="$2"
 
-	[[ -z "${OPENCLASH_TEMPLATE_TEXT[$domain]:-}" ]] || return 0
-	OPENCLASH_TEMPLATE_TEXT[$domain]="$(printf '%s\n' "${BLOCK_LINES[@]}")"
-	OPENCLASH_TEMPLATE_BASE_NAME[$domain]="$base_name"
+	openclash_template_index "$domain" >/dev/null && return 0
+	OPENCLASH_TEMPLATE_DOMAINS+=("$domain")
+	OPENCLASH_TEMPLATE_TEXT+=("$(printf '%s\n' "${BLOCK_LINES[@]}")")
+	OPENCLASH_TEMPLATE_BASE_NAME+=("$base_name")
 }
 
 restore_openclash_template() {
-	local domain="$1" line
+	local domain="$1" line idx
+
+	idx="$(openclash_template_index "$domain")" || return 1
 
 	BLOCK_LINES=()
 	while IFS= read -r line || [[ -n "$line" ]]; do
 		BLOCK_LINES+=("$line")
-	done <<<"${OPENCLASH_TEMPLATE_TEXT[$domain]}"
+	done <<<"${OPENCLASH_TEMPLATE_TEXT[$idx]}"
 }
 
 emit_openclash_variant() {
@@ -879,7 +910,7 @@ emit_openclash_variant() {
 
 	OPENCLASH_WROTE_PROXY=true
 	OPENCLASH_UPDATED=$((OPENCLASH_UPDATED + 1))
-	OPENCLASH_SEEN["${domain}:${seq}"]=1
+	openclash_seen_add "${domain}:${seq}"
 	if [[ "$updated" == "true" ]]; then
 		if [[ "$new_name" != "$name" ]]; then
 			log "OpenClash proxy '${name:-unknown}' -> '${new_name}'; server -> ${ip}; domain kept as ${domain}"
@@ -890,17 +921,18 @@ emit_openclash_variant() {
 }
 
 append_missing_openclash_variants() {
-	local domain seq ip variant_count _domains=()
+	local domain seq ip variant_count _domains=() idx base_name
 
 	IFS=',' read -r -a _domains <<< "$OPENCLASH_TARGET_DOMAIN"
 	for domain in "${_domains[@]}"; do
-		[[ -n "${OPENCLASH_TEMPLATE_TEXT[$domain]:-}" ]] || continue
+		idx="$(openclash_template_index "$domain")" || continue
+		base_name="${OPENCLASH_TEMPLATE_BASE_NAME[$idx]}"
 		variant_count="$(openclash_variant_count)"
 		for ((seq = 1; seq <= variant_count; seq++)); do
-			[[ -z "${OPENCLASH_SEEN[${domain}:${seq}]:-}" ]] || continue
+			openclash_seen_has "${domain}:${seq}" && continue
 			restore_openclash_template "$domain"
 			ip="${FAST_IPS[$(((seq - 1) % IP_COUNT))]}"
-			emit_openclash_variant "$seq" "$ip" "${OPENCLASH_TEMPLATE_BASE_NAME[$domain]}" "$domain"
+			emit_openclash_variant "$seq" "$ip" "$base_name" "$domain"
 		done
 	done
 }
@@ -982,6 +1014,7 @@ update_openclash() {
 
 	TMP_CONFIG="$(mktemp "${OPENCLASH_CONFIG}.tmp.XXXXXX")"
 	OPENCLASH_UPDATED=0
+	OPENCLASH_TEMPLATE_DOMAINS=()
 	OPENCLASH_TEMPLATE_TEXT=()
 	OPENCLASH_TEMPLATE_BASE_NAME=()
 	OPENCLASH_SEEN=()
