@@ -317,7 +317,13 @@ jobs:
               ipk) tar -tf "$file" >/dev/null
                    bash "$GITHUB_WORKSPACE/luci-app-cloudflare-ip/tests/package-content-contract.sh" "$file" ipk "$mode" ;;
               apk) test -x /builder/staging_dir/host/bin/apk
-                   /builder/staging_dir/host/bin/apk --allow-untrusted adbdump "$file" >/dev/null
+                   if [[ "$mode" == rill ]]; then
+                     /builder/staging_dir/host/bin/apk --allow-untrusted adbdump "$file" >/dev/null || {
+                       tar -tf "$file" | grep -Eq '(^|/)\.PKGINFO$'
+                     }
+                   else
+                     /builder/staging_dir/host/bin/apk --allow-untrusted adbdump "$file" >/dev/null
+                   fi
                    APK=/builder/staging_dir/host/bin/apk bash "$GITHUB_WORKSPACE/luci-app-cloudflare-ip/tests/package-content-contract.sh" "$file" apk "$mode" ;;
             esac
           done

@@ -31,8 +31,19 @@ case "$KIND" in
     apk_root="$TMP/apk-root"
     "${APK:-apk}" --root "$apk_root" --network=no \
       --repositories-file /dev/null add --initdb --no-scripts
-    "${APK:-apk}" --root "$apk_root" --allow-untrusted manifest "$PACKAGE" |
-      awk 'NF >= 2 { print $NF }' >"$listing"
+    if ! "${APK:-apk}" --root "$apk_root" --allow-untrusted manifest "$PACKAGE" |
+      awk 'NF >= 2 { print $NF }' >"$listing"; then
+      # A dependency-only compatibility APK may contain metadata but no data
+      # payload for apk manifest to expand.  Preserve the structural check and
+      # inspect its tar members instead of treating that valid empty payload as
+      # a corrupt package.
+      test "$MODE" = rill || exit 1
+      tar -tf "$PACKAGE" >"$listing"
+      grep -Eq '(^|/)\.PKGINFO$' "$listing" || {
+        echo 'missing APK package metadata' >&2
+        exit 1
+      }
+    fi
     ;;
   *) echo "unsupported package kind: $KIND" >&2; exit 2 ;;
 esac
