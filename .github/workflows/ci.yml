@@ -435,15 +435,14 @@ jobs:
           set -euo pipefail
           work="$GITHUB_WORKSPACE/legacy-input"
           source_sha=$(git -C "$GITHUB_WORKSPACE/legacy-r2" rev-parse HEAD)
-          current_base=$(find current-output -type f ! -name '*-rill*' -name 'luci-app-cloudflare-ip*.${{ matrix.pkgtype }}' -print -quit)
-          current_addon=$(find current-output -type f -name 'luci-app-cloudflare-ip-rill*.${{ matrix.pkgtype }}' -print -quit)
+          current_base=$(find "$GITHUB_WORKSPACE/current-output" -type f ! -name '*-rill*' -name 'luci-app-cloudflare-ip*.${{ matrix.pkgtype }}' -print -quit)
+          current_addon=$(find "$GITHUB_WORKSPACE/current-output" -type f -name 'luci-app-cloudflare-ip-rill*.${{ matrix.pkgtype }}' -print -quit)
           legacy_base="$work/$(if [[ "${{ matrix.pkgtype }}" == ipk ]]; then echo luci-app-cloudflare-ip_2.6.0-r2_all.ipk; else echo luci-app-cloudflare-ip-2.6.0-r2.apk; fi)"
           legacy_addon="$work/$(if [[ "${{ matrix.pkgtype }}" == ipk ]]; then echo luci-app-cloudflare-ip-rill_2.6.0-r2_all.ipk; else echo luci-app-cloudflare-ip-rill-2.6.0-r2.apk; fi)"
           r3_base="$work/$(if [[ "${{ matrix.pkgtype }}" == ipk ]]; then echo luci-app-cloudflare-ip_2.6.0-r3_all.ipk; else echo luci-app-cloudflare-ip-2.6.0-r3.apk; fi)"
           build_historical() {
             local checkout_dir="$1" output_prefix="$2"
             cd /builder
-            ./scripts/feeds update base packages luci
             ./scripts/feeds install luci-base bash curl tar jq ca-bundle ca-certificates uhttpd
             rm -rf /builder/package/luci-app-cloudflare-ip
             cp -r "$GITHUB_WORKSPACE/$checkout_dir/package/luci-app-cloudflare-ip" /builder/package/
