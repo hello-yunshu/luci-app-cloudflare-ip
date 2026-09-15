@@ -120,10 +120,10 @@ jobs:
             qualification-evidence; do
             gh run download "$QUALIFICATION_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$artifact" --dir "$work/$artifact"
           done
-          find "$work" -type f \( -name 'luci-app-cloudflare-ip*.ipk' -o -name 'luci-app-cloudflare-ip*.apk' \) -exec cp {} release/ \;
+          find "$work" -type f \( -name 'luci-app-cloudflare-ip*.ipk' -o -name 'luci-app-cloudflare-ip*.apk' \) ! -name '*-rill*' -exec cp {} release/ \;
           find "$work" -type f -name qualification.json -exec cp {} release/ \;
-          test "$(find release -type f -name '*.ipk' | wc -l | tr -d ' ')" -eq 2
-          test "$(find release -type f -name '*.apk' | wc -l | tr -d ' ')" -eq 2
+          test "$(find release -type f -name '*.ipk' | wc -l | tr -d ' ')" -eq 1
+          test "$(find release -type f -name '*.apk' | wc -l | tr -d ' ')" -eq 1
           test -f release/qualification.json
       - name: Generate relative checksums and verify asset contract
         env:
@@ -175,11 +175,31 @@ jobs:
           prerelease: true
           make_latest: false
           body: |
-            Cloudflare IP Optimization v${{ needs.check-qualification.outputs.version }}-${{ needs.check-qualification.outputs.release }}
+            Cloudflare IP 2.6.0-r3
+            2.0 prerelease development line
+
+            # 下载说明
+
+            OpenWrt 24.10.x：
+            下载 `luci-app-cloudflare-ip_${{ needs.check-qualification.outputs.version }}-r${{ needs.check-qualification.outputs.release }}_all.ipk`
+
+            OpenWrt 25.12+：
+            下载 `luci-app-cloudflare-ip-${{ needs.check-qualification.outputs.version }}-r${{ needs.check-qualification.outputs.release }}.apk`
+
+            只安装 Cloudflare IP 主包即可使用 Native、Adaptive Measurement 和 Operational Health。
+            Rill integration is included in the main package.
+            Runtime is optional and is not included in this release.
+
+            If you need Candidate Rill Intelligence, install `rill-runtime-preview` matching your OpenWrt release and CPU architecture from [rill-openwrt-packages Releases](https://github.com/hello-yunshu/rill-openwrt-packages/releases).
+
+            Compatibility package: the deprecated `luci-app-cloudflare-ip-rill` package is for existing installations only.
+            New users do not need to download this package manually.
+
+            校验：`sha256sum -c sha256sums.txt`
 
             This release is promoted only from the exact SHA and successful automated qualification run recorded in `qualification.json`.
 
-            Assets include the Cloudflare IP OpenWrt IPK/APK packages and relative SHA256 checksums. Generic Rill source/runtime contracts are owned by `hello-yunshu/rill-ml`; OpenWrt package distribution is owned by `hello-yunshu/rill-openwrt-packages`, and Cloudflare consumes it through OpenWrt package management.
+            Public assets contain only the base Cloudflare IP IPK/APK packages, relative SHA256 checksums, and `qualification.json`. The compatibility package remains build-tested but is not a recommended public download. Generic Rill source/runtime contracts are owned by `hello-yunshu/rill-ml`; OpenWrt package distribution is owned by `hello-yunshu/rill-openwrt-packages`.
 
             Real OpenWrt device runtime, hardware coverage, PassWall/OpenClash version matrix, and 24-hour soak remain separate evidence boundaries unless explicitly recorded in the qualification manifest.
             This 2.x release is part of the 2.0 prerelease development line and is not a stable/latest release.

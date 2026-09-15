@@ -34,14 +34,23 @@
 
 ## 当前状态
 
-- 当前包版本：`2.6.0-r2`
-- 发布标签：`v2.6.0-2`
+- 当前包版本：`2.6.0-r3`
+- 发布标签：`v2.6.0-3`
 - 发布渠道：`prerelease`
 - 2.x 仍属于 2.0 prerelease development line，不代表稳定版
 
 正式包只从 `main` 的成功 exact-head CI 资格化运行中发布。IPK/APK、`sha256sums.txt` 和 `qualification.json` 属于同一证据链；主机测试和 SDK 构建不能替代真实 OpenWrt 设备、硬件兼容性或长期 soak 验证。
 
 ## 快速开始
+
+## 我该下载哪个？
+
+从 [Releases](../../releases) 选择与你的 OpenWrt 版本匹配的主包：
+
+- OpenWrt 24.10.x → 下载 `luci-app-cloudflare-ip_2.6.0-r3_all.ipk`
+- OpenWrt 25.12+ → 下载 `luci-app-cloudflare-ip-2.6.0-r3.apk`
+
+不要同时安装 IPK 和 APK。Rill 集成代码已经包含在主包中。一个 `luci-app-cloudflare-ip` 主包已经包含 Native 优选、Adaptive Measurement 和 Operational Health；不包含 Rill Runtime binary。
 
 ### 1. 准备环境
 
@@ -52,7 +61,7 @@
 
 ### 2. 安装软件包
 
-从 [Releases](../../releases) 下载与 OpenWrt 版本匹配的包，并校验文件：
+从 [Releases](../../releases) 下载与 OpenWrt 版本匹配的主包，并校验文件：
 
 ```sh
 sha256sum -c sha256sums.txt
@@ -122,14 +131,9 @@ sha256sum -c sha256sums.txt
 
 Adaptive Measurement 是 Native 预探测调度层，默认 `shadow`，只消费测速前字段。`guarded` 只有在完整、兼容且未过期的审计证据达到召回率、安全性和节省阈值后才会生效；状态损坏、证据过期或探测失败会回退到完整 Native 流程。
 
-Rill 默认关闭。启用 Rill 需要安装同版本的可选 `luci-app-cloudflare-ip-rill`，以及由 OpenWrt 包管理提供的、经过资格化的 `rill-runtime-preview`。Rill 只作为候选辅助或 Shadow 观测，Native 排序和安全边界始终保留；Rill 不可用时基础包仍可独立运行。
+Rill 默认关闭。普通用户不需要 Rill Runtime。只有希望使用 Candidate Rill Shadow / Assisted 时，才需要先安装主包，再从 [rill-openwrt-packages Releases](https://github.com/hello-yunshu/rill-openwrt-packages/releases) 安装与你的 OpenWrt 版本和 CPU 架构匹配的 `rill-runtime-preview`，然后在 LuCI Intelligence 页面启用 Rill。Rill 只作为候选辅助或 Shadow 观测，Native 排序和安全边界始终保留；Rill Runtime 不存在时页面会显示 `Rill Runtime: Not installed`，Native mode remains available。
 
-可选 Rill 子包安装示例：
-
-```sh
-opkg install ./luci-app-cloudflare-ip-rill_*.ipk
-apk add ./luci-app-cloudflare-ip-rill-*.apk
-```
+不要要求新用户手工安装 `luci-app-cloudflare-ip-rill`。它已进入兼容迁移阶段，仅用于已有安装的依赖兼容。
 
 ### LAN Publisher
 
@@ -167,7 +171,7 @@ LAN Publisher 默认关闭，只允许绑定到 LAN 地址，拒绝 `0.0.0.0`。
 - **没有匹配节点**：确认目标域名与 PassWall 的 `address` 或 OpenClash 的 `server` 完全一致。
 - **测速成功但应用失败**：检查目标域名的 SNI/Host、TLS/传输协议和代理服务状态；事务流程会尝试回滚。
 - **CFST 下载失败**：检查设备时间、CA 证书、DNS、网络连接和 GitHub 镜像设置。
-- **Rill 不可用**：确认可选子包、`rill-runtime-preview` 和路径 `/usr/bin/rill-runtime`，否则会自动使用 Native。
+- **Rill 不可用**：确认 `rill-runtime-preview` 与路径 `/usr/bin/rill-runtime`；否则会自动使用 Native。
 
 ## 项目结构
 

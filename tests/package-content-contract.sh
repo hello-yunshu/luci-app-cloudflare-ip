@@ -48,9 +48,11 @@ required=(
   www/luci-static/resources/view/cloudflare-ip/overview.js
   usr/libexec/cf-ip/common.sh
   usr/libexec/cf-ip/transaction.sh
+  usr/libexec/cf-ip/rill.sh
+  usr/share/cf-ip/rill-feature-schema-v2.json
 )
 if [[ "$MODE" == rill ]]; then
-  required=(usr/libexec/cf-ip/rill.sh usr/share/cf-ip/rill-feature-schema-v2.json)
+  required=()
 fi
 if [[ "$MODE" == preview ]]; then
   required=(usr/bin/rill-runtime)
@@ -58,6 +60,10 @@ fi
 for path in "${required[@]}"; do
   grep -Fxq "$path" "$listing" || { echo "missing package path: $path" >&2; exit 1; }
 done
+if [[ "$MODE" == rill ]]; then
+  ! grep -Fxq 'usr/libexec/cf-ip/rill.sh' "$listing"
+  ! grep -Fxq 'usr/share/cf-ip/rill-feature-schema-v2.json' "$listing"
+fi
 # IPK stores a plain conffiles member; OpenWrt APK stores
 # lib/apk/packages/<package>.conffiles.
 if [[ "$MODE" == base ]]; then
