@@ -313,6 +313,7 @@ jobs:
           for file in "$base_file" "$rill_file" "$preview_file"; do
             cp "$file" "$GITHUB_WORKSPACE/output/"
             mode=base; [[ "${file##*/}" == *-rill* ]] && mode=rill; [[ "${file##*/}" == rill-runtime-preview* ]] && mode=preview
+            echo "Inspecting package content: ${file##*/} (mode=$mode)"
             case "${file##*.}" in
               ipk) tar -tf "$file" >/dev/null
                    bash "$GITHUB_WORKSPACE/luci-app-cloudflare-ip/tests/package-content-contract.sh" "$file" ipk "$mode" ;;
