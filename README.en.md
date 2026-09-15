@@ -34,14 +34,23 @@ It does not replace either proxy service and does not rewrite unrelated nodes. M
 
 ## Current status
 
-- Package version: `2.6.0-r2`
-- Release tag: `v2.6.0-2`
+- Package version: `2.6.0-r3`
+- Release tag: `v2.6.0-3`
 - Release channel: `prerelease`
 - The 2.x line remains the 2.0 prerelease development line, not a stable release
 
 Packages are promoted only from a successful exact-head qualification run on `main`. IPK/APK files, `sha256sums.txt`, and `qualification.json` belong to one evidence chain; host tests and SDK builds do not replace live OpenWrt, hardware-compatibility, or long-running soak validation.
 
 ## Quick start
+
+## Which file should I download?
+
+From [Releases](../../releases), choose the base package for your OpenWrt release:
+
+- OpenWrt 24.10.x → download `luci-app-cloudflare-ip_2.6.0-r3_all.ipk`
+- OpenWrt 25.12+ → download `luci-app-cloudflare-ip-2.6.0-r3.apk`
+
+Do not install both IPK and APK. Rill integration is included in the main package. One `luci-app-cloudflare-ip` base package includes Native ranking, Adaptive Measurement, and Operational Health; it does not include the Rill Runtime binary.
 
 ### 1. Prepare the router
 
@@ -122,14 +131,9 @@ The default candidate budget is `128` unique IPs, with a range of `100–512`. A
 
 Adaptive Measurement is a Native pre-probe scheduler and defaults to `shadow`. It consumes pre-probe fields only. `guarded` becomes effective only after complete, compatible, fresh audit evidence meets recall, safety, and savings thresholds. Corrupt state, stale evidence, or probe failure returns the next run to the full Native flow.
 
-Rill is disabled by default. Enabling it requires the matching optional `luci-app-cloudflare-ip-rill` package and a qualified `rill-runtime-preview` supplied through OpenWrt package management. Rill is only candidate assistance or Shadow observation; Native ranking and safety boundaries remain authoritative. If Rill is unavailable, the base package continues to work.
+Rill is disabled by default. Most users do not need the Rill Runtime. To use Candidate Rill Shadow / Assisted, install the base package first, then install `rill-runtime-preview` matching your OpenWrt release and CPU architecture from [rill-openwrt-packages Releases](https://github.com/hello-yunshu/rill-openwrt-packages/releases), and enable Rill in the LuCI Intelligence page. Rill is only candidate assistance or Shadow observation; Native ranking and safety boundaries remain authoritative. If the Runtime is absent, the page shows `Rill Runtime: Not installed`; Native mode remains available.
 
-Optional Rill package examples:
-
-```sh
-opkg install ./luci-app-cloudflare-ip-rill_*.ipk
-apk add ./luci-app-cloudflare-ip-rill-*.apk
-```
+New users do not need to install `luci-app-cloudflare-ip-rill` manually. It is now a deprecated compatibility package for existing installations only.
 
 ### LAN Publisher
 
@@ -167,7 +171,7 @@ Common checks:
 - **No nodes match**: make sure the target domain exactly matches PassWall `address` or OpenClash `server`.
 - **Measurement succeeds but apply fails**: check SNI/Host, TLS/network settings, and proxy service state; the transaction will attempt a rollback.
 - **CFST download fails**: check system time, CA certificates, DNS, network access, and the GitHub mirror.
-- **Rill is unavailable**: confirm the optional package, `rill-runtime-preview`, and `/usr/bin/rill-runtime`; the engine will fall back to Native.
+- **Rill is unavailable**: confirm `rill-runtime-preview` and `/usr/bin/rill-runtime`; the engine will fall back to Native.
 
 ## Project structure
 

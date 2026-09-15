@@ -191,12 +191,12 @@ remember_history(){
     actual="$(jq -r '.actualUniqueProbeCount // "null"' <<<"$metrics")"
     full="$(jq -r '.fullCandidateCount // "null"' <<<"$metrics")"
     expansion="$(jq -r '.expansionCount // "null"' <<<"$metrics")"
-    fallback="$(jq -r '.fallbackUsed // "null"' <<<"$metrics")"
+    fallback="$(jq -r 'if has("fallbackUsed") then .fallbackUsed else "null" end' <<<"$metrics")"
     audit_run="$(jq -r '.auditRun // false' <<<"$metrics")"
     transaction_applied="$(jq -r 'if has("success") then (.success == true) else "null" end' <<<"$transaction")"
     jq -cn --arg runId "$CFIP_RUN_ID" --arg result "$CFIP_LAST_RESULT" --arg mode "$CFIP_MODE" --arg policy "${CFIP_SOURCE_POLICY_EFFECTIVE:-${CFIP_SOURCE_POLICY:-balanced}}" --arg adaptiveRequestedMode "${CFIP_ADAPTIVE_MEASUREMENT_MODE:-}" --arg adaptiveEffectiveMode "$adaptive_effective" --arg adaptiveQualificationState "$(jq -r '.qualificationState // "null"' <<<"$adaptive")" --arg candidateRequestedMode "${CFIP_RILL_MODE:-}" --arg candidateEffectiveMode "$candidate_effective" --arg candidateQualificationState "$(jq -r '.state // .qualificationState // "null"' <<<"$qualification")" --arg contextFingerprint "$context" --argjson best "$best" --argjson plannedK "$planned" --argjson actualUniqueProbeCount "$actual" --argjson fullCandidateCount "$full" --argjson expansionCount "$expansion" --argjson fallbackUsed "$fallback" --argjson auditRun "$audit_run" --argjson transactionApplied "$transaction_applied" --argjson audit "$audit" --argjson measurementDurationMs "$(jq -r '.measurementDurationMs // "null"' <<<"$metrics")" --argjson probeDurationMs "$(jq -r '.probeDurationMs // "null"' <<<"$metrics")" '{schemaVersion:1,time:now,runId:$runId,result:$result,mode:$mode,sourcePolicy:$policy,bestIps:$best,proxyMode:$mode,adaptiveMode:(if $adaptiveEffectiveMode=="" then null else $adaptiveEffectiveMode end),candidateMode:(if $candidateEffectiveMode=="" then null else $candidateEffectiveMode end),adaptiveRequestedMode:(if $adaptiveRequestedMode=="" then null else $adaptiveRequestedMode end),candidateRequestedMode:(if $candidateRequestedMode=="" then null else $candidateRequestedMode end),adaptiveQualificationState:(if $adaptiveQualificationState=="null" then null else $adaptiveQualificationState end),candidateQualificationState:(if $candidateQualificationState=="null" then null else $candidateQualificationState end),contextFingerprint:(if $contextFingerprint=="" then null else $contextFingerprint end),fullCandidateCount:$fullCandidateCount,plannedK:$plannedK,actualUniqueProbeCount:$actualUniqueProbeCount,fallbackUsed:$fallbackUsed,expansionCount:$expansionCount,measurementDurationMs:$measurementDurationMs,transactionApplied:$transactionApplied,auditRun:$auditRun,winnerRecall:($audit.winnerRecall // null),topNRecall:($audit.topNRecall // null),severeMiss:($audit.severeMiss // null)}' >>"$CFIP_RUN_HISTORY"
     tail -n 100 "$CFIP_RUN_HISTORY" >"$CFIP_RUN_HISTORY.tmp" 2>/dev/null && mv "$CFIP_RUN_HISTORY.tmp" "$CFIP_RUN_HISTORY" || true
-    declare -F cfip_operational_record_run >/dev/null 2>&1 && cfip_operational_record_run || true
+    declare -F cfip_operational_record_run >/dev/null 2>&1 && cfip_operational_record_run "${CFIP_OPERATIONAL_FINAL_EVENT:-completed-run}" "${CFIP_OPERATIONAL_FINAL_REASON:-$CFIP_LAST_RESULT}" || true
 }
 
 apply_startup_delay(){ local d="$CFIP_STARTUP_DELAY"; [[ "${CFIP_SKIP_STARTUP_DELAY:-false}" == true ]] && return 0; [[ -z "$d" || "$d" == 0 ]] && return 0; [[ "$d" == random ]] && d=300; [[ "$d" =~ ^[0-9]+$ ]] || return 1; ((d>0)) && sleep $((RANDOM%(d+1))); }
@@ -349,7 +349,7 @@ rollback_active_transaction() {
     return "$recovery_rc"
 }
 
-fail_run(){ local message="$1" recovery_rc=0; CFIP_LAST_RESULT=error; CFIP_ERROR="$message"; rollback_active_transaction || recovery_rc=$?; [[ -n "$CFIP_RECOVERY_ERROR" ]] && message="$message; $CFIP_RECOVERY_ERROR"; cfip_operational_update run-failed "$message" || true; write_status false failed error "$message" || true; remember_history || true; cfip_log "run failed: $message"; ((recovery_rc==0)) || return 1; return 1; }
+fail_run(){ local message="$1" recovery_rc=0; CFIP_LAST_RESULT=error; CFIP_ERROR="$message"; CFIP_OPERATIONAL_FINAL_EVENT=run-failed; CFIP_OPERATIONAL_FINAL_REASON="$message"; rollback_active_transaction || recovery_rc=$?; [[ -n "$CFIP_RECOVERY_ERROR" ]] && message="$message; $CFIP_RECOVERY_ERROR"; CFIP_OPERATIONAL_FINAL_REASON="$message"; remember_history || true; write_status false failed error "$message" || true; cfip_log "run failed: $message"; ((recovery_rc==0)) || return 1; return 1; }
 run_cleanup(){ local rc="${1:-$?}" recovery_rc=0; trap - EXIT INT TERM; cfip_cancel_active_operation; rollback_active_transaction || recovery_rc=$?; release_lock; ((recovery_rc!=0 && rc==0)) && rc=1; exit "$rc"; }
 run_signal_cleanup(){ cfip_cancel_active_operation; run_cleanup 143; }
 
@@ -376,9 +376,9 @@ run_v2() {
     CFIP_PHASE=preflight; CFIP_LAST_RESULT=running
     if cfip_reuse_try_current; then
         CFIP_LAST_RESULT=success; CFIP_PHASE=done; CFIP_ERROR=""
-        cfip_operational_update reuse-success validated_current_ip || true
-        write_status false done success ""
+        CFIP_OPERATIONAL_FINAL_EVENT=reuse-success; CFIP_OPERATIONAL_FINAL_REASON=validated_current_ip
         remember_history
+        write_status false done success ""
         release_lock
         trap - EXIT INT TERM
         jq -cn --arg runId "$CFIP_RUN_ID" --argjson best "$(jq '[.[].ip]' "$CFIP_SELECTED_FILE")" --argjson requested "$CFIP_IP_COUNT" '{success:true,runId:$runId,best_ips:$best,eligible:($best|length),requested:$requested,reused:true,degraded:(($best|length)<$requested)}'
@@ -508,10 +508,10 @@ run_v2() {
         cfip_rill_queue_feedback "$CFIP_DECISION_FILE" "$feedback_file" "$CFIP_TARGET_DOMAINS" || cfip_log "Rill delayed feedback queue unavailable"
     fi
     finalize_adaptive_audit true
-    cfip_operational_update full-optimize-success full_optimize_completed || true
+    CFIP_OPERATIONAL_FINAL_EVENT=full-optimize-success; CFIP_OPERATIONAL_FINAL_REASON=full_optimize_completed
     CFIP_LAST_RESULT=success; CFIP_PHASE=done; CFIP_ERROR=""
-    write_status false done success ""
     remember_history
+    write_status false done success ""
     release_lock
     trap - EXIT INT TERM
     jq -cn --arg runId "$CFIP_RUN_ID" --argjson best "$(jq '[.[].ip]' "$CFIP_SELECTED_FILE")" --argjson eligible "$eligible" --argjson requested "$CFIP_IP_COUNT" --argjson measured "$(jq 'length' "$CFIP_INPUT_POOL_FILE")" '{success:true,runId:$runId,best_ips:$best,measurement_input_count:$measured,eligible:$eligible,requested:$requested,degraded:($eligible<$requested)}'

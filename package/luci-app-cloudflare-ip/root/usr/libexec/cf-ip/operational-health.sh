@@ -45,15 +45,30 @@ cfip_operational_rollup_json() {
     local history="${1:-$(cfip_operational_history_json)}" window="${CFIP_OPERATIONAL_ROLLING_WINDOW:-20}" minimum="${CFIP_OPERATIONAL_MIN_SAMPLES:-5}"
     jq --argjson window "$window" --argjson minimum "$minimum" '
       def completed: [.records[] | select(.completed == true)][-$window:];
-      def rate($values): if ($values|length)==0 then null else (($values|map(select(. != null and . == true))|length) / ($values|length)) end;
+      def comparable($values): [$values[] | select(. != null)];
+      def rate($values): (comparable($values)) as $v | if ($v|length)==0 then null else (($v|map(select(. == true))|length) / ($v|length)) end;
       def numeric_mean($values): (($values|map(select(type=="number"))) as $v | if ($v|length)==0 then null else ($v|add/length) end);
       (completed) as $runs |
       ([ $runs[] | select(.auditRun == true and (.winnerRecall|type)=="number" and (.topNRecall|type)=="number" and (.severeMiss|type)=="number") ]) as $audits |
       ([ $runs[] | select(.reuseAttempted == true) ]) as $reuse |
+      (comparable([$runs[] | if (.result == "success") then false elif .result == null then null else true end])) as $runOutcome |
+      (comparable([$runs[].fallbackUsed])) as $fallback |
+      (comparable([$runs[] | if (.expansionCount|type)=="number" then (.expansionCount > 0) else null end])) as $expansion |
+      (comparable([$reuse[] | if .reuseResult == "validation_failure" then true elif .reuseResult == "success" then false else null end])) as $reuseOutcome |
+      (comparable([$audits[].winnerRecall])) as $winnerRecall |
+      (comparable([$audits[].topNRecall])) as $topNRecall |
+      (comparable([$audits[].severeMiss])) as $severeMiss |
       {
+        sampleCounts:{runOutcome:($runOutcome|length),fallback:($fallback|length),expansion:($expansion|length),reuse:($reuseOutcome|length),audit:($audits|length)},
+        meaningfulByMetric:{runOutcome:(($runOutcome|length) >= $minimum),fallback:(($fallback|length) >= $minimum),expansion:(($expansion|length) >= $minimum),reuse:(($reuseOutcome|length) >= $minimum),audit:(($audits|length) >= $minimum)},
         windowSize:($runs|length),
         minimumMeaningfulSamples:$minimum,
         meaningful: (($runs|length) >= $minimum),
+        runFailureMeaningful:(($runOutcome|length) >= $minimum),
+        fallbackMeaningful:(($fallback|length) >= $minimum),
+        expansionMeaningful:(($expansion|length) >= $minimum),
+        reuseMeaningful:(($reuseOutcome|length) >= $minimum),
+        auditMeaningful:(($audits|length) >= $minimum),
         runFailureRate: rate([$runs[] | if (.result == "success") then false elif .result == null then null else true end]),
         fallbackRate: rate([$runs[].fallbackUsed]),
         expansionRunRate: rate([$runs[] | if (.expansionCount|type)=="number" then (.expansionCount > 0) else null end]),
@@ -84,7 +99,7 @@ cfip_operational_record_item() {
       --arg candidateEffective "$(jq -r '.effectiveMode // empty' <<<"$decision")" --arg candidateQualification "$(jq -r '.state // .qualificationState // empty' <<<"$qualification")" \
       --arg context "$context" --arg reuseResult "$reuse_result" --argjson completed "$completed" --argjson at "$now" \
       --argjson metrics "$metrics" --argjson audit "$audit" --argjson transaction "$transaction" \
-      '{schemaVersion:1,at:$at,runId:(if $runId=="" then null else $runId end),completed:$completed,result:(if $result=="" then null else $result end),proxyMode:(if $proxy=="" then null else $proxy end),adaptiveRequestedMode:(if $adaptiveRequested=="" then null else $adaptiveRequested end),adaptiveEffectiveMode:(if $adaptiveEffective=="" then null else $adaptiveEffective end),adaptiveQualificationState:(if $adaptiveQualification=="" then null else $adaptiveQualification end),candidateRequestedMode:(if $candidateRequested=="" then null else $candidateRequested end),candidateEffectiveMode:(if $candidateEffective=="" then null else $candidateEffective end),candidateQualificationState:(if $candidateQualification=="" then null else $candidateQualification end),fullCandidateCount:($metrics.fullCandidateCount // null),plannedK:($metrics.plannedK // null),actualUniqueProbeCount:($metrics.actualUniqueProbeCount // null),expansionCount:($metrics.expansionCount // null),fallbackUsed:($metrics.fallbackUsed // null),auditRun:($metrics.auditRun // ($audit.fullAudit // false)),winnerRecall:($audit.winnerRecall // null),topNRecall:($audit.topNRecall // null),severeMiss:($audit.severeMiss // null),reuseAttempted:(if $reuseResult=="" then false else true end),reuseResult:(if $reuseResult=="" then null else $reuseResult end),transactionApplied:($transaction.success // null),measurementDurationMs:($metrics.measurementDurationMs // null),probeDurationMs:($metrics.probeDurationMs // null),contextFingerprint:(if $context=="" then null else $context end)}'
+      '{schemaVersion:1,at:$at,runId:(if $runId=="" then null else $runId end),completed:$completed,result:(if $result=="" then null else $result end),proxyMode:(if $proxy=="" then null else $proxy end),adaptiveRequestedMode:(if $adaptiveRequested=="" then null else $adaptiveRequested end),adaptiveEffectiveMode:(if $adaptiveEffective=="" then null else $adaptiveEffective end),adaptiveQualificationState:(if $adaptiveQualification=="" then null else $adaptiveQualification end),candidateRequestedMode:(if $candidateRequested=="" then null else $candidateRequested end),candidateEffectiveMode:(if $candidateEffective=="" then null else $candidateEffective end),candidateQualificationState:(if $candidateQualification=="" then null else $candidateQualification end),fullCandidateCount:($metrics.fullCandidateCount // null),plannedK:($metrics.plannedK // null),actualUniqueProbeCount:($metrics.actualUniqueProbeCount // null),expansionCount:($metrics.expansionCount // null),fallbackUsed:(if ($metrics|has("fallbackUsed")) then $metrics.fallbackUsed else null end),auditRun:($metrics.auditRun // ($audit.fullAudit // false)),winnerRecall:($audit.winnerRecall // null),topNRecall:($audit.topNRecall // null),severeMiss:($audit.severeMiss // null),reuseAttempted:(if $reuseResult=="" then false else true end),reuseResult:(if $reuseResult=="" then null else $reuseResult end),transactionApplied:($transaction.success // null),measurementDurationMs:($metrics.measurementDurationMs // null),probeDurationMs:($metrics.probeDurationMs // null),contextFingerprint:(if $context=="" then null else $context end)}'
 }
 
 cfip_operational_record_event() {
@@ -97,7 +112,8 @@ cfip_operational_record_event() {
 }
 
 cfip_operational_record_run() {
-    local result="${CFIP_LAST_RESULT:-}" reuse_result=""
+    local result="${CFIP_LAST_RESULT:-}" reuse_result="" event="${1:-completed-run}" reason
+    reason="${2:-$result}"
     if [[ "${CFIP_REUSE_ATTEMPTED:-false}" == true ]]; then
         if [[ "$(jq -r '.actualPolicy // empty' "${CFIP_REUSE_DECISION_FILE:-/dev/null}" 2>/dev/null || true)" == REUSE_CURRENT ]]; then
             reuse_result=success
@@ -107,7 +123,11 @@ cfip_operational_record_run() {
     fi
     local item
     item="$(cfip_operational_record_item true "$result" "$reuse_result")" || return 1
-    cfip_operational_upsert_record "$item"
+    cfip_operational_upsert_record "$item" || return 1
+    # The completed record is authoritative input for the final health
+    # calculation.  Keep the direction one-way: record_run persists, then
+    # update reads; update never records another run.
+    cfip_operational_update "$event" "$reason"
 }
 
 cfip_operational_default_json() {
@@ -169,9 +189,9 @@ cfip_operational_update() {
     adaptive_state="$(cfip_adaptive_state_json 2>/dev/null | jq -r '.qualificationState // .effectiveMode // "unknown"' 2>/dev/null || printf unknown)"
     candidate_state="$(jq -r '.effectiveMode // "native"' "${CFIP_DECISION_FILE:-/dev/null}" 2>/dev/null || printf native)"
     reuse_state="$(jq -r '.actualPolicy // "unknown"' "${CFIP_REUSE_DECISION_FILE:-/dev/null}" 2>/dev/null || printf unknown)"
-    if jq -e --argjson rolling "$rolling" --argjson reasons "$reasons" '($reasons|index("adaptive_regression")) != null or ($reasons|index("candidate_regression")) != null or $rolling.adaptiveRegression == true or $rolling.candidateRegression == true or ($rolling.meaningful == true and (($rolling.runFailureRate // 0) >= 0.40 or ($rolling.reuseValidationFailureRate // 0) >= 0.50 or ($rolling.severeMissRate // 0) >= 0.20))' <<<"{}" >/dev/null 2>&1; then
+    if jq -e --argjson rolling "$rolling" --argjson reasons "$reasons" '($reasons|index("adaptive_regression")) != null or ($reasons|index("candidate_regression")) != null or $rolling.adaptiveRegression == true or $rolling.candidateRegression == true or (($rolling.runFailureMeaningful == true and ($rolling.runFailureRate // 0) >= 0.40) or ($rolling.reuseMeaningful == true and ($rolling.reuseValidationFailureRate // 0) >= 0.50) or ($rolling.auditMeaningful == true and ($rolling.severeMissRate // 0) >= 0.20))' <<<"{}" >/dev/null 2>&1; then
         severity=degraded; recommended=force_full_optimize_and_shadow
-    elif jq -e --argjson rolling "$rolling" --argjson reasons "$reasons" '($rolling.meaningful == true and (($rolling.runFailureRate // 0) >= 0.20 or ($rolling.fallbackRate // 0) >= 0.30 or ($rolling.expansionRunRate // 0) >= 0.50 or ($rolling.reuseValidationFailureRate // 0) >= 0.25)) or ($rolling.meaningful == false and ($rolling.windowSize // 0) > 0) or (($reasons|length) > 0)' <<<"{}" >/dev/null 2>&1; then
+    elif jq -e --argjson rolling "$rolling" --argjson reasons "$reasons" '($rolling.runFailureMeaningful == true and ($rolling.runFailureRate // 0) >= 0.20) or ($rolling.fallbackMeaningful == true and ($rolling.fallbackRate // 0) >= 0.30) or ($rolling.expansionMeaningful == true and ($rolling.expansionRunRate // 0) >= 0.50) or ($rolling.reuseMeaningful == true and ($rolling.reuseValidationFailureRate // 0) >= 0.25) or ($rolling.meaningful == false and ($rolling.windowSize // 0) > 0) or (($reasons|length) > 0)' <<<"{}" >/dev/null 2>&1; then
         severity=warning; recommended=increase_audit_frequency_and_validate_reuse
     else
         severity=healthy; recommended=continue_current_policy

@@ -3,5 +3,6 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"; file="$ROOT/package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
 node --check "$file"
 grep -Eq 'Decision Evidence|Native Holdout|Decision Confidence|Learning Context|Unavailable / Native fallback' "$file"
+grep -Eq 'Rill Runtime: Not installed|Native mode remains available|rill-runtime-preview' "$file"
 grep -Eq 'native|Rill|wins|ties|losses|holdout|fallback' "$file"
 echo 'Intelligence LuCI fail-safe evidence contract passed'
