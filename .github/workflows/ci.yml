@@ -570,7 +570,10 @@ jobs:
             rel="${file#"$asset_dir"/}"
             asset_files=$(jq --arg path "$rel" --arg sha "$hash" '. + [{path:$path,sha256:$sha}]' <<<"$asset_files")
           done < <(find "$asset_dir" -type f \( -name '*.ipk' -o -name '*.apk' \) ! -name 'rill-runtime-preview*' ! -name '*-rill*' -print0)
-          test "$(jq 'length' <<<"$asset_files")" -eq 4
+          # The manifest samples one public base package per packaging family:
+          # one IPK and one APK. Compatibility and Runtime packages remain
+          # qualification artifacts, not public Cloudflare package assets.
+          test "$(jq 'length' <<<"$asset_files")" -eq 2
           rill_evidence_dir="$asset_dir/rill-runtime-integration"
           rill_evidence_file=$(find "$rill_evidence_dir" -type f -name 'rill-runtime-integration.json' -print -quit)
           test -n "$rill_evidence_file"
