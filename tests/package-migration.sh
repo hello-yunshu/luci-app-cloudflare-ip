@@ -23,8 +23,8 @@ ADDON_PACKAGE=luci-app-cloudflare-ip-rill
 
 manager() {
     case "$KIND" in
-        ipk) "$OPKG" --offline-root "$1" --force-depends --force-confold --force-maintainer "${@:2}" ;;
-        apk) "$APK" --root "$1" --network=no --repositories-file /dev/null --allow-untrusted "${@:2}" ;;
+        ipk) "$OPKG" --offline-root "$1" --force-depends --force-maintainer "${@:2}" ;;
+        apk) "$APK" --root "$1" --network=no --repositories-file /dev/null --allow-untrusted --force-non-repository "${@:2}" ;;
         *) echo "unsupported package kind: $KIND" >&2; exit 2 ;;
     esac
 }
