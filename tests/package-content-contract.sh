@@ -9,12 +9,14 @@ case "$KIND" in
     control_member="$(printf '%s\n' "$members" | awk '/^control\.tar/ {print; exit}')"
     data_member="$(printf '%s\n' "$members" | awk '/^data\.tar/ {print; exit}')"
     test -n "$control_member" || { echo 'missing control.tar.* member in IPK' >&2; exit 1; }
-    test -n "$data_member" || { echo 'missing data.tar.* member in IPK' >&2; exit 1; }
+    if [[ "$MODE" != rill ]]; then
+      test -n "$data_member" || { echo 'missing data.tar.* member in IPK' >&2; exit 1; }
+    fi
     tar -xf "$PACKAGE" -C "$TMP" "./$control_member"
-    tar -xf "$PACKAGE" -C "$TMP" "./$data_member"
+    [[ -z "$data_member" ]] || tar -xf "$PACKAGE" -C "$TMP" "./$data_member"
     {
       tar -tf "$TMP/$control_member"
-      tar -tf "$TMP/$data_member"
+      [[ -z "$data_member" ]] || tar -tf "$TMP/$data_member"
     } | sed 's#^\./##' >"$listing"
     ;;
   apk)
