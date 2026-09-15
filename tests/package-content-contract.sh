@@ -65,9 +65,11 @@ fi
 if [[ "$MODE" == preview ]]; then
   required=(usr/bin/rill-runtime)
 fi
-for path in "${required[@]}"; do
-  grep -Fxq "$path" "$listing" || { echo "missing package path: $path" >&2; exit 1; }
-done
+if ((${#required[@]})); then
+  for path in "${required[@]}"; do
+    grep -Fxq "$path" "$listing" || { echo "missing package path: $path" >&2; exit 1; }
+  done
+fi
 if [[ "$MODE" == rill ]]; then
   ! grep -Fxq 'usr/libexec/cf-ip/rill.sh' "$listing"
   ! grep -Fxq 'usr/share/cf-ip/rill-feature-schema-v2.json' "$listing"
