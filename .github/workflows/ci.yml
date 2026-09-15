@@ -121,6 +121,7 @@ jobs:
           bash tests/rill-confidence-single-source.sh
           bash tests/rill-intelligence-status-contract.sh
           bash tests/rill-intelligence-luci-contract.sh
+          bash tests/rill-runtime-absence.sh
           jq empty plans/rill/drift-decision.json
           bash tests/recovery-deadline.sh
           bash tests/transaction-commit-failure.sh
@@ -155,7 +156,14 @@ jobs:
           bash tests/adaptive-run-v2-lifecycle.sh
           bash tests/operational-health.sh
           bash tests/operational-history.sh
+          bash tests/operational-null-sample-contract.sh
+          bash tests/operational-immediate-refresh.sh
           bash tests/run-history-contract.sh
+          bash tests/rill-integration-in-base.sh
+          bash tests/rill-addon-compat-meta.sh
+          bash tests/upgrade-r2-base-to-r3.sh
+          bash tests/upgrade-r2-base-addon-to-r3.sh
+          bash tests/release-download-contract.sh
 
   docker-replay:
     runs-on: ubuntu-latest
@@ -513,7 +521,7 @@ jobs:
           tmp="$RUNNER_TEMP/release-contract"
           mkdir -p "$tmp"
           version=$(sed -n 's/^PKG_VERSION:=//p' package/luci-app-cloudflare-ip/Makefile | head -n1)
-          touch "$tmp/luci-app-cloudflare-ip_${version}-1.ipk" "$tmp/luci-app-cloudflare-ip-rill_${version}-1.ipk" "$tmp/luci-app-cloudflare-ip_${version}-1.apk" "$tmp/luci-app-cloudflare-ip-rill_${version}-1.apk"
+          touch "$tmp/luci-app-cloudflare-ip_${version}-3.ipk" "$tmp/luci-app-cloudflare-ip_${version}-3.apk"
           (cd "$tmp" && sha256sum luci-app-cloudflare-ip* > sha256sums.txt)
           bash tests/release-asset-contract.sh "$tmp" "$version"
 
@@ -554,7 +562,7 @@ jobs:
             hash=$(sha256sum "$file" | awk '{print $1}')
             rel="${file#"$asset_dir"/}"
             asset_files=$(jq --arg path "$rel" --arg sha "$hash" '. + [{path:$path,sha256:$sha}]' <<<"$asset_files")
-          done < <(find "$asset_dir" -type f \( -name '*.ipk' -o -name '*.apk' \) ! -name 'rill-runtime-preview*' -print0)
+          done < <(find "$asset_dir" -type f \( -name '*.ipk' -o -name '*.apk' \) ! -name 'rill-runtime-preview*' ! -name '*-rill*' -print0)
           test "$(jq 'length' <<<"$asset_files")" -eq 4
           rill_evidence_dir="$asset_dir/rill-runtime-integration"
           rill_evidence_file=$(find "$rill_evidence_dir" -type f -name 'rill-runtime-integration.json' -print -quit)

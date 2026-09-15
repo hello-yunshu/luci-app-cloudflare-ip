@@ -30,6 +30,9 @@ function runtimeSummary(status) {
 	if (intelligence.state === 'disabled' || requestedMode === 'off')
 		return _('Disabled / Native ranking');
 
+	if (intelligence.state === 'not-installed')
+		return _('Rill Runtime: Not installed') + ' / ' + _('Native mode remains available');
+
 	return _('Unavailable / Native fallback') + (intelligence.state ? ' / ' + intelligence.state : '');
 }
 
@@ -168,6 +171,13 @@ return view.extend({
 		s.anonymous = true;
 	o = s.option(form.DummyValue, '_state', _('Runtime'));
 	o.cfgvalue = function() { return runtimeSummary(status); };
+	o = s.option(form.DummyValue, '_install_help', _('Runtime installation'));
+	o.cfgvalue = function() {
+		var i = status.intelligence || {};
+		if (i.state === 'not-installed')
+			return _('Install rill-runtime-preview matching your OpenWrt release and CPU architecture.') + ' https://github.com/hello-yunshu/rill-openwrt-packages/releases';
+		return _('Runtime is optional; Native mode remains available without it.');
+	};
 	o = s.option(form.DummyValue, '_channel', _('Runtime Channel'));
 	o.cfgvalue = function() { return (status.intelligence || {}).channel || _('Unknown'); };
 	o = s.option(form.DummyValue, '_api', _('Runtime API'));
