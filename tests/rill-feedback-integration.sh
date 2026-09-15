@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-BIN="${1:?compiled rill-runtime binary required}"; ROOT="$(cd "$(dirname "$0")/.." && pwd)"; TMP="$(mktemp -d)"
+BIN="${1:?compiled rill-runtime binary required}"; ROOT="$(cd "$(dirname "$0")/.." && pwd)"; LIB_DIR="${CFIP_TEST_LIB_DIR:-$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip}"; SCHEMA_FILE="${CFIP_TEST_SCHEMA_FILE:-$ROOT/package/luci-app-cloudflare-ip/root/usr/share/cf-ip/candidate-rill-feature-schema-v2.json}"; TMP="$(mktemp -d)"
 cfip_integration_cleanup() {
   rc=$?
   if ((rc != 0)) && [[ -s "$TMP/log" ]]; then
@@ -27,10 +27,11 @@ rm -f "$TMP/runtime-response.current"
 exit \$rc
 EOF_WRAPPER
 chmod +x "$TMP/runtime-wrapper"
-export CFIP_RUN_ID=shell-feedback-run CFIP_LOG_FILE="$TMP/log" CFIP_RILL_ENABLED=true CFIP_RILL_MODE=shadow CFIP_RILL_RUNTIME="$TMP/runtime-wrapper" CFIP_RILL_STATE="$TMP/state.json" CFIP_RILL_TIMEOUT_S=5 CFIP_RILL_SCHEMA_FILE="$ROOT/package/luci-app-cloudflare-ip/root/usr/share/cf-ip/rill-feature-schema-v2.json"
-source "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/common.sh"
-source "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/observe.sh"
-source "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/rill.sh"
+export CFIP_RUN_ID=shell-feedback-run CFIP_LOG_FILE="$TMP/log" CFIP_RILL_ENABLED=true CFIP_RILL_MODE=shadow CFIP_RILL_RUNTIME="$TMP/runtime-wrapper" CFIP_RILL_STATE="$TMP/state.json" CFIP_RILL_TIMEOUT_S=5 CFIP_RILL_SCHEMA_FILE="$SCHEMA_FILE"
+source "$LIB_DIR/common.sh"
+source "$LIB_DIR/rill-disabled.sh"
+source "$LIB_DIR/observe.sh"
+source "$LIB_DIR/candidate-rill.sh"
 cat >"$TMP/native.json" <<'EOF_NATIVE'
 [{"ip":"104.16.1.1","nativeRank":1,"avgLatencyMs":10,"downloadMBps":20,"lossRate":0,"probeSummary":{"connectMs":10,"tlsMs":10,"ttfbMs":20,"totalMs":40},"eligible":true}]
 EOF_NATIVE

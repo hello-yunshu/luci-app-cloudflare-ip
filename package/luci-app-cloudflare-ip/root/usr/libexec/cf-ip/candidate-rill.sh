@@ -3,7 +3,7 @@
 
 # Cloudflare owns this mapping layer. The generic Runtime remains an external,
 # product-neutral dependency and never receives shell, UCI or service access.
-CFIP_RILL_SCHEMA_FILE="${CFIP_RILL_SCHEMA_FILE:-/usr/share/cf-ip/rill-feature-schema-v2.json}"
+CFIP_RILL_SCHEMA_FILE="${CFIP_RILL_SCHEMA_FILE:-/usr/share/cf-ip/candidate-rill-feature-schema-v2.json}"
 CFIP_RILL_SCHEMA_VERSION=2
 CFIP_RILL_MODEL_GENERATION=2
 CFIP_RILL_CANDIDATE_PARTITION_KEY="${CFIP_RILL_CANDIDATE_PARTITION_KEY:-candidate}"

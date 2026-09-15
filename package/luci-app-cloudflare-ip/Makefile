@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-cloudflare-ip
 PKG_VERSION:=2.6.0
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_MAINTAINER:=yunshu
 PKG_LICENSE:=GPL-3.0
@@ -14,7 +14,6 @@ define Package/luci-app-cloudflare-ip
   CATEGORY:=LuCI
   TITLE:=Cloudflare IP - Safe endpoint orchestration for PassWall/OpenClash on OpenWrt
   DEPENDS:=+luci-base +bash +curl +tar +jq +ca-bundle +ca-certificates +uhttpd
-  REPLACES:=luci-app-cloudflare-ip-rill
   PKGARCH:=all
 endef
 
@@ -67,11 +66,11 @@ define Package/luci-app-cloudflare-ip/install
 	$(INSTALL_DIR) $(1)/usr/libexec/rpcd
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/root/usr/libexec/rpcd/cf_ip $(1)/usr/libexec/rpcd/
 	$(INSTALL_DIR) $(1)/usr/libexec/cf-ip
-	for script in common.sh config.sh status.sh source.sh scheduler.sh cfst.sh observe.sh adaptive-measurement.sh context-policy.sh transaction.sh openclash-transform.sh openclash-readback.sh publisher.sh rill-disabled.sh rill.sh reuse.sh operational-health.sh; do \
+	for script in common.sh config.sh status.sh source.sh scheduler.sh cfst.sh observe.sh adaptive-measurement.sh context-policy.sh transaction.sh openclash-transform.sh openclash-readback.sh publisher.sh rill-disabled.sh candidate-rill.sh reuse.sh operational-health.sh; do \
 		$(INSTALL_BIN) $(PKG_BUILD_DIR)/root/usr/libexec/cf-ip/$$$$script $(1)/usr/libexec/cf-ip/; \
 	done
 	$(INSTALL_DIR) $(1)/usr/share/cf-ip
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/root/usr/share/cf-ip/rill-feature-schema-v2.json $(1)/usr/share/cf-ip/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/root/usr/share/cf-ip/candidate-rill-feature-schema-v2.json $(1)/usr/share/cf-ip/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/root/etc/init.d/cf_ip_publisher $(1)/etc/init.d/
 	$(INSTALL_DIR) $(1)/www/luci-static/resources/view/cloudflare-ip
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/htdocs/luci-static/resources/view/cloudflare-ip/*.js $(1)/www/luci-static/resources/view/cloudflare-ip/
@@ -131,7 +130,7 @@ endef
 
 define Package/luci-app-cloudflare-ip-rill/description
 Deprecated compatibility package.
-Rill integration is now included in luci-app-cloudflare-ip.
+Rill consumer integration is included in luci-app-cloudflare-ip.
 This package only retains dependency compatibility for existing installations.
 endef
 

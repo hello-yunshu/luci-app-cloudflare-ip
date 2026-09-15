@@ -34,8 +34,8 @@
 
 ## 当前状态
 
-- 当前包版本：`2.6.0-r3`
-- 发布标签：`v2.6.0-3`
+- 当前包版本：`2.6.0-r4`
+- 发布标签：`v2.6.0-4`
 - 发布渠道：`prerelease`
 - 2.x 仍属于 2.0 prerelease development line，不代表稳定版
 
@@ -47,8 +47,8 @@
 
 从 [Releases](../../releases) 选择与你的 OpenWrt 版本匹配的主包：
 
-- OpenWrt 24.10.x → 下载 `luci-app-cloudflare-ip_2.6.0-r3_all.ipk`
-- OpenWrt 25.12+ → 下载 `luci-app-cloudflare-ip-2.6.0-r3.apk`
+- OpenWrt 24.10.x → 下载 `luci-app-cloudflare-ip_2.6.0-r4_all.ipk`
+- OpenWrt 25.12+ → 下载 `luci-app-cloudflare-ip-2.6.0-r4.apk`
 
 不要同时安装 IPK 和 APK。Rill 集成代码已经包含在主包中。一个 `luci-app-cloudflare-ip` 主包已经包含 Native 优选、Adaptive Measurement 和 Operational Health；不包含 Rill Runtime binary。
 
@@ -134,6 +134,8 @@ Adaptive Measurement 是 Native 预探测调度层，默认 `shadow`，只消费
 Rill 默认关闭。普通用户不需要 Rill Runtime。只有希望使用 Candidate Rill Shadow / Assisted 时，才需要先安装主包，再从 [rill-openwrt-packages Releases](https://github.com/hello-yunshu/rill-openwrt-packages/releases) 安装与你的 OpenWrt 版本和 CPU 架构匹配的 `rill-runtime-preview`，然后在 LuCI Intelligence 页面启用 Rill。Rill 只作为候选辅助或 Shadow 观测，Native 排序和安全边界始终保留；Rill Runtime 不存在时页面会显示 `Rill Runtime: Not installed`，Native mode remains available。
 
 不要要求新用户手工安装 `luci-app-cloudflare-ip-rill`。它已进入兼容迁移阶段，仅用于已有安装的依赖兼容。
+
+从 2.6.0-r2 或更早 Rill addon 升级：直接安装新的主包即可。旧 addon 不再是运行所需；升级成功后可以保留，也可以移除它。
 
 ### LAN Publisher
 

@@ -36,6 +36,16 @@ def validate(manifest: dict, expected_commit: str | None, require_assets: int | 
     if not eligible:
         return
     require(manifest.get("qualificationState"), manifest["qualificationState"] == "automated-qualification", "qualificationState is not automated-qualification")
+    migration = manifest.get("packageMigration")
+    require(migration, isinstance(migration, dict), "package migration evidence missing")
+    require(migration.get("legacyVersion"), migration.get("legacyVersion") == "2.6.0-r2", "wrong legacy package version")
+    require(migration.get("sourceTag"), migration.get("sourceTag") == "v2.6.0-2", "wrong migration source tag")
+    require(migration.get("sourceSHA"), isinstance(migration.get("sourceSHA"), str) and bool(HEX40.fullmatch(migration["sourceSHA"])), "wrong migration source SHA")
+    require(migration.get("currentSHA"), migration.get("currentSHA") == commit, "migration evidence does not match qualification SHA")
+    for field in ("ipk", "apk"):
+        require(field, migration.get(field) == "PASS", f"package migration {field} is not PASS")
+    for field in ("baseOnlyUpgrade", "baseAddonToBaseUpgrade", "addonRemovalSafe", "r3ToR4", "runtimeAbsent", "runtimePresent"):
+        require(field, migration.get(field) is True, f"package migration {field} is not true")
     rill = manifest.get("rill")
     require(rill, isinstance(rill, dict), "rill evidence missing")
     require(rill.get("schemaVersion"), rill.get("schemaVersion") == 1, "rill schemaVersion must be 1")

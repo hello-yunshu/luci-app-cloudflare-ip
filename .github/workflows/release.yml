@@ -175,7 +175,7 @@ jobs:
           prerelease: true
           make_latest: false
           body: |
-            Cloudflare IP 2.6.0-r3
+            Cloudflare IP 2.6.0-r4
             2.0 prerelease development line
 
             # 下载说明
@@ -194,6 +194,8 @@ jobs:
 
             Compatibility package: the deprecated `luci-app-cloudflare-ip-rill` package is for existing installations only.
             New users do not need to download this package manually.
+
+            旧版 Rill addon 用户：2.6.0-r4 已完成兼容迁移，直接升级主包即可。旧 `luci-app-cloudflare-ip-rill` 可以保留，也可以在升级成功后移除；新主包不再依赖旧 addon 文件。
 
             校验：`sha256sum -c sha256sums.txt`
 

@@ -10,7 +10,7 @@ addon_install="$(awk '/^define Package\/luci-app-cloudflare-ip-rill\/install$/{i
 grep -Fq '+luci-app-cloudflare-ip' <<<"$addon_package"
 grep -Fq '+rill-runtime-preview' <<<"$addon_package"
 grep -Fq 'Deprecated compatibility package.' <<<"$addon_description"
-grep -Fq 'Rill integration is now included in luci-app-cloudflare-ip.' <<<"$addon_description"
+grep -Fq 'Rill consumer integration is included in luci-app-cloudflare-ip.' <<<"$addon_description"
 grep -Fq 'dependency compatibility' <<<"$addon_description"
 ! grep -Eq 'INSTALL_(BIN|DATA|CONF|DIR)' <<<"$addon_install"
 
