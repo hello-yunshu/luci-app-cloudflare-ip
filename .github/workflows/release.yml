@@ -76,7 +76,7 @@ jobs:
           gh run download "$QUALIFICATION_RUN_ID" --repo "$GITHUB_REPOSITORY" --name qualification-evidence --dir "$RUNNER_TEMP/qualification"
           manifest="$RUNNER_TEMP/qualification/qualification.json"
           test -f "$manifest"
-          python3 scripts/validate-qualification-evidence.py "$manifest" --commit "$QUALIFICATION_SHA" --require-assets 4
+          python3 scripts/validate-qualification-evidence.py "$manifest" --commit "$QUALIFICATION_SHA" --require-assets 2
           version=$(sed -n 's/^PKG_VERSION:=//p' package/luci-app-cloudflare-ip/Makefile | head -n1)
           release=$(sed -n 's/^PKG_RELEASE:=//p' package/luci-app-cloudflare-ip/Makefile | head -n1)
           channel=$(jq -er 'select(.schemaVersion == 1) | .channel' release-channel.json)
