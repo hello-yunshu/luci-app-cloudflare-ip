@@ -9,6 +9,7 @@ manifest = {
   "schemaVersion": 1, "commit": commit, "runId": "42", "jobs": {}, "artifacts": [],
   "assetFiles": [{"name": "a.ipk", "sha256": "a" * 64}],
   "qualificationState": "automated-qualification", "releaseEligible": True,
+  "packageMigration": {"legacyVersion": "2.6.0-r2", "sourceTag": "v2.6.0-2", "sourceSHA": "a" * 40, "currentSHA": commit, "ipk": "PASS", "apk": "PASS", "baseOnlyUpgrade": True, "baseAddonToBaseUpgrade": True, "addonRemovalSafe": True, "r3ToR4": True, "runtimeAbsent": True, "runtimePresent": True},
   "rill": {
     "schemaVersion": 1,
     "package": {"repository": "hello-yunshu/rill-openwrt-packages", "commit": "b" * 40, "qualificationRunId": 7, "qualificationManifestSha256": "c" * 64},

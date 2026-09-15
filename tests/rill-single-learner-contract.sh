@@ -5,12 +5,12 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
-RILL="$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/rill.sh"
+RILL="$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh"
 command -v rg >/dev/null 2>&1 || { echo 'ripgrep is required for negative contract checks' >&2; exit 1; }
 ! rg -n 'CFIP_RILL_SOURCE_PARTITION_KEY|CFIP_RILL_REUSE_PARTITION_KEY|cfip_rill_policy_(decide|feedback)|partition_for_kind|state_generation_for_partition' "$RILL" >/dev/null
 
 export CFIP_STATUS_DIR="$TMP" CFIP_RILL_STATE="$TMP/rill-state.json"
-export CFIP_RILL_SCHEMA_FILE="$ROOT/package/luci-app-cloudflare-ip/root/usr/share/cf-ip/rill-feature-schema-v2.json"
+export CFIP_RILL_SCHEMA_FILE="$ROOT/package/luci-app-cloudflare-ip/root/usr/share/cf-ip/candidate-rill-feature-schema-v2.json"
 source "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/common.sh"
 source "$RILL"
 

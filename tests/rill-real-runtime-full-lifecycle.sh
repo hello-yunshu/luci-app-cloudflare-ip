@@ -6,10 +6,10 @@ trap 'rc=$?; if ((rc != 0)); then cat "$TMP/log" 2>/dev/null || true; fi; rm -rf
 test -x "$BIN"
 export CFIP_STATUS_DIR="$TMP" CFIP_RUNTIME_DIR="$TMP/runtime" CFIP_LOG_FILE="$TMP/log" CFIP_RUN_ID=full-lifecycle-1
 export CFIP_RILL_ENABLED=true CFIP_RILL_MODE=shadow CFIP_RILL_RUNTIME="$BIN" CFIP_RILL_STATE="$TMP/rill-state.json" CFIP_RILL_TIMEOUT_S=5
-export CFIP_RILL_SCHEMA_FILE="$ROOT/package/luci-app-cloudflare-ip/root/usr/share/cf-ip/rill-feature-schema-v2.json" CFIP_TARGET_DOMAINS='one.example,ONE.example' CFIP_SPEEDTEST_PROTOCOL=tcp CFIP_IP_TYPE=ipv4
+export CFIP_RILL_SCHEMA_FILE="$ROOT/package/luci-app-cloudflare-ip/root/usr/share/cf-ip/candidate-rill-feature-schema-v2.json" CFIP_TARGET_DOMAINS='one.example,ONE.example' CFIP_SPEEDTEST_PROTOCOL=tcp CFIP_IP_TYPE=ipv4
 source "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/common.sh"
 source "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/observe.sh"
-source "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/rill.sh"
+source "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh"
 mkdir -p "$CFIP_RUNTIME_DIR"
 cfip_probe_one() { jq -cn --arg ip "$1" --arg domain "$2" --arg family "$3" '{ip:$ip,domain:$domain,family:$family,success:true,connectMs:10,tlsMs:10,ttfbMs:20,totalMs:40}'; }
 cat > "$TMP/native.json" <<'JSON'

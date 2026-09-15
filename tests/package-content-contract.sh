@@ -14,6 +14,14 @@ case "$KIND" in
     fi
     tar -xf "$PACKAGE" -C "$TMP" "./$control_member"
     [[ -z "$data_member" ]] || tar -xf "$PACKAGE" -C "$TMP" "./$data_member"
+    case "$control_member" in
+      *.zst) tar --zstd -xOf "$TMP/$control_member" control >"$TMP/control" ;;
+      *.gz) tar -xzOf "$TMP/$control_member" control >"$TMP/control" ;;
+      *) tar -xOf "$TMP/$control_member" control >"$TMP/control" ;;
+    esac
+    if [[ "$MODE" == base ]]; then
+      ! grep -Eiq '^Replaces:' "$TMP/control"
+    fi
     {
       tar -tf "$TMP/$control_member"
       [[ -z "$data_member" ]] || tar -tf "$TMP/$data_member"
@@ -33,6 +41,10 @@ case "$KIND" in
       # with apk adbdump.  There is no data manifest to inspect, by design.
       : >"$listing"
     else
+      metadata="$(${APK:-apk} --allow-untrusted adbdump "$PACKAGE")"
+      if [[ "$MODE" == base ]]; then
+        ! grep -Eiq '(^|[[:space:]])Replaces:' <<<"$metadata"
+      fi
       apk_root="$TMP/apk-root"
       "${APK:-apk}" --root "$apk_root" --network=no \
         --repositories-file /dev/null add --initdb --no-scripts
@@ -56,8 +68,8 @@ required=(
   www/luci-static/resources/view/cloudflare-ip/overview.js
   usr/libexec/cf-ip/common.sh
   usr/libexec/cf-ip/transaction.sh
-  usr/libexec/cf-ip/rill.sh
-  usr/share/cf-ip/rill-feature-schema-v2.json
+  usr/libexec/cf-ip/candidate-rill.sh
+  usr/share/cf-ip/candidate-rill-feature-schema-v2.json
 )
 if [[ "$MODE" == rill ]]; then
   required=()
@@ -71,8 +83,8 @@ if ((${#required[@]})); then
   done
 fi
 if [[ "$MODE" == rill ]]; then
-  ! grep -Fxq 'usr/libexec/cf-ip/rill.sh' "$listing"
-  ! grep -Fxq 'usr/share/cf-ip/rill-feature-schema-v2.json' "$listing"
+  ! grep -Fxq 'usr/libexec/cf-ip/candidate-rill.sh' "$listing"
+  ! grep -Fxq 'usr/share/cf-ip/candidate-rill-feature-schema-v2.json' "$listing"
 fi
 # IPK stores a plain conffiles member; OpenWrt APK stores
 # lib/apk/packages/<package>.conffiles.

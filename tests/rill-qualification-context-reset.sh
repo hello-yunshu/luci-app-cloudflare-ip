@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"; TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
 export CFIP_STATUS_DIR="$TMP" CFIP_RILL_BASE_DIR="$TMP" CFIP_RILL_STATE="$TMP/state.json" CFIP_RILL_QUALIFICATION_FILE="$TMP/qualification.json" CFIP_RILL_HISTORY_FILE="$TMP/history.json" CFIP_RILL_PREFIX_HISTORY_FILE="$TMP/prefix.json" CFIP_RILL_COLO_HISTORY_FILE="$TMP/colo.json" CFIP_RILL_EVIDENCE_FILE="$TMP/evidence.json" CFIP_TARGET_DOMAINS=one.example
-source "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/common.sh"; source "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/rill.sh"
+source "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/common.sh"; source "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh"
 cfip_rill_context_guard; old="$(cfip_rill_context_fingerprint)"
 for file in "$CFIP_RILL_STATE" "$CFIP_RILL_QUALIFICATION_FILE" "$CFIP_RILL_HISTORY_FILE" "$CFIP_RILL_PREFIX_HISTORY_FILE" "$CFIP_RILL_COLO_HISTORY_FILE" "$CFIP_RILL_EVIDENCE_FILE"; do printf '%s\n' '{}' >"$file"; done
 CFIP_TARGET_DOMAINS=two.example; cfip_rill_context_guard

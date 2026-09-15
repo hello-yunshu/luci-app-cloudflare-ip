@@ -35,7 +35,7 @@ CFIP_INPUT_POOL_FILE=""; CFIP_CANDIDATE_INPUT_FILE=""; CFIP_PROBE_INPUT_FILE="";
 for lib in common.sh config.sh status.sh source.sh scheduler.sh cfst.sh observe.sh adaptive-measurement.sh context-policy.sh transaction.sh openclash-transform.sh openclash-readback.sh publisher.sh rill-disabled.sh reuse.sh operational-health.sh; do
     if [[ -r "$CFIP_LIB_DIR/$lib" ]]; then source "$CFIP_LIB_DIR/$lib"; else printf '[cloudflare-ip] ERROR: missing library %s\n' "$CFIP_LIB_DIR/$lib" >&2; exit 1; fi
 done
-if [[ -r "$CFIP_LIB_DIR/rill.sh" ]]; then source "$CFIP_LIB_DIR/rill.sh"; fi
+if [[ -r "$CFIP_LIB_DIR/candidate-rill.sh" ]]; then source "$CFIP_LIB_DIR/candidate-rill.sh"; fi
 
 uci_get() {
     local key="$1" default="${2:-}" value

@@ -161,8 +161,8 @@ jobs:
           bash tests/run-history-contract.sh
           bash tests/rill-integration-in-base.sh
           bash tests/rill-addon-compat-meta.sh
-          bash tests/upgrade-r2-base-to-r3.sh
-          bash tests/upgrade-r2-base-addon-to-r3.sh
+          bash tests/rill-package-layout-contract.sh
+          bash tests/rill-compat-meta-contract.sh
           bash tests/release-download-contract.sh
 
   docker-replay:
@@ -338,6 +338,162 @@ jobs:
           path: output/
           if-no-files-found: error
 
+  package-migration:
+    name: Real package migration (${{ matrix.pkgtype }} OpenWrt ${{ matrix.branch }})
+    needs: openwrt-package
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - branch: v24.10.8
+            pkgtype: ipk
+            arch: x86_64
+          - branch: v25.12.5
+            pkgtype: apk
+            arch: x86_64
+    container:
+      image: ghcr.io/openwrt/sdk:${{ matrix.arch }}-${{ matrix.branch }}
+      options: --user root
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          path: luci-app-cloudflare-ip
+      - uses: actions/checkout@v7
+        with:
+          ref: v2.6.0-2
+          path: legacy-r2
+      - uses: actions/checkout@v7
+        with:
+          ref: v2.6.0-3
+          path: legacy-r3
+      - uses: actions/download-artifact@v8
+        with:
+          name: luci-app-cloudflare-ip-${{ matrix.pkgtype }}-${{ matrix.branch }}
+          path: current-output
+      - uses: actions/download-artifact@v8
+        with:
+          name: luci-app-cloudflare-ip-ipk-v24.10.8
+          path: runtime-output
+      - name: Install the real package manager
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${{ matrix.pkgtype }}" == ipk ]]; then
+            apt-get update
+            apt-get install -y opkg
+            test -x "$(command -v opkg)"
+          else
+            test -x /builder/staging_dir/host/bin/apk
+          fi
+      - name: Download immutable r2 and r3 package inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          work="$GITHUB_WORKSPACE/legacy-input"
+          mkdir -p "$work"
+          curl -fsSL --retry 3 "https://github.com/hello-yunshu/luci-app-cloudflare-ip/releases/download/v2.6.0-2/sha256sums.txt" -o "$work/r2-sha256sums.txt"
+          if [[ "${{ matrix.pkgtype }}" == ipk ]]; then
+            r2_base=luci-app-cloudflare-ip_2.6.0-r2_all.ipk
+            r2_addon=luci-app-cloudflare-ip-rill_2.6.0-r2_all.ipk
+            r3_base=luci-app-cloudflare-ip_2.6.0-r3_all.ipk
+          else
+            r2_base=luci-app-cloudflare-ip-2.6.0-r2.apk
+            r2_addon=luci-app-cloudflare-ip-rill-2.6.0-r2.apk
+            r3_base=luci-app-cloudflare-ip-2.6.0-r3.apk
+          fi
+          for spec in "v2.6.0-2/$r2_base" "v2.6.0-2/$r2_addon" "v2.6.0-3/$r3_base"; do
+            tag="${spec%%/*}"
+            name="${spec#*/}"
+            curl -fsSL --retry 3 "https://github.com/hello-yunshu/luci-app-cloudflare-ip/releases/download/$tag/$name" -o "$work/$name"
+          done
+          (cd "$work" && sha256sum -c r2-sha256sums.txt --ignore-missing)
+          test "$(git -C "$GITHUB_WORKSPACE/legacy-r2" rev-parse HEAD)" = "$(git -C "$GITHUB_WORKSPACE/legacy-r2" rev-parse 'v2.6.0-2^{commit}')"
+          test "$(git -C "$GITHUB_WORKSPACE/legacy-r3" rev-parse HEAD)" = "$(git -C "$GITHUB_WORKSPACE/legacy-r3" rev-parse 'v2.6.0-3^{commit}')"
+      - name: Extract the current qualified Runtime binary
+        shell: bash
+        run: |
+          set -euo pipefail
+          preview_package=$(find runtime-output -type f -name 'rill-runtime-preview*.ipk' -print -quit)
+          test -n "$preview_package"
+          preview_dir="$RUNNER_TEMP/preview"
+          mkdir -p "$preview_dir/data"
+          data_member=$(tar -tf "$preview_package" | sed 's#^\./##' | grep '^data\.tar' | head -n1)
+          tar -xf "$preview_package" -C "$preview_dir" "./$data_member"
+          case "$data_member" in
+            *.zst) tar --zstd -xf "$preview_dir/$data_member" -C "$preview_dir/data" ;;
+            *.gz) tar -xzf "$preview_dir/$data_member" -C "$preview_dir/data" ;;
+            *) tar -xf "$preview_dir/$data_member" -C "$preview_dir/data" ;;
+          esac
+          runtime_bin=$(find "$preview_dir/data" -type f -path '*/usr/bin/rill-runtime' -print -quit)
+          test -x "$runtime_bin"
+          echo "RUNTIME_BIN=$runtime_bin" >> "$GITHUB_ENV"
+      - name: Run the actual opkg or apk migration matrix
+        shell: bash
+        run: |
+          set -euo pipefail
+          work="$GITHUB_WORKSPACE/legacy-input"
+          source_sha=$(git -C "$GITHUB_WORKSPACE/legacy-r2" rev-parse HEAD)
+          current_base=$(find current-output -type f ! -name '*-rill*' -name 'luci-app-cloudflare-ip*.${{ matrix.pkgtype }}' -print -quit)
+          current_addon=$(find current-output -type f -name 'luci-app-cloudflare-ip-rill*.${{ matrix.pkgtype }}' -print -quit)
+          legacy_base="$work/$(if [[ "${{ matrix.pkgtype }}" == ipk ]]; then echo luci-app-cloudflare-ip_2.6.0-r2_all.ipk; else echo luci-app-cloudflare-ip-2.6.0-r2.apk; fi)"
+          legacy_addon="$work/$(if [[ "${{ matrix.pkgtype }}" == ipk ]]; then echo luci-app-cloudflare-ip-rill_2.6.0-r2_all.ipk; else echo luci-app-cloudflare-ip-rill-2.6.0-r2.apk; fi)"
+          r3_base="$work/$(if [[ "${{ matrix.pkgtype }}" == ipk ]]; then echo luci-app-cloudflare-ip_2.6.0-r3_all.ipk; else echo luci-app-cloudflare-ip-2.6.0-r3.apk; fi)"
+          build_historical() {
+            local checkout_dir="$1" output_prefix="$2"
+            cd /builder
+            ./scripts/feeds update base packages luci
+            ./scripts/feeds install luci-base bash curl tar jq ca-bundle ca-certificates uhttpd
+            rm -rf /builder/package/luci-app-cloudflare-ip
+            cp -r "$GITHUB_WORKSPACE/$checkout_dir/package/luci-app-cloudflare-ip" /builder/package/
+            {
+              echo 'CONFIG_PACKAGE_luci-app-cloudflare-ip=y'
+              echo 'CONFIG_PACKAGE_luci-app-cloudflare-ip-rill=y'
+            } >> /builder/.config
+            make defconfig
+            bash "$GITHUB_WORKSPACE/luci-app-cloudflare-ip/scripts/openwrt-build-diagnostic.sh" package/luci-app-cloudflare-ip/compile
+            built_base=$(find /builder/bin -type f ! -name '*-rill*' -name "luci-app-cloudflare-ip*.${{ matrix.pkgtype }}" -print -quit)
+            built_addon=$(find /builder/bin -type f -name "luci-app-cloudflare-ip-rill*.${{ matrix.pkgtype }}" -print -quit)
+            test -n "$built_base"
+            test -n "$built_addon"
+            cp "$built_base" "$work/${output_prefix}-base.${{ matrix.pkgtype }}"
+            cp "$built_addon" "$work/${output_prefix}-addon.${{ matrix.pkgtype }}"
+          }
+          if [[ "${{ matrix.pkgtype }}" == ipk ]]; then
+            probe="$RUNNER_TEMP/opkg-probe"
+            mkdir -p "$probe"
+            if ! opkg --offline-root "$probe" --force-depends --noaction install "$legacy_base" >/dev/null 2>&1 || ! opkg --offline-root "$probe" --force-depends --noaction install "$legacy_addon" >/dev/null 2>&1; then
+              build_historical legacy-r2 r2
+              legacy_base="$work/r2-base.ipk"
+              legacy_addon="$work/r2-addon.ipk"
+            fi
+            if ! opkg --offline-root "$probe" --force-depends --noaction install "$r3_base" >/dev/null 2>&1; then
+              build_historical legacy-r3 r3
+              r3_base="$work/r3-base.ipk"
+            fi
+          else
+            apk_bin=/builder/staging_dir/host/bin/apk
+            if ! "$apk_bin" --allow-untrusted adbdump "$legacy_base" >/dev/null 2>&1 || ! "$apk_bin" --allow-untrusted adbdump "$legacy_addon" >/dev/null 2>&1; then
+              build_historical legacy-r2 r2
+              legacy_base="$work/r2-base.apk"
+              legacy_addon="$work/r2-addon.apk"
+            fi
+            if ! "$apk_bin" --allow-untrusted adbdump "$r3_base" >/dev/null 2>&1; then
+              build_historical legacy-r3 r3
+              r3_base="$work/r3-base.apk"
+            fi
+          fi
+          cd "$GITHUB_WORKSPACE"
+          test -n "$current_base" -a -n "$current_addon"
+          test -x "$RUNTIME_BIN"
+          SOURCE_TAG=v2.6.0-2 SOURCE_SHA="$source_sha" OPKG=opkg APK=/builder/staging_dir/host/bin/apk \
+            R3_BASE="$r3_base" bash luci-app-cloudflare-ip/tests/package-migration.sh "${{ matrix.pkgtype }}" "$legacy_base" "$legacy_addon" "$current_base" "$current_addon" "$RUNTIME_BIN"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: package-migration-${{ matrix.pkgtype }}-${{ matrix.branch }}
+          path: package-migration-evidence.json
+          if-no-files-found: error
+
   rill-runtime-integration:
     name: Same-release generic Runtime integration
     needs: openwrt-package
@@ -449,7 +605,7 @@ jobs:
 
   package-release-guard:
     runs-on: ubuntu-latest
-    needs: [host-contract, openwrt-package, rill-runtime-integration, docker-replay]
+    needs: [host-contract, openwrt-package, package-migration, rill-runtime-integration, docker-replay]
     steps:
       - uses: actions/checkout@v7
       - name: Verify development release guard
@@ -528,13 +684,13 @@ jobs:
           tmp="$RUNNER_TEMP/release-contract"
           mkdir -p "$tmp"
           version=$(sed -n 's/^PKG_VERSION:=//p' package/luci-app-cloudflare-ip/Makefile | head -n1)
-          touch "$tmp/luci-app-cloudflare-ip_${version}-3.ipk" "$tmp/luci-app-cloudflare-ip_${version}-3.apk"
+          touch "$tmp/luci-app-cloudflare-ip_${version}-4.ipk" "$tmp/luci-app-cloudflare-ip_${version}-4.apk"
           (cd "$tmp" && sha256sum luci-app-cloudflare-ip* > sha256sums.txt)
           bash tests/release-asset-contract.sh "$tmp" "$version"
 
   qualification-guard:
     if: always()
-    needs: [host-contract, legacy-contract, rpc-luci-contract, openwrt-package, rill-runtime-integration, package-release-guard, workflow-lint, real-cfst-smoke, release-asset-contract, docker-replay]
+    needs: [host-contract, legacy-contract, rpc-luci-contract, openwrt-package, package-migration, rill-runtime-integration, package-release-guard, workflow-lint, real-cfst-smoke, release-asset-contract, docker-replay]
     runs-on: ubuntu-latest
     steps:
       - name: Require every qualification job
@@ -547,7 +703,7 @@ jobs:
 
   evidence-manifest:
     if: always()
-    needs: [host-contract, legacy-contract, rpc-luci-contract, openwrt-package, rill-runtime-integration, package-release-guard, workflow-lint, real-cfst-smoke, release-asset-contract, docker-replay]
+    needs: [host-contract, legacy-contract, rpc-luci-contract, openwrt-package, package-migration, rill-runtime-integration, package-release-guard, workflow-lint, real-cfst-smoke, release-asset-contract, docker-replay]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -563,6 +719,8 @@ jobs:
           for artifact in luci-app-cloudflare-ip-ipk-v24.10.5 luci-app-cloudflare-ip-apk-v25.12.0; do
             gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$artifact" --dir "$asset_dir/$artifact"
           done
+          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name package-migration-ipk-v24.10.8 --dir "$asset_dir/package-migration-ipk"
+          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name package-migration-apk-v25.12.5 --dir "$asset_dir/package-migration-apk"
           gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name rill-runtime-integration-evidence --dir "$asset_dir/rill-runtime-integration"
           asset_files='[]'
           while IFS= read -r -d '' file; do
@@ -577,6 +735,11 @@ jobs:
           rill_evidence_dir="$asset_dir/rill-runtime-integration"
           rill_evidence_file=$(find "$rill_evidence_dir" -type f -name 'rill-runtime-integration.json' -print -quit)
           test -n "$rill_evidence_file"
+          migration_ipk=$(find "$asset_dir/package-migration-ipk" -type f -name package-migration-evidence.json -print -quit)
+          migration_apk=$(find "$asset_dir/package-migration-apk" -type f -name package-migration-evidence.json -print -quit)
+          test -n "$migration_ipk" -a -n "$migration_apk"
+          PACKAGE_MIGRATION=$(jq -n --argjson ipk "$(cat "$migration_ipk")" --argjson apk "$(cat "$migration_apk")" \
+            '{schemaVersion:1,legacyVersion:$ipk.legacyVersion,sourceTag:$ipk.sourceTag,sourceSHA:$ipk.sourceSHA,currentSHA:$ipk.currentSHA,ipk:$ipk.ipk,apk:$apk.apk,baseOnlyUpgrade:($ipk.baseOnlyUpgrade and $apk.baseOnlyUpgrade),baseAddonToBaseUpgrade:($ipk.baseAddonToBaseUpgrade and $apk.baseAddonToBaseUpgrade),addonRemovalSafe:($ipk.addonRemovalSafe and $apk.addonRemovalSafe),r3ToR4:($ipk.r3ToR4 and $apk.r3ToR4),runtimeAbsent:($ipk.runtimeAbsent and $apk.runtimeAbsent),runtimePresent:($ipk.runtimePresent and $apk.runtimePresent)}')
           ASSET_FILES="$asset_files"
           RILL_EVIDENCE="$(cat "$rill_evidence_file")"
           for json_input in RESULTS ARTIFACTS ASSET_FILES RILL_EVIDENCE; do
@@ -586,7 +749,7 @@ jobs:
               exit 1
             fi
           done
-          RESULTS="$RESULTS" ARTIFACTS="$ARTIFACTS" ASSET_FILES="$ASSET_FILES" RILL_EVIDENCE="$RILL_EVIDENCE" bash tests/evidence-manifest.sh qualification.json
+          RESULTS="$RESULTS" ARTIFACTS="$ARTIFACTS" ASSET_FILES="$ASSET_FILES" RILL_EVIDENCE="$RILL_EVIDENCE" PACKAGE_MIGRATION="$PACKAGE_MIGRATION" bash tests/evidence-manifest.sh qualification.json
       - uses: actions/upload-artifact@v7
         with:
           name: qualification-evidence

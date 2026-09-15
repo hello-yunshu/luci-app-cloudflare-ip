@@ -6,10 +6,10 @@ TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
 export CFIP_LOG_FILE="$TMP/log" CFIP_RILL_ENABLED=true CFIP_RILL_MODE=shadow
-export CFIP_RILL_SCHEMA_FILE="$ROOT/package/luci-app-cloudflare-ip/root/usr/share/cf-ip/rill-feature-schema-v2.json"
+export CFIP_RILL_SCHEMA_FILE="$ROOT/package/luci-app-cloudflare-ip/root/usr/share/cf-ip/candidate-rill-feature-schema-v2.json"
 export CFIP_RILL_STATE="$TMP/state.json" CFIP_STATUS_DIR="$TMP"
 source "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/common.sh"
-source "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/rill.sh"
+source "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh"
 
 old_state="$(jq -cn --arg s '{"handlerStateVersion":2,"featureCount":8,"weights":[],"actions":{}}' \
   '{formatVersion:1,partitions:[{clientIdentityName:"cloudflare-ip",partitionKey:"candidate",handlerSnapshot:{state:($s|explode),stateGeneration:4}}]}')"

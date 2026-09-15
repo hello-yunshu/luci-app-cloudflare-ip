@@ -6,7 +6,7 @@ export CFIP_STATUS_DIR="$TMP" CFIP_RILL_BASE_DIR="$TMP" CFIP_RILL_HOLDOUT_INTERV
 export CFIP_RILL_RUNTIME="$TMP/runtime"; printf '%s\n' '#!/usr/bin/env bash' >"$CFIP_RILL_RUNTIME"; chmod +x "$CFIP_RILL_RUNTIME"
 source "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/common.sh"
 source "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/observe.sh"
-source "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/rill.sh"
+source "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh"
 cat >"$TMP/decision.json" <<'JSON'
 {"decisionId":"holdout-no-feedback","effectiveMode":"assisted","nativeOrder":["104.16.1.1"],"authorityActionId":"104.16.1.2"}
 JSON

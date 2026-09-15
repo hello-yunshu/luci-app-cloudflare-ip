@@ -6,10 +6,10 @@ TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 export CFIP_LOG_FILE="$TMP/log" CFIP_STATUS_DIR="$TMP" CFIP_RILL_STATE="$TMP/state.json"
 export CFIP_RILL_ENABLED=true CFIP_RILL_MODE=shadow
-export CFIP_RILL_SCHEMA_FILE="$ROOT/package/luci-app-cloudflare-ip/root/usr/share/cf-ip/rill-feature-schema-v2.json"
+export CFIP_RILL_SCHEMA_FILE="$ROOT/package/luci-app-cloudflare-ip/root/usr/share/cf-ip/candidate-rill-feature-schema-v2.json"
 export CFIP_RILL_RUNTIME="$TMP/runtime" CFIP_RILL_DELAYED_FEEDBACK_SECONDS=60
 source "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/common.sh"
-source "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/rill.sh"
+source "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh"
 cat >"$CFIP_RILL_RUNTIME" <<'SH'
 #!/usr/bin/env bash
 set -euo pipefail

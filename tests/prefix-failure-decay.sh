@@ -8,7 +8,7 @@ export CFIP_STATUS_DIR="$TMP" CFIP_RUNTIME_DIR="$TMP/runtime" CFIP_LOG_FILE="$TM
 export CFIP_RILL_PREFIX_HISTORY_FILE="$TMP/prefix-history.json" CFIP_RILL_COLO_HISTORY_FILE="$TMP/colo-history.json" CFIP_RILL_HISTORY_FILE="$TMP/history.json"
 export CFIP_RILL_ENABLED=true CFIP_RILL_MODE=shadow
 source "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/common.sh"
-source "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/rill.sh"
+source "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh"
 now="$(date +%s)"
 printf '%s\n' "{\"104.16.1.0/24\":{\"samples\":8,\"successRate\":0.5,\"consecutiveFailures\":3,\"lastSeen\":$((now-604800))}}" >"$CFIP_RILL_PREFIX_HISTORY_FILE"
 printf '%s\n' '{"entries":{}}' >"$CFIP_RILL_COLO_HISTORY_FILE"

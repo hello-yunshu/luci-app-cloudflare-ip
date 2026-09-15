@@ -34,8 +34,8 @@ It does not replace either proxy service and does not rewrite unrelated nodes. M
 
 ## Current status
 
-- Package version: `2.6.0-r3`
-- Release tag: `v2.6.0-3`
+- Package version: `2.6.0-r4`
+- Release tag: `v2.6.0-4`
 - Release channel: `prerelease`
 - The 2.x line remains the 2.0 prerelease development line, not a stable release
 
@@ -47,8 +47,8 @@ Packages are promoted only from a successful exact-head qualification run on `ma
 
 From [Releases](../../releases), choose the base package for your OpenWrt release:
 
-- OpenWrt 24.10.x → download `luci-app-cloudflare-ip_2.6.0-r3_all.ipk`
-- OpenWrt 25.12+ → download `luci-app-cloudflare-ip-2.6.0-r3.apk`
+- OpenWrt 24.10.x → download `luci-app-cloudflare-ip_2.6.0-r4_all.ipk`
+- OpenWrt 25.12+ → download `luci-app-cloudflare-ip-2.6.0-r4.apk`
 
 Do not install both IPK and APK. Rill integration is included in the main package. One `luci-app-cloudflare-ip` base package includes Native ranking, Adaptive Measurement, and Operational Health; it does not include the Rill Runtime binary.
 
@@ -134,6 +134,8 @@ Adaptive Measurement is a Native pre-probe scheduler and defaults to `shadow`. I
 Rill is disabled by default. Most users do not need the Rill Runtime. To use Candidate Rill Shadow / Assisted, install the base package first, then install `rill-runtime-preview` matching your OpenWrt release and CPU architecture from [rill-openwrt-packages Releases](https://github.com/hello-yunshu/rill-openwrt-packages/releases), and enable Rill in the LuCI Intelligence page. Rill is only candidate assistance or Shadow observation; Native ranking and safety boundaries remain authoritative. If the Runtime is absent, the page shows `Rill Runtime: Not installed`; Native mode remains available.
 
 New users do not need to install `luci-app-cloudflare-ip-rill` manually. It is now a deprecated compatibility package for existing installations only.
+
+Upgrading from 2.6.0-r2 or an earlier Rill addon: install the new base package directly. The old addon is no longer required at runtime; after the upgrade succeeds, you may keep it or remove it.
 
 ### LAN Publisher
 
