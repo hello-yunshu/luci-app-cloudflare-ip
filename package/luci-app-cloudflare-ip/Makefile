@@ -136,6 +136,7 @@ This package only retains dependency compatibility for existing installations.
 endef
 
 define Package/luci-app-cloudflare-ip-rill/install
+	:
 endef
 
 $(eval $(call BuildPackage,luci-app-cloudflare-ip-rill))
