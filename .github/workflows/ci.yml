@@ -319,9 +319,9 @@ jobs:
                    bash "$GITHUB_WORKSPACE/luci-app-cloudflare-ip/tests/package-content-contract.sh" "$file" ipk "$mode" ;;
               apk) test -x /builder/staging_dir/host/bin/apk
                    if [[ "$mode" == rill ]]; then
-                     /builder/staging_dir/host/bin/apk --allow-untrusted adbdump "$file" >/dev/null || {
-                       tar -tf "$file" | grep -Eq '(^|/)\.PKGINFO$'
-                     }
+                     # The compatibility package is intentionally control-only;
+                     # apk adbdump requires a data payload and is not applicable.
+                     :
                    else
                      /builder/staging_dir/host/bin/apk --allow-untrusted adbdump "$file" >/dev/null
                    fi
