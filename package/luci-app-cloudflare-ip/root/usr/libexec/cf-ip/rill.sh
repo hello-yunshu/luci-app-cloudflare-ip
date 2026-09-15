@@ -529,6 +529,10 @@ cfip_rill_status_json() {
         jq -cn --arg partition "$partition" '{available:false,state:"disabled",mode:"off",channel:"preview",partitionKey:$partition,featureSchemaVersion:2,modelGeneration:2}'
         return 0
     fi
+    if [[ ! -x "${CFIP_RILL_RUNTIME:-/usr/bin/rill-runtime}" ]]; then
+        jq -cn --arg mode "$CFIP_RILL_MODE" --arg partition "$partition" '{available:false,state:"not-installed",mode:$mode,channel:"preview",partitionKey:$partition,featureSchemaVersion:2,modelGeneration:2,runtimePath:"/usr/bin/rill-runtime",runtimeInstallHint:"Install rill-runtime-preview matching the OpenWrt release and CPU architecture."}'
+        return 0
+    fi
     schema="$(cfip_rill_schema_hash 2>/dev/null || true)"
     [[ -n "$schema" ]] || { jq -cn --arg mode "$CFIP_RILL_MODE" --arg partition "$partition" '{available:false,state:"schema-unavailable",mode:$mode,partitionKey:$partition}'; return 0; }
     request="$(jq -cn --arg id "status-${CFIP_RUN_ID:-status}" --arg schema "$schema" --arg partition "$CFIP_RILL_PARTITION_KEY" \
