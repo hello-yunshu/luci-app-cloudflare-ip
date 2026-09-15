@@ -15,9 +15,9 @@ case "$KIND" in
     tar -xf "$PACKAGE" -C "$TMP" "./$control_member"
     [[ -z "$data_member" ]] || tar -xf "$PACKAGE" -C "$TMP" "./$data_member"
     case "$control_member" in
-      *.zst) tar --zstd -xOf "$TMP/$control_member" control >"$TMP/control" ;;
-      *.gz) tar -xzOf "$TMP/$control_member" control >"$TMP/control" ;;
-      *) tar -xOf "$TMP/$control_member" control >"$TMP/control" ;;
+      *.zst) tar --zstd -xOf "$TMP/$control_member" ./control >"$TMP/control" ;;
+      *.gz) tar -xzOf "$TMP/$control_member" ./control >"$TMP/control" ;;
+      *) tar -xOf "$TMP/$control_member" ./control >"$TMP/control" ;;
     esac
     if [[ "$MODE" == base ]]; then
       ! grep -Eiq '^Replaces:' "$TMP/control"
