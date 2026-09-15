@@ -380,11 +380,12 @@ jobs:
         run: |
           set -euo pipefail
           if [[ "${{ matrix.pkgtype }}" == ipk ]]; then
-            apt-get update
-            apt-get install -y opkg
-            test -x "$(command -v opkg)"
+            opkg_bin="$(find /builder/staging_dir /builder -type f -name opkg -perm -111 -print -quit 2>/dev/null || true)"
+            test -n "$opkg_bin"
+            echo "OPKG_BIN=$opkg_bin" >> "$GITHUB_ENV"
           else
             test -x /builder/staging_dir/host/bin/apk
+            echo 'APK_BIN=/builder/staging_dir/host/bin/apk' >> "$GITHUB_ENV"
           fi
       - name: Download immutable r2 and r3 package inputs
         shell: bash
@@ -462,12 +463,12 @@ jobs:
           if [[ "${{ matrix.pkgtype }}" == ipk ]]; then
             probe="$RUNNER_TEMP/opkg-probe"
             mkdir -p "$probe"
-            if ! opkg --offline-root "$probe" --force-depends --noaction install "$legacy_base" >/dev/null 2>&1 || ! opkg --offline-root "$probe" --force-depends --noaction install "$legacy_addon" >/dev/null 2>&1; then
+            if ! "$OPKG_BIN" --offline-root "$probe" --force-depends --noaction install "$legacy_base" >/dev/null 2>&1 || ! "$OPKG_BIN" --offline-root "$probe" --force-depends --noaction install "$legacy_addon" >/dev/null 2>&1; then
               build_historical legacy-r2 r2
               legacy_base="$work/r2-base.ipk"
               legacy_addon="$work/r2-addon.ipk"
             fi
-            if ! opkg --offline-root "$probe" --force-depends --noaction install "$r3_base" >/dev/null 2>&1; then
+            if ! "$OPKG_BIN" --offline-root "$probe" --force-depends --noaction install "$r3_base" >/dev/null 2>&1; then
               build_historical legacy-r3 r3
               r3_base="$work/r3-base.ipk"
             fi
@@ -486,7 +487,7 @@ jobs:
           cd "$GITHUB_WORKSPACE"
           test -n "$current_base" -a -n "$current_addon"
           test -x "$RUNTIME_BIN"
-          SOURCE_TAG=v2.6.0-2 SOURCE_SHA="$source_sha" OPKG=opkg APK=/builder/staging_dir/host/bin/apk \
+          SOURCE_TAG=v2.6.0-2 SOURCE_SHA="$source_sha" OPKG="${OPKG_BIN:-opkg}" APK="${APK_BIN:-apk}" \
             R3_BASE="$r3_base" bash luci-app-cloudflare-ip/tests/package-migration.sh "${{ matrix.pkgtype }}" "$legacy_base" "$legacy_addon" "$current_base" "$current_addon" "$RUNTIME_BIN"
       - uses: actions/upload-artifact@v7
         with:

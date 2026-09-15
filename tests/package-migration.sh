@@ -57,8 +57,20 @@ remove_package() {
 assert_installed() {
     local root="$1" package="$2"
     case "$KIND" in
-        ipk) manager "$root" status "$package" | grep -Eq '^Status: install (ok )?installed$' ;;
-        apk) manager "$root" info -e "$package" >/dev/null ;;
+        ipk)
+            if ! manager "$root" status "$package" | grep -Eq '^Status: install (ok )?installed$'; then
+                echo "package is not installed: kind=$KIND package=$package root=$root" >&2
+                manager "$root" status "$package" >&2 || true
+                exit 1
+            fi
+            ;;
+        apk)
+            if ! manager "$root" info -e "$package" >/dev/null; then
+                echo "package is not installed: kind=$KIND package=$package root=$root" >&2
+                manager "$root" info >&2 || true
+                exit 1
+            fi
+            ;;
     esac
 }
 
@@ -72,12 +84,23 @@ package_files() {
 
 assert_owner() {
     local root="$1" package="$2" path="$3"
-    package_files "$root" "$package" | grep -Eq "(^|[[:space:]])${path#/}(\$|[[:space:]])|(^|[[:space:]])$path(\$|[[:space:]])"
+    local listing
+    listing="$(package_files "$root" "$package")" || {
+        echo "could not list package files: kind=$KIND package=$package root=$root" >&2
+        exit 1
+    }
+    if ! grep -Eq "(^|[[:space:]])${path#/}(\$|[[:space:]])|(^|[[:space:]])$path(\$|[[:space:]])" <<<"$listing"; then
+        echo "$package does not own $path (kind=$KIND root=$root)" >&2
+        printf '%s\n' "$listing" >&2
+        exit 1
+    fi
 }
 
 assert_not_owner() {
     local root="$1" package="$2" path="$3"
-    if package_files "$root" "$package" 2>/dev/null | grep -Eq "(^|[[:space:]])${path#/}(\$|[[:space:]])|(^|[[:space:]])$path(\$|[[:space:]])"; then
+    local listing
+    listing="$(package_files "$root" "$package" 2>/dev/null || true)"
+    if grep -Eq "(^|[[:space:]])${path#/}(\$|[[:space:]])|(^|[[:space:]])$path(\$|[[:space:]])" <<<"$listing"; then
         echo "$package unexpectedly owns $path" >&2
         exit 1
     fi
@@ -127,6 +150,7 @@ fresh_root() {
 
 run_scenario() {
     local name="$1" root
+    echo "running real $KIND package migration scenario $name"
     root="$(fresh_root "$name")"
     shift
     "$@" "$root"
