@@ -1,0 +1,14 @@
+
+REPRO CFI-01: validate staged candidate, without commit
+{"success":true,"valid":true,"mode":"passwall","cron_interval":"6h"}
+CONFIRMED: validation moved existing model state out of canonical path
+CONFIRMED: validation moved qualification out of canonical path
+
+REPRO CFI-02: failed service stop during sync
+{"success":false,"error":"failed to stop proxy service"}
+after sync failure: state=PREPARED stopped=passwall snapshot=/tmp/tmp.44h5girFbT/txn
+CONFIRMED: sync returned with no rollback/restore and retained active snapshot
+
+REPRO CFI-03: successful reuse HTTP probe is classified loss=1
+{"validated":true,"probeLoss":[1]}
+CONFIRMED: default reuse gate rejects every successful probe with current-IP record shape
