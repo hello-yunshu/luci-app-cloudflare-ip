@@ -1,0 +1,770 @@
+[
+  {
+    "test": "adaptive-candidate-coexistence.sh",
+    "rc": 0,
+    "seconds": 0.48,
+    "output": "Adaptive and Candidate coexistence preserves Native authority and one learner boundary\n"
+  },
+  {
+    "test": "adaptive-deterministic-exploration.sh",
+    "rc": 127,
+    "seconds": 1.38,
+    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/adaptive-measurement.sh: line 118: sha256sum: command not found\n"
+  },
+  {
+    "test": "adaptive-evidence-byte-cap.sh",
+    "rc": 0,
+    "seconds": 2.14,
+    "output": "Adaptive evidence is bounded at write time and retains newest records\n"
+  },
+  {
+    "test": "adaptive-expansion-multi-batch.sh",
+    "rc": 0,
+    "seconds": 6.19,
+    "output": "Adaptive expansion advances through three unique batches\n"
+  },
+  {
+    "test": "adaptive-expansion-unique-count.sh",
+    "rc": 0,
+    "seconds": 0.62,
+    "output": "Adaptive safe and selected counts are unique by IP\n"
+  },
+  {
+    "test": "adaptive-guarded-run-lifecycle.sh",
+    "rc": 2,
+    "seconds": 1.97,
+    "output": "jq: Bad JSON in --slurpfile full /proc/1439/fd/63: Could not open /proc/1439/fd/63: No such file or directory\n"
+  },
+  {
+    "test": "adaptive-measurement.sh",
+    "rc": 1,
+    "seconds": 2.69,
+    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/adaptive-measurement.sh: line 118: sha256sum: command not found\n/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/adaptive-measurement.sh: line 118: 16#: invalid integer constant (error token is \"16#\")\n"
+  },
+  {
+    "test": "adaptive-multi-ip-qualification.sh",
+    "rc": 2,
+    "seconds": 1.72,
+    "output": "jq: Bad JSON in --slurpfile full /proc/150/fd/63: Could not open /proc/150/fd/63: No such file or directory\n"
+  },
+  {
+    "test": "adaptive-off-no-side-effect.sh",
+    "rc": 1,
+    "seconds": 1.53,
+    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/adaptive-measurement.sh: line 118: sha256sum: command not found\n/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/adaptive-measurement.sh: line 118: 16#: invalid integer constant (error token is \"16#\")\n"
+  },
+  {
+    "test": "adaptive-preprobe-feature-contract.sh",
+    "rc": 0,
+    "seconds": 0.83,
+    "output": "Adaptive pre-probe feature contract passed\n"
+  },
+  {
+    "test": "adaptive-run-v2-lifecycle.sh",
+    "rc": 127,
+    "seconds": 0.45,
+    "output": "tests/adaptive-run-v2-lifecycle.sh: line 7: chmod: command not found\n"
+  },
+  {
+    "test": "adaptive-scheduler-deterministic.sh",
+    "rc": 0,
+    "seconds": 0.77,
+    "output": "Adaptive scheduler deterministic contract passed\n"
+  },
+  {
+    "test": "adaptive-shadow-no-influence.sh",
+    "rc": 1,
+    "seconds": 1.94,
+    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/adaptive-measurement.sh: line 118: sha256sum: command not found\n/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/adaptive-measurement.sh: line 118: 16#: invalid integer constant (error token is \"16#\")\n"
+  },
+  {
+    "test": "cfst-version-contract.sh",
+    "rc": 127,
+    "seconds": 0.38,
+    "output": "tests/cfst-version-contract.sh: line 15: chmod: command not found\n"
+  },
+  {
+    "test": "cron-contract.sh",
+    "rc": 0,
+    "seconds": 2.31,
+    "output": "cron/init/CLI roundtrip contract passed\n"
+  },
+  {
+    "test": "cron-semantic-validation.sh",
+    "rc": 0,
+    "seconds": 0.25,
+    "output": "cron semantic validation contract passed\n"
+  },
+  {
+    "test": "delayed-feedback-lifecycle-contract.sh",
+    "rc": 127,
+    "seconds": 0.44,
+    "output": "tests/delayed-feedback-lifecycle-contract.sh: line 15: chmod: command not found\n"
+  },
+  {
+    "test": "delayed-feedback-reset-lineage.sh",
+    "rc": 127,
+    "seconds": 0.45,
+    "output": "tests/delayed-feedback-reset-lineage.sh: line 19: chmod: command not found\n"
+  },
+  {
+    "test": "disabled-cron-contract.sh",
+    "rc": 0,
+    "seconds": 0.36,
+    "output": "Disabled configuration removes stale cron entries contract passed\n"
+  },
+  {
+    "test": "evaluation-freshness.sh",
+    "rc": 0,
+    "seconds": 1.12,
+    "output": "Evaluation freshness downgrades stale qualification and permits fresh recovery\n"
+  },
+  {
+    "test": "evidence-manifest-default.sh",
+    "rc": 49,
+    "seconds": 0.95,
+    "output": "Python was not found; run without arguments to install from the Microsoft Store, or disable this shortcut from Settings > Apps > Advanced app settings > App execution aliases.\n"
+  },
+  {
+    "test": "external-operation-timeout-tree.sh",
+    "rc": 0,
+    "seconds": 0.3,
+    "output": "external operation timeout tree contract passed\n"
+  },
+  {
+    "test": "history-freshness.sh",
+    "rc": 0,
+    "seconds": 0.89,
+    "output": "history freshness contract passed\n"
+  },
+  {
+    "test": "holdout-multidomain-complete.sh",
+    "rc": 0,
+    "seconds": 7.5,
+    "output": "Holdout comparison requires a complete record for every target domain\n"
+  },
+  {
+    "test": "immutable-tag-contract.sh",
+    "rc": 0,
+    "seconds": 1.53,
+    "output": "Immutable tag contract passed\n"
+  },
+  {
+    "test": "installed-routing-contract.sh",
+    "rc": 0,
+    "seconds": 0.52,
+    "output": "Installed-aware LuCI routing contract passed\n"
+  },
+  {
+    "test": "ipv6-prefix-contract.sh",
+    "rc": "TIMEOUT",
+    "seconds": 55,
+    "output": "Command '['C:\\\\Users\\\\hello\\\\.cache\\\\codex-runtimes\\\\codex-primary-runtime\\\\dependencies\\\\native\\\\git\\\\usr\\\\bin\\\\sh.exe', '-c', 'export PATH=/c/Users/hello/Documents/Codex/2026-10-05/new-chat/work/bin:/usr/bin:$PATH; bash tests/ipv6-prefix-contract.sh']' timed out after 55 seconds"
+  },
+  {
+    "test": "luci-staged-validation.sh",
+    "rc": 127,
+    "seconds": 0.44,
+    "output": "tests/luci-staged-validation.sh: line 64: chmod: command not found\n"
+  },
+  {
+    "test": "luci-validation-contract.sh",
+    "rc": 0,
+    "seconds": 0.75,
+    "output": "LuCI validation RPC-before-apply contract passed\n"
+  },
+  {
+    "test": "monotonic-deadline.sh",
+    "rc": 0,
+    "seconds": 0.72,
+    "output": "monotonic deadline contract passed\n"
+  },
+  {
+    "test": "multi-ip-diversity-contract.sh",
+    "rc": 0,
+    "seconds": 1.23,
+    "output": "Native-safe multi-IP diversity contract passed\n"
+  },
+  {
+    "test": "no-delay-contract.sh",
+    "rc": 0,
+    "seconds": 0.3,
+    "output": "no-delay override contract passed\n"
+  },
+  {
+    "test": "openclash-intended-mapping-negative.sh",
+    "rc": 0,
+    "seconds": 2.33,
+    "output": "OpenClash IntendedMapping negative behavior passed\n"
+  },
+  {
+    "test": "openclash-protocol-eligibility.sh",
+    "rc": 0,
+    "seconds": 6.2,
+    "output": "OpenClash canonical eligibility contract passed\n"
+  },
+  {
+    "test": "openclash-protocol-matrix.sh",
+    "rc": 0,
+    "seconds": 51.12,
+    "output": "openclash protocol matrix passed\n"
+  },
+  {
+    "test": "openclash-xhttp-filter.sh",
+    "rc": 0,
+    "seconds": 27.08,
+    "output": "ok openclash xhttp filter\n[cloudflare-ip] updating OpenClash config: /tmp/tmp.GC9gPGBp8a/clash-proxies.yaml\n[cloudflare-ip] skip OpenClash proxy 'VLESS-ws': network=ws not in OPENCLASH_TRANSPORT_FILTER (xhttp)\n[cloudflare-ip] OpenClash proxy 'VLESS-xhttp' selected as template for uicbrmo.hey.run; generating 4 marked variant(s)\n[cloudflare-ip] OpenClash proxy 'VLESS-xhttp' -> 'VLESS-xhttp [CF-1]'; server -> 172.64.53.65; domain kept as uicbrmo.hey.run\n[cloudflare-ip] OpenClash proxy 'VLESS-xhttp' -> 'VLESS-xhttp [CF-2]'; server -> 172.64.229.52; domain kept as uicbrmo.hey.run\n[cloudflare-ip] OpenClash proxy 'VLESS-xhttp' -> 'VLESS-xhttp [CF-3]'; server -> 162.159.33.150; domain kept as uicbrmo.hey.run\n[cloudflare-ip] OpenClash proxy 'VLESS-xhttp' -> 'VLESS-xhttp [CF-4]'; server -> 162.159.39.96; domain kept as uicbrmo.hey.run\n[cloudflare-ip] OpenClash config updated, backup saved to /tmp/tmp.GC9gPGBp8a/clash-proxies.yaml.bak.20261005044028\n[cloudflare-ip] updating OpenClash config: /tmp/tmp.GC9gPGBp8a/clash-proxies.yaml\n[cloudflare-ip] skip OpenClash proxy 'VLESS-ws [CF-1]': network=ws not in OPENCLASH_TRANSPORT_FILTER (xhttp)\n[cloudflare-ip] OpenClash proxy 'VLESS-xhttp [CF-1]' server -> 172.64.53.65; domain kept as uicbrmo.hey.run\n[cloudflare-ip] OpenClash proxy 'VLESS-xhttp [CF-1]' -> 'VLESS-xhttp [CF-2]'; server -> 172.64.229.52; domain kept as uicbrmo.hey.run\n[cloudflare-ip] OpenClash proxy 'VLESS-xhttp [CF-1]' -> 'VLESS-xhttp [CF-3]'; server -> 162.159.33.150; domain kept as uicbrmo.hey.run\n[cloudflare-ip] OpenClash proxy 'VLESS-xhttp [CF-1]' -> 'VLESS-xhttp [CF-4]'; server -> 162.159.39.96; domain kept as uicbrmo.hey.run\n[cloudflare-ip] OpenClash config updated, backup saved to /tmp/tmp.GC9gPGBp8a/clash-proxies.yaml.bak.20261005044037\n[cloudflare-ip] updating OpenClash config: /tmp/tmp.GC9gPGBp8a/clash-proxies.yaml\n[cloudflare-ip] OpenClash proxy 'VLESS-xhttp' selected as template for uicbrmo.hey.run; generating 2 marked variant(s)\n[cloudflare-ip] OpenClash proxy 'VLESS-xhttp' -> 'VLESS-xhttp [CF-1]'; server -> 104.18.1.1; domain kept as uicbrmo.hey.run\n[cloudflare-ip] OpenClash proxy 'VLESS-xhttp' -> 'VLESS-xhttp [CF-2]'; server -> 104.18.1.2; domain kept as uicbrmo.hey.run\n[cloudflare-ip] OpenClash config updated, backup saved to /tmp/tmp.GC9gPGBp8a/clash-proxies.yaml.bak.20261005044044\n"
+  },
+  {
+    "test": "operational-health.sh",
+    "rc": 0,
+    "seconds": 8.89,
+    "output": "Operational health warning/degraded states and conservative downgrade guardrails passed\n"
+  },
+  {
+    "test": "operational-history.sh",
+    "rc": 0,
+    "seconds": 43.52,
+    "output": "Operational history bounded/quarantine/rolling/reuse-failure contracts passed\n"
+  },
+  {
+    "test": "operational-immediate-refresh.sh",
+    "rc": "TIMEOUT",
+    "seconds": 55,
+    "output": "Command '['C:\\\\Users\\\\hello\\\\.cache\\\\codex-runtimes\\\\codex-primary-runtime\\\\dependencies\\\\native\\\\git\\\\usr\\\\bin\\\\sh.exe', '-c', 'export PATH=/c/Users/hello/Documents/Codex/2026-10-05/new-chat/work/bin:/usr/bin:$PATH; bash tests/operational-immediate-refresh.sh']' timed out after 55 seconds"
+  },
+  {
+    "test": "operational-null-sample-contract.sh",
+    "rc": 0,
+    "seconds": 2.27,
+    "output": "Operational comparable-sample null denominator contract passed\n"
+  },
+  {
+    "test": "package-content-contract.sh",
+    "rc": 1,
+    "seconds": 0.17,
+    "output": "tests/package-content-contract.sh: line 3: 1: package path required\n"
+  },
+  {
+    "test": "package-release-bump-contract.sh",
+    "rc": 0,
+    "seconds": 0.56,
+    "output": "Package release bump contract passed for v2.6.0-4\n"
+  },
+  {
+    "test": "passwall-managed.sh",
+    "rc": 127,
+    "seconds": 0.58,
+    "output": "tests/passwall-managed.sh: line 25: chmod: command not found\n"
+  },
+  {
+    "test": "prefix-colo-intelligence.sh",
+    "rc": 0,
+    "seconds": 3.56,
+    "output": "Prefix aggregate, IPv6 normalization and Colo intelligence passed\n"
+  },
+  {
+    "test": "prefix-failure-decay.sh",
+    "rc": 0,
+    "seconds": 1.8,
+    "output": "Prefix failure penalty decay contract passed\n"
+  },
+  {
+    "test": "probe-batching.sh",
+    "rc": 0,
+    "seconds": 3.34,
+    "output": "Batched probe and deterministic early-stop contract passed\n"
+  },
+  {
+    "test": "qualification-evidence-validator.sh",
+    "rc": 49,
+    "seconds": 0.5,
+    "output": "Python was not found; run without arguments to install from the Microsoft Store, or disable this shortcut from Settings > Apps > Advanced app settings > App execution aliases.\n"
+  },
+  {
+    "test": "recovery-deadline.sh",
+    "rc": 127,
+    "seconds": 0.39,
+    "output": "tests/recovery-deadline.sh: line 14: chmod: command not found\n"
+  },
+  {
+    "test": "regex-ip-suffix.sh",
+    "rc": 0,
+    "seconds": 8.77,
+    "output": "ok regex and {ip} suffix tests\n[cloudflare-ip] updating OpenClash config: /tmp/tmp.Unwfg6Fagf/clash-proxies.yaml\n[cloudflare-ip] OpenClash proxy 'VLESS-ws' selected as template for uicbrmo.hey.run; generating 2 marked variant(s)\n[cloudflare-ip] OpenClash proxy 'VLESS-ws' -> 'VLESS-ws [CF-1]-172.64.53.65'; server -> 172.64.53.65; domain kept as uicbrmo.hey.run\n[cloudflare-ip] OpenClash proxy 'VLESS-ws' -> 'VLESS-ws [CF-2]-172.64.229.52'; server -> 172.64.229.52; domain kept as uicbrmo.hey.run\n[cloudflare-ip] OpenClash config updated, backup saved to /tmp/tmp.Unwfg6Fagf/clash-proxies.yaml.bak.20261005044345\n[cloudflare-ip] updating OpenClash config: /tmp/tmp.Unwfg6Fagf/clash-proxies.yaml\n[cloudflare-ip] OpenClash proxy 'VLESS-ws [CF-1]-172.64.53.65' server -> 172.64.53.65; domain kept as uicbrmo.hey.run\n[cloudflare-ip] OpenClash proxy 'VLESS-ws [CF-2]-172.64.229.52' server -> 172.64.229.52; domain kept as uicbrmo.hey.run\n[cloudflare-ip] OpenClash config updated, backup saved to /tmp/tmp.Unwfg6Fagf/clash-proxies.yaml.bak.20261005044350\n"
+  },
+  {
+    "test": "release-channel-contract.sh",
+    "rc": 0,
+    "seconds": 0.5,
+    "output": "Prerelease channel contract passed\n"
+  },
+  {
+    "test": "release-download-contract.sh",
+    "rc": 0,
+    "seconds": 1.19,
+    "output": "Release and README download guidance contract passed\n"
+  },
+  {
+    "test": "release-tag-immutability.sh",
+    "rc": 0,
+    "seconds": 0.48,
+    "output": "Release workflow contains pre-upload immutable tag guard and post-publish identity check\n"
+  },
+  {
+    "test": "resource-pressure-contract.sh",
+    "rc": 127,
+    "seconds": 0.42,
+    "output": "tests/resource-pressure-contract.sh: line 20: chmod: command not found\n"
+  },
+  {
+    "test": "reuse-fresh-lifecycle.sh",
+    "rc": 127,
+    "seconds": 4.44,
+    "output": "environment: line 44: sha256sum: command not found\nenvironment: line 45: 16#: invalid integer constant (error token is \"16#\")\n"
+  },
+  {
+    "test": "reuse-policy-contract.sh",
+    "rc": 127,
+    "seconds": 0.52,
+    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/reuse.sh: line 28: sha256sum: command not found\njq: error: writing output failed: Invalid argument\n"
+  },
+  {
+    "test": "reuse-runtime-independence.sh",
+    "rc": 127,
+    "seconds": 0.53,
+    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/reuse.sh: line 28: sha256sum: command not found\njq: error: writing output failed: Invalid argument\n"
+  },
+  {
+    "test": "rill-addon-compat-meta.sh",
+    "rc": 0,
+    "seconds": 0.58,
+    "output": "Rill addon remains a dependency-preserving compatibility meta package\n"
+  },
+  {
+    "test": "rill-assisted-authority-fallback.sh",
+    "rc": 0,
+    "seconds": 5.81,
+    "output": "{}\nAssisted unhealthy fallback preserves Native transaction selection\n"
+  },
+  {
+    "test": "rill-assisted-continuous-qualification.sh",
+    "rc": 1,
+    "seconds": 1.58,
+    "output": "tests/rill-assisted-continuous-qualification.sh: line 8: seq: command not found\njq: error: Could not open file C:/Users/hello/AppData/Local/Temp/tmp.1VYnd0as3g/qualification.json: No such file or directory\n"
+  },
+  {
+    "test": "rill-assisted-holdout.sh",
+    "rc": 0,
+    "seconds": 21.58,
+    "output": "Assisted holdout is evaluation-only and preserves production selection\n"
+  },
+  {
+    "test": "rill-assisted-regression-downgrade.sh",
+    "rc": 1,
+    "seconds": 1.58,
+    "output": "tests/rill-assisted-regression-downgrade.sh: line 9: seq: command not found\n"
+  },
+  {
+    "test": "rill-assisted-resource-pressure-selection.sh",
+    "rc": 0,
+    "seconds": 29.86,
+    "output": "Assisted resource-pressure fallback preserves Native transaction selection\n"
+  },
+  {
+    "test": "rill-compat-meta-contract.sh",
+    "rc": 0,
+    "seconds": 5.55,
+    "output": "Candidate Rill consumer integration is owned by the base package on collision-free paths\nRill addon remains a dependency-preserving compatibility meta package\nr2 base plus addon to r4 has collision-free ownership and a compatibility dependency path\n"
+  },
+  {
+    "test": "rill-confidence-single-source.sh",
+    "rc": 127,
+    "seconds": 4.97,
+    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 91: sha256sum: command not found\n"
+  },
+  {
+    "test": "rill-context-change-reset.sh",
+    "rc": 127,
+    "seconds": 2.58,
+    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 97: sha256sum: command not found\n"
+  },
+  {
+    "test": "rill-context-fingerprint.sh",
+    "rc": 127,
+    "seconds": 5.75,
+    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 91: sha256sum: command not found\n"
+  },
+  {
+    "test": "rill-context-lineage-rotation.sh",
+    "rc": 127,
+    "seconds": 3.31,
+    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 97: sha256sum: command not found\n"
+  },
+  {
+    "test": "rill-context-nonmaterial-config-change.sh",
+    "rc": 127,
+    "seconds": 3.39,
+    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 97: sha256sum: command not found\n"
+  },
+  {
+    "test": "rill-context-pending-feedback-isolation.sh",
+    "rc": 127,
+    "seconds": 2.83,
+    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 97: sha256sum: command not found\n"
+  },
+  {
+    "test": "rill-context-requalification-lifecycle.sh",
+    "rc": 127,
+    "seconds": 3.08,
+    "output": "tests/rill-context-requalification-lifecycle.sh: line 7: chmod: command not found\n"
+  },
+  {
+    "test": "rill-decision-confidence.sh",
+    "rc": 1,
+    "seconds": 19.34,
+    "output": ""
+  },
+  {
+    "test": "rill-disabled-noexec.sh",
+    "rc": 127,
+    "seconds": 2.06,
+    "output": "tests/rill-disabled-noexec.sh: line 8: chmod: command not found\n"
+  },
+  {
+    "test": "rill-evidence-byte-cap.sh",
+    "rc": 2,
+    "seconds": 3.03,
+    "output": "tests/rill-evidence-byte-cap.sh: line 8: seq: command not found\ntests/rill-evidence-byte-cap.sh: line 9: /tmp/tmp.4ZRhUDKKOh/evidence.json: No such file or directory\ntests/rill-evidence-byte-cap.sh: line 9: test: : integer expression expected\n"
+  },
+  {
+    "test": "rill-evidence-corruption.sh",
+    "rc": 0,
+    "seconds": 3.95,
+    "output": "Corrupt evidence is quarantined fail-closed\n"
+  },
+  {
+    "test": "rill-evidence-store.sh",
+    "rc": 1,
+    "seconds": 2.84,
+    "output": "tests/rill-evidence-store.sh: line 9: seq: command not found\njq: error: Could not open file C:/Users/hello/AppData/Local/Temp/tmp.VFMqWUQRCZ/rill-evidence.json: No such file or directory\n"
+  },
+  {
+    "test": "rill-feedback-integration.sh",
+    "rc": 1,
+    "seconds": 0.55,
+    "output": "tests/rill-feedback-integration.sh: line 3: 1: compiled rill-runtime binary required\n"
+  },
+  {
+    "test": "rill-feedback-negative.sh",
+    "rc": 127,
+    "seconds": 2.14,
+    "output": "tests/rill-feedback-negative.sh: line 37: chmod: command not found\n"
+  },
+  {
+    "test": "rill-guarded-assisted.sh",
+    "rc": 1,
+    "seconds": 8.17,
+    "output": ""
+  },
+  {
+    "test": "rill-health-contract.sh",
+    "rc": 127,
+    "seconds": 2.0,
+    "output": "tests/rill-health-contract.sh: line 36: chmod: command not found\n"
+  },
+  {
+    "test": "rill-holdout-budget-censor.sh",
+    "rc": 0,
+    "seconds": 8.81,
+    "output": "Holdout measurement-budget exhaustion is censored and never recorded as Native loss\n"
+  },
+  {
+    "test": "rill-holdout-budget.sh",
+    "rc": 1,
+    "seconds": 4.61,
+    "output": "tests/rill-holdout-budget.sh: line 10: seq: command not found\n"
+  },
+  {
+    "test": "rill-holdout-cadence-over-cap.sh",
+    "rc": 1,
+    "seconds": 0.55,
+    "output": "tests/rill-holdout-cadence-over-cap.sh: line 8: seq: command not found\n"
+  },
+  {
+    "test": "rill-holdout-evaluation-no-feedback.sh",
+    "rc": 127,
+    "seconds": 4.27,
+    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 91: sha256sum: command not found\n"
+  },
+  {
+    "test": "rill-holdout-global-cadence.sh",
+    "rc": 1,
+    "seconds": 4.28,
+    "output": "tests/rill-holdout-global-cadence.sh: line 7: seq: command not found\n"
+  },
+  {
+    "test": "rill-holdout-no-feedback-leak.sh",
+    "rc": 127,
+    "seconds": 0.58,
+    "output": "tests/rill-holdout-no-feedback-leak.sh: line 6: chmod: command not found\n"
+  },
+  {
+    "test": "rill-holdout-nonblocking.sh",
+    "rc": 0,
+    "seconds": 4.75,
+    "output": "Holdout failure is best-effort and non-blocking for the production run\n"
+  },
+  {
+    "test": "rill-holdout-post-commit.sh",
+    "rc": 127,
+    "seconds": 0.44,
+    "output": "tests/rill-holdout-post-commit.sh: line 5: chmod: command not found\n"
+  },
+  {
+    "test": "rill-integration-in-base.sh",
+    "rc": 0,
+    "seconds": 0.61,
+    "output": "Candidate Rill consumer integration is owned by the base package on collision-free paths\n"
+  },
+  {
+    "test": "rill-intelligence-luci-contract.sh",
+    "rc": 0,
+    "seconds": 3.23,
+    "output": "Intelligence LuCI fail-safe evidence contract passed\n"
+  },
+  {
+    "test": "rill-intelligence-status-contract.sh",
+    "rc": 0,
+    "seconds": 0.36,
+    "output": "Intelligence status and diagnostics contract passed\n"
+  },
+  {
+    "test": "rill-outcome-attribution.sh",
+    "rc": 127,
+    "seconds": 0.48,
+    "output": "tests/rill-outcome-attribution.sh: line 20: chmod: command not found\n"
+  },
+  {
+    "test": "rill-package-layout-contract.sh",
+    "rc": 0,
+    "seconds": 0.77,
+    "output": "r2/r3 base to r4 base uses collision-free Candidate Rill paths\n"
+  },
+  {
+    "test": "rill-qualification-context-reset.sh",
+    "rc": 127,
+    "seconds": 0.78,
+    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 97: sha256sum: command not found\n"
+  },
+  {
+    "test": "rill-qualification-rolling.sh",
+    "rc": 1,
+    "seconds": 0.47,
+    "output": "tests/rill-qualification-rolling.sh: line 16: seq: command not found\njq: error: Could not open file C:/Users/hello/AppData/Local/Temp/tmp.B7piejuZJx/qualification.json: No such file or directory\n"
+  },
+  {
+    "test": "rill-reward-v2.sh",
+    "rc": 0,
+    "seconds": 1.42,
+    "output": "Rill Reward v2 multi-domain contract passed\n"
+  },
+  {
+    "test": "rill-runtime-absence.sh",
+    "rc": 0,
+    "seconds": 0.52,
+    "output": "Missing Runtime is explicit and preserves Native fallback\n"
+  },
+  {
+    "test": "rill-single-learner-contract.sh",
+    "rc": 0,
+    "seconds": 3.16,
+    "output": "Candidate-only Runtime learner contract passed\n/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 97: sha256sum: command not found\n/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 60: sha256sum: command not found\n"
+  },
+  {
+    "test": "rill-state-and-delayed.sh",
+    "rc": 127,
+    "seconds": 7.0,
+    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 97: sha256sum: command not found\n/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 60: sha256sum: command not found\n/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 97: sha256sum: command not found\n/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 60: sha256sum: command not found\ntests/rill-state-and-delayed.sh: line 40: chmod: command not found\n"
+  },
+  {
+    "test": "rill-status-timeout.sh",
+    "rc": 127,
+    "seconds": 0.28,
+    "output": "tests/rill-status-timeout.sh: line 4: chmod: command not found\n"
+  },
+  {
+    "test": "run-history-contract.sh",
+    "rc": 0,
+    "seconds": 6.03,
+    "output": "Recent run history additive field and mode separation contract passed\n"
+  },
+  {
+    "test": "scheduler-deterministic.sh",
+    "rc": 1,
+    "seconds": 0.5,
+    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/source.sh: line 390: sha256sum: command not found\n"
+  },
+  {
+    "test": "security-contract.sh",
+    "rc": 1,
+    "seconds": 48.16,
+    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/source.sh: line 401: sha256sum: command not found\n"
+  },
+  {
+    "test": "semantic-config-validation.sh",
+    "rc": 0,
+    "seconds": 0.61,
+    "output": "{\"success\":false,\"error\":\"invalid cron schedule\"}\nsemantic configuration validation contract passed\n"
+  },
+  {
+    "test": "service-running-timeout.sh",
+    "rc": 127,
+    "seconds": 0.41,
+    "output": "tests/service-running-timeout.sh: line 9: chmod: command not found\n"
+  },
+  {
+    "test": "service-state-preservation.sh",
+    "rc": 0,
+    "seconds": 0.33,
+    "output": "original service-state preservation contract passed\n"
+  },
+  {
+    "test": "shadow-observation-failure-no-feedback.sh",
+    "rc": 0,
+    "seconds": 0.95,
+    "output": "Shadow observation failure is fail-closed and does not queue Candidate feedback\n"
+  },
+  {
+    "test": "signal-child-tree-rollback.sh",
+    "rc": 0,
+    "seconds": 0.31,
+    "output": "signal child-tree rollback contract skipped: no process-group or child-tree primitive\n"
+  },
+  {
+    "test": "source-policy.sh",
+    "rc": 0,
+    "seconds": 4.67,
+    "output": "Deterministic source policy profiles passed\n"
+  },
+  {
+    "test": "source-refresh-deadline.sh",
+    "rc": 0,
+    "seconds": 1.28,
+    "output": "Source refresh global deadline contract passed\n"
+  },
+  {
+    "test": "source-size-cap.sh",
+    "rc": 127,
+    "seconds": 1.8,
+    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/source.sh: line 237: sha256sum: command not found\n"
+  },
+  {
+    "test": "special-address-contract.sh",
+    "rc": "TIMEOUT",
+    "seconds": 55,
+    "output": "Command '['C:\\\\Users\\\\hello\\\\.cache\\\\codex-runtimes\\\\codex-primary-runtime\\\\dependencies\\\\native\\\\git\\\\usr\\\\bin\\\\sh.exe', '-c', 'export PATH=/c/Users/hello/Documents/Codex/2026-10-05/new-chat/work/bin:/usr/bin:$PATH; bash tests/special-address-contract.sh']' timed out after 55 seconds"
+  },
+  {
+    "test": "status-running-timeout.sh",
+    "rc": 127,
+    "seconds": 0.47,
+    "output": "tests/status-running-timeout.sh: line 10: chmod: command not found\n"
+  },
+  {
+    "test": "sync-single-restart.sh",
+    "rc": 127,
+    "seconds": 0.42,
+    "output": "tests/sync-single-restart.sh: line 10: chmod: command not found\n"
+  },
+  {
+    "test": "transaction-commit-failure.sh",
+    "rc": 127,
+    "seconds": 0.53,
+    "output": "tests/transaction-commit-failure.sh: line 28: chmod: command not found\n"
+  },
+  {
+    "test": "transaction-hard-deadline.sh",
+    "rc": 127,
+    "seconds": 0.36,
+    "output": "tests/transaction-hard-deadline.sh: line 9: chmod: command not found\n"
+  },
+  {
+    "test": "transaction-signal-rollback.sh",
+    "rc": 127,
+    "seconds": 0.36,
+    "output": "tests/transaction-signal-rollback.sh: line 18: chmod: command not found\n"
+  },
+  {
+    "test": "v2-candidate-budget.sh",
+    "rc": 49,
+    "seconds": 0.45,
+    "output": "Python was not found; run without arguments to install from the Microsoft Store, or disable this shortcut from Settings > Apps > Advanced app settings > App execution aliases.\n"
+  },
+  {
+    "test": "v2-cfst-exact-input.sh",
+    "rc": "TIMEOUT",
+    "seconds": 55,
+    "output": "Command '['C:\\\\Users\\\\hello\\\\.cache\\\\codex-runtimes\\\\codex-primary-runtime\\\\dependencies\\\\native\\\\git\\\\usr\\\\bin\\\\sh.exe', '-c', 'export PATH=/c/Users/hello/Documents/Codex/2026-10-05/new-chat/work/bin:/usr/bin:$PATH; bash tests/v2-cfst-exact-input.sh']' timed out after 55 seconds"
+  },
+  {
+    "test": "v2-lan-publisher.sh",
+    "rc": 127,
+    "seconds": 0.42,
+    "output": "tests/v2-lan-publisher.sh: line 11: chmod: command not found\n"
+  },
+  {
+    "test": "v2-measurement-deadline.sh",
+    "rc": 0,
+    "seconds": 0.73,
+    "output": "v2 global measurement deadline contract passed\n/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/common.sh: line 424: sleep: command not found\n/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/common.sh: line 429: sleep: command not found\n/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/common.sh: line 389: sleep: command not found\n"
+  },
+  {
+    "test": "v2-observation.sh",
+    "rc": 0,
+    "seconds": 5.89,
+    "output": "v2 observation/eligibility tests passed\n"
+  },
+  {
+    "test": "v2-prerelease-workflow-contract.sh",
+    "rc": 0,
+    "seconds": 0.36,
+    "output": "v2 prerelease workflow contract passed\n"
+  },
+  {
+    "test": "v2-rill-shadow.sh",
+    "rc": 127,
+    "seconds": 0.39,
+    "output": "tests/v2-rill-shadow.sh: line 19: chmod: command not found\n"
+  },
+  {
+    "test": "v2-single-cfst.sh",
+    "rc": 127,
+    "seconds": 0.39,
+    "output": "tests/v2-single-cfst.sh: line 14: chmod: command not found\n"
+  },
+  {
+    "test": "v2-source-engine.sh",
+    "rc": 1,
+    "seconds": 22.5,
+    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/source.sh: line 390: sha256sum: command not found\n"
+  },
+  {
+    "test": "v2-status.sh",
+    "rc": 0,
+    "seconds": 8.02,
+    "output": "v2 status contract tests passed\n"
+  },
+  {
+    "test": "v2-transaction.sh",
+    "rc": 0,
+    "seconds": 0.23,
+    "output": "v2 transaction return/remark tests passed\n"
+  },
+  {
+    "test": "watchdog-timer-cleanup.sh",
+    "rc": 127,
+    "seconds": 0.42,
+    "output": "tests/watchdog-timer-cleanup.sh: line 10: chmod: command not found\n"
+  }
+]
