@@ -162,10 +162,10 @@ cfip_post_apply_probe() {
         [[ -n "$ip" ]] || continue
         count=$((count+1))
         candidate="$(jq -c --arg ip "$ip" '.[]|select((.ip|tostring)==$ip)' "$selected_json" 2>/dev/null | head -n1)"; [[ -n "$candidate" ]] || candidate='{}'
-        loss="$(jq -r '.lossRate // 1' <<<"$candidate")"; throughput="$(jq -r '.downloadMBps // 0' <<<"$candidate")"
+        loss="$(jq -r 'if (.lossRate|type)=="number" then .lossRate else null end' <<<"$candidate")"; throughput="$(jq -r '.downloadMBps // 0' <<<"$candidate")"
         for domain in "${domains[@]}"; do
             p="$(cfip_probe_one "$ip" "$domain" "$family" "$timeout_s")"
-            probes="$(jq -cn --argjson a "$probes" --argjson p "$p" --argjson loss "$loss" --argjson throughput "$throughput" '$a+[$p+{lossRate:$loss,downloadMBps:$throughput}]')"
+            probes="$(jq -cn --argjson a "$probes" --argjson p "$p" --argjson loss "$loss" --argjson throughput "$throughput" '$a+[$p+{lossRate:$loss,candidateLossRate:$loss,downloadMBps:$throughput}]')"
             [[ "$(jq -r '.success' <<<"$p")" == true ]] || ok=false
         done
     done < <(jq -r '.[]|[.ip,.family]|@tsv' "$selected_json")

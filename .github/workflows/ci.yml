@@ -328,6 +328,10 @@ jobs:
                    APK=/builder/staging_dir/host/bin/apk bash "$GITHUB_WORKSPACE/luci-app-cloudflare-ip/tests/package-content-contract.sh" "$file" apk "$mode" ;;
             esac
           done
+          python3 "$GITHUB_WORKSPACE/luci-app-cloudflare-ip/scripts/openwrt-package-metadata.py" "$base_file" \
+            --format "${{ matrix.pkgtype }}" --apk-bin /builder/staging_dir/host/bin/apk \
+            --package-name luci-app-cloudflare-ip \
+            --output "$GITHUB_WORKSPACE/output/${base_file##*/}.metadata.json"
           (
             cd "$GITHUB_WORKSPACE/output"
             sha256sum -- "${base_file##*/}" "${rill_file##*/}" "${preview_file##*/}"
@@ -724,10 +728,15 @@ jobs:
           gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name rill-runtime-integration-evidence --dir "$asset_dir/rill-runtime-integration"
           asset_files='[]'
           while IFS= read -r -d '' file; do
+            metadata="$file.metadata.json"
+            test -f "$metadata"
             hash=$(sha256sum "$file" | awk '{print $1}')
+            size=$(stat -c '%s' "$file")
+            jq -e --arg sha "$hash" --argjson size "$size" '.sha256 == $sha and .size == $size and .schemaVersion == 1 and .package.name == "luci-app-cloudflare-ip"' "$metadata" >/dev/null
             rel="${file#"$asset_dir"/}"
-            asset_files=$(jq --arg path "$rel" --arg sha "$hash" '. + [{path:$path,sha256:$sha}]' <<<"$asset_files")
-          done < <(find "$asset_dir" -type f \( -name '*.ipk' -o -name '*.apk' \) ! -name 'rill-runtime-preview*' ! -name '*-rill*' -print0)
+            package=$(jq -c '.package' "$metadata")
+            asset_files=$(jq --arg path "$rel" --arg sha "$hash" --argjson size "$size" --argjson package "$package" '. + [{path:$path,sha256:$sha,size:$size,package:$package}]' <<<"$asset_files")
+          done < <(find "$asset_dir" -type f \( -name 'luci-app-cloudflare-ip*.ipk' -o -name 'luci-app-cloudflare-ip*.apk' \) ! -name '*-rill*' -print0)
           # The manifest samples one public base package per packaging family:
           # one IPK and one APK. Compatibility and Runtime packages remain
           # qualification artifacts, not public Cloudflare package assets.

@@ -17,7 +17,7 @@ cfip_reuse_state_json() {
         mv "$CFIP_REUSE_STATE_FILE" "$quarantine" 2>/dev/null || true
         cfip_log "reuse state quarantined: $quarantine"
     fi
-    printf '%s\n' '{"schemaVersion":1,"lastFullOptimizeAt":0,"lastValidationAt":0,"validationSuccess":false,"configFingerprint":null,"reuseCount":0,"fullOptimizeCount":0,"savedProbes":0,"savedRuntimeSeconds":0,"recent":[]}'
+    printf '%s\n' '{"schemaVersion":1,"lastFullOptimizeAt":0,"lastValidationAt":0,"validationSuccess":false,"configFingerprint":null,"reuseCount":0,"fullOptimizeCount":0,"savedProbes":null,"savedRuntimeSeconds":null,"validationProbeCount":0,"validationRuntimeSeconds":0,"fullOptimizeCandidates":[],"recent":[]}'
 }
 
 cfip_reuse_config_fingerprint() {
@@ -29,13 +29,16 @@ cfip_reuse_config_fingerprint() {
 }
 
 cfip_reuse_write_event() {
-    local event="$1" reason="${2:-}" saved_probes="${3:-0}" saved_runtime="${4:-0}" state fp now
+    local event="$1" reason="${2:-}" validation_probes="${3:-0}" validation_runtime="${4:-0}" candidates_file="${5:-}" state fp now candidates='[]'
     state="$(cfip_reuse_state_json)"; fp="$(cfip_reuse_config_fingerprint)"; now="$(date +%s)"
-    jq --arg event "$event" --arg reason "$reason" --arg fp "$fp" --argjson savedProbes "$saved_probes" --argjson savedRuntime "$saved_runtime" --argjson now "$now" \
+    if [[ "$event" == full-optimize-success && -s "$candidates_file" ]]; then
+        candidates="$(jq -c '[.[]|select((.ip|type)=="string")|{ip:.ip,family:(.family//null),lossRate:(if (.lossRate|type)=="number" and (.lossRate>=0 and .lossRate<=1) then .lossRate else null end)}]' "$candidates_file")"
+    fi
+    jq --arg event "$event" --arg reason "$reason" --arg fp "$fp" --argjson validationProbes "$validation_probes" --argjson validationRuntime "$validation_runtime" --argjson now "$now" --argjson candidates "$candidates" \
       '. as $state | (($state.recent // []) + [{event:$event,reason:(if $reason=="" then null else $reason end),at:$now}])[-32:] as $recent |
        $state + {schemaVersion:1,configFingerprint:$fp,recent:$recent} |
-       if $event=="full-optimize-success" then .lastFullOptimizeAt=$now | .lastValidationAt=$now | .validationSuccess=true | .fullOptimizeCount=((.fullOptimizeCount//0)+1)
-       elif $event=="reuse-success" then .lastValidationAt=$now | .validationSuccess=true | .reuseCount=((.reuseCount//0)+1) | .savedProbes=((.savedProbes//0)+$savedProbes) | .savedRuntimeSeconds=((.savedRuntimeSeconds//0)+$savedRuntime)
+       if $event=="full-optimize-success" then .lastFullOptimizeAt=$now | .lastValidationAt=$now | .validationSuccess=true | .fullOptimizeCount=((.fullOptimizeCount//0)+1) | .fullOptimizeCandidates=$candidates
+       elif $event=="reuse-success" then .lastValidationAt=$now | .validationSuccess=true | .reuseCount=((.reuseCount//0)+1) | .savedProbes=null | .savedRuntimeSeconds=null | .validationProbeCount=((.validationProbeCount//0)+$validationProbes) | .validationRuntimeSeconds=((.validationRuntimeSeconds//0)+$validationRuntime)
        elif $event=="reuse-failure" then .lastValidationAt=$now | .validationSuccess=false
        else . end' <<<"$state" | cfip_atomic_write "$CFIP_REUSE_STATE_FILE"
 }
@@ -62,7 +65,7 @@ cfip_reuse_record_decision() {
 }
 
 cfip_reuse_try_current() {
-    local reason current probe_output saved_probes saved_runtime="0" start
+    local reason current probe_output saved_probes saved_runtime="0" start state
     CFIP_REUSE_ATTEMPTED=false
     reason="$(cfip_reuse_hard_gate_reason)" || reason=""
     if [[ -n "$reason" ]]; then
@@ -71,7 +74,8 @@ cfip_reuse_try_current() {
         return 1
     fi
     current="$(mktemp "${TMPDIR:-/tmp}/cfip-reuse-current.XXXXXX")" || return 1
-    jq '[.best_ips[]? as $ip | {ip:$ip,family:(if ($ip|contains(":")) then "ipv6" else "ipv4" end),origin:"reuse-current",sources:["current"],sourceClass:"current",sourceCount:0,stale:false}]' "$CFIP_STATUS_FILE" | jq --argjson n "$CFIP_IP_COUNT" '.[0:$n]' >"$current"
+    state="$(cfip_reuse_state_json)"
+    jq --argjson n "$CFIP_IP_COUNT" --argjson state "$state" '[.best_ips[]? as $ip | {ip:$ip,family:(if ($ip|contains(":")) then "ipv6" else "ipv4" end),origin:"reuse-current",sources:["current"],sourceClass:"current",sourceCount:0,stale:false} | . as $candidate | . + {lossRate:([$state.fullOptimizeCandidates[]? | select(.ip==$candidate.ip and .family==$candidate.family and (.lossRate|type)=="number") | .lossRate][0] // null)}] | .[0:$n]' "$CFIP_STATUS_FILE" >"$current"
     [[ "$(jq 'length' "$current")" == "$CFIP_IP_COUNT" ]] || { rm -f "$current"; CFIP_REUSE_FALLBACK_REASON=current_ip_count_insufficient; cfip_reuse_record_decision FULL_OPTIMIZE true "$CFIP_REUSE_FALLBACK_REASON"; return 1; }
     start="$(date +%s)"; CFIP_PHASE=reuse_validation; CFIP_MEASUREMENT_STARTED_AT="$(cfip_monotonic_seconds)"; CFIP_MEASUREMENT_DEADLINE=$((CFIP_MEASUREMENT_STARTED_AT+CFIP_REUSE_VALIDATION_TIMEOUT))
     CFIP_REUSE_ATTEMPTED=true
@@ -85,7 +89,7 @@ cfip_reuse_try_current() {
         rm -f "$current" "$probe_output"; return 1
     fi
     if ! jq -e --argjson loss "$CFIP_REUSE_LOSS_LIMIT" --argjson ttfb "$CFIP_REUSE_TTFB_LIMIT" --argjson total "$CFIP_REUSE_TOTAL_LIMIT" \
-      'all(.probes[]; .success==true and (.lossRate//0)<=$loss and (.ttfbMs//999999)<=$ttfb and (.totalMs//999999)<=$total)' "$probe_output" >/dev/null 2>&1; then
+      'all(.probes[]; .success==true and (.lossRate|type)=="number" and .lossRate<=$loss and (.ttfbMs//999999)<=$ttfb and (.totalMs//999999)<=$total)' "$probe_output" >/dev/null 2>&1; then
         CFIP_REUSE_FALLBACK_REASON=current_quality_regression
         cfip_reuse_record_decision FULL_OPTIMIZE false "$CFIP_REUSE_FALLBACK_REASON"
         cfip_reuse_write_event reuse-failure "$CFIP_REUSE_FALLBACK_REASON"
