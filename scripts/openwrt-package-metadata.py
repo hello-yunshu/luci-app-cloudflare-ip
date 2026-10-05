@@ -23,27 +23,42 @@ def parse_control(raw: bytes) -> dict[str, str]:
 
 def ipk_control(path: Path) -> dict[str, str]:
     data = path.read_bytes()
-    if not data.startswith(b"!<arch>\n"):
-        raise ValueError("IPK is not an ar archive")
-    offset = 8
-    members: dict[str, bytes] = {}
-    while offset < len(data):
-        header = data[offset:offset + 60]
-        if len(header) != 60 or header[58:60] != b"`\n":
-            raise ValueError("invalid IPK ar member header")
-        name = header[:16].decode("ascii", errors="strict").strip().rstrip("/")
-        size = int(header[48:58].decode("ascii").strip())
-        offset += 60
-        payload = data[offset:offset + size]
-        if len(payload) != size:
-            raise ValueError("truncated IPK ar member")
-        members[name] = payload
-        offset += size + (size & 1)
-    control_name = next((n for n in members if n.startswith("control.tar")), None)
-    if not control_name:
-        raise ValueError("IPK has no control archive")
     import io
-    with tarfile.open(fileobj=io.BytesIO(members[control_name]), mode="r:*") as archive:
+
+    # OpenWrt SDKs use both Debian ar IPKs and the newer gzip-tar IPK
+    # container. In both formats the control archive is a nested tar file.
+    if data.startswith(b"!<arch>\n"):
+        offset = 8
+        members: dict[str, bytes] = {}
+        while offset < len(data):
+            header = data[offset:offset + 60]
+            if len(header) != 60 or header[58:60] != b"`\n":
+                raise ValueError("invalid IPK ar member header")
+            name = header[:16].decode("ascii", errors="strict").strip().rstrip("/")
+            size = int(header[48:58].decode("ascii").strip())
+            offset += 60
+            payload = data[offset:offset + size]
+            if len(payload) != size:
+                raise ValueError("truncated IPK ar member")
+            members[name] = payload
+            offset += size + (size & 1)
+    else:
+        try:
+            with tarfile.open(fileobj=io.BytesIO(data), mode="r:*") as archive:
+                members = {
+                    Path(member.name).name: stream.read()
+                    for member in archive.getmembers()
+                    if Path(member.name).name.startswith("control.tar")
+                    and member.isfile()
+                    and (stream := archive.extractfile(member)) is not None
+                }
+        except tarfile.TarError as exc:
+            raise ValueError("IPK is neither an ar archive nor a tar container") from exc
+
+    control_archives = [payload for name, payload in members.items() if name.startswith("control.tar")]
+    if len(control_archives) != 1:
+        raise ValueError("IPK must contain exactly one control archive")
+    with tarfile.open(fileobj=io.BytesIO(control_archives[0]), mode="r:*") as archive:
         candidates = [m for m in archive.getmembers() if Path(m.name).name == "control" and m.isfile()]
         if len(candidates) != 1:
             raise ValueError("IPK must contain exactly one control record")
@@ -92,7 +107,7 @@ def apk_record(path: Path, apk_bin: str, expected_name: str) -> dict[str, str]:
 
 
 def split_version(value: str, package_type: str) -> tuple[str, str]:
-    patterns = [r"^(.+)-r([0-9]+)$", r"^(.+)-([0-9]+)$"] if package_type == "apk" else [r"^(.+)-([0-9]+)$"]
+    patterns = [r"^(.+)-r([0-9]+)$", r"^(.+)-([0-9]+)$"]
     for pattern in patterns:
         match = re.fullmatch(pattern, value)
         if match:

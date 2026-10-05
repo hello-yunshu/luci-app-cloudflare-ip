@@ -3,6 +3,7 @@
 RPCD_VERSION="@PKG_VERSION@"
 CF_IP_AUTO_BIN="${CF_IP_AUTO_BIN:-/usr/bin/cf-ip-auto}"
 INIT_SCRIPT="${INIT_SCRIPT:-/etc/init.d/cf_ip}"
+CF_IP_RUNTIME_DIR="${CF_IP_RUNTIME_DIR:-/tmp/cf_ip}"
 
 service_running_state() {
 	case "$(uci -q get cf_ip.main.enabled 2>/dev/null)" in
@@ -16,15 +17,15 @@ service_running_state() {
 }
 
 cf_ip_rpc_lock_acquire() {
-	mkdir -p /tmp/cf_ip || return 1
-	mkdir /tmp/cf_ip/cf-ip-auto-v2.lock 2>/dev/null || return 1
-	printf '%s\n' "$$" >/tmp/cf_ip/cf-ip-auto-v2.lock/pid
+	mkdir -p "$CF_IP_RUNTIME_DIR" || return 1
+	mkdir "$CF_IP_RUNTIME_DIR/cf-ip-auto-v2.lock" 2>/dev/null || return 1
+	printf '%s\n' "$$" >"$CF_IP_RUNTIME_DIR/cf-ip-auto-v2.lock/pid"
 }
 
 cf_ip_rpc_lock_release() {
-	[ "$(cat /tmp/cf_ip/cf-ip-auto-v2.lock/pid 2>/dev/null)" = "$$" ] || return 0
-	rm -f /tmp/cf_ip/cf-ip-auto-v2.lock/pid
-	rmdir /tmp/cf_ip/cf-ip-auto-v2.lock 2>/dev/null || true
+	[ "$(cat "$CF_IP_RUNTIME_DIR/cf-ip-auto-v2.lock/pid" 2>/dev/null)" = "$$" ] || return 0
+	rm -f "$CF_IP_RUNTIME_DIR/cf-ip-auto-v2.lock/pid"
+	rmdir "$CF_IP_RUNTIME_DIR/cf-ip-auto-v2.lock" 2>/dev/null || true
 }
 
 service_action_unlocked() {

@@ -6,6 +6,7 @@ STOP=10
 USE_PROCD=1
 
 CRONTAB_FILE="/etc/crontabs/root"
+CF_IP_RUNTIME_DIR="${CF_IP_RUNTIME_DIR:-/tmp/cf_ip}"
 
 cron_ensure_newline() {
 	[ -s "$CRONTAB_FILE" ] || return 0
@@ -13,15 +14,15 @@ cron_ensure_newline() {
 }
 
 cf_ip_shared_lock_acquire() {
-	mkdir -p /tmp/cf_ip || return 1
-	mkdir /tmp/cf_ip/cf-ip-auto-v2.lock 2>/dev/null || return 1
-	printf '%s\n' "$$" >/tmp/cf_ip/cf-ip-auto-v2.lock/pid
+	mkdir -p "$CF_IP_RUNTIME_DIR" || return 1
+	mkdir "$CF_IP_RUNTIME_DIR/cf-ip-auto-v2.lock" 2>/dev/null || return 1
+	printf '%s\n' "$$" >"$CF_IP_RUNTIME_DIR/cf-ip-auto-v2.lock/pid"
 }
 
 cf_ip_shared_lock_release() {
-	[ "$(cat /tmp/cf_ip/cf-ip-auto-v2.lock/pid 2>/dev/null)" = "$$" ] || return 0
-	rm -f /tmp/cf_ip/cf-ip-auto-v2.lock/pid
-	rmdir /tmp/cf_ip/cf-ip-auto-v2.lock 2>/dev/null || true
+	[ "$(cat "$CF_IP_RUNTIME_DIR/cf-ip-auto-v2.lock/pid" 2>/dev/null)" = "$$" ] || return 0
+	rm -f "$CF_IP_RUNTIME_DIR/cf-ip-auto-v2.lock/pid"
+	rmdir "$CF_IP_RUNTIME_DIR/cf-ip-auto-v2.lock" 2>/dev/null || true
 }
 
 cf_ip_with_shared_lock() {

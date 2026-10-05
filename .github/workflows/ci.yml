@@ -75,22 +75,27 @@ jobs:
           bash tests/source-policy.sh
           bash tests/rill-single-learner-contract.sh
           bash tests/cfst-version-contract.sh
+          bash tests/cfst-download-fallback-version.sh
           bash tests/source-refresh-deadline.sh
           bash tests/resource-pressure-contract.sh
           bash tests/multi-ip-diversity-contract.sh
           bash tests/reuse-policy-contract.sh
           bash tests/reuse-runtime-independence.sh
           bash tests/reuse-fresh-lifecycle.sh
+          bash tests/reuse-loss-semantics.sh
           bash tests/delayed-feedback-lifecycle-contract.sh
           bash tests/delayed-feedback-reset-lineage.sh
           bash tests/prefix-colo-intelligence.sh
           bash tests/prefix-failure-decay.sh
           bash tests/luci-validation-contract.sh
           bash tests/luci-staged-validation.sh
+          bash tests/openclash-empty-fields.sh
           bash tests/installed-routing-contract.sh
           bash tests/disabled-cron-contract.sh
           bash tests/evidence-manifest-default.sh
           bash tests/qualification-evidence-validator.sh
+          bash tests/openwrt-package-metadata.sh
+          bash tests/release-asset-binding.sh
           bash tests/rill-context-fingerprint.sh
           bash tests/rill-context-change-reset.sh
           bash tests/rill-context-pending-feedback-isolation.sh
@@ -124,6 +129,10 @@ jobs:
           bash tests/rill-runtime-absence.sh
           jq empty plans/rill/drift-decision.json
           bash tests/recovery-deadline.sh
+          bash tests/sync-single-restart.sh
+          bash tests/sync-stop-failure-cleanup.sh
+          bash tests/shared-writer-lock.sh
+          bash tests/status-stop-contract.sh
           bash tests/transaction-commit-failure.sh
           bash tests/openclash-intended-mapping-negative.sh
           bash tests/security-contract.sh
@@ -336,6 +345,10 @@ jobs:
             cd "$GITHUB_WORKSPACE/output"
             sha256sum -- "${base_file##*/}" "${rill_file##*/}" "${preview_file##*/}"
           ) > "$GITHUB_WORKSPACE/output/SHA256SUMS"
+          runtime_libgcc=$(find /builder/staging_dir/toolchain-* -type f -name libgcc_s.so.1 -print -quit)
+          test -n "$runtime_libgcc"
+          mkdir -p "$GITHUB_WORKSPACE/output/validation-runtime"
+          cp "$runtime_libgcc" "$GITHUB_WORKSPACE/output/validation-runtime/libgcc_s.so.1"
       - uses: actions/upload-artifact@v7
         with:
           name: luci-app-cloudflare-ip-${{ matrix.pkgtype }}-${{ matrix.branch }}
@@ -383,6 +396,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          apt-get update
+          DEBIAN_FRONTEND=noninteractive apt-get install -y jq=1.6-2.1 libjq1=1.6-2.1 musl
           if [[ "${{ matrix.pkgtype }}" == ipk ]]; then
             opkg_bin="$(find /builder/staging_dir /builder -type f -name opkg -perm -111 -print -quit 2>/dev/null || true)"
             test -n "$opkg_bin"
@@ -432,6 +447,12 @@ jobs:
           esac
           runtime_bin=$(find "$preview_dir/data" -type f -path '*/usr/bin/rill-runtime' -print -quit)
           test -x "$runtime_bin"
+          runtime_libgcc=$(find runtime-output -type f -path '*/validation-runtime/libgcc_s.so.1' -print -quit)
+          test -n "$runtime_libgcc"
+          runtime_lib_dir="$RUNNER_TEMP/preview/host-libs"
+          mkdir -p "$runtime_lib_dir"
+          cp "$runtime_libgcc" "$runtime_lib_dir/libgcc_s.so.1"
+          echo "LD_LIBRARY_PATH=$runtime_lib_dir${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" >> "$GITHUB_ENV"
           echo "RUNTIME_BIN=$runtime_bin" >> "$GITHUB_ENV"
       - name: Run the actual opkg or apk migration matrix
         shell: bash
