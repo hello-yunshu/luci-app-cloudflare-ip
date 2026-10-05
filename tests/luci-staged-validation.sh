@@ -66,6 +66,38 @@ export PATH="$TMP/bin:$PATH" CFIP_STATUS_DIR="$TMP/status" CFIP_RUNTIME_DIR="$TM
 mkdir -p "$CFIP_INIT_DIR"
 committed="$($BIN --validate-config)"
 jq -e '.success == true and .valid == true' <<<"$committed" >/dev/null
+mkdir -p "$CFIP_STATUS_DIR"
+printf '%s\n' '{"formatVersion":1,"partitions":[]}' >"$CFIP_STATUS_DIR/rill-state.json"
+printf '%s\n' '{"releaseEligible":true}' >"$CFIP_STATUS_DIR/rill-qualification.json"
+printf '%s\n' '{"decisions":[]}' >"$CFIP_STATUS_DIR/candidate-history.json"
+printf '%s\n' '{"entries":{}}' >"$CFIP_STATUS_DIR/prefix-history.json"
+printf '%s\n' '{"entries":{}}' >"$CFIP_STATUS_DIR/colo-history.json"
+printf '%s\n' '[]' >"$CFIP_STATUS_DIR/rill-pending-feedback.json"
+printf '%s\n' '{"truncated":' >"$CFIP_STATUS_DIR/rill-evidence.json"
+printf '%s\n' '{"assistedDisagreementCount":2}' >"$CFIP_STATUS_DIR/rill-holdout-cadence.json"
+printf '{"contextFingerprint":"%064d"}\n' 1 >"$CFIP_STATUS_DIR/rill-state-meta.json"
+snapshot_state() {
+    find "$CFIP_STATUS_DIR" -type f -printf '%P\n' | sort
+    find "$CFIP_STATUS_DIR" -type f -print0 | sort -z | xargs -0 -r sha256sum
+}
+before_validation="$(snapshot_state)"
+staged="$($BIN --validate-config '{"cf_ip.passwall.target_domain":"two.example"}')"
+jq -e '.success == true and .valid == true' <<<"$staged" >/dev/null
+after_validation="$(snapshot_state)"
+if [[ "$before_validation" != "$after_validation" ]]; then
+    echo 'staged validation changed persisted Rill state or lineage' >&2
+    diff -u <(printf '%s\n' "$before_validation") <(printf '%s\n' "$after_validation") >&2 || true
+    exit 1
+fi
+before_diagnostics="$(snapshot_state)"
+diagnostics="$($BIN --rill-diagnostics)"
+jq -e '.success == true' <<<"$diagnostics" >/dev/null
+after_diagnostics="$(snapshot_state)"
+if [[ "$before_diagnostics" != "$after_diagnostics" ]]; then
+    echo 'read-only diagnostics changed persisted Rill state or lineage' >&2
+    diff -u <(printf '%s\n' "$before_diagnostics") <(printf '%s\n' "$after_diagnostics") >&2 || true
+    exit 1
+fi
 if "$BIN" --validate-config '{"cf_ip.main.candidate_budget":"10"}' >/dev/null 2>&1; then
     echo 'staged invalid budget was accepted' >&2
     exit 1

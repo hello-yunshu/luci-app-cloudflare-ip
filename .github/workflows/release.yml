@@ -76,7 +76,7 @@ jobs:
           gh run download "$QUALIFICATION_RUN_ID" --repo "$GITHUB_REPOSITORY" --name qualification-evidence --dir "$RUNNER_TEMP/qualification"
           manifest="$RUNNER_TEMP/qualification/qualification.json"
           test -f "$manifest"
-          python3 scripts/validate-qualification-evidence.py "$manifest" --commit "$QUALIFICATION_SHA" --require-assets 2
+          python3 scripts/validate-qualification-evidence.py "$manifest" --commit "$QUALIFICATION_SHA" --require-assets 2 --require-release-eligible --run-id "$QUALIFICATION_RUN_ID" --contract contracts/rill-runtime.json
           version=$(sed -n 's/^PKG_VERSION:=//p' package/luci-app-cloudflare-ip/Makefile | head -n1)
           release=$(sed -n 's/^PKG_RELEASE:=//p' package/luci-app-cloudflare-ip/Makefile | head -n1)
           channel=$(jq -er 'select(.schemaVersion == 1) | .channel' release-channel.json)
@@ -109,6 +109,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           QUALIFICATION_RUN_ID: ${{ needs.check-qualification.outputs.run_id }}
           VERSION: ${{ needs.check-qualification.outputs.version }}
+          RELEASE: ${{ needs.check-qualification.outputs.release }}
         shell: bash
         run: |
           set -euo pipefail
@@ -120,17 +121,27 @@ jobs:
             qualification-evidence; do
             gh run download "$QUALIFICATION_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$artifact" --dir "$work/$artifact"
           done
-          find "$work" -type f \( -name 'luci-app-cloudflare-ip*.ipk' -o -name 'luci-app-cloudflare-ip*.apk' \) ! -name '*-rill*' -exec cp {} release/ \;
-          find "$work" -type f -name qualification.json -exec cp {} release/ \;
-          test "$(find release -type f -name '*.ipk' | wc -l | tr -d ' ')" -eq 1
-          test "$(find release -type f -name '*.apk' | wc -l | tr -d ' ')" -eq 1
+          manifest="$work/qualification-evidence/qualification.json"
+          test -f "$manifest"
+          cp "$manifest" release/qualification.json
+          while IFS= read -r rel; do
+            source="$work/$rel"
+            test -f "$source"
+            cp "$source" "release/${rel##*/}"
+          done < <(jq -er '.assetFiles[].path' "$manifest")
+          test "$(find release -maxdepth 1 -type f -name '*.ipk' | wc -l | tr -d ' ')" -eq 1
+          test "$(find release -maxdepth 1 -type f -name '*.apk' | wc -l | tr -d ' ')" -eq 1
           test -f release/qualification.json
-      - name: Generate relative checksums and verify asset contract
+      - name: Bind exact qualification assets and generate checksums
         env:
+          EXPECTED_SHA: ${{ needs.check-qualification.outputs.commit }}
+          QUALIFICATION_RUN_ID: ${{ needs.check-qualification.outputs.run_id }}
           VERSION: ${{ needs.check-qualification.outputs.version }}
+          RELEASE: ${{ needs.check-qualification.outputs.release }}
         shell: bash
         run: |
           set -euo pipefail
+          python3 scripts/validate-release-assets.py release/qualification.json release --commit "$EXPECTED_SHA" --run-id "$QUALIFICATION_RUN_ID" --version "$VERSION" --release "$RELEASE" --contract contracts/rill-runtime.json
           (cd release && sha256sum luci-app-cloudflare-ip*.ipk luci-app-cloudflare-ip*.apk > sha256sums.txt)
           bash tests/release-asset-contract.sh release "$VERSION"
       - uses: actions/upload-artifact@v7

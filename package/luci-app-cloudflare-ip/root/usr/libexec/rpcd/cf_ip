@@ -15,7 +15,19 @@ service_running_state() {
 	return 1
 }
 
-service_action() {
+cf_ip_rpc_lock_acquire() {
+	mkdir -p /tmp/cf_ip || return 1
+	mkdir /tmp/cf_ip/cf-ip-auto-v2.lock 2>/dev/null || return 1
+	printf '%s\n' "$$" >/tmp/cf_ip/cf-ip-auto-v2.lock/pid
+}
+
+cf_ip_rpc_lock_release() {
+	[ "$(cat /tmp/cf_ip/cf-ip-auto-v2.lock/pid 2>/dev/null)" = "$$" ] || return 0
+	rm -f /tmp/cf_ip/cf-ip-auto-v2.lock/pid
+	rmdir /tmp/cf_ip/cf-ip-auto-v2.lock 2>/dev/null || true
+}
+
+service_action_unlocked() {
 	action="$1"
 
 	case "$action" in
@@ -32,13 +44,13 @@ service_action() {
 
 	case "$action" in
 		start)
-			"$INIT_SCRIPT" start >/dev/null 2>&1
+		CF_IP_LOCK_HELD=1 "$INIT_SCRIPT" start >/dev/null 2>&1
 			;;
 		stop)
-			"$INIT_SCRIPT" stop >/dev/null 2>&1
+		CF_IP_LOCK_HELD=1 "$INIT_SCRIPT" stop >/dev/null 2>&1
 			;;
 		restart)
-			"$INIT_SCRIPT" restart >/dev/null 2>&1
+		CF_IP_LOCK_HELD=1 "$INIT_SCRIPT" restart >/dev/null 2>&1
 			;;
 		*)
 			echo '{"success":false,"error":"unknown_action"}'
@@ -74,6 +86,16 @@ service_action() {
 	else
 		printf '{"success":false,"action":"%s","error":"service_not_running"}\n' "$action"
 	fi
+}
+
+service_action() {
+	local action="$1" rc
+	cf_ip_rpc_lock_acquire || { printf '{"success":false,"action":"%s","error":"busy"}\n' "$action"; return 0; }
+	trap 'cf_ip_rpc_lock_release' EXIT INT TERM
+	service_action_unlocked "$action"; rc=$?
+	trap - EXIT INT TERM
+	cf_ip_rpc_lock_release
+	return "$rc"
 }
 
 case "$1" in
