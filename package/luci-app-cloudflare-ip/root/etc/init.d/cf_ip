@@ -6,12 +6,34 @@ STOP=10
 USE_PROCD=1
 
 CRONTAB_FILE="/etc/crontabs/root"
+CF_IP_RUNTIME_DIR="${CF_IP_RUNTIME_DIR:-/tmp/cf_ip}"
 
 cron_ensure_newline() {
 	[ -s "$CRONTAB_FILE" ] || return 0
 	[ -n "$(tail -c1 "$CRONTAB_FILE")" ] && echo "" >> "$CRONTAB_FILE"
 }
 
+cf_ip_shared_lock_acquire() {
+	mkdir -p "$CF_IP_RUNTIME_DIR" || return 1
+	mkdir "$CF_IP_RUNTIME_DIR/cf-ip-auto-v2.lock" 2>/dev/null || return 1
+	printf '%s\n' "$$" >"$CF_IP_RUNTIME_DIR/cf-ip-auto-v2.lock/pid"
+}
+
+cf_ip_shared_lock_release() {
+	[ "$(cat "$CF_IP_RUNTIME_DIR/cf-ip-auto-v2.lock/pid" 2>/dev/null)" = "$$" ] || return 0
+	rm -f "$CF_IP_RUNTIME_DIR/cf-ip-auto-v2.lock/pid"
+	rmdir "$CF_IP_RUNTIME_DIR/cf-ip-auto-v2.lock" 2>/dev/null || true
+}
+
+cf_ip_with_shared_lock() {
+	[ "${CF_IP_LOCK_HELD:-0}" = 1 ] && { "$@"; return $?; }
+	cf_ip_shared_lock_acquire || { logger -t cf_ip -p daemon.err "another state-changing operation is running"; return 1; }
+	trap 'cf_ip_shared_lock_release' EXIT INT TERM
+	"$@"; local rc=$?
+	trap - EXIT INT TERM
+	cf_ip_shared_lock_release
+	return "$rc"
+}
 cf_ip_cron_ensure() {
 	# Ensure cron is enabled and running
 	/etc/init.d/cron enable 2>/dev/null || /etc/init.d/crond enable 2>/dev/null || true
@@ -36,8 +58,8 @@ cf_ip_cron_remove() {
 	logger -t cf_ip -p daemon.info "crontab: removed scheduled entries"
 }
 
-start_service() {
-	local enabled cfst_persist cron_interval cron_custom startup_delay work_dir cfst_path sysupgrade_tmp
+_start_service_unlocked() {
+	local enabled cfst_persist cron_interval cron_custom startup_delay work_dir cfst_path sysupgrade_tmp first_run=0
 	config_load cf_ip
 	config_get_bool enabled main enabled 0
 
@@ -73,8 +95,6 @@ start_service() {
 		fi
 	fi
 
-	# Pre-download/update CFST in background
-	(cf-ip-auto --download-cfst >/dev/null 2>&1) &
 
 	# Get schedule configuration
 	config_get cron_interval main cron_interval "6h"
@@ -101,22 +121,25 @@ start_service() {
 		""|0)
 			;;
 		*)
-			(/usr/bin/cf-ip-auto --run >/dev/null 2>&1) &
+			first_run=1
 			logger -t cf_ip -p daemon.info "startup: first run scheduled with delay '${startup_delay}'"
 			;;
 	esac
 
 	# Write initial status for crontab-managed mode
-	cf-ip-auto --write-status
+	cf-ip-auto --write-status-held || return 1
+	# These jobs acquire the same lock after the service lifecycle releases it.
+	(sleep 1; /usr/bin/cf-ip-auto --download-cfst >/dev/null 2>&1) &
+	[ "$first_run" -eq 1 ] && (sleep 1; /usr/bin/cf-ip-auto --run >/dev/null 2>&1) &
 }
 
-stop_service() {
+_stop_service_unlocked() {
 	cf_ip_cron_remove
-	if [ -f /etc/cf_ip/status.json ]; then
-		sed -i 's/"running":true/"running":false/' /etc/cf_ip/status.json 2>/dev/null
-	fi
+	/usr/bin/cf-ip-auto --mark-stopped-held
 }
 
+start_service() { cf_ip_with_shared_lock _start_service_unlocked; }
+stop_service() { cf_ip_with_shared_lock _stop_service_unlocked; }
 service_triggers() {
 	procd_add_reload_trigger "cf_ip"
 	procd_add_validation validate_cf_ip

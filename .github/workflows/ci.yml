@@ -75,22 +75,27 @@ jobs:
           bash tests/source-policy.sh
           bash tests/rill-single-learner-contract.sh
           bash tests/cfst-version-contract.sh
+          bash tests/cfst-download-fallback-version.sh
           bash tests/source-refresh-deadline.sh
           bash tests/resource-pressure-contract.sh
           bash tests/multi-ip-diversity-contract.sh
           bash tests/reuse-policy-contract.sh
           bash tests/reuse-runtime-independence.sh
           bash tests/reuse-fresh-lifecycle.sh
+          bash tests/reuse-loss-semantics.sh
           bash tests/delayed-feedback-lifecycle-contract.sh
           bash tests/delayed-feedback-reset-lineage.sh
           bash tests/prefix-colo-intelligence.sh
           bash tests/prefix-failure-decay.sh
           bash tests/luci-validation-contract.sh
           bash tests/luci-staged-validation.sh
+          bash tests/openclash-empty-fields.sh
           bash tests/installed-routing-contract.sh
           bash tests/disabled-cron-contract.sh
           bash tests/evidence-manifest-default.sh
           bash tests/qualification-evidence-validator.sh
+          bash tests/openwrt-package-metadata.sh
+          bash tests/release-asset-binding.sh
           bash tests/rill-context-fingerprint.sh
           bash tests/rill-context-change-reset.sh
           bash tests/rill-context-pending-feedback-isolation.sh
@@ -124,6 +129,10 @@ jobs:
           bash tests/rill-runtime-absence.sh
           jq empty plans/rill/drift-decision.json
           bash tests/recovery-deadline.sh
+          bash tests/sync-single-restart.sh
+          bash tests/sync-stop-failure-cleanup.sh
+          bash tests/shared-writer-lock.sh
+          bash tests/status-stop-contract.sh
           bash tests/transaction-commit-failure.sh
           bash tests/openclash-intended-mapping-negative.sh
           bash tests/security-contract.sh
@@ -328,10 +337,18 @@ jobs:
                    APK=/builder/staging_dir/host/bin/apk bash "$GITHUB_WORKSPACE/luci-app-cloudflare-ip/tests/package-content-contract.sh" "$file" apk "$mode" ;;
             esac
           done
+          python3 "$GITHUB_WORKSPACE/luci-app-cloudflare-ip/scripts/openwrt-package-metadata.py" "$base_file" \
+            --format "${{ matrix.pkgtype }}" --apk-bin /builder/staging_dir/host/bin/apk \
+            --package-name luci-app-cloudflare-ip \
+            --output "$GITHUB_WORKSPACE/output/${base_file##*/}.metadata.json"
           (
             cd "$GITHUB_WORKSPACE/output"
             sha256sum -- "${base_file##*/}" "${rill_file##*/}" "${preview_file##*/}"
           ) > "$GITHUB_WORKSPACE/output/SHA256SUMS"
+          runtime_libgcc=$(find /builder/staging_dir/toolchain-* -type f -name libgcc_s.so.1 -print -quit)
+          test -n "$runtime_libgcc"
+          mkdir -p "$GITHUB_WORKSPACE/output/validation-runtime"
+          cp "$runtime_libgcc" "$GITHUB_WORKSPACE/output/validation-runtime/libgcc_s.so.1"
       - uses: actions/upload-artifact@v7
         with:
           name: luci-app-cloudflare-ip-${{ matrix.pkgtype }}-${{ matrix.branch }}
@@ -379,6 +396,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          apt-get update
+          DEBIAN_FRONTEND=noninteractive apt-get install -y jq=1.6-2.1 libjq1=1.6-2.1 musl
           if [[ "${{ matrix.pkgtype }}" == ipk ]]; then
             opkg_bin="$(find /builder/staging_dir /builder -type f -name opkg -perm -111 -print -quit 2>/dev/null || true)"
             test -n "$opkg_bin"
@@ -428,7 +447,26 @@ jobs:
           esac
           runtime_bin=$(find "$preview_dir/data" -type f -path '*/usr/bin/rill-runtime' -print -quit)
           test -x "$runtime_bin"
-          echo "RUNTIME_BIN=$runtime_bin" >> "$GITHUB_ENV"
+          runtime_libgcc=$(find runtime-output -type f -path '*/validation-runtime/libgcc_s.so.1' -print -quit)
+          test -n "$runtime_libgcc"
+          runtime_lib_dir="$RUNNER_TEMP/preview/host-libs"
+          mkdir -p "$runtime_lib_dir"
+          cp "$runtime_libgcc" "$runtime_lib_dir/libgcc_s.so.1"
+          runtime_wrapper="$RUNNER_TEMP/rill-runtime-with-sdk-libs"
+          cat > "$runtime_wrapper" <<'EOF'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          : "${CFIP_QUALIFIED_RUNTIME_BIN:?}"
+          : "${CFIP_QUALIFIED_RUNTIME_LIB_DIR:?}"
+          export LD_LIBRARY_PATH="$CFIP_QUALIFIED_RUNTIME_LIB_DIR${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+          exec "$CFIP_QUALIFIED_RUNTIME_BIN" "$@"
+          EOF
+          chmod +x "$runtime_wrapper"
+          {
+            echo "CFIP_QUALIFIED_RUNTIME_BIN=$runtime_bin"
+            echo "CFIP_QUALIFIED_RUNTIME_LIB_DIR=$runtime_lib_dir"
+            echo "RUNTIME_BIN=$runtime_wrapper"
+          } >> "$GITHUB_ENV"
       - name: Run the actual opkg or apk migration matrix
         shell: bash
         run: |
@@ -724,10 +762,15 @@ jobs:
           gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name rill-runtime-integration-evidence --dir "$asset_dir/rill-runtime-integration"
           asset_files='[]'
           while IFS= read -r -d '' file; do
+            metadata="$file.metadata.json"
+            test -f "$metadata"
             hash=$(sha256sum "$file" | awk '{print $1}')
+            size=$(stat -c '%s' "$file")
+            jq -e --arg sha "$hash" --argjson size "$size" '.sha256 == $sha and .size == $size and .schemaVersion == 1 and .package.name == "luci-app-cloudflare-ip"' "$metadata" >/dev/null
             rel="${file#"$asset_dir"/}"
-            asset_files=$(jq --arg path "$rel" --arg sha "$hash" '. + [{path:$path,sha256:$sha}]' <<<"$asset_files")
-          done < <(find "$asset_dir" -type f \( -name '*.ipk' -o -name '*.apk' \) ! -name 'rill-runtime-preview*' ! -name '*-rill*' -print0)
+            package=$(jq -c '.package' "$metadata")
+            asset_files=$(jq --arg path "$rel" --arg sha "$hash" --argjson size "$size" --argjson package "$package" '. + [{path:$path,sha256:$sha,size:$size,package:$package}]' <<<"$asset_files")
+          done < <(find "$asset_dir" -type f \( -name 'luci-app-cloudflare-ip*.ipk' -o -name 'luci-app-cloudflare-ip*.apk' \) ! -name '*-rill*' -print0)
           # The manifest samples one public base package per packaging family:
           # one IPK and one APK. Compatibility and Runtime packages remain
           # qualification artifacts, not public Cloudflare package assets.

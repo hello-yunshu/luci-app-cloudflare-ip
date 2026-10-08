@@ -49,14 +49,19 @@ cfip_rill_state_generation() {
       "$CFIP_RILL_STATE" 2>/dev/null || printf '0'
 }
 
-cfip_rill_lineage_id() {
+cfip_rill_existing_lineage_id() {
     local meta='{}' lineage
     [[ -s "$CFIP_RILL_STATE_META_FILE" ]] && meta="$(jq -c 'if type=="object" then . else {} end' "$CFIP_RILL_STATE_META_FILE" 2>/dev/null || printf '{}')"
     lineage="$(jq -r '.lineageId // empty' <<<"$meta")"
-    if [[ "$lineage" =~ ^[0-9a-f]{64}$ ]]; then
-        printf '%s' "$lineage"
-        return 0
-    fi
+    [[ "$lineage" =~ ^[0-9a-f]{64}$ ]] || return 1
+    printf '%s' "$lineage"
+}
+
+cfip_rill_lineage_id() {
+    local meta='{}' lineage
+    lineage="$(cfip_rill_existing_lineage_id 2>/dev/null || true)"
+    [[ -n "$lineage" ]] && { printf '%s' "$lineage"; return 0; }
+    [[ -s "$CFIP_RILL_STATE_META_FILE" ]] && meta="$(jq -c 'if type=="object" then . else {} end' "$CFIP_RILL_STATE_META_FILE" 2>/dev/null || printf '{}')"
     lineage="$(printf '%s:%s:%s' "${CFIP_RILL_STATE:-}" "$(date +%s%N 2>/dev/null || date +%s)" "${RANDOM:-0}" | sha256sum | awk '{print $1}')"
     jq --arg lineage "$lineage" '. + {lineageId:$lineage}' <<<"$meta" | cfip_atomic_write "$CFIP_RILL_STATE_META_FILE" || return 1
     printf '%s' "$lineage"
@@ -171,9 +176,19 @@ cfip_rill_evidence_json() {
     if [[ -s "$CFIP_RILL_EVIDENCE_FILE" ]] && ((bytes <= max_bytes)) && jq -e --argjson limit "$CFIP_RILL_EVIDENCE_LIMIT" 'type=="array" and length<=$limit' "$CFIP_RILL_EVIDENCE_FILE" >/dev/null 2>&1; then
         cat "$CFIP_RILL_EVIDENCE_FILE"
     else
-        [[ -s "$CFIP_RILL_EVIDENCE_FILE" ]] && mv "$CFIP_RILL_EVIDENCE_FILE" "${CFIP_RILL_EVIDENCE_FILE}.quarantine.$(date +%Y%m%d%H%M%S)" 2>/dev/null || true
         printf '[]\n'
     fi
+}
+
+cfip_rill_quarantine_evidence_if_invalid() {
+    local max_bytes="${CFIP_RILL_EVIDENCE_MAX_BYTES:-262144}" bytes=0 quarantine
+    [[ "$max_bytes" =~ ^[1-9][0-9]*$ ]] || max_bytes=262144
+    [[ -s "$CFIP_RILL_EVIDENCE_FILE" ]] || return 0
+    bytes="$(wc -c <"$CFIP_RILL_EVIDENCE_FILE")" || return 1
+    ((bytes <= max_bytes)) && jq -e --argjson limit "$CFIP_RILL_EVIDENCE_LIMIT" 'type=="array" and length<=$limit' "$CFIP_RILL_EVIDENCE_FILE" >/dev/null 2>&1 && return 0
+    quarantine="${CFIP_RILL_EVIDENCE_FILE}.quarantine.$(date +%Y%m%d%H%M%S)"
+    [[ -e "$quarantine" ]] && quarantine="${quarantine}.$$"
+    mv "$CFIP_RILL_EVIDENCE_FILE" "$quarantine"
 }
 
 cfip_rill_write_evidence() {
@@ -272,22 +287,23 @@ cfip_rill_reward_json() {
       ($ok|map(n(.totalMs;10000))) as $totals |
       ($ok|map(n(.ttfbMs;10000))) as $ttfbs |
       (p95($totals;10000)) as $p95Total |
-      ($probes|map(n(.lossRate;.candidateLossRate // 1))) as $losses |
+      ($probes|map(if (.lossRate|type)=="number" then .lossRate elif (.candidateLossRate|type)=="number" then .candidateLossRate else null end)) as $losses |
       ($probes|map(n(.downloadMBps;.candidateDownloadMBps // 0))) as $throughputs |
       ($probes|group_by(.domain)|map({
         total:(map(n(.totalMs;10000))|max),
         ttfb:(map(n(.ttfbMs;10000))|max),
-        loss:(map(n(.lossRate;.candidateLossRate // 1))|max)
+        loss:(map(if (.lossRate|type)=="number" then .lossRate elif (.candidateLossRate|type)=="number" then .candidateLossRate else null end)|map(select(type=="number"))|if length>0 then max else null end)
       })) as $domains |
       (if ($domains|length)>0 then ($domains|map(.total)|max) else 10000 end) as $worstTotal |
       (if ($domains|length)>0 then ($domains|map(.ttfb)|max) else 10000 end) as $worstTtfb |
-      (if ($domains|length)>0 then ($domains|map(.loss)|max) else 1 end) as $worstLoss |
+      ([$domains[].loss|select(type=="number")]|if length>0 then max else null end) as $worstLoss |
+      (if $worstLoss==null then 0 else 0.20*(1-clamp($worstLoss;0;1)) end) as $lossScore |
       (if $outcome.candidateOutcome=="failure" then -1 else
         (0.25
          + 0.12*(1/(1+(mean($totals;10000)/1000)))
          + 0.08*(1/(1+($p95Total/1000)))
          + 0.15*(1/(1+(mean($ttfbs;10000)/1000)))
-         + 0.20*(1-clamp($worstLoss;0;1))
+         + $lossScore
          + 0.10*clamp((mean($throughputs;0)/100);0;1)
          + 0.10*clamp((n($outcome.delayedStability;.5));0;1)
          - 0.15*clamp(($worstTotal/10000);0;1)
@@ -297,7 +313,7 @@ cfip_rill_reward_json() {
         latency:(0.12*(1/(1+(mean($totals;10000)/1000)))),
         p95:(0.08*(1/(1+($p95Total/1000)))),
         ttfb:(0.15*(1/(1+(mean($ttfbs;10000)/1000)))),
-        loss:(0.20*(1-clamp($worstLoss;0;1))),
+        loss:(if $worstLoss==null then null else $lossScore end),
         throughput:(0.10*clamp((mean($throughputs;0)/100);0;1)),
         stability:(0.10*clamp((n($outcome.delayedStability;.5));0;1)),
         worstDomainPenalty:(-0.15*clamp(($worstTotal/10000);0;1)-0.10*clamp(($worstTtfb/10000);0;1))},
@@ -639,7 +655,7 @@ cfip_rill_shadow_observe() {
         probe_rc=0; probe="$(cfip_probe_one "$selected" "$domain" "$family" "$timeout_s")" || probe_rc=$?
         ((probe_rc==0)) || return 1
         jq -e 'type=="object" and (.ip|type)=="string" and (.domain|type)=="string" and (.success|type)=="boolean" and (.connectMs|type)=="number" and (.tlsMs|type)=="number" and (.ttfbMs|type)=="number" and (.totalMs|type)=="number"' <<<"$probe" >/dev/null 2>&1 || return 1
-        probes="$(jq -cn --argjson a "$probes" --argjson p "$probe" --argjson loss "$(jq -r '.lossRate // 1' <<<"$candidate")" --argjson throughput "$(jq -r '.downloadMBps // 0' <<<"$candidate")" '$a+[$p+{lossRate:$loss,downloadMBps:$throughput}]')"; [[ "$(jq -r '.success' <<<"$probe")" == true ]] || all_ok=false
+        probes="$(jq -cn --argjson a "$probes" --argjson p "$probe" --argjson loss "$(jq -r 'if (.lossRate|type)=="number" then .lossRate else null end' <<<"$candidate")" --argjson throughput "$(jq -r '.downloadMBps // 0' <<<"$candidate")" '$a+[$p+{lossRate:$loss,candidateLossRate:$loss,downloadMBps:$throughput}]')"; [[ "$(jq -r '.success' <<<"$probe")" == true ]] || all_ok=false
     done
     (( $(jq 'length' <<<"$probes") == expected_domains && expected_domains > 0 )) || return 1
     tmp="$(mktemp "${TMPDIR:-/tmp}/cfip-rill-shadow-outcome.XXXXXX")" || return 1
@@ -702,7 +718,7 @@ cfip_rill_holdout() (
             budget_unavailable=true
             break
         fi
-        probes="$(jq -cn --argjson a "$probes" --argjson p "$probe" --argjson loss "$(jq -r '.lossRate // 1' <<<"$candidate")" --argjson throughput "$(jq -r '.downloadMBps // 0' <<<"$candidate")" '$a+[$p+{lossRate:$loss,downloadMBps:$throughput}]')"
+        probes="$(jq -cn --argjson a "$probes" --argjson p "$probe" --argjson loss "$(jq -r 'if (.lossRate|type)=="number" then .lossRate else null end' <<<"$candidate")" --argjson throughput "$(jq -r '.downloadMBps // 0' <<<"$candidate")" '$a+[$p+{lossRate:$loss,candidateLossRate:$loss,downloadMBps:$throughput}]')"
         [[ "$(jq -r '.success' <<<"$probe")" == true ]] || all_ok=false
     done
     if [[ "$budget_unavailable" == true ]]; then
@@ -765,6 +781,7 @@ cfip_rill_record_evidence() {
     [[ -s "$decision" && -s "$outcome" ]] || return 1
     [[ -n "$holdout" ]] || holdout='{}'
     [[ -f "$holdout" ]] && holdout="$(cat "$holdout")"
+    cfip_rill_quarantine_evidence_if_invalid || return 1
     current="$(cfip_rill_evidence_json)"; context="$(cfip_rill_context_json)"; fp="$(cfip_rill_context_fingerprint)"
     actual="$(jq -r '.reward // null' "$outcome" 2>/dev/null || printf null)"
     native="$(jq -r '.nativeCounterfactualReward // null' "$outcome" 2>/dev/null || printf null)"
@@ -795,7 +812,7 @@ cfip_rill_evidence_aggregate_json() {
     local context fingerprint context_changed_at lineage
     context="$(cfip_rill_context_json 2>/dev/null || printf '{}')"
     fingerprint="$(cfip_rill_context_fingerprint 2>/dev/null || printf '')"
-    lineage="$(cfip_rill_lineage_id 2>/dev/null || printf '')"
+    lineage="$(cfip_rill_existing_lineage_id 2>/dev/null || printf '')"
     context_changed_at=null
     if [[ -s "$CFIP_RILL_STATE_META_FILE" ]]; then
         context_changed_at="$(jq -c '.contextChangedAt // null' "$CFIP_RILL_STATE_META_FILE" 2>/dev/null || printf null)"
@@ -856,12 +873,12 @@ cfip_rill_refresh_delayed_observation() {
     family="$(jq -r '.probes[0].family // empty' "$original")"; [[ -n "$family" ]] || family="$(cfip_ip_family "$selected" 2>/dev/null || printf ipv4)"
     candidate="$(jq -c --arg ip "$selected" '.candidates[]? | select((.ip|tostring)==$ip)' "$decision" 2>/dev/null | head -n1)"
     [[ -n "$candidate" ]] || candidate='{}'
-    loss="$(jq -r '.lossRate // 1' <<<"$candidate")"; throughput="$(jq -r '.downloadMBps // 0' <<<"$candidate")"
+    loss="$(jq -r 'if (.lossRate|type)=="number" then .lossRate else null end' <<<"$candidate")"; throughput="$(jq -r '.downloadMBps // 0' <<<"$candidate")"
     IFS=',' read -r -a domain_list <<<"$domains"
     for domain in "${domain_list[@]}"; do
         [[ -n "$domain" ]] || continue
         probe="$(cfip_probe_one "$selected" "$domain" "$family" "${CFIP_RILL_DELAYED_PROBE_TIMEOUT:-5}")" || return 1
-        probes="$(jq -cn --argjson a "$probes" --argjson p "$probe" --argjson loss "$loss" --argjson throughput "$throughput" '$a+[$p+{lossRate:$loss,downloadMBps:$throughput}]')"
+        probes="$(jq -cn --argjson a "$probes" --argjson p "$probe" --argjson loss "$loss" --argjson throughput "$throughput" '$a+[$p+{lossRate:$loss,candidateLossRate:$loss,downloadMBps:$throughput}]')"
         [[ "$(jq -r '.success' <<<"$probe")" == true ]] || all_ok=false
     done
     [[ "$(jq 'length' <<<"$probes")" -gt 0 ]] || return 1

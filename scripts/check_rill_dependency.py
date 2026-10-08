@@ -29,6 +29,7 @@ def check(package_dir: Path | None) -> list[str]:
     preview = data.get("preview", {})
     package = data.get("openwrtPackage", {})
     qualification = data.get("qualification", {})
+    migration = data.get("packageMigration", {})
     version = resolved.get("version")
     if not isinstance(version, str) or not SEMVER.fullmatch(version):
         errors.append("resolved.version must be Stable 1.x")
@@ -56,6 +57,8 @@ def check(package_dir: Path | None) -> list[str]:
         errors.append("canonical Runtime binary drifted")
     if qualification.get("required") is not True or qualification.get("verdict") != "PASS":
         errors.append("qualification is not required and PASS")
+    if migration != {"legacyVersion": "2.6.0-r2", "sourceTag": "v2.6.0-2", "sourceSHA": "652476bd3cdc410bc16e3a47ee96b685c84acbbb"}:
+        errors.append("package migration source is not pinned to the audited tag and exact SHA")
     if package_dir:
         makefile = package_dir / "package/rill-runtime-preview/Makefile"
         metadata = package_dir / "metadata/rill-runtime-preview.json"

@@ -7,12 +7,13 @@ ARTIFACTS="${ARTIFACTS:-[]}"
 ASSET_FILES="${ASSET_FILES:-[]}"
 RILL_EVIDENCE="${RILL_EVIDENCE:-}"
 [[ -n "$RILL_EVIDENCE" ]] || RILL_EVIDENCE='{}'
-PACKAGE_MIGRATION="${PACKAGE_MIGRATION:-{}}"
+if [[ -z "${PACKAGE_MIGRATION:-}" ]]; then PACKAGE_MIGRATION='{}'; fi
 commit="${GITHUB_SHA:?GITHUB_SHA required}"; run_id="${GITHUB_RUN_ID:?GITHUB_RUN_ID required}"
 release_eligible=false
 if jq -e 'to_entries|all(.value.result=="success")' <<<"$RESULTS" >/dev/null; then release_eligible=true; fi
-jq -n --arg commit "$commit" --arg runId "$run_id" --arg generatedAt "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+jq -n --arg commit "$commit" --argjson runId "$run_id" --arg generatedAt "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
   --argjson jobs "$RESULTS" --argjson artifacts "$ARTIFACTS" --argjson assetFiles "$ASSET_FILES" --argjson rill "$RILL_EVIDENCE" --argjson migration "$PACKAGE_MIGRATION" --argjson releaseEligible "$release_eligible" \
-  '{schemaVersion:1,commit:$commit,runId:$runId,generatedAt:$generatedAt,jobs:$jobs,artifacts:$artifacts,assetFiles:$assetFiles,rill:$rill,packageMigration:$migration,qualificationState:(if $releaseEligible then "automated-qualification" else "incomplete" end),releaseEligible:$releaseEligible}' >"$OUTPUT"
+  --arg stableSourceArchiveSha256 "$(jq -er '.resolved.sourceArchiveSha256' "$ROOT/contracts/rill-runtime.json")" \
+  '{schemaVersion:1,commit:$commit,runId:$runId,generatedAt:$generatedAt,jobs:$jobs,artifacts:$artifacts,assetFiles:$assetFiles,rill:$rill,packageMigration:$migration,stableSourceArchiveSha256:$stableSourceArchiveSha256,qualificationState:(if $releaseEligible then "automated-qualification" else "incomplete" end),releaseEligible:$releaseEligible}' >"$OUTPUT"
 python3 "$ROOT/scripts/validate-qualification-evidence.py" "$OUTPUT" --commit "$commit"
 echo "evidence manifest written: $OUTPUT"
