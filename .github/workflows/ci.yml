@@ -452,8 +452,19 @@ jobs:
           runtime_lib_dir="$RUNNER_TEMP/preview/host-libs"
           mkdir -p "$runtime_lib_dir"
           cp "$runtime_libgcc" "$runtime_lib_dir/libgcc_s.so.1"
-          echo "LD_LIBRARY_PATH=$runtime_lib_dir${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" >> "$GITHUB_ENV"
-          echo "RUNTIME_BIN=$runtime_bin" >> "$GITHUB_ENV"
+          runtime_wrapper="$RUNNER_TEMP/rill-runtime-with-sdk-libs"
+          cat > "$runtime_wrapper" <<'EOF'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          : "${CFIP_QUALIFIED_RUNTIME_BIN:?}"
+          : "${CFIP_QUALIFIED_RUNTIME_LIB_DIR:?}"
+          export LD_LIBRARY_PATH="$CFIP_QUALIFIED_RUNTIME_LIB_DIR${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+          exec "$CFIP_QUALIFIED_RUNTIME_BIN" "$@"
+          EOF
+          chmod +x "$runtime_wrapper"
+          echo "CFIP_QUALIFIED_RUNTIME_BIN=$runtime_bin" >> "$GITHUB_ENV"
+          echo "CFIP_QUALIFIED_RUNTIME_LIB_DIR=$runtime_lib_dir" >> "$GITHUB_ENV"
+          echo "RUNTIME_BIN=$runtime_wrapper" >> "$GITHUB_ENV"
       - name: Run the actual opkg or apk migration matrix
         shell: bash
         run: |
