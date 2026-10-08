@@ -462,9 +462,11 @@ jobs:
           exec "$CFIP_QUALIFIED_RUNTIME_BIN" "$@"
           EOF
           chmod +x "$runtime_wrapper"
-          echo "CFIP_QUALIFIED_RUNTIME_BIN=$runtime_bin" >> "$GITHUB_ENV"
-          echo "CFIP_QUALIFIED_RUNTIME_LIB_DIR=$runtime_lib_dir" >> "$GITHUB_ENV"
-          echo "RUNTIME_BIN=$runtime_wrapper" >> "$GITHUB_ENV"
+          {
+            echo "CFIP_QUALIFIED_RUNTIME_BIN=$runtime_bin"
+            echo "CFIP_QUALIFIED_RUNTIME_LIB_DIR=$runtime_lib_dir"
+            echo "RUNTIME_BIN=$runtime_wrapper"
+          } >> "$GITHUB_ENV"
       - name: Run the actual opkg or apk migration matrix
         shell: bash
         run: |
