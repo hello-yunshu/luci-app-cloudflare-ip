@@ -30,5 +30,10 @@
     "workflow": "qualify.yml",
     "runId": 33735123909,
     "verdict": "PASS"
+  },
+  "packageMigration": {
+    "legacyVersion": "2.6.0-r2",
+    "sourceTag": "v2.6.0-2",
+    "sourceSHA": "652476bd3cdc410bc16e3a47ee96b685c84acbbb"
   }
 }

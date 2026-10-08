@@ -23,18 +23,30 @@ ADDON_PACKAGE=luci-app-cloudflare-ip-rill
 
 manager() {
     case "$KIND" in
-        ipk) "$OPKG" --offline-root "$1" --force-depends --force-maintainer "${@:2}" ;;
-        apk) "$APK" --root "$1" --network=no --repositories-file /dev/null --allow-untrusted --force-non-repository "${@:2}" ;;
+        ipk) "$OPKG" --conf "$1/etc/opkg.conf" --offline-root "$1" --add-arch all:10 --force-depends --force-maintainer "${@:2}" ;;
+        apk) "$APK" --root "$1" --network=no --repositories-file "$APK_REPOSITORIES_FILE" --allow-untrusted --force-non-repository "${@:2}" ;;
         *) echo "unsupported package kind: $KIND" >&2; exit 2 ;;
     esac
 }
 
 init_root() {
     local root="$1"
-    mkdir -p "$root"
+    mkdir -p "$root" "$root/tmp"
     case "$KIND" in
-        ipk) mkdir -p "$root/etc/opkg" "$root/usr/lib/opkg" ;;
-        apk) manager "$root" add --initdb --no-scripts ;;
+        ipk)
+            mkdir -p "$root/etc/opkg" "$root/usr/lib/opkg/info"
+            printf 'arch all 1\narch x86_64 10\n' >"$root/etc/opkg.conf"
+            for package in libc luci-base bash curl tar jq ca-bundle ca-certificates uhttpd rill-runtime-preview; do
+                printf 'Package: %s\nVersion: 1\nArchitecture: x86_64\nStatus: install ok installed\n\n' "$package"
+                : >"$root/usr/lib/opkg/info/$package.list"
+            done >"$root/usr/lib/opkg/status"
+            ;;
+        apk)
+            manager "$root" add --initdb --no-scripts
+            manager "$root" add --no-scripts \
+                libc=1-r0 luci-base=1-r0 bash=1-r0 curl=1-r0 tar=1-r0 jq=1-r0 \
+                ca-bundle=1-r0 ca-certificates=1-r0 uhttpd=1-r0 rill-runtime-preview=1-r0
+            ;;
     esac
 }
 
@@ -42,7 +54,13 @@ install_package() {
     local root="$1" package="$2"
     case "$KIND" in
         ipk) manager "$root" install "$package" ;;
-        apk) manager "$root" add --no-scripts --force-broken-world "$package" ;;
+        apk)
+            local metadata name version
+            metadata=$("$APK" adbdump --format json "$package")
+            name=$(jq -r '.info.name' <<<"$metadata")
+            version=$(jq -r '.info.version' <<<"$metadata")
+            manager "$root" add --no-scripts "$name=$version"
+            ;;
     esac
 }
 
@@ -58,7 +76,7 @@ assert_installed() {
     local root="$1" package="$2"
     case "$KIND" in
         ipk)
-            if ! manager "$root" status "$package" | grep -Eq '^Status: install (ok )?installed$'; then
+            if ! manager "$root" status "$package" | grep -Eq '^Status: install (ok |user )?installed$'; then
                 echo "package is not installed: kind=$KIND package=$package root=$root" >&2
                 manager "$root" status "$package" >&2 || true
                 exit 1
@@ -77,8 +95,8 @@ assert_installed() {
 package_files() {
     local root="$1" package="$2"
     case "$KIND" in
-        ipk) manager "$root" files "$package" ;;
-        apk) manager "$root" info -L "$package" ;;
+        ipk) manager "$root" files "$package" | sed "s#^$root##" ;;
+        apk) manager "$root" info -L "$package" | sed "s#^$root##" ;;
     esac
 }
 
@@ -218,6 +236,22 @@ scenario_e() {
     assert_absent "$root" "$OLD_SCHEMA"
     runtime_present "$root"
 }
+
+if [[ "$KIND" == apk ]]; then
+    apk_repository="$WORK/apk-repository"
+    mkdir -p "$apk_repository"
+    for package in libc luci-base bash curl tar jq ca-bundle ca-certificates uhttpd rill-runtime-preview; do
+        "$APK" mkpkg --output "$apk_repository/$package.apk" \
+            --info "name:$package" --info 'version:1-r0' --info 'arch:x86_64' \
+            --info 'description:package migration test fixture'
+    done
+    for package in "$LEGACY_BASE" "$LEGACY_ADDON" "$CURRENT_BASE" "$CURRENT_ADDON" "$R3_BASE"; do
+        cp "$package" "$apk_repository/$(basename "$package")"
+    done
+    "$APK" --allow-untrusted mkndx --output "$apk_repository/packages.adb" "$apk_repository"/*.apk
+    APK_REPOSITORIES_FILE="$WORK/apk-repositories"
+    printf '%s\n' "$apk_repository/packages.adb" >"$APK_REPOSITORIES_FILE"
+fi
 
 run_scenario "${KIND}-a" scenario_a
 run_scenario "${KIND}-b" scenario_b

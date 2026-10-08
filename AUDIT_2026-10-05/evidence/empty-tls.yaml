@@ -1,0 +1,8 @@
+proxies:
+  - name: sample
+    type: vless
+    server: example.com
+    network: ws
+    ws-opts:
+      headers:
+        Host: example.com

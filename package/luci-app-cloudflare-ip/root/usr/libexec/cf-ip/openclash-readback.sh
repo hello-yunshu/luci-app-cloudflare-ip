@@ -13,10 +13,15 @@ cfip_openclash_protocol_supported() {
 }
 
 cfip_openclash_mapping_tsv() {
+    # NUL separates fields so an empty TLS/SNI/Host value never collapses as
+    # it does with Bash's whitespace IFS. Current supported YAML is the
+    # block form with one proxy per `- name:` and scalar fields on separate
+    # lines; inline maps, anchors, folded values and escaped multiline YAML
+    # are intentionally outside this conservative parser's contract.
     local config="$1"
     awk '
       function trim(v) { gsub(/^[[:space:]]+|[[:space:]]+$/, "", v); gsub(/^["'"'"']|["'"'"']$/, "", v); return v }
-      function emit() { if (name != "") printf "%s\t%s\t%s\t%s\t%s\t%s\t%s\n", name,type,server,tls,network,servername,host }
+      function emit() { if (name != "") printf "%s%c%s%c%s%c%s%c%s%c%s%c%s%c", name,0,type,0,server,0,tls,0,network,0,servername,0,host,0 }
       /^[[:space:]]*-[[:space:]]+name:[[:space:]]*/ {
         emit(); line=$0; sub(/^[[:space:]]*-[[:space:]]+name:[[:space:]]*/, "", line)
         name=trim(line); type=""; server=""; tls=""; network=""; servername=""; host=""; next
@@ -35,7 +40,7 @@ cfip_openclash_actual_mapping() {
     local config="$1" output="$2" tmp row name type server tls network servername host
     tmp="$(mktemp "${TMPDIR:-/tmp}/cfip-openclash-actual.XXXXXX")" || return 1
     printf '[]' >"$tmp"
-    while IFS=$'\t' read -r name type server tls network servername host; do
+    while IFS= read -r -d '' name && IFS= read -r -d '' type && IFS= read -r -d '' server && IFS= read -r -d '' tls && IFS= read -r -d '' network && IFS= read -r -d '' servername && IFS= read -r -d '' host; do
         [[ -n "$name" ]] || continue
         jq -cn --arg name "$name" --arg type "$type" --arg server "$server" --arg tls "$tls" \
           --arg network "$network" --arg servername "$servername" --arg host "$host" \
@@ -57,7 +62,7 @@ cfip_openclash_intended_from_templates() {
     ((${#ips[@]} > 0)) || return 1
     tmp="$(mktemp "${TMPDIR:-/tmp}/cfip-openclash-intended.XXXXXX")" || return 1
     printf '[]' >"$tmp"
-    while IFS=$'\t' read -r name type server tls network servername host; do
+    while IFS= read -r -d '' name && IFS= read -r -d '' type && IFS= read -r -d '' server && IFS= read -r -d '' tls && IFS= read -r -d '' network && IFS= read -r -d '' servername && IFS= read -r -d '' host; do
         [[ -n "$name" ]] || continue
         cfip_openclash_protocol_supported "$type" "$tls" "$network" || continue
         if [[ -n "$filter_lc" && ",${filter_lc}," != *",${network},"* ]]; then continue; fi

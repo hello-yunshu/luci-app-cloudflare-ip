@@ -1,0 +1,47 @@
+[
+  {
+    "file": "package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js",
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "file": "package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/advanced.js",
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "file": "package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/diagnostics.js",
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "file": "package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js",
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "file": "package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js",
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "file": "package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js",
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "file": "package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/passwall.js",
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "file": "package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/settings.js",
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "file": "package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/sources.js",
+    "returncode": 0,
+    "output": ""
+  }
+]
