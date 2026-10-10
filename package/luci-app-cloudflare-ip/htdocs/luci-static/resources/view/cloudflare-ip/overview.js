@@ -48,6 +48,7 @@ var STATUS_LABELS = {
 	scheduled: _('Scheduled'),
 	running: _('Running'),
 	success: _('Success'),
+	warning: _('Warning'),
 	error: _('Error'),
 	stopped: _('Stopped'),
 	unknown: _('Unknown')
@@ -143,7 +144,7 @@ function showSpeedtestModal() {
 
 function waitReadyAndReload() {
 	return utils.waitForServiceReady(utils.callStatus).then(function(status) {
-		if (status && status.last_result === 'running')
+		if (status && (status.jobRunning === true || status.active_run === true))
 			ui.addNotification(null, E('p', _('Service action completed, but the speed test is still in progress. Refreshing current status.')), 'warning');
 		utils.reloadSoon(300);
 		return status;
@@ -268,7 +269,7 @@ return view.extend({
 
 		container.appendChild(E('h2', { 'class': 'cbi-map-title' }, _('Overview')));
 
-		var isRunningTest = running && lastResult === 'running';
+		var isRunningTest = data.active_run === true || data.jobRunning === true;
 		var bannerState = isRunningTest ? 'running-test' : (running ? 'running' : 'stopped');
 		var banner = E('div', {
 			'class': 'cbi-section cfi-status-banner ' + bannerState,
@@ -280,11 +281,11 @@ return view.extend({
 			isRunningTest ? '\u23F3' : (running ? '\u25CF' : '\u25CB')));
 		var bannerText = E('div', { 'class': 'cfi-status-text' });
 		bannerText.appendChild(E('h3', { 'class': bannerState },
-			isRunningTest ? _('Speed Test Running') : (running ? _('Service Running') : _('Service Stopped'))));
+			isRunningTest ? _('Speed Test Running') : (running ? _('Service Enabled') : _('Service Stopped'))));
 		bannerText.appendChild(E('p', {}, isRunningTest ?
 			_('Cloudflare IP speed test is in progress. Please wait.') :
 			(running ?
-				_('Cloudflare IP optimization service is active and running.') :
+				_('Cloudflare IP optimization service is enabled and scheduled.') :
 				_('Cloudflare IP optimization service is not running. Click Start to begin.'))));
 		banner.appendChild(bannerText);
 		container.appendChild(banner);
@@ -302,7 +303,7 @@ return view.extend({
 			// Re-check after short delay to catch the transition
 			setTimeout(function() {
 				utils.callStatus().then(function(s) {
-					if (s && s.last_result === 'running')
+					if (s && (s.jobRunning === true || s.active_run === true))
 						utils.reloadSoon(300);
 				});
 			}, 2000);
@@ -472,6 +473,8 @@ return view.extend({
 				'type': 'button',
 				'click': showSpeedtestModal
 			}, '\u23F3 ' + translateStatus(lastResult));
+		} else if (lastResult === 'warning') {
+			lastResultBadge = E('span', { 'class': 'cfi-badge orange' }, '\u26A0 ' + translateStatus(lastResult));
 		} else if (lastResult === 'success' || (typeof lastResult === 'string' && lastResult.indexOf('success') === 0)) {
 			lastResultBadge = E('span', { 'class': 'cfi-badge green' }, '\u2714 ' + translateStatus(lastResult));
 		} else if (lastResult === '-' || lastResult === 'unknown') {
@@ -483,6 +486,17 @@ return view.extend({
 			E('th', { 'class': 'th' }, _('Last Result')),
 			E('td', { 'class': 'td' }, lastResultBadge)
 		]));
+		if (data.service && data.service.target === 'openclash') {
+			var serviceMessage = data.service.deferredUntilServiceStart ?
+				_('Nodes updated; OpenClash is disabled and the changes will take effect after it is started') :
+				(data.service.error || error || (data.service.serviceApplied ? _('OpenClash service applied and health verified.') :
+					(data.service.recoveryVerified ? _('OpenClash service restored and health verified; new nodes were not applied.') : '')));
+			if (serviceMessage)
+				infoTable.appendChild(E('tr', { 'class': 'tr' }, [
+					E('th', { 'class': 'th' }, _('OpenClash Apply Status')),
+					E('td', { 'class': 'td' }, serviceMessage)
+				]));
+		}
 
 		var bestIpsText = bestIps.length > 0 ? bestIps.slice(0, 5).join(', ') + (bestIps.length > 5 ? ' ...' : '') : '-';
 		infoTable.appendChild(E('tr', { 'class': 'tr' }, [

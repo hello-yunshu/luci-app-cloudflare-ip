@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-cloudflare-ip
 PKG_VERSION:=2.6.0
-PKG_RELEASE:=4
+PKG_RELEASE:=5
 
 PKG_MAINTAINER:=yunshu
 PKG_LICENSE:=GPL-3.0
@@ -69,6 +69,7 @@ define Package/luci-app-cloudflare-ip/install
 	for script in common.sh config.sh status.sh source.sh scheduler.sh cfst.sh observe.sh adaptive-measurement.sh context-policy.sh transaction.sh openclash-transform.sh openclash-readback.sh publisher.sh rill-disabled.sh candidate-rill.sh reuse.sh operational-health.sh; do \
 		$(INSTALL_BIN) $(PKG_BUILD_DIR)/root/usr/libexec/cf-ip/$$$$script $(1)/usr/libexec/cf-ip/; \
 	done
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/root/usr/libexec/cf-ip/migrate-self-update-url.sh $(1)/usr/libexec/cf-ip/
 	$(INSTALL_DIR) $(1)/usr/share/cf-ip
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/root/usr/share/cf-ip/candidate-rill-feature-schema-v2.json $(1)/usr/share/cf-ip/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/root/etc/init.d/cf_ip_publisher $(1)/etc/init.d/
@@ -91,6 +92,7 @@ endef
 define Package/luci-app-cloudflare-ip/postinst
 #!/bin/sh
 [ -n "$${IPKG_INSTROOT}" ] || { \
+	[ -x /usr/libexec/cf-ip/migrate-self-update-url.sh ] && /usr/libexec/cf-ip/migrate-self-update-url.sh; \
 	[ -x /etc/init.d/cf_ip ] && /etc/init.d/cf_ip enable 2>/dev/null; \
 	uci -q get luci.languages.zh_cn >/dev/null || uci -q set luci.languages.zh_cn='简体中文'; \
 	uci -q commit luci; \

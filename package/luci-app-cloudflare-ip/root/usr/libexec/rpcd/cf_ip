@@ -5,6 +5,22 @@ CF_IP_AUTO_BIN="${CF_IP_AUTO_BIN:-/usr/bin/cf-ip-auto}"
 INIT_SCRIPT="${INIT_SCRIPT:-/etc/init.d/cf_ip}"
 CF_IP_RUNTIME_DIR="${CF_IP_RUNTIME_DIR:-/tmp/cf_ip}"
 
+# Keep valid failure details, but never turn a failing backend into RPC success.
+command_result() {
+	_result_rc=0
+	_result_json="$("$CF_IP_AUTO_BIN" "$@" 2>/dev/null)" || _result_rc=$?
+	if printf '%s\n' "$_result_json" | jq -e 'type == "object"' >/dev/null 2>&1; then
+		if [ "$_result_rc" -ne 0 ]; then
+			printf '%s\n' "$_result_json" | jq -c --argjson rc "$_result_rc" '.success=false | . + {error:(.error // "cf-ip-auto command failed"),rc:$rc}'
+		else
+			printf '%s\n' "$_result_json"
+		fi
+	else
+		[ "$_result_rc" -ne 0 ] || _result_rc=1
+		printf '{"success":false,"error":"cf-ip-auto returned no valid result","rc":%s}\n' "$_result_rc"
+	fi
+}
+
 service_running_state() {
 	case "$(uci -q get cf_ip.main.enabled 2>/dev/null)" in
 		1|on|true|enabled)
@@ -137,7 +153,7 @@ EOF
 		method="$2"
 		case "$method" in
 			status)
-				"$CF_IP_AUTO_BIN" --status 2>/dev/null || true
+				command_result --status
 				;;
 			validate-config)
 				read _input
@@ -162,7 +178,7 @@ EOF
 				fi
 				;;
 			speedtest-status)
-				_status="$("$CF_IP_AUTO_BIN" --status 2>/dev/null)" || true
+				_status="$(command_result --status)"
 				_log="$("$CF_IP_AUTO_BIN" --read-log 2>/dev/null)" || true
 				# Merge status + log into single response
 				if command -v jq >/dev/null 2>&1 && [ -n "$_status" ]; then
@@ -227,8 +243,7 @@ EOF
 				if [ -z "$_plugin" ]; then
 					echo '{"success":false,"error":"missing plugin name"}'
 				else
-					_out="$("$CF_IP_AUTO_BIN" --sync "$_plugin" 2>/dev/null)" || true
-					[ -n "$_out" ] && printf '%s\n' "$_out" || printf '%s\n' '{"success":false,"error":"no output from cf-ip-auto"}'
+					command_result --sync "$_plugin"
 				fi
 				;;
 			oc-list-backups)
@@ -240,8 +255,7 @@ EOF
 				if [ -z "$_backup_id" ]; then
 					echo '{"success":false,"error":"missing backup id"}'
 				else
-					_out="$("$CF_IP_AUTO_BIN" --oc-restore-backup "$_backup_id" 2>/dev/null)" || true
-					[ -n "$_out" ] && printf '%s\n' "$_out" || printf '%s\n' '{"success":false,"error":"no output from cf-ip-auto"}'
+					command_result --oc-restore-backup "$_backup_id"
 				fi
 				;;
 			oc-delete-backup)

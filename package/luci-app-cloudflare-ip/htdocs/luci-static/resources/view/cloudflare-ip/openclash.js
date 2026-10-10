@@ -127,8 +127,11 @@ return view.extend({
 										ui.showModal(_('Restoring...'), [E('p', {}, _('Please wait...'))]);
 										callOcRestoreBackup(backup.id).then(function(result) {
 											ui.hideModal();
-											if (result && result.error) {
-												ui.addNotification(null, E('p', {}, _('Unable to restore backup: %s').format(result.error)), 'error');
+											if (!result || result.success === false || result.error) {
+												ui.addNotification(null, E('p', {}, _('Unable to restore backup: %s').format((result && result.error) || _('Unknown'))), 'error');
+											} else if (result.deferredUntilServiceStart || result.last_result === 'warning') {
+												ui.addNotification(null, E('p', {}, _('Nodes updated; OpenClash is disabled and the changes will take effect after it is started')), 'warning');
+												setTimeout(function() { location.reload(); }, 500);
 											} else {
 												ui.addNotification(null, E('p', {}, _('Backup restored successfully.')), 'info');
 												setTimeout(function() { location.reload(); }, 500);
