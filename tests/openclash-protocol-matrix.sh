@@ -7,6 +7,7 @@ repo_dir="$(CDPATH='' cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 restart_service() {
     :
 }
+openclash_check_before_write() { :; }
 
 tmp_dir="$(mktemp -d)"
 trap 'rm -rf "$tmp_dir"' EXIT

@@ -20,7 +20,10 @@ cfip_txn_prepare() {
     CFIP_TXN_COMMITTED=false
     CFIP_TXN_ROLLED_BACK=false
     CFIP_TXN_ORIGINAL_RUNNING=false
-    if declare -F cfip_service_running >/dev/null 2>&1 && cfip_service_running "$mode" measurement; then
+    if [[ "$mode" == openclash ]]; then
+        cfip_openclash_capture_state || return 20
+        [[ "$CFIP_OPENCLASH_INITIAL_HEALTHY" == true ]] && CFIP_TXN_ORIGINAL_RUNNING=true
+    elif declare -F cfip_service_running >/dev/null 2>&1 && cfip_service_running "$mode" measurement; then
         CFIP_TXN_ORIGINAL_RUNNING=true
     fi
     CFIP_TXN_DIR="$(mktemp -d "${CFIP_RUNTIME_DIR:-/tmp/cf_ip}/txn-${CFIP_RUN_ID}.XXXXXX")" || return 1
@@ -37,11 +40,7 @@ cfip_txn_prepare() {
       openclash)
         [[ -f "$CFIP_OPENCLASH_CONFIG" ]] || { rm -rf "$CFIP_TXN_DIR"; CFIP_TXN_DIR=""; return 1; }
         cp -p "$CFIP_OPENCLASH_CONFIG" "$CFIP_TXN_DIR/openclash.yaml" || { rm -rf "$CFIP_TXN_DIR"; CFIP_TXN_DIR=""; return 1; }
-        if command -v uci >/dev/null 2>&1; then
-            uci -q get openclash.config.enable >"$CFIP_TXN_DIR/openclash.enable" 2>/dev/null || printf '1\n' >"$CFIP_TXN_DIR/openclash.enable"
-        else
-            printf '%s\n' "${CFIP_OPENCLASH_ENABLE_SAVED:-1}" >"$CFIP_TXN_DIR/openclash.enable"
-        fi
+        printf '%s\n' "$CFIP_OPENCLASH_EXPECTED_ENABLED" >"$CFIP_TXN_DIR/openclash.enable"
         ;;
       *) rm -rf "$CFIP_TXN_DIR"; CFIP_TXN_DIR=""; return 1 ;;
     esac
@@ -82,20 +81,43 @@ cfip_txn_rollback() {
         CFIP_TXN_STATE=ROLLED_BACK
         ;;
       openclash)
-        cp "$CFIP_TXN_DIR/openclash.yaml" "${CFIP_OPENCLASH_CONFIG}.rollback.$$" || return 1
-        mv "${CFIP_OPENCLASH_CONFIG}.rollback.$$" "$CFIP_OPENCLASH_CONFIG" || return 1
-        CFIP_OPENCLASH_ENABLE_SAVED="$(cat "$CFIP_TXN_DIR/openclash.enable" 2>/dev/null || printf 1)"
-        if command -v uci >/dev/null 2>&1; then
-            uci -q set "openclash.config.enable=${CFIP_OPENCLASH_ENABLE_SAVED}" || return 1
-            uci -q commit openclash || return 1
-        fi
-        local recovery_rc=0
-        cfip_txn_restart_original_service openclash recovery || recovery_rc=$?
-        if ((recovery_rc != 0)); then
-            ((recovery_rc == 124)) && CFIP_RECOVERY_ERROR="RecoveryTimeout" || CFIP_RECOVERY_ERROR="RecoveryRestartFailed"
+        # A failed normal startup is final for this run. Keep its node file,
+        # snapshot and OpenClash's own failure state for diagnosis.
+        if { ((CFIP_OPENCLASH_RESTART_ATTEMPTS > 0)) || [[ "$CFIP_OPENCLASH_CF_STOPPED" == true && "$CFIP_OPENCLASH_RECOVERY_ATTEMPTED" == true ]]; } && [[ "$CFIP_OPENCLASH_SERVICE_APPLIED" != true ]]; then
+            CFIP_STOPPED_MODE=""
+            CFIP_RECOVERY_ERROR="${CFIP_OPENCLASH_SERVICE_ERROR:-OpenClashRecoveryFailed}"
             return 1
         fi
-        cmp -s "$CFIP_OPENCLASH_CONFIG" "$CFIP_TXN_DIR/openclash.yaml" || return 1
+        local restored_config=false config_conflict=false
+        if cmp -s "$CFIP_OPENCLASH_CONFIG" "$CFIP_TXN_DIR/openclash.yaml"; then
+            :
+        elif [[ -f "$CFIP_TXN_DIR/openclash.written.yaml" ]] && cmp -s "$CFIP_OPENCLASH_CONFIG" "$CFIP_TXN_DIR/openclash.written.yaml"; then
+            cp "$CFIP_TXN_DIR/openclash.yaml" "${CFIP_OPENCLASH_CONFIG}.rollback.$$" || return 1
+            mv "${CFIP_OPENCLASH_CONFIG}.rollback.$$" "$CFIP_OPENCLASH_CONFIG" || return 1
+            restored_config=true
+        else
+            config_conflict=true
+            CFIP_RECOVERY_ERROR="OpenClash config changed outside this transaction; preserved current file and snapshot"
+        fi
+        if [[ "$CFIP_OPENCLASH_EXPECTED_ENABLED" == 1 ]] && {
+            [[ "$CFIP_OPENCLASH_CF_STOPPED" == true && "$CFIP_OPENCLASH_RECOVERY_ATTEMPTED" != true ]] ||
+            [[ "$restored_config" == true && "$CFIP_OPENCLASH_SERVICE_APPLIED" == true ]];
+        }; then
+            local recovery_rc=0
+            CFIP_OPENCLASH_RECOVERY_ATTEMPTED=true
+            cfip_txn_restart_original_service openclash recovery || recovery_rc=$?
+            CFIP_STOPPED_MODE=""
+            if ((recovery_rc != 0)); then
+                CFIP_RECOVERY_ERROR="${CFIP_OPENCLASH_SERVICE_ERROR:-OpenClashRecoveryFailed}"
+                return 1
+            fi
+            [[ "$restored_config" != true ]] || CFIP_OPENCLASH_SERVICE_APPLIED=false
+        else
+            # A disabled service is deliberately left disabled. Do not rewrite
+            # UCI on rollback; this preserves detectable user changes.
+            CFIP_STOPPED_MODE=""
+        fi
+        [[ "$config_conflict" != true ]] || return 1
         CFIP_TXN_ROLLED_BACK=true
         CFIP_TXN_STATE=ROLLED_BACK
         ;;
@@ -231,6 +253,13 @@ cfip_txn_apply() {
     local mode="$1" selected="$2"
     [[ -n "$CFIP_TXN_DIR" && -d "$CFIP_TXN_DIR" ]] || cfip_txn_prepare "$mode" || return 10
     CFIP_TXN_MODE="$mode"
+    if [[ "$mode" == openclash ]]; then
+        cfip_openclash_check_before_write || return 17
+        cmp -s "$CFIP_OPENCLASH_CONFIG" "$CFIP_TXN_DIR/openclash.yaml" || {
+            CFIP_OPENCLASH_SERVICE_ERROR="OpenClash config changed before node write; preserved external changes"
+            return 17
+        }
+    fi
     CFIP_TXN_STATE=MUTATED
     CFIP_TXN_APPLY=true
     case "$mode" in
@@ -247,18 +276,21 @@ cfip_txn_apply() {
         ;;
       openclash)
         if ! cfip_openclash_apply_selected "$selected"; then
+            cmp -s "$CFIP_OPENCLASH_CONFIG" "$CFIP_TXN_DIR/openclash.yaml" || CFIP_OPENCLASH_FILE_WRITTEN=true
             CFIP_TXN_APPLY=false
             if cfip_txn_rollback "$mode"; then return 13; else return 14; fi
         fi
+        CFIP_OPENCLASH_FILE_WRITTEN=true
+        cp -p "$CFIP_OPENCLASH_CONFIG" "$CFIP_TXN_DIR/openclash.written.yaml" || return 14
         if ! cfip_openclash_readback_selected "$selected"; then
             CFIP_TXN_APPLY=false
             if cfip_txn_rollback "$mode"; then return 15; else return 16; fi
         fi
-        if ! cfip_txn_restart_original_service openclash normal; then
+        if [[ "${CFIP_OPENCLASH_EXPECTED_ENABLED:-}" == 1 ]] && ! cfip_txn_restart_original_service openclash normal; then
             CFIP_TXN_APPLY=false
             if cfip_txn_rollback "$mode"; then return 15; else return 16; fi
         fi
-        [[ "${CFIP_TXN_ORIGINAL_RUNNING:-false}" == true ]] && CFIP_TXN_STATE=RESTARTED
+        [[ "${CFIP_TXN_ORIGINAL_RUNNING:-false}" == true && "${CFIP_OPENCLASH_SERVICE_APPLIED:-false}" == true ]] && CFIP_TXN_STATE=RESTARTED
         ;;
       *) CFIP_TXN_APPLY=false; return 10 ;;
     esac

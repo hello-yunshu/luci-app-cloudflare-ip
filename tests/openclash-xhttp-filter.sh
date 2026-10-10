@@ -10,6 +10,7 @@ repo_dir="$(CDPATH='' cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 restart_service() {
 	:
 }
+openclash_check_before_write() { :; }
 
 fail() {
 	printf 'FAIL: %s\n' "$*" >&2

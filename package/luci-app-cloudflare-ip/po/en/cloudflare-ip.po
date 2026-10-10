@@ -893,6 +893,10 @@ msgstr "Running"
 msgid "Success"
 msgstr "Success"
 
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js
+msgid "Warning"
+msgstr "Warning"
+
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js:51
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/sources.js:68
 msgid "Error"
@@ -990,6 +994,26 @@ msgstr "Cloudflare IP optimization service is not running. Click Start to begin.
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js:316
 msgid "Best IP Count"
 msgstr "Best IP Count"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js
+msgid "Service Enabled"
+msgstr "Service Enabled"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js
+msgid "Cloudflare IP optimization service is enabled and scheduled."
+msgstr "Cloudflare IP optimization service is enabled and scheduled."
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js
+msgid "Nodes updated; OpenClash is disabled and the changes will take effect after it is started"
+msgstr "Nodes updated; OpenClash is disabled and the changes will take effect after it is started"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js
+msgid "OpenClash Apply Status"
+msgstr "OpenClash Apply Status"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js
+msgid "OpenClash service applied and health verified."
+msgstr "OpenClash service applied and health verified."
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js:321
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/settings.js:74
@@ -1535,3 +1559,6 @@ msgstr "Sources refreshed; candidate pool prepared."
 #, javascript-format
 msgid "Unable to refresh sources: %s"
 msgstr "Unable to refresh sources: %s"
+
+msgid "OpenClash service restored and health verified; new nodes were not applied."
+msgstr "OpenClash service restored and health verified; new nodes were not applied."

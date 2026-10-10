@@ -47,7 +47,7 @@ CFIP_LIB_DIR="$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip" sourc
 CFIP_SERVICE_LOG="$TMP/services.log"; export CFIP_SERVICE_LOG
 cfip_probe_one() { jq -cn --arg ip "$1" --arg domain "$2" --arg family "$3" '{ip:$ip,domain:$domain,family:$family,success:true,totalMs:40,connectMs:10,tlsMs:10,ttfbMs:20}'; }
 result="$(cmd_sync passwall)"
-echo "$result" | jq -e '.success==true and .restartCount==1' >/dev/null
+echo "$result" | jq -e '. == {success:true,synced:"passwall",health:"validated",restartCount:1}' >/dev/null
 test "$(grep -c '^restart$' "$TMP/services.log")" -eq 1
 test "$(grep -c '^stop$' "$TMP/services.log")" -eq 1
 echo 'manual sync single-restart behavior passed'

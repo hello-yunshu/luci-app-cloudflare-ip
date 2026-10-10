@@ -1038,6 +1038,30 @@ msgstr "Cloudflare IP 优选服务未运行。点击“启动”以开始。"
 msgid "Best IP Count"
 msgstr "优选 IP 数量"
 
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js
+msgid "Warning"
+msgstr "警告"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js
+msgid "Service Enabled"
+msgstr "服务已启用"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js
+msgid "Cloudflare IP optimization service is enabled and scheduled."
+msgstr "CF 优选服务已启用并按计划运行。"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js
+msgid "Nodes updated; OpenClash is disabled and the changes will take effect after it is started"
+msgstr "节点已更新；OpenClash 当前已禁用，启动后生效。"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js
+msgid "OpenClash Apply Status"
+msgstr "OpenClash 应用状态"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js
+msgid "OpenClash service applied and health verified."
+msgstr "OpenClash 已应用配置，核心与控制接口验证通过。"
+
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js:321
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/settings.js:74
 msgid "IP Type"
@@ -1633,3 +1657,6 @@ msgstr "来源已刷新，候选池已准备就绪。"
 #, javascript-format
 msgid "Unable to refresh sources: %s"
 msgstr "无法刷新来源：%s"
+
+msgid "OpenClash service restored and health verified; new nodes were not applied."
+msgstr "OpenClash 服务已恢复并通过健康验证；新节点未应用。"

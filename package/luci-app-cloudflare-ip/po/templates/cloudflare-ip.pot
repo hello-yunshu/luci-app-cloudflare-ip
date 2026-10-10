@@ -1029,6 +1029,30 @@ msgstr ""
 msgid "Best IP Count"
 msgstr ""
 
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js
+msgid "Warning"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js
+msgid "Service Enabled"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js
+msgid "Cloudflare IP optimization service is enabled and scheduled."
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js
+msgid "Nodes updated; OpenClash is disabled and the changes will take effect after it is started"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js
+msgid "OpenClash Apply Status"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js
+msgid "OpenClash service applied and health verified."
+msgstr ""
+
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js:321
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/settings.js:74
 msgid "IP Type"
@@ -1608,4 +1632,7 @@ msgstr ""
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/sources.js:74
 #, javascript-format
 msgid "Unable to refresh sources: %s"
+msgstr ""
+
+msgid "OpenClash service restored and health verified; new nodes were not applied."
 msgstr ""

@@ -6,6 +6,7 @@ SCRIPT_VERSION="1.5.3"
 MIN_CONFIG_VERSION="1.3.0"
 SCRIPT_DIR="$(CDPATH='' cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPT_PATH="${SCRIPT_DIR}/$(basename -- "${BASH_SOURCE[0]}")"
+INIT_DIR="${INIT_DIR:-/etc/init.d}"
 CONFIG_FILE="${CONFIG_FILE:-${SCRIPT_DIR}/cf-openwrt-auto.conf}"
 
 MODE="passwall"
@@ -39,6 +40,16 @@ STOP_SERVICE_BEFORE_SPEEDTEST="true"
 STARTUP_DELAY=""
 _STOPPED_SERVICE=""
 _OPENCLASH_ENABLE_SAVED=""
+_OPENCLASH_EXPECTED_ENABLED=""
+_OPENCLASH_INITIAL_HEALTHY=false
+_OPENCLASH_DEFERRED=false
+_OPENCLASH_RECOVERY_ATTEMPTED=false
+_OPENCLASH_RESTART_ATTEMPTS=0
+_OPENCLASH_SERVICE_ERROR=""
+_OPENCLASH_INIT_PID=""
+_OPENCLASH_START_TIMEOUT=312
+_OPENCLASH_CONFIG_SNAPSHOT=""
+LAST_RESULT="success"
 
 OPENCLASH_TEMPLATE_DOMAINS=()
 OPENCLASH_TEMPLATE_TEXT=()
@@ -504,75 +515,222 @@ run_speedtest() {
 	log "selected IPs: ${FAST_IPS[*]}"
 }
 
+openclash_enable_state() {
+	local value rc=0
+	value="$(uci -q get openclash.config.enable 2>/dev/null)" || rc=$?
+	((rc == 0)) || die "cannot read openclash.config.enable"
+	case "$value" in 0|1) printf '%s' "$value" ;; *) die "openclash.config.enable is missing or invalid" ;; esac
+}
+
+openclash_health_once() {
+    local before after port secret curl_cfg body code rc=0 healthy=false limit="${1:-4}"
+	before="$(pidof clash 2>/dev/null)" || before=""
+	[[ -n "$before" ]] || return 1
+	port="$(uci -q get openclash.config.cn_port 2>/dev/null)" || return 1
+	[[ "$port" =~ ^[1-9][0-9]{0,4}$ ]] && ((port <= 65535)) || return 1
+	[[ -r "$OPENCLASH_CONFIG" ]] || return 1
+	secret="$(awk '/^[[:space:]]*secret:[[:space:]]*/ { v=$0; sub(/^[[:space:]]*secret:[[:space:]]*/, "", v); sub(/[[:space:]]+#.*/, "", v); sub(/[[:space:]]+$/, "", v); if (v ~ /^\047.*\047$/ || v ~ /^".*"$/) v=substr(v,2,length(v)-2); print v; exit }' "$OPENCLASH_CONFIG")" || return 1
+	body="$(mktemp "${TMPDIR:-/tmp}/cf-openclash-health.XXXXXX")" || return 1
+	curl_cfg="$(mktemp "${TMPDIR:-/tmp}/cf-openclash-curl.XXXXXX")" || { rm -f "$body"; return 1; }
+	chmod 600 "$body" "$curl_cfg" 2>/dev/null || true
+	if [[ -n "$secret" ]]; then
+		[[ "$secret" != *$'\n'* && "$secret" != *$'\r'* ]] || { rm -f "$body" "$curl_cfg"; return 1; }
+		secret="${secret//\\/\\\\}"; secret="${secret//\"/\\\"}"
+		printf 'header = "Authorization: Bearer %s"\n' "$secret" >"$curl_cfg" || { rm -f "$body" "$curl_cfg"; return 1; }
+	fi
+	code="$(curl --config "$curl_cfg" --connect-timeout 2 --max-time "$limit" --silent --show-error --output "$body" --write-out '%{http_code}' "http://127.0.0.1:${port}/group" 2>/dev/null)" || rc=$?
+	after="$(pidof clash 2>/dev/null)" || after=""
+	if ((rc == 0)) && [[ "$code" == 200 && "$before" == "$after" ]] && jq -e 'type == "object"' "$body" >/dev/null 2>&1; then healthy=true; fi
+	rm -f "$body" "$curl_cfg"
+	[[ "$healthy" == true ]]
+}
+
+openclash_health_stable() {
+	local timeout="${1:-10}" started now remaining limit delay healthy=0 pids previous=""
+	started="$(date +%s)"
+	while :; do
+		now="$(date +%s)"; remaining=$((started + timeout - now)); ((remaining > 0)) || return 1
+		limit=4; ((remaining >= limit)) || limit="$remaining"
+		pids="$(pidof clash 2>/dev/null)" || pids=""
+		if [[ -n "$pids" ]] && openclash_health_once "$limit"; then
+			if [[ "$pids" == "$previous" ]]; then healthy=$((healthy + 1)); else healthy=1; fi
+		else healthy=0; fi
+		previous="$pids"; now="$(date +%s)"; remaining=$((started + timeout - now)); ((remaining > 0)) || return 1
+		((healthy >= 3)) && return 0
+		delay=2; ((remaining >= delay)) || delay="$remaining"
+		sleep "$delay"
+	done
+	return 1
+}
+
+openclash_service_error() {
+	_OPENCLASH_SERVICE_ERROR="$*"
+	printf '[cloudflare-ip] ERROR: %s\n' "$*" >&2
+	return 1
+}
+
+# Synchronous bounded wait; no watchdog or poller survives this function.
+openclash_init_bounded() {
+	local action="$1" limit="$2" deadline rc=0
+	deadline=$(( $(date +%s) + limit ))
+	"${INIT_DIR}/openclash" "$action" >/dev/null 2>&1 &
+	_OPENCLASH_INIT_PID=$!
+	while kill -0 "$_OPENCLASH_INIT_PID" 2>/dev/null; do
+		if (( $(date +%s) >= deadline )); then
+			kill -TERM "$_OPENCLASH_INIT_PID" 2>/dev/null || true
+			sleep 1
+			kill -KILL "$_OPENCLASH_INIT_PID" 2>/dev/null || true
+			wait "$_OPENCLASH_INIT_PID" 2>/dev/null || true
+			_OPENCLASH_INIT_PID=""
+			return 124
+		fi
+		sleep 1
+	done
+	wait "$_OPENCLASH_INIT_PID" || rc=$?
+	_OPENCLASH_INIT_PID=""
+	return "$rc"
+}
+
+openclash_capture_state() {
+	[[ -x "${INIT_DIR}/openclash" ]] || die "OpenClash is not installed"
+	_OPENCLASH_EXPECTED_ENABLED="$(openclash_enable_state)" || return 1
+	if pidof clash >/dev/null 2>&1; then
+		[[ "$_OPENCLASH_EXPECTED_ENABLED" == 1 ]] || die "OpenClash state is inconsistent (disabled but core is running); no changes were made"
+		openclash_health_stable 5 || die "OpenClash is enabled but its core or local controller is unhealthy; restore OpenClash before running CF"
+		[[ "$(openclash_enable_state)" == 1 ]] || die "OpenClash enable state changed during preflight"
+		_OPENCLASH_INITIAL_HEALTHY=true
+	else
+		[[ "$_OPENCLASH_EXPECTED_ENABLED" == 0 ]] || die "OpenClash is enabled but its core is not running; restore OpenClash before running CF"
+		_OPENCLASH_DEFERRED=true
+	fi
+}
+
+openclash_check_before_write() {
+	local expected="$_OPENCLASH_EXPECTED_ENABLED" current
+	[[ "$_STOPPED_SERVICE" != openclash ]] || expected=0
+	current="$(openclash_enable_state)" || return 1
+	[[ "$current" == "$expected" ]] || { openclash_service_error "OpenClash enable state changed before node write"; return 1; }
+	if [[ "$expected" == 0 ]]; then
+		! pidof clash >/dev/null 2>&1 || { openclash_service_error "OpenClash core started externally before node write"; return 1; }
+	else
+		openclash_health_stable 5 || { openclash_service_error "OpenClash became unhealthy before node write"; return 1; }
+	fi
+	[[ "$(openclash_enable_state)" == "$expected" ]] || { openclash_service_error "OpenClash enable state changed before node write"; return 1; }
+}
+
 restart_service() {
 	local service="$1"
 
-	[[ -x "/etc/init.d/${service}" ]] || die "service init script not found: $service"
-	if [[ "$service" == "openclash" && -n "$_OPENCLASH_ENABLE_SAVED" ]]; then
-		uci -q set "openclash.config.enable=$_OPENCLASH_ENABLE_SAVED"
-		uci -q commit openclash
+	[[ -x "${INIT_DIR}/${service}" ]] || die "service init script not found: $service"
+	if [[ "$service" == "openclash" ]]; then
+		if [[ "$_OPENCLASH_EXPECTED_ENABLED" == 0 ]]; then
+			LAST_RESULT=warning
+			printf '[cloudflare-ip] WARNING: nodes updated; OpenClash is disabled and the changes will take effect after it is started\n' >&2
+			return 0
+		fi
+		(( _OPENCLASH_RESTART_ATTEMPTS < 2 )) || { openclash_service_error "OpenClash restart attempt limit reached"; return 1; }
+		local enable rc=0
+		[[ -z "$_STOPPED_SERVICE" ]] || _OPENCLASH_RECOVERY_ATTEMPTED=true
+		enable="$(openclash_enable_state)" || { openclash_service_error "cannot read openclash.config.enable"; return 1; }
+		if (( _OPENCLASH_RESTART_ATTEMPTS == 0 )) && [[ "$enable" == 0 ]]; then
+			[[ "$_OPENCLASH_ENABLE_SAVED" == 1 ]] || { openclash_service_error "OpenClash enable state changed before apply; refusing to re-enable it"; return 1; }
+			if ! uci -q set openclash.config.enable=1 || ! uci -q commit openclash; then
+				openclash_service_error "failed to restore OpenClash enable state before restart"; return 1
+			fi
+			enable=1
+		elif [[ "$enable" == 0 ]]; then
+			_OPENCLASH_RECOVERY_ATTEMPTED=true
+			openclash_service_error "OpenClash disabled itself during startup; inspect its core start failure before retrying"; return 1
+		fi
+		[[ "$enable" == 1 ]] || { openclash_service_error "OpenClash enable state changed; refusing to overwrite it"; return 1; }
+		_OPENCLASH_RESTART_ATTEMPTS=$((_OPENCLASH_RESTART_ATTEMPTS + 1))
+		_OPENCLASH_RECOVERY_ATTEMPTED=true
+		openclash_init_bounded restart "$_OPENCLASH_START_TIMEOUT" || rc=$?
+		((rc == 0)) || { openclash_service_error "OpenClash init restart failed or timed out (rc=$rc)"; return "$rc"; }
+		enable="$(openclash_enable_state)" || { openclash_service_error "cannot read OpenClash enable state after restart"; return 1; }
+		[[ "$enable" == 1 ]] || { openclash_service_error "OpenClash disabled itself after core startup failed; inspect OpenClash logs"; return 1; }
+		openclash_health_stable 10 || { openclash_service_error "OpenClash restart returned but stable core and local /group health were not verified"; return 1; }
+		[[ "$(openclash_enable_state)" == 1 ]] || { openclash_service_error "OpenClash enable state changed during startup verification"; return 1; }
+		_OPENCLASH_INITIAL_HEALTHY=true
+		return 0
 	fi
 	log "restarting service: $service"
-	"/etc/init.d/${service}" restart >/dev/null || die "failed to restart $service"
-	if [[ "$service" == "openclash" ]]; then
-		local i
-		for i in $(seq 1 30); do
-			pidof clash >/dev/null 2>&1 && break
-			sleep 1
-		done
-		if ! pidof clash >/dev/null 2>&1; then
-			log "warning: openclash core not running after restart (start_fail may have been triggered)"
-		fi
-	fi
+	"${INIT_DIR}/${service}" restart >/dev/null || die "failed to restart $service"
 }
 
 stop_service() {
 	local service="$1"
 
-	[[ -x "/etc/init.d/${service}" ]] || return 0
+	[[ -x "${INIT_DIR}/${service}" ]] || return 0
 	if [[ "$service" == "openclash" ]]; then
-		_OPENCLASH_ENABLE_SAVED="$(uci -q get openclash.config.enable || echo "1")"
-		uci -q set openclash.config.enable=0
-		uci -q commit openclash
+		[[ "$_OPENCLASH_EXPECTED_ENABLED" == 1 && "$_OPENCLASH_INITIAL_HEALTHY" == true ]] || return 0
+		[[ "$(openclash_enable_state)" == 1 ]] || die "OpenClash enable state changed before stop; refusing service/config changes"
+		_OPENCLASH_ENABLE_SAVED=1
+		uci -q set openclash.config.enable=0 || die "failed to set temporary OpenClash stop state"
+		if ! uci -q commit openclash; then
+			if [[ "$(openclash_enable_state)" == 0 ]]; then
+				uci -q set openclash.config.enable=1 && uci -q commit openclash || true
+			fi
+			die "failed to set temporary OpenClash stop state"
+		fi
 	fi
 	log "stopping service for speedtest: $service"
-	"/etc/init.d/${service}" stop >/dev/null 2>&1 || die "failed to stop $service"
+	local stop_rc=0
+	if [[ "$service" == openclash ]]; then openclash_init_bounded stop 30 || stop_rc=$?; else "${INIT_DIR}/${service}" stop >/dev/null 2>&1 || stop_rc=$?; fi
 	if [[ "$service" == "openclash" ]]; then
-		local i clash_pids
+		local i clash_pids rc=0
 		for i in $(seq 1 15); do
 			clash_pids="$(pidof clash 2>/dev/null)" || clash_pids=""
-			[[ -z "$clash_pids" ]] && break
+			if [[ -z "$clash_pids" ]]; then
+				_STOPPED_SERVICE=openclash
+				((stop_rc == 0)) || die "OpenClash stopped but its init stop command failed (rc=$stop_rc)"
+				return 0
+			fi
 			sleep 1
 		done
 		clash_pids="$(pidof clash 2>/dev/null)" || clash_pids=""
 		if [[ -n "$clash_pids" ]]; then
-			log "openclash core still running after stop, force killing"
-			# shellcheck disable=SC2086
-			kill -9 $clash_pids 2>/dev/null || true
+			[[ "$(openclash_enable_state)" == 0 ]] && { uci -q set openclash.config.enable=1 && uci -q commit openclash || rc=1; }
+			((rc == 0)) || die "failed to restore OpenClash enable state after stop timeout"
+			die "OpenClash core remained running after the bounded stop request"
 		fi
 	fi
 	_STOPPED_SERVICE="$service"
 }
 
 cleanup_stopped_service() {
-	if [[ -n "$_STOPPED_SERVICE" ]]; then
-		log "restarting stopped service on exit: $_STOPPED_SERVICE"
-		if [[ "$_STOPPED_SERVICE" == "openclash" && -n "$_OPENCLASH_ENABLE_SAVED" ]]; then
-			uci -q set "openclash.config.enable=$_OPENCLASH_ENABLE_SAVED"
-			uci -q commit openclash
+	local rc=0 service="$_STOPPED_SERVICE"
+	_STOPPED_SERVICE=""
+	if [[ -n "$service" ]]; then
+		log "restarting stopped service on exit: $service"
+		if [[ "$service" == "openclash" ]]; then
+			if [[ "$_OPENCLASH_RECOVERY_ATTEMPTED" == true ]]; then
+				log "OpenClash restoration was already attempted; leaving its current enable state unchanged"
+			elif [[ "$_OPENCLASH_EXPECTED_ENABLED" == 1 ]]; then
+				_OPENCLASH_RECOVERY_ATTEMPTED=true
+				restart_service openclash || rc=$?
+			fi
+		else
+			"${INIT_DIR}/${service}" restart >/dev/null 2>&1 || log "failed to restore $service"
 		fi
-		"/etc/init.d/${_STOPPED_SERVICE}" restart >/dev/null 2>&1 || true
 		_STOPPED_SERVICE=""
 		_OPENCLASH_ENABLE_SAVED=""
 	fi
+	return "$rc"
 }
 
 _on_exit() {
-	cleanup_stopped_service
-	# Abnormal exit: update status to error (normal exit removes this trap first)
-	if [ -f "$STATUS_FILE" ] && grep -q '"running"[[:space:]]*:[[:space:]]*true' "$STATUS_FILE" 2>/dev/null; then
-		write_status false "error" "script exited unexpectedly"
+	local rc=$?
+	trap - EXIT INT TERM
+	if [[ -n "$_OPENCLASH_INIT_PID" ]]; then
+		kill -TERM "$_OPENCLASH_INIT_PID" 2>/dev/null || true
+		sleep 1
+		kill -KILL "$_OPENCLASH_INIT_PID" 2>/dev/null || true
+		wait "$_OPENCLASH_INIT_PID" 2>/dev/null || true
 	fi
+	cleanup_stopped_service || rc=1
+	[[ -z "$_OPENCLASH_CONFIG_SNAPSHOT" ]] || rm -f "$_OPENCLASH_CONFIG_SNAPSHOT"
+	exit "$rc"
 }
 
 update_passwall() {
@@ -1031,6 +1189,10 @@ update_openclash() {
 
 	[[ -f "$OPENCLASH_CONFIG" ]] || die "OpenClash config not found: $OPENCLASH_CONFIG"
 	[[ -n "$OPENCLASH_TARGET_DOMAIN" ]] || die "OPENCLASH_TARGET_DOMAIN is empty"
+	openclash_check_before_write || die "${_OPENCLASH_SERVICE_ERROR:-OpenClash state could not be verified}"
+	if [[ -n "$_OPENCLASH_CONFIG_SNAPSHOT" ]]; then
+		cmp -s "$OPENCLASH_CONFIG" "$_OPENCLASH_CONFIG_SNAPSHOT" || die "OpenClash config changed during measurement; preserved external changes"
+	fi
 	log "updating OpenClash config: $OPENCLASH_CONFIG"
 
 	TMP_CONFIG="$(mktemp "${OPENCLASH_CONFIG}.tmp.XXXXXX")"
@@ -1066,12 +1228,16 @@ update_openclash() {
 		backup_seq=$((backup_seq + 1))
 		backup="${OPENCLASH_CONFIG}.bak.${backup_ts}.${backup_seq}"
 	done
+	openclash_check_before_write || die "${_OPENCLASH_SERVICE_ERROR:-OpenClash state could not be verified}"
+	if [[ -n "$_OPENCLASH_CONFIG_SNAPSHOT" ]]; then
+		cmp -s "$OPENCLASH_CONFIG" "$_OPENCLASH_CONFIG_SNAPSHOT" || die "OpenClash config changed during node generation; preserved external changes"
+	fi
 	cp "$OPENCLASH_CONFIG" "$backup"
 	rotate_openclash_backups "$OPENCLASH_CONFIG" "$OPENCLASH_BACKUP_COUNT"
 	mv "$TMP_CONFIG" "$OPENCLASH_CONFIG"
 	log "OpenClash config updated, backup saved to $backup"
 
-	restart_service openclash
+	restart_service openclash || die "${_OPENCLASH_SERVICE_ERROR:-OpenClash application failed}"
 }
 
 usage() {
@@ -1166,6 +1332,16 @@ main() {
 	[[ "$CLI_VERBOSE" == "true" ]] && VERBOSE="true"
 	normalize_mode "$MODE"
 	validate_config
+	if [[ "$MODE" == openclash ]]; then
+		openclash_capture_state || die "OpenClash preflight failed"
+		trap _on_exit EXIT
+		trap 'exit 130' INT
+		trap 'exit 143' TERM
+		_OPENCLASH_CONFIG_SNAPSHOT="$(mktemp "${TMPDIR:-/tmp}/cf-openclash-original.XXXXXX")"
+		cp -p "$OPENCLASH_CONFIG" "$_OPENCLASH_CONFIG_SNAPSHOT" || die "failed to snapshot OpenClash config"
+	elif [[ "$STOP_SERVICE_BEFORE_SPEEDTEST" == "true" ]]; then
+		trap _on_exit EXIT
+	fi
 
 	local _max_delay=300
 	if [[ -n "$STARTUP_DELAY" && "$STARTUP_DELAY" != "random" ]]; then
@@ -1195,7 +1371,6 @@ main() {
 			passwall) stop_service passwall ;;
 			openclash) stop_service openclash ;;
 		esac
-		trap _on_exit EXIT
 	fi
 
 	run_speedtest
@@ -1210,9 +1385,13 @@ main() {
 	esac
 
 	_STOPPED_SERVICE=""
-	trap - EXIT
-
-	log "done"
+	trap - EXIT INT TERM
+	[[ -z "$_OPENCLASH_CONFIG_SNAPSHOT" ]] || rm -f "$_OPENCLASH_CONFIG_SNAPSHOT"
+	if [[ "$LAST_RESULT" == warning ]]; then
+		log "nodes updated; OpenClash remains disabled and will apply them after a later start"
+	else
+		log "done"
+	fi
 }
 
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
