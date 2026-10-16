@@ -34,8 +34,8 @@
 
 ## 当前状态
 
-- 当前包版本：`2.6.0-r4`
-- 发布标签：`v2.6.0-4`
+- 源码版本以 [PKG_VERSION / PKG_RELEASE](package/luci-app-cloudflare-ip/Makefile) 为准，可运行 `python3 scripts/package_identity.py` 查询。
+- 已发布版本和准确文件名以选定 Release 的 `qualification.json` 为准；源码候选可能尚未发布。
 - 发布渠道：`prerelease`
 - 2.x 仍属于 2.0 prerelease development line，不代表稳定版
 
@@ -47,8 +47,8 @@
 
 从 [Releases](../../releases) 选择与你的 OpenWrt 版本匹配的主包：
 
-- OpenWrt 24.10.x → 下载 `luci-app-cloudflare-ip_2.6.0-r4_all.ipk`
-- OpenWrt 25.12+ → 下载 `luci-app-cloudflare-ip-2.6.0-r4.apk`
+- OpenWrt 24.10.x → 下载该 Release 列出的 `luci-app-cloudflare-ip_*.ipk` 主包
+- OpenWrt 25.12+ → 下载该 Release 列出的 `luci-app-cloudflare-ip-*.apk` 主包
 
 不要同时安装 IPK 和 APK。Rill 集成代码已经包含在主包中。一个 `luci-app-cloudflare-ip` 主包已经包含 Native 优选、Adaptive Measurement 和 Operational Health；不包含 Rill Runtime binary。
 

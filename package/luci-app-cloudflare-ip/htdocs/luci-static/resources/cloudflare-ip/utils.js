@@ -5,7 +5,7 @@
 'require dom';
 'require baseclass';
 
-var FOOTER_VERSION = '@PKG_VERSION@';
+var FOOTER_VERSION = '@PKG_FULL_VERSION@';
 
 var callStatus = rpc.declare({ object: 'cf_ip', method: 'status', expect: { '': {} } });
 var callCheckEnv = rpc.declare({ object: 'cf_ip', method: 'check-env', expect: { '': {} } });
@@ -116,7 +116,7 @@ function loadSharedCSS() {
 		var link = E('link', {
 			'id': 'cfi-shared-css',
 			'rel': 'stylesheet',
-			'href': L.resource('cloudflare-ip/cloudflare-ip.css') + '?v=@PKG_VERSION@'
+			'href': L.resource('cloudflare-ip/cloudflare-ip.css') + '?v=@PKG_FULL_VERSION@'
 		});
 		document.head.appendChild(link);
 	}

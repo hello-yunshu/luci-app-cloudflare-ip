@@ -8,6 +8,8 @@ import json
 import re
 import sys
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from package_identity import validate_metadata
 
 HEX40 = re.compile(r"^[0-9a-fA-F]{40}$")
 HEX64 = re.compile(r"^[0-9a-fA-F]{64}$")
@@ -125,12 +127,7 @@ def validate(
             require(package_meta, isinstance(package_meta.get("version"), str) and bool(re.fullmatch(r"[0-9][A-Za-z0-9.+~_-]*", package_meta["version"])), "invalid package version")
             require(package_meta, isinstance(package_meta.get("release"), int) and not isinstance(package_meta.get("release"), bool) and package_meta["release"] > 0, "invalid package release")
             require(package_meta, isinstance(package_meta.get("architecture"), str) and package_meta["architecture"] in ("all", "noarch"), "invalid package architecture")
-            require(package_meta, package_meta.get("packageVersion") == (f"{package_meta['version']}-r{package_meta['release']}" if fmt == "apk" else f"{package_meta['version']}-{package_meta['release']}"), "packageVersion does not match version/release")
-            if fmt == "ipk":
-                expected_name = f"luci-app-cloudflare-ip_{package_meta['version']}-{package_meta['release']}_{package_meta['architecture']}.ipk"
-            else:
-                expected_name = f"luci-app-cloudflare-ip-{package_meta['version']}-r{package_meta['release']}.apk"
-            require(name, name == expected_name, "asset filename does not match package metadata")
+            validate_metadata(package_meta, name)
         require(formats, formats == {"ipk", "apk"}, "release assets must contain exactly one IPK and one APK")
     if require_release_eligible:
         require(contract_path, contract_path is not None, "strict release validation requires the pinned contract")
