@@ -3,23 +3,15 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
-python3 - "$TMP/manifest.json" <<'PY'
-import json, sys
-path=sys.argv[1]
-manifest={
-  "schemaVersion":1,"commit":"0123456789abcdef0123456789abcdef01234567","runId":42,"jobs":{},"artifacts":[],
-  "assetFiles":[{"path":"ipk/luci-app-cloudflare-ip_2.6.0-4_all.ipk","sha256":"a"*64,"size":123,"package":{"name":"luci-app-cloudflare-ip","version":"2.6.0","release":4,"architecture":"all","format":"ipk","packageVersion":"2.6.0-4"}},{"path":"apk/luci-app-cloudflare-ip-2.6.0-r4.apk","sha256":"b"*64,"size":234,"package":{"name":"luci-app-cloudflare-ip","version":"2.6.0","release":4,"architecture":"all","format":"apk","packageVersion":"2.6.0-r4"}}],
-  "qualificationState":"automated-qualification","releaseEligible":True,
-  "packageMigration":{"legacyVersion":"2.6.0-r2","sourceTag":"v2.6.0-2","sourceSHA":"652476bd3cdc410bc16e3a47ee96b685c84acbbb","currentSHA":"0123456789abcdef0123456789abcdef01234567","ipk":"PASS","apk":"PASS","baseOnlyUpgrade":True,"baseAddonToBaseUpgrade":True,"addonRemovalSafe":True,"r3ToR4":True,"runtimeAbsent":True,"runtimePresent":True},
-  "stableSourceArchiveSha256":"c06a792811d1f08aa7b640c10ee36047c44f825cf7272aa0f75c42ab60806a84",
-  "rill":{"schemaVersion":1,"package":{"repository":"hello-yunshu/rill-openwrt-packages","commit":"64ee22f978ed8f8ed19bb675700678f57eec19e3","qualificationRunId":33735123909,"qualificationManifestSha256":"c"*64},
-    "stablePackageQualification":"PASS","previewRuntimeIntegration":"PASS","stableCommit":"b990cd7043d313b0ff29c9693f091a94a5bdaf47","previewCommit":"da8389fec7f879b826d8d17cbc6bb98c03ef8462",
-    "runtime":{"version":"1.5.6","tag":"preview-exact-commit","commit":"da8389fec7f879b826d8d17cbc6bb98c03ef8462","sourceArchiveSha256":"not-applicable-preview","binarySha256":"f"*64},
-    "integration":{"status":"pass","sameRelease":True}}
-}
-json.dump(manifest,open(path,"w"))
-json.dump(manifest,open(path+".valid","w"))
-PY
+python3 - "$TMP/manifest.json" "$ROOT" <<'PYFIXTURE'
+import json,sys,pathlib
+sys.path.insert(0,str(pathlib.Path(sys.argv[2])/"tests"))
+from package_contract_fixtures import manifest
+value=manifest()
+for name in (sys.argv[1],sys.argv[1]+".valid"):
+ pathlib.Path(name).write_text(json.dumps(value))
+PYFIXTURE
+
 VALIDATOR="$ROOT/scripts/validate-qualification-evidence.py"
 python3 "$VALIDATOR" "$TMP/manifest.json" --commit 0123456789abcdef0123456789abcdef01234567 --require-assets 2 --require-release-eligible --run-id 42
 if python3 "$VALIDATOR" "$TMP/manifest.json.valid" --require-assets 2 --require-release-eligible --run-id 42 >/dev/null 2>&1; then echo 'strict gate accepted missing expected commit' >&2; exit 1; fi
@@ -48,7 +40,7 @@ PY
 if python3 "$VALIDATOR" "$TMP/manifest.json" --require-release-eligible --run-id 42 >/dev/null 2>&1; then echo 'strict release gate accepted wrong fixed Runtime pin' >&2; exit 1; fi
 python3 - "$TMP/manifest.json" <<'PY'
 import json,sys
-p=sys.argv[1]; d=json.load(open(p)); d['rill']['stableCommit']='b990cd7043d313b0ff29c9693f091a94a5bdaf47'; d['packageMigration']['sourceSHA']='0'*40; json.dump(d,open(p,'w'))
+p=sys.argv[1]; d=json.load(open(p)); d['rill']['stableCommit']=json.load(open(p+'.valid'))['rill']['stableCommit']; d['packageMigration']['sourceSHA']='0'*40; json.dump(d,open(p,'w'))
 PY
 if python3 "$VALIDATOR" "$TMP/manifest.json" --require-release-eligible --run-id 42 >/dev/null 2>&1; then echo 'strict release gate accepted wrong migration SHA' >&2; exit 1; fi
 echo 'Strict qualification evidence validator blocks noneligible and mismatched release evidence'

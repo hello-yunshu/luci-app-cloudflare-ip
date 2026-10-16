@@ -34,8 +34,8 @@ It does not replace either proxy service and does not rewrite unrelated nodes. M
 
 ## Current status
 
-- Package version: `2.6.0-r4`
-- Release tag: `v2.6.0-4`
+- Source version: [PKG_VERSION / PKG_RELEASE](package/luci-app-cloudflare-ip/Makefile); inspect with `python3 scripts/package_identity.py`.
+- Published version and exact asset names: use the selected Release and its `qualification.json`; the source candidate may be newer than the published package.
 - Release channel: `prerelease`
 - The 2.x line remains the 2.0 prerelease development line, not a stable release
 
@@ -47,8 +47,8 @@ Packages are promoted only from a successful exact-head qualification run on `ma
 
 From [Releases](../../releases), choose the base package for your OpenWrt release:
 
-- OpenWrt 24.10.x → download `luci-app-cloudflare-ip_2.6.0-r4_all.ipk`
-- OpenWrt 25.12+ → download `luci-app-cloudflare-ip-2.6.0-r4.apk`
+- OpenWrt 24.10.x → download the base `luci-app-cloudflare-ip_*.ipk` listed in that Release
+- OpenWrt 25.12+ → download the base `luci-app-cloudflare-ip-*.apk` listed in that Release
 
 Do not install both IPK and APK. Rill integration is included in the main package. One `luci-app-cloudflare-ip` base package includes Native ranking, Adaptive Measurement, and Operational Health; it does not include the Rill Runtime binary.
 

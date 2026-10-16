@@ -1,6 +1,8 @@
 #!/bin/sh
 
 RPCD_VERSION="@PKG_VERSION@"
+RPCD_PACKAGE_VERSION="@PKG_FULL_VERSION@"
+RPCD_PACKAGE_RELEASE="@PKG_RELEASE@"
 CF_IP_AUTO_BIN="${CF_IP_AUTO_BIN:-/usr/bin/cf-ip-auto}"
 INIT_SCRIPT="${INIT_SCRIPT:-/etc/init.d/cf_ip}"
 CF_IP_RUNTIME_DIR="${CF_IP_RUNTIME_DIR:-/tmp/cf_ip}"
@@ -189,7 +191,7 @@ EOF
 				printf '%s\n' "${_status:-{\}}"
 				;;
 			version)
-				printf '{"version":"%s"}\n' "$RPCD_VERSION"
+				printf '{"version":"%s","package_version":"%s","package_release":"%s"}\n' "$RPCD_VERSION" "$RPCD_PACKAGE_VERSION" "$RPCD_PACKAGE_RELEASE"
 				;;
 			read-log)
 				"$CF_IP_AUTO_BIN" --read-log 2>/dev/null || true
