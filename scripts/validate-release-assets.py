@@ -8,12 +8,18 @@ import importlib.util
 import json
 import sys
 from pathlib import Path, PurePosixPath
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from package_identity import validate_metadata
 
 HERE = Path(__file__).resolve().parent
 SPEC = importlib.util.spec_from_file_location("qualification_validator", HERE / "validate-qualification-evidence.py")
 assert SPEC and SPEC.loader
 QUAL = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(QUAL)
+PACKAGE_SPEC = importlib.util.spec_from_file_location("package_inspector", HERE / "openwrt-package-metadata.py")
+assert PACKAGE_SPEC and PACKAGE_SPEC.loader
+PACKAGE = importlib.util.module_from_spec(PACKAGE_SPEC)
+PACKAGE_SPEC.loader.exec_module(PACKAGE)
 
 
 def require(ok: bool, message: str) -> None:
@@ -22,7 +28,7 @@ def require(ok: bool, message: str) -> None:
 
 
 def validate(manifest: dict, release_dir: Path, expected_commit: str, expected_run_id: int,
-             version: str, release: int, contract_path: Path) -> list[Path]:
+             version: str, release: int, contract_path: Path, apk_bin: str | None = None) -> list[Path]:
     QUAL.validate(manifest, expected_commit, 2, True, expected_run_id, contract_path)
     assets = manifest["assetFiles"]
     by_format: dict[str, tuple[dict, str]] = {}
@@ -43,15 +49,19 @@ def validate(manifest: dict, release_dir: Path, expected_commit: str, expected_r
         require(meta["version"] == version and meta["release"] == release, f"{fmt} package version/release mismatch")
         require(meta["name"] == "luci-app-cloudflare-ip" and meta["format"] == fmt, f"{fmt} package identity mismatch")
         require(meta["architecture"] in (("all",) if fmt == "ipk" else ("all", "noarch")), f"unexpected {fmt} architecture")
-        require(meta["packageVersion"] == (f"{version}-r{release}" if fmt == "apk" else f"{version}-{release}"), f"{fmt} package version metadata mismatch")
+        validate_metadata(meta, name, {"version": version, "release": release})
         matches = [p for p in release_dir.iterdir() if p.is_file() and p.name == name]
+        require(all(not p.is_symlink() for p in matches), "symlink release asset")
         require(len(matches) == 1, f"release directory does not contain exactly the evidence asset {name}")
         file = matches[0]
         raw = file.read_bytes()
         require(len(raw) == item["size"], f"asset size mismatch: {name}")
         require(hashlib.sha256(raw).hexdigest() == item["sha256"], f"asset SHA-256 mismatch: {name}")
+        actual = PACKAGE.inspect(file, fmt, apk_bin or str(HERE / "apk-metadata.sh"), "luci-app-cloudflare-ip")
+        require(actual["sha256"] == item["sha256"] and actual["size"] == item["size"], "package changed during evidence validation")
+        require(actual["package"] == meta, f"{fmt} actual package metadata differs from evidence")
         results.append(file)
-    package_files = [p for p in release_dir.iterdir() if p.is_file() and p.suffix in (".ipk", ".apk")]
+    package_files = [p for p in release_dir.rglob("*") if p.suffix in (".ipk", ".apk")]
     require(set(package_files) == set(results), "release directory contains an extra or substituted package")
     return results
 
@@ -64,13 +74,14 @@ def main() -> int:
     parser.add_argument("--run-id", type=int, required=True)
     parser.add_argument("--version", required=True)
     parser.add_argument("--release", type=int, required=True)
+    parser.add_argument("--apk-bin", help="real apk tool (defaults to read-only Linux adapter)")
     parser.add_argument("--contract", type=Path, default=HERE.parent / "contracts/rill-runtime.json")
     args = parser.parse_args()
     try:
         manifest = json.loads(args.manifest.read_text(encoding="utf-8"))
-        files = validate(manifest, args.release_dir, args.commit, args.run_id, args.version, args.release, args.contract)
+        files = validate(manifest, args.release_dir, args.commit, args.run_id, args.version, args.release, args.contract, args.apk_bin)
         print("release assets are bound to qualification evidence: " + ", ".join(p.name for p in files))
-    except (OSError, json.JSONDecodeError, ValueError, KeyError, TypeError) as exc:
+    except (OSError, json.JSONDecodeError, ValueError, KeyError, TypeError, PACKAGE.subprocess.CalledProcessError, PACKAGE.tarfile.TarError) as exc:
         print(f"release asset binding invalid: {exc}", file=sys.stderr)
         return 1
     return 0

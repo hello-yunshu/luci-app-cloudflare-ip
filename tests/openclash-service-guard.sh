@@ -258,7 +258,7 @@ printf '%s\n' 'https://mirror.example/custom/cf-ip-auto' >"$TMP/update-url"
 "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/migrate-self-update-url.sh"
 test "$(cat "$TMP/update-url")" = 'https://mirror.example/custom/cf-ip-auto'
 rg -q 'migrate-self-update-url.sh' "$ROOT/package/luci-app-cloudflare-ip/Makefile"
-rg -q 'PKG_RELEASE:=5' "$ROOT/package/luci-app-cloudflare-ip/Makefile"
+python3 -B "$ROOT/scripts/package_identity.py" >/dev/null
 rg -q '/usr/libexec/cf-ip/migrate-self-update-url.sh' "$ROOT/package/luci-app-cloudflare-ip/Makefile"
 mkdir -p "$TMP/package-build/root/usr/libexec/cf-ip" "$TMP/package-root/usr/libexec/cf-ip"
 cp "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/migrate-self-update-url.sh" "$TMP/package-build/root/usr/libexec/cf-ip/"

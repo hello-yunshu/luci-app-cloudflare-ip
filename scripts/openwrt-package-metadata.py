@@ -9,6 +9,8 @@ import subprocess
 import sys
 import tarfile
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from package_identity import split_version as decode_version, validate_metadata, source
 
 
 def parse_control(raw: bytes) -> dict[str, str]:
@@ -17,12 +19,15 @@ def parse_control(raw: bytes) -> dict[str, str]:
         if not line or line[:1].isspace() or ":" not in line:
             continue
         key, value = line.split(":", 1)
-        fields[key.strip().lower()] = value.strip()
+        key = key.strip().lower()
+        if key in fields:
+            raise ValueError("duplicate IPK control field")
+        fields[key] = value.strip()
     return fields
 
 
-def ipk_control(path: Path) -> dict[str, str]:
-    data = path.read_bytes()
+def ipk_control(path: Path, data: bytes | None = None) -> dict[str, str]:
+    data = path.read_bytes() if data is None else data
     import io
 
     # OpenWrt SDKs use both Debian ar IPKs and the newer gzip-tar IPK
@@ -37,6 +42,8 @@ def ipk_control(path: Path) -> dict[str, str]:
             name = header[:16].decode("ascii", errors="strict").strip().rstrip("/")
             size = int(header[48:58].decode("ascii").strip())
             offset += 60
+            if size < 0 or name in members:
+                raise ValueError("invalid/duplicate IPK archive member")
             payload = data[offset:offset + size]
             if len(payload) != size:
                 raise ValueError("truncated IPK ar member")
@@ -45,13 +52,17 @@ def ipk_control(path: Path) -> dict[str, str]:
     else:
         try:
             with tarfile.open(fileobj=io.BytesIO(data), mode="r:*") as archive:
-                members = {
-                    Path(member.name).name: stream.read()
-                    for member in archive.getmembers()
-                    if Path(member.name).name.startswith("control.tar")
-                    and member.isfile()
-                    and (stream := archive.extractfile(member)) is not None
-                }
+                members = {}
+                for member in archive.getmembers():
+                    name = Path(member.name).name
+                    if name.startswith("control.tar") and member.isfile():
+                        if name in members:
+                            raise ValueError("duplicate IPK control archive")
+                        stream = archive.extractfile(member)
+                        if stream is None:
+                            raise ValueError("unreadable IPK control archive")
+                        members[name] = stream.read()
+
         except tarfile.TarError as exc:
             raise ValueError("IPK is neither an ar archive nor a tar container") from exc
 
@@ -69,29 +80,31 @@ def ipk_control(path: Path) -> dict[str, str]:
 
 
 def find_apk_record(value: object, expected_name: str) -> dict[str, str] | None:
-    if isinstance(value, list):
-        for item in value:
-            found = find_apk_record(item, expected_name)
-            if found:
-                return found
-    elif isinstance(value, dict):
-        name = value.get("name", value.get("N"))
-        if name == expected_name:
-            version = value.get("version", value.get("V"))
-            arch = value.get("architecture", value.get("arch", value.get("A")))
-            if isinstance(version, str) and isinstance(arch, str):
-                return {"package": name, "version": version, "architecture": arch}
-        if expected_name in value and isinstance(value[expected_name], dict):
-            inner = value[expected_name]
-            version = inner.get("version", inner.get("V"))
-            arch = inner.get("architecture", inner.get("arch", inner.get("A")))
-            if isinstance(version, str) and isinstance(arch, str):
-                return {"package": expected_name, "version": version, "architecture": arch}
-        for item in value.values():
-            found = find_apk_record(item, expected_name)
-            if found:
-                return found
-    return None
+    records = []
+    def visit(item):
+        if isinstance(item, list):
+            for child in item:
+                visit(child)
+        elif isinstance(item, dict):
+            name = item.get("name", item.get("N"))
+            if name == expected_name:
+                version = item.get("version", item.get("V"))
+                arch = item.get("architecture", item.get("arch", item.get("A")))
+                if version is None and arch is None:
+                    return  # A payload file may have the same name as the package.
+                if not isinstance(version, str) or not isinstance(arch, str):
+                    raise ValueError("incomplete APK identity")
+                records.append({"package": name, "version": version, "architecture": arch})
+                return
+            for key, child in item.items():
+                if key == expected_name and isinstance(child, dict) and "name" not in child and "N" not in child:
+                    visit(dict(child, name=expected_name))
+                else:
+                    visit(child)
+    visit(value)
+    if len(records) > 1:
+        raise ValueError("duplicate APK package identity")
+    return records[0] if records else None
 
 
 def apk_record(path: Path, apk_bin: str, expected_name: str) -> dict[str, str]:
@@ -107,17 +120,16 @@ def apk_record(path: Path, apk_bin: str, expected_name: str) -> dict[str, str]:
 
 
 def split_version(value: str, package_type: str) -> tuple[str, str]:
-    patterns = [r"^(.+)-r([0-9]+)$", r"^(.+)-([0-9]+)$"]
-    for pattern in patterns:
-        match = re.fullmatch(pattern, value)
-        if match:
-            return match.group(1), match.group(2)
-    raise ValueError(f"package version does not encode a release number: {value}")
+    version, release = decode_version(value, package_type)
+    return version, str(release)
 
 
 def inspect(path: Path, package_type: str, apk_bin: str, expected_name: str) -> dict:
+    if path.is_symlink() or not path.is_file():
+        raise ValueError("package must be a regular non-symlink file")
+    raw = path.read_bytes()
     if package_type == "ipk":
-        fields = ipk_control(path)
+        fields = ipk_control(path, raw)
         record = {"package": fields.get("package"), "version": fields.get("version"), "architecture": fields.get("architecture")}
     else:
         record = apk_record(path, apk_bin, expected_name)
@@ -126,7 +138,8 @@ def inspect(path: Path, package_type: str, apk_bin: str, expected_name: str) -> 
     if not all(isinstance(record.get(key), str) and record[key] for key in ("package", "version", "architecture")):
         raise ValueError("package metadata is incomplete")
     version, release = split_version(record["version"], package_type)
-    raw = path.read_bytes()
+    if path.read_bytes() != raw:
+        raise ValueError("package changed while metadata was inspected")
     return {
         "schemaVersion": 1,
         "sha256": hashlib.sha256(raw).hexdigest(),
@@ -149,9 +162,12 @@ def main() -> int:
     parser.add_argument("--apk-bin", default="apk")
     parser.add_argument("--package-name", default="luci-app-cloudflare-ip")
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--source-root", type=Path, help="require source identity and canonical filename")
     args = parser.parse_args()
     try:
         result = inspect(args.package, args.format, args.apk_bin, args.package_name)
+        if args.source_root:
+            validate_metadata(result["package"], args.package.name, source(args.source_root))
         rendered = json.dumps(result, sort_keys=True) + "\n"
         if args.output:
             args.output.write_text(rendered, encoding="utf-8")

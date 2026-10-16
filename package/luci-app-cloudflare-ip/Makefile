@@ -48,11 +48,9 @@ define Build/Compile
 			"$(STAGING_DIR_HOSTPKG)/bin/po2lmo" "$$$$po_dir/cloudflare-ip.po" "$(PKG_BUILD_DIR)/lmo/cloudflare-ip.$$$$lmo_lang.lmo"; \
 		fi; \
 	done; \
-	sed -i 's/@PKG_VERSION@/$(PKG_VERSION)/g; s/@PKG_RELEASE@/$(PKG_RELEASE)/g' $(PKG_BUILD_DIR)/root/usr/bin/cf-ip-auto-v2
-	sed -i 's/@PKG_VERSION@/$(PKG_VERSION)/g' $(PKG_BUILD_DIR)/root/usr/bin/cf-ip-auto-legacy
-	sed -i 's/@PKG_VERSION@/$(PKG_VERSION)/g' $(PKG_BUILD_DIR)/root/usr/bin/cf-ip-auto
-	sed -i 's/@PKG_VERSION@/$(PKG_VERSION)/g' $(PKG_BUILD_DIR)/root/usr/libexec/rpcd/cf_ip
-	sed -i 's/@PKG_VERSION@/$(PKG_VERSION)/g' $(PKG_BUILD_DIR)/htdocs/luci-static/resources/cloudflare-ip/utils.js
+	for file in root/usr/bin/cf-ip-auto-v2 root/usr/bin/cf-ip-auto-legacy root/usr/bin/cf-ip-auto root/usr/libexec/rpcd/cf_ip htdocs/luci-static/resources/cloudflare-ip/utils.js; do \
+		sed -i 's/@PKG_VERSION@/$(PKG_VERSION)/g; s/@PKG_RELEASE@/$(PKG_RELEASE)/g; s/@PKG_FULL_VERSION@/$(PKG_VERSION)-r$(PKG_RELEASE)/g' "$(PKG_BUILD_DIR)/$$$$file" || exit 1; \
+	done
 endef
 
 define Package/luci-app-cloudflare-ip/install

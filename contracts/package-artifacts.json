@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "targets": [
+    {"branch":"v24.10.5","pkgtype":"ipk","arch":"x86_64","rust_target":"x86_64-unknown-linux-musl","public":true},
+    {"branch":"v25.12.0","pkgtype":"apk","arch":"x86_64","rust_target":"x86_64-unknown-linux-musl","public":true},
+    {"branch":"v24.10.8","pkgtype":"ipk","arch":"x86_64","rust_target":"x86_64-unknown-linux-musl","public":false},
+    {"branch":"v25.12.5","pkgtype":"apk","arch":"x86_64","rust_target":"x86_64-unknown-linux-musl","public":false}
+  ]
+}

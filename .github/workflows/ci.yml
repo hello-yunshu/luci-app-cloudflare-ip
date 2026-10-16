@@ -9,6 +9,15 @@ permissions:
   contents: read
 
 jobs:
+  package-identity:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.identity.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v7
+      - id: identity
+        run: echo "matrix=$(python3 -B scripts/package_identity.py --matrix)" >> "$GITHUB_OUTPUT"
+
   host-contract:
     runs-on: ubuntu-latest
     steps:
@@ -127,6 +136,7 @@ jobs:
           bash tests/rill-intelligence-status-contract.sh
           bash tests/rill-intelligence-luci-contract.sh
           bash tests/rill-runtime-absence.sh
+          python3 -B tests/qualified-rill-artifacts.py
           jq empty plans/rill/drift-decision.json
           bash tests/recovery-deadline.sh
           bash tests/sync-single-restart.sh
@@ -208,27 +218,11 @@ jobs:
           done
 
   openwrt-package:
+    needs: package-identity
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - branch: v24.10.5
-            pkgtype: ipk
-            arch: x86_64
-            rust_target: x86_64-unknown-linux-musl
-          - branch: v25.12.0
-            pkgtype: apk
-            arch: x86_64
-            rust_target: x86_64-unknown-linux-musl
-          - branch: v24.10.8
-            pkgtype: ipk
-            arch: x86_64
-            rust_target: x86_64-unknown-linux-musl
-          - branch: v25.12.5
-            pkgtype: apk
-            arch: x86_64
-            rust_target: x86_64-unknown-linux-musl
+      matrix: ${{ fromJSON(needs.package-identity.outputs.matrix) }}
     container:
       image: ghcr.io/openwrt/sdk:${{ matrix.arch }}-${{ matrix.branch }}
       options: --user root
@@ -253,7 +247,7 @@ jobs:
             /builder/dl/cargo
             /builder/rustup
             /builder/cargo
-          key: cloudflare-openwrt-rust-${{ runner.os }}-${{ matrix.branch }}-${{ hashFiles('rill-openwrt-packages/package/rill-runtime/Makefile', 'rill-openwrt-packages/package/rill-runtime-preview/Makefile', 'rill-openwrt-packages/scripts/prepare_rust_toolchain.sh') }}
+          key: cloudflare-openwrt-rust-${{ runner.os }}-${{ matrix.branch }}-${{ hashFiles('rill-openwrt-packages/metadata/build-toolchain.json', 'rill-openwrt-packages/package/rill-runtime/Makefile', 'rill-openwrt-packages/package/rill-runtime-preview/Makefile', 'rill-openwrt-packages/scripts/prepare_rust_toolchain.sh') }}
           restore-keys: |
             cloudflare-openwrt-rust-${{ runner.os }}-${{ matrix.branch }}-
       - name: Prepare SDK
@@ -304,7 +298,8 @@ jobs:
             # APK rejects the source development suffix. Patch only the
             # checked-out package Makefile so dependency PKG_VERSION values
             # remain untouched and the source contract stays exact.
-            sed -i 's/^PKG_VERSION:=\([0-9][0-9.]*\)-dev$/PKG_VERSION:=\1.1/' package/luci-app-cloudflare-ip/Makefile
+            build_version=$(python3 "$GITHUB_WORKSPACE/luci-app-cloudflare-ip/scripts/package_identity.py" --build-version --format apk)
+            sed -i "s/^PKG_VERSION:=.*/PKG_VERSION:=$build_version/" package/luci-app-cloudflare-ip/Makefile
             bash "$build_helper" package/luci-app-cloudflare-ip/compile
           else
             bash "$build_helper" package/luci-app-cloudflare-ip/compile
@@ -340,6 +335,7 @@ jobs:
           python3 "$GITHUB_WORKSPACE/luci-app-cloudflare-ip/scripts/openwrt-package-metadata.py" "$base_file" \
             --format "${{ matrix.pkgtype }}" --apk-bin /builder/staging_dir/host/bin/apk \
             --package-name luci-app-cloudflare-ip \
+            --source-root "$GITHUB_WORKSPACE/luci-app-cloudflare-ip" \
             --output "$GITHUB_WORKSPACE/output/${base_file##*/}.metadata.json"
           (
             cd "$GITHUB_WORKSPACE/output"
@@ -533,6 +529,9 @@ jobs:
           if-no-files-found: error
 
   rill-runtime-integration:
+    permissions:
+      contents: read
+      actions: read
     name: Same-release generic Runtime integration
     needs: openwrt-package
     runs-on: ubuntu-latest
@@ -548,32 +547,19 @@ jobs:
           git -C rill-openwrt-packages fetch --depth=1 origin "$package_commit"
           git -C rill-openwrt-packages checkout --detach "$package_commit"
           test "$(git -C rill-openwrt-packages rev-parse HEAD)" = "$package_commit"
-      - name: Require exact Preview package qualification evidence
+      - name: Download exact qualified Preview package bytes
         id: qualification
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail
-          package_commit=$(git -C rill-openwrt-packages rev-parse HEAD)
-          qualification_run=$(jq -r '.qualification.runId' contracts/rill-runtime.json)
-          run_json=$(gh run view "$qualification_run" --repo hello-yunshu/rill-openwrt-packages --json headSha,status,conclusion)
-          test "$(jq -r .headSha <<<"$run_json")" = "$package_commit"
-          test "$(jq -r .status <<<"$run_json")" = completed
-          test "$(jq -r .conclusion <<<"$run_json")" = success
-          evidence_dir="$RUNNER_TEMP/package-qualification"
-          mkdir -p "$evidence_dir"
-          gh run download "$qualification_run" --repo hello-yunshu/rill-openwrt-packages --name "qualification-evidence-$qualification_run" --dir "$evidence_dir"
-          evidence=$(find "$evidence_dir" -type f -name qualification.json -print -quit)
-          test -n "$evidence"
-          jq -e --arg commit "$package_commit" --arg upstream "$(jq -r '.preview.commit' contracts/rill-runtime.json)" \
-            '.packageCommit==$commit and .releaseEligible==true and .previewPackage.name=="rill-runtime-preview" and .previewPackage.upstreamCommit==$upstream and .previewPackage.qualificationState=="PASS"' "$evidence"
-          echo "qualification_manifest_sha256=$(sha256sum "$evidence" | awk '{print $1}')" >> "$GITHUB_OUTPUT"
           python3 scripts/check_rill_dependency.py --package-dir rill-openwrt-packages
-      - uses: actions/download-artifact@v8
-        with:
-          name: luci-app-cloudflare-ip-ipk-v24.10.8
-          path: runtime-package
+          target=$(python3 rill-openwrt-packages/scripts/openwrt_targets.py | jq -ce '[.[] | select(.pkgtype=="ipk" and .packageArch=="x86_64")] | if length==1 then .[0] else error("native integration target must be unique") end')
+          python3 scripts/qualified_rill_artifacts.py --package-dir rill-openwrt-packages \
+            --openwrt-version "$(jq -r .openwrtVersion <<<"$target")" --architecture x86_64 --pkgtype ipk \
+            --output runtime-package > runtime-package-selection.json
+          echo "qualification_manifest_sha256=$(sha256sum runtime-package/qualification.json | awk '{print $1}')" >> "$GITHUB_OUTPUT"
       - name: Extract and verify the actual Preview package Runtime
         id: runtime
         shell: bash
@@ -587,6 +573,8 @@ jobs:
           tar -xf "$preview_package" -C "$RUNNER_TEMP/preview-ipk" "./$data_member"
           case "$data_member" in *.zst) tar --zstd -xf "$RUNNER_TEMP/preview-ipk/$data_member" -C "$RUNNER_TEMP/preview-ipk/data" ;; *.gz) tar -xzf "$RUNNER_TEMP/preview-ipk/$data_member" -C "$RUNNER_TEMP/preview-ipk/data" ;; *) tar -xf "$RUNNER_TEMP/preview-ipk/$data_member" -C "$RUNNER_TEMP/preview-ipk/data" ;; esac
           test -x "$RUNNER_TEMP/preview-ipk/data/usr/bin/rill-runtime"
+          expected_binary_sha=$(jq -r '.qualifiedTarget.binarySha256' runtime-package-selection.json)
+          test "$(sha256sum "$RUNNER_TEMP/preview-ipk/data/usr/bin/rill-runtime" | awk '{print $1}')" = "$expected_binary_sha"
           upstream_commit=$(jq -r '.preview.commit' contracts/rill-runtime.json)
           test "$(jq -r '.upstream.commit' rill-openwrt-packages/metadata/rill-runtime-preview.json)" = "$upstream_commit"
           version=$(jq -r '.openwrtPackage.packageVersion' contracts/rill-runtime.json)
@@ -650,7 +638,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          version=$(sed -n 's/^PKG_VERSION:=//p' package/luci-app-cloudflare-ip/Makefile | head -n1)
+          version=$(python3 scripts/package_identity.py --field version)
           if [[ "$GITHUB_REF" == refs/heads/main ||
             "$GITHUB_REF" == refs/heads/release/* ||
             ( "$GITHUB_EVENT_NAME" == pull_request && "$GITHUB_BASE_REF" == main ) ]]; then
@@ -712,19 +700,16 @@ jobs:
           bash tests/cfst-real-smoke.sh "$cfst" "$RUNNER_TEMP/cfst/input.txt"
 
   release-asset-contract:
+    needs: openwrt-package
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - name: Verify complete release asset/checksum contract
-        shell: bash
-        run: |
-          set -euo pipefail
-          tmp="$RUNNER_TEMP/release-contract"
-          mkdir -p "$tmp"
-          version=$(sed -n 's/^PKG_VERSION:=//p' package/luci-app-cloudflare-ip/Makefile | head -n1)
-          touch "$tmp/luci-app-cloudflare-ip_${version}-4.ipk" "$tmp/luci-app-cloudflare-ip_${version}-4.apk"
-          (cd "$tmp" && sha256sum luci-app-cloudflare-ip* > sha256sums.txt)
-          bash tests/release-asset-contract.sh "$tmp" "$version"
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: luci-app-cloudflare-ip-*
+          path: package-assets
+      - name: Verify real SDK package metadata, bytes and public selection
+        run: python3 -B scripts/check-package-assets.py package-assets
 
   qualification-guard:
     if: always()
@@ -754,9 +739,9 @@ jobs:
           ARTIFACTS="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts" --paginate --jq '[.artifacts[] | {name: .name, digest: (.digest // null), size: .size_in_bytes}]' | jq -s 'add')"
           asset_dir="$RUNNER_TEMP/qualification-assets"
           mkdir -p "$asset_dir"
-          for artifact in luci-app-cloudflare-ip-ipk-v24.10.5 luci-app-cloudflare-ip-apk-v25.12.0; do
+          while IFS= read -r artifact; do
             gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$artifact" --dir "$asset_dir/$artifact"
-          done
+          done < <(python3 scripts/package_identity.py --public-artifacts)
           gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name package-migration-ipk-v24.10.8 --dir "$asset_dir/package-migration-ipk"
           gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name package-migration-apk-v25.12.5 --dir "$asset_dir/package-migration-apk"
           gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name rill-runtime-integration-evidence --dir "$asset_dir/rill-runtime-integration"

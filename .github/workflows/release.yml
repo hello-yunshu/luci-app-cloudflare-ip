@@ -58,6 +58,9 @@ jobs:
       version: ${{ steps.verify.outputs.version }}
       release: ${{ steps.verify.outputs.release }}
       channel: ${{ steps.verify.outputs.channel }}
+      tag: ${{ steps.verify.outputs.tag }}
+      ipk_name: ${{ steps.verify.outputs.ipk_name }}
+      apk_name: ${{ steps.verify.outputs.apk_name }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -77,8 +80,9 @@ jobs:
           manifest="$RUNNER_TEMP/qualification/qualification.json"
           test -f "$manifest"
           python3 scripts/validate-qualification-evidence.py "$manifest" --commit "$QUALIFICATION_SHA" --require-assets 2 --require-release-eligible --run-id "$QUALIFICATION_RUN_ID" --contract contracts/rill-runtime.json
-          version=$(sed -n 's/^PKG_VERSION:=//p' package/luci-app-cloudflare-ip/Makefile | head -n1)
-          release=$(sed -n 's/^PKG_RELEASE:=//p' package/luci-app-cloudflare-ip/Makefile | head -n1)
+          version=$(python3 scripts/package_identity.py --field version)
+          release=$(python3 scripts/package_identity.py --field release)
+          python3 scripts/package_identity.py >/dev/null
           channel=$(jq -er 'select(.schemaVersion == 1) | .channel' release-channel.json)
           reason=$(jq -er 'select((.reason // "") != "") | .reason' release-channel.json)
           if [[ "$channel" != prerelease ]]; then
@@ -87,12 +91,17 @@ jobs:
           fi
           echo "release channel: $channel ($reason)"
           [[ "$version" != *-dev ]]
+          for format in ipk apk; do
+            name=$(jq -er --arg fmt "$format" '.assetFiles[] | select(.package.format==$fmt) | .path | split("/")[-1]' "$manifest")
+            echo "${format}_name=$name" >> "$GITHUB_OUTPUT"
+          done
           {
             echo "commit=$QUALIFICATION_SHA"
             echo "run_id=$QUALIFICATION_RUN_ID"
             echo "version=$version"
             echo "release=$release"
             echo "channel=$channel"
+            echo "tag=$(python3 scripts/package_identity.py --field tag)"
           } >> "$GITHUB_OUTPUT"
 
   collect:
@@ -115,12 +124,10 @@ jobs:
           set -euo pipefail
           work="$RUNNER_TEMP/qualification-assets"
           mkdir -p "$work" release
-          for artifact in \
-            luci-app-cloudflare-ip-ipk-v24.10.5 \
-            luci-app-cloudflare-ip-apk-v25.12.0 \
-            qualification-evidence; do
+          while IFS= read -r artifact; do
             gh run download "$QUALIFICATION_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$artifact" --dir "$work/$artifact"
-          done
+          done < <(python3 scripts/package_identity.py --public-artifacts)
+          gh run download "$QUALIFICATION_RUN_ID" --repo "$GITHUB_REPOSITORY" --name qualification-evidence --dir "$work/qualification-evidence"
           manifest="$work/qualification-evidence/qualification.json"
           test -f "$manifest"
           cp "$manifest" release/qualification.json
@@ -172,7 +179,7 @@ jobs:
         run: |
           set -euo pipefail
           git fetch --force --tags origin
-          tag="v${VERSION}-${RELEASE}"
+          tag=$(python3 scripts/package_identity.py --field tag)
           ref="refs/tags/${tag}"
           if git show-ref --verify --quiet "$ref"; then
             tag_sha="$(git rev-parse "${ref}^{commit}")"
@@ -181,21 +188,21 @@ jobs:
       - name: Publish exact qualified release
         uses: softprops/action-gh-release@v3
         with:
-          tag_name: v${{ needs.check-qualification.outputs.version }}-${{ needs.check-qualification.outputs.release }}
-          name: v${{ needs.check-qualification.outputs.version }}-${{ needs.check-qualification.outputs.release }}
+          tag_name: ${{ needs.check-qualification.outputs.tag }}
+          name: ${{ needs.check-qualification.outputs.tag }}
           prerelease: true
           make_latest: false
           body: |
-            Cloudflare IP 2.6.0-r4
+            Cloudflare IP ${{ needs.check-qualification.outputs.version }} (package release ${{ needs.check-qualification.outputs.release }})
             2.0 prerelease development line
 
             # 下载说明
 
             OpenWrt 24.10.x：
-            下载 `luci-app-cloudflare-ip_${{ needs.check-qualification.outputs.version }}-r${{ needs.check-qualification.outputs.release }}_all.ipk`
+            下载 `${{ needs.check-qualification.outputs.ipk_name }}`
 
             OpenWrt 25.12+：
-            下载 `luci-app-cloudflare-ip-${{ needs.check-qualification.outputs.version }}-r${{ needs.check-qualification.outputs.release }}.apk`
+            下载 `${{ needs.check-qualification.outputs.apk_name }}`
 
             只安装 Cloudflare IP 主包即可使用 Native、Adaptive Measurement 和 Operational Health。
             Rill integration is included in the main package.
@@ -206,7 +213,7 @@ jobs:
             Compatibility package: the deprecated `luci-app-cloudflare-ip-rill` package is for existing installations only.
             New users do not need to download this package manually.
 
-            旧版 Rill addon 用户：2.6.0-r4 已完成兼容迁移，直接升级主包即可。旧 `luci-app-cloudflare-ip-rill` 可以保留，也可以在升级成功后移除；新主包不再依赖旧 addon 文件。
+            旧版 Rill addon 用户：本版本包含兼容迁移，直接升级主包即可。旧 `luci-app-cloudflare-ip-rill` 可以保留，也可以在升级成功后移除；新主包不再依赖旧 addon 文件。
 
             校验：`sha256sum -c sha256sums.txt`
 
@@ -230,4 +237,5 @@ jobs:
         run: |
           set -euo pipefail
           git fetch --force --tags origin
-          test "$(git rev-parse "refs/tags/v${VERSION}-${RELEASE}^{commit}")" = "$EXPECTED_SHA"
+          tag=$(python3 scripts/package_identity.py --field tag)
+          test "$(git rev-parse "refs/tags/${tag}^{commit}")" = "$EXPECTED_SHA"
