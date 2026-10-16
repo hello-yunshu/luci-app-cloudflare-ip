@@ -62,6 +62,10 @@ jobs:
           bash tests/v2-lan-publisher.sh
           bash tests/v2-status.sh
           bash tests/v2-transaction.sh
+          bash tests/openclash-transaction-write-failure.sh
+          bash tests/openclash-render-isolation.sh
+          bash tests/openclash-readback-positive.sh
+          bash tests/openclash-restore-publication.sh
           bash tests/v2-candidate-budget.sh
           bash tests/v2-cfst-exact-input.sh
           bash tests/v2-measurement-deadline.sh
