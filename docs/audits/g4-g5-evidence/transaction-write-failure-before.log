@@ -1,0 +1,4 @@
+transform-after-write: apply=14 state=ROLLING_BACK rolledBack=false applyActive=false
+FAIL: transform-after-write must reject while preserving the original live bytes and clearing apply state
+written-snapshot: apply=14 state=MUTATED rolledBack=false applyActive=true
+FAIL: written-snapshot must reject while preserving the original live bytes and clearing apply state

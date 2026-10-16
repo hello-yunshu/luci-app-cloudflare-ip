@@ -1,0 +1,23 @@
+{
+  "complete": false,
+  "baseline": "cb06c61bc09ec2dbb98e249d46c212e2d80238bd",
+  "scope": "G4a local Legacy fixture repair and G5a transaction failure reproduction; not final qualification",
+  "files": [
+    {
+      "path": "legacy-regex-before.log",
+      "sha256": "31e24edef17b7ba50dc42cef466247478179a9d6c59715220ea1786806ed483f"
+    },
+    {
+      "path": "legacy-regex-after.log",
+      "sha256": "8497db6426fe06bc37348620b5dee18614232fd422ae6bc8af547d4d6cff5a88"
+    },
+    {
+      "path": "legacy-suite-v1.tsv",
+      "sha256": "8d81fd246165db2376262b6146db1559fef6591a05b2b3d61d94e227d6819c9f"
+    },
+    {
+      "path": "transaction-write-failure-before.log",
+      "sha256": "748d399ca31f03f9ad085ecb44c019bcf5af457bdfb32701ca0109d382ec4f9d"
+    }
+  ]
+}
