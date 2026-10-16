@@ -1,0 +1,4 @@
+written-snapshot: rc=1 live=restored candidate
+publish-rename: rc=1 live=user original
+external-edit: rc=0 live=external user edit
+success: rc=0 live=restored candidate

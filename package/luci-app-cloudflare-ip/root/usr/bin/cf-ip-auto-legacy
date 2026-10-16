@@ -2287,6 +2287,27 @@ cmd_sync() {
 	json_result "synced" "$sync_mode" "ip_count" "${#FAST_IPS[@]}"
 }
 
+# Internal v2 renderer: only mutate the caller's private candidate file. The
+# outer transaction owns the real config, backups, service and result status.
+cmd_render_selected() {
+    JSON_MODE=true
+    local selected="${CLI_ARG1:-}" candidate="${CLI_ARG2:-}"
+    [[ -s "$selected" && "$candidate" == /* && -f "$candidate" && ! -L "$candidate" ]] || { json_error "invalid render candidate"; return 1; }
+    jq -e 'type == "array" and length > 0 and all(.[]; (.ip | type == "string" and length > 0))' "$selected" >/dev/null || { json_error "invalid selected mapping"; return 1; }
+    LOG_FILE="${candidate}.render.log"
+    load_uci_config
+    OPENCLASH_CONFIG="$candidate"
+    FAST_IPS=()
+    while IFS= read -r ip; do
+        is_valid_ip "$ip" || { json_error "invalid selected IP"; return 1; }
+        FAST_IPS+=("$ip")
+    done < <(jq -r '.[].ip' "$selected")
+    IP_COUNT=${#FAST_IPS[@]}
+    MODE=openclash; STOP_SERVICE_BEFORE_SPEEDTEST=false; PURE_APPLY=true
+    update_openclash
+    json_result "rendered" openclash "ip_count" "$IP_COUNT"
+}
+
 cmd_apply_selected() {
 	JSON_MODE=true
 	local selected="${CLI_ARG1:-}" apply_mode="${CLI_ARG2:-}"
@@ -2485,6 +2506,7 @@ if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
 			--daemon) CLI_ACTION="daemon" ;;
 			--to-cron) CLI_ACTION="to-cron"; shift; [ $# -gt 0 ] && CLI_ARG1="$1" && shift; [ $# -gt 0 ] && CLI_ARG2="$1" && shift; continue ;;
 			--sync) CLI_ACTION="sync"; shift; [ $# -gt 0 ] && CLI_ARG1="$1" && shift; continue ;;
+			--render-selected) CLI_ACTION="render-selected"; shift; [ $# -gt 0 ] && CLI_ARG1="$1" && shift; [ $# -gt 0 ] && CLI_ARG2="$1" && shift; continue ;;
 			--apply-selected) CLI_ACTION="apply-selected"; shift; [ $# -gt 0 ] && CLI_ARG1="$1" && shift; [ $# -gt 0 ] && CLI_ARG2="$1" && shift; continue ;;
 			--write-status) CLI_ACTION="write-status" ;;
 			--oc-list-backups) CLI_ACTION="oc-list-backups" ;;
@@ -2511,6 +2533,7 @@ if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
 		daemon) cmd_daemon ;;
 		to-cron) cmd_to_cron ;;
 		sync) cmd_sync ;;
+		render-selected) cmd_render_selected ;;
 		apply-selected) cmd_apply_selected ;;
 		write-status) cmd_write_status ;;
 		oc-list-backups) cmd_oc_list_backups ;;

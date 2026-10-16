@@ -91,7 +91,7 @@ cfip_openclash_intended_from_templates() {
 
 cfip_openclash_validate_mapping() {
     local intended="$1" actual="$2"
-    jq -e --slurpfile expected "$intended" --slurpfile observed "$actual" '
+    jq -n -e --slurpfile expected "$intended" --slurpfile observed "$actual" '
       ($expected[0]) as $e | ($observed[0] | map(select(.name|contains("[CF-")))) as $a |
       ($e|length)>0 and ($a|length)==($e|length) and
       (($a | map([.name,.server,.servername,.network,.host] | join("\u0000")) | unique | length) == ($a|length)) and

@@ -705,7 +705,7 @@ cmd_oc_list_backups(){
 }
 cmd_oc_restore_backup(){
     load_config >/dev/null || return 1
-    local id="${1:-}" config="$CFIP_OPENCLASH_CONFIG" backup pre tmp file
+    local id="${1:-}" config="$CFIP_OPENCLASH_CONFIG" backup pre file
     backup_id_valid "$id" || { cfip_json_error "invalid backup id"; return 1; }
     backup="$config.bak.$id"
     if [ ! -f "$backup" ]; then
@@ -719,14 +719,10 @@ cmd_oc_restore_backup(){
     CFIP_MODE=openclash; CFIP_RUN_ID="$(cfip_generate_run_id)"; CFIP_SPEEDTEST_COMPLETED=false
     cfip_txn_prepare openclash || { cfip_json_error "${CFIP_OPENCLASH_SERVICE_ERROR:-failed to snapshot OpenClash config}"; return 1; }
     cfip_openclash_check_before_write || { sync_recovery_failure "${CFIP_OPENCLASH_SERVICE_ERROR:-OpenClash state changed}"; return 1; }
-    pre="$config.bak.$(date +%Y%m%d%H%M%S).pre-restore"; [ -e "$pre" ] && pre="$pre.$$"
-    cp -p "$config" "$pre" || { cfip_json_error "failed to create pre-restore backup"; return 1; }
-    tmp="$(mktemp "$config.restore.XXXXXX")" || { cfip_json_error "failed to create restore temp"; return 1; }
-    if ! cp -p "$backup" "$tmp" || ! cmp -s "$config" "$CFIP_TXN_DIR/openclash.yaml" || ! mv "$tmp" "$config"; then
-        rm -f "$tmp"; cfip_json_error "failed to restore backup"; return 1
+    if ! cfip_txn_publish_openclash "$backup" pre-restore; then
+        sync_recovery_failure "${CFIP_OPENCLASH_SERVICE_ERROR:-failed to stage and publish restored config}"; return 1
     fi
-    CFIP_OPENCLASH_FILE_WRITTEN=true; CFIP_TXN_STATE=MUTATED
-    cp -p "$config" "$CFIP_TXN_DIR/openclash.written.yaml" || { sync_recovery_failure "failed to record restored config"; return 1; }
+    pre="$CFIP_TXN_BACKUP_FILE"
     if [[ "$CFIP_OPENCLASH_EXPECTED_ENABLED" == 1 ]] && ! cfip_restart_service openclash normal; then
         sync_recovery_failure "${CFIP_OPENCLASH_SERVICE_ERROR:-OpenClash backup application failed}"; return 1
     fi

@@ -7,6 +7,7 @@ CFIP_TXN_STATE=NONE
 CFIP_TXN_MODE=""
 CFIP_TXN_COMMITTED=false
 CFIP_TXN_ORIGINAL_RUNNING=false
+CFIP_TXN_BACKUP_FILE=""
 
 cfip_txn_restart_original_service() {
     local service="$1" deadline_class="${2:-normal}"
@@ -20,6 +21,7 @@ cfip_txn_prepare() {
     CFIP_TXN_COMMITTED=false
     CFIP_TXN_ROLLED_BACK=false
     CFIP_TXN_ORIGINAL_RUNNING=false
+    CFIP_TXN_BACKUP_FILE=""
     if [[ "$mode" == openclash ]]; then
         cfip_openclash_capture_state || return 20
         [[ "$CFIP_OPENCLASH_INITIAL_HEALTHY" == true ]] && CFIP_TXN_ORIGINAL_RUNNING=true
@@ -128,6 +130,26 @@ cfip_txn_rollback() {
     [[ -z "$txn_dir" ]] || rm -rf "$txn_dir" 2>/dev/null || true
 }
 
+cfip_txn_trim_openclash_backups() {
+    local keep="${CFIP_OPENCLASH_BACKUP_COUNT:-3}" file i j rc=0
+    local -a ordered=()
+    [[ "$keep" =~ ^[0-9]{1,6}$ ]] || return 1
+    keep=$((10#$keep))
+    if [[ -f "$CFIP_TXN_BACKUP_FILE" ]]; then ordered+=("$CFIP_TXN_BACKUP_FILE"); fi
+    for file in "${CFIP_OPENCLASH_CONFIG}.bak."*; do
+        [[ -f "$file" && ! -L "$file" && "$file" != "$CFIP_TXN_BACKUP_FILE" ]] || continue
+        i=${#ordered[@]}
+        while ((i > 0)); do
+            j=$((i-1))
+            [[ "${ordered[$j]}" != "$CFIP_TXN_BACKUP_FILE" && "$file" -nt "${ordered[$j]}" ]] || break
+            ordered[$i]="${ordered[$j]}"; i=$j
+        done
+        ordered[$i]="$file"
+    done
+    for ((i=keep; i<${#ordered[@]}; i++)); do rm -f -- "${ordered[$i]}" || rc=1; done
+    return "$rc"
+}
+
 cfip_txn_commit() {
     if [[ -n "$CFIP_TXN_DIR" && -f "$CFIP_TXN_DIR/passwall-managed.json.pending" ]]; then
         mv "$CFIP_TXN_DIR/passwall-managed.json.pending" "${CFIP_PASSWALL_STATE_FILE:-${CFIP_STATUS_DIR:-/etc/cf_ip}/passwall-managed.json}" || return 1
@@ -136,6 +158,11 @@ cfip_txn_commit() {
     CFIP_TXN_STATE=COMMITTED
     CFIP_TXN_COMMITTED=true
     CFIP_TXN_DIR=""
+    if [[ "$CFIP_TXN_MODE" == openclash && -n "$CFIP_TXN_BACKUP_FILE" ]]; then
+        if ! cfip_txn_trim_openclash_backups; then
+            printf 'OpenClash configuration committed; backup retention cleanup failed\n' >&2
+        fi
+    fi
 }
 
 cfip_passwall_apply_selected() {
@@ -249,6 +276,27 @@ cfip_passwall_expand_suffix() {
     printf '%s' "$suffix"
 }
 
+# Journal expected bytes before publishing them. The final sibling rename is
+# atomic; the immediately preceding comparison rejects detected outside edits.
+cfip_txn_publish_openclash() {
+    local candidate="$1" config="$CFIP_OPENCLASH_CONFIG" temporary backup label="${2:-}"
+    [[ -z "$label" || "$label" == pre-restore ]] || return 1
+    cp -p "$candidate" "$CFIP_TXN_DIR/openclash.written.yaml" || { CFIP_OPENCLASH_SERVICE_ERROR="Failed to journal OpenClash candidate before publication"; return 1; }
+    temporary="$(mktemp "${config}.candidate.XXXXXX")" || return 1
+    if ! cp -p "$CFIP_TXN_DIR/openclash.written.yaml" "$temporary"; then rm -f "$temporary"; return 1; fi
+    backup="$(mktemp "${config}.bak.$(date +%Y%m%d%H%M%S)${label:+.$label}.XXXXXX")" || { rm -f "$temporary"; return 1; }
+    if ! cp "$CFIP_TXN_DIR/openclash.yaml" "$backup"; then rm -f "$temporary" "$backup"; CFIP_OPENCLASH_SERVICE_ERROR="Failed to preserve OpenClash backup before publication"; return 1; fi
+    CFIP_TXN_BACKUP_FILE="$backup"
+    if ! cfip_openclash_check_before_write || ! cmp -s "$config" "$CFIP_TXN_DIR/openclash.yaml"; then
+        rm -f "$temporary"
+        CFIP_OPENCLASH_SERVICE_ERROR="OpenClash config or service changed before publication; preserved current state"
+        return 1
+    fi
+    CFIP_TXN_STATE=MUTATED
+    if ! mv "$temporary" "$config"; then rm -f "$temporary"; CFIP_OPENCLASH_SERVICE_ERROR="Failed to publish OpenClash candidate"; return 1; fi
+    CFIP_OPENCLASH_FILE_WRITTEN=true
+}
+
 cfip_txn_apply() {
     local mode="$1" selected="$2"
     [[ -n "$CFIP_TXN_DIR" && -d "$CFIP_TXN_DIR" ]] || cfip_txn_prepare "$mode" || return 10
@@ -260,10 +308,11 @@ cfip_txn_apply() {
             return 17
         }
     fi
-    CFIP_TXN_STATE=MUTATED
+    CFIP_TXN_STATE=PREPARED
     CFIP_TXN_APPLY=true
     case "$mode" in
       passwall)
+        CFIP_TXN_STATE=MUTATED
         if ! cfip_passwall_apply_selected "$selected"; then
             CFIP_TXN_APPLY=false
             if cfip_txn_rollback "$mode"; then return 11; else return 12; fi
@@ -275,14 +324,29 @@ cfip_txn_apply() {
         [[ "${CFIP_TXN_ORIGINAL_RUNNING:-false}" == true ]] && CFIP_TXN_STATE=RESTARTED
         ;;
       openclash)
-        if ! cfip_openclash_apply_selected "$selected"; then
-            cmp -s "$CFIP_OPENCLASH_CONFIG" "$CFIP_TXN_DIR/openclash.yaml" || CFIP_OPENCLASH_FILE_WRITTEN=true
+        local candidate="$CFIP_TXN_DIR/openclash.candidate.yaml" stage_rc=0
+        if cp -p "$CFIP_TXN_DIR/openclash.yaml" "$candidate"; then
+            CFIP_OPENCLASH_CONFIG="$candidate" cfip_openclash_apply_selected "$selected" || stage_rc=$?
+            ((stage_rc == 0)) || CFIP_OPENCLASH_SERVICE_ERROR="OpenClash candidate rendering failed (exit $stage_rc)"
+        else
+            stage_rc=$?
+            CFIP_OPENCLASH_SERVICE_ERROR="Failed to copy OpenClash snapshot into private candidate (exit $stage_rc)"
+        fi
+        if ((stage_rc != 0)); then
             CFIP_TXN_APPLY=false
             if cfip_txn_rollback "$mode"; then return 13; else return 14; fi
         fi
-        CFIP_OPENCLASH_FILE_WRITTEN=true
-        cp -p "$CFIP_OPENCLASH_CONFIG" "$CFIP_TXN_DIR/openclash.written.yaml" || return 14
+        if ! CFIP_OPENCLASH_CONFIG="$candidate" cfip_openclash_readback_selected "$selected"; then
+            CFIP_OPENCLASH_SERVICE_ERROR="OpenClash private candidate failed intended-mapping validation"
+            CFIP_TXN_APPLY=false
+            if cfip_txn_rollback "$mode"; then return 15; else return 16; fi
+        fi
+        if ! cfip_txn_publish_openclash "$candidate"; then
+            CFIP_TXN_APPLY=false
+            if cfip_txn_rollback "$mode"; then return 13; else return 14; fi
+        fi
         if ! cfip_openclash_readback_selected "$selected"; then
+            CFIP_OPENCLASH_SERVICE_ERROR="OpenClash published config failed intended-mapping validation"
             CFIP_TXN_APPLY=false
             if cfip_txn_rollback "$mode"; then return 15; else return 16; fi
         fi
