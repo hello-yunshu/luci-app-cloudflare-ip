@@ -78,7 +78,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/qualification"
-          gh run download "$QUALIFICATION_RUN_ID" --repo "$GITHUB_REPOSITORY" --name qualification-evidence --dir "$RUNNER_TEMP/qualification"
+          python3 scripts/download-qualification-artifact.py --repo "$GITHUB_REPOSITORY" --run-id "$QUALIFICATION_RUN_ID" --run-attempt "$QUALIFICATION_RUN_ATTEMPT" --commit "$QUALIFICATION_SHA" --name qualification-evidence --dir "$RUNNER_TEMP/qualification"
           manifest="$RUNNER_TEMP/qualification/qualification.json"
           test -f "$manifest"
           python3 scripts/validate-qualification-evidence.py "$manifest" --commit "$QUALIFICATION_SHA" --require-assets 2 --require-release-eligible --run-id "$QUALIFICATION_RUN_ID" --run-attempt "$QUALIFICATION_RUN_ATTEMPT" --contract contracts/rill-runtime.json
@@ -121,6 +121,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           QUALIFICATION_RUN_ID: ${{ needs.check-qualification.outputs.run_id }}
           QUALIFICATION_RUN_ATTEMPT: ${{ needs.check-qualification.outputs.run_attempt }}
+          QUALIFICATION_SHA: ${{ needs.check-qualification.outputs.commit }}
           VERSION: ${{ needs.check-qualification.outputs.version }}
           RELEASE: ${{ needs.check-qualification.outputs.release }}
         shell: bash
@@ -129,9 +130,9 @@ jobs:
           work="$RUNNER_TEMP/qualification-assets"
           mkdir -p "$work" release
           while IFS= read -r artifact; do
-            gh run download "$QUALIFICATION_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$artifact" --dir "$work/$artifact"
+            python3 scripts/download-qualification-artifact.py --repo "$GITHUB_REPOSITORY" --run-id "$QUALIFICATION_RUN_ID" --run-attempt "$QUALIFICATION_RUN_ATTEMPT" --commit "$QUALIFICATION_SHA" --name "$artifact" --dir "$work/$artifact"
           done < <(python3 scripts/package_identity.py --public-artifacts)
-          gh run download "$QUALIFICATION_RUN_ID" --repo "$GITHUB_REPOSITORY" --name qualification-evidence --dir "$work/qualification-evidence"
+          python3 scripts/download-qualification-artifact.py --repo "$GITHUB_REPOSITORY" --run-id "$QUALIFICATION_RUN_ID" --run-attempt "$QUALIFICATION_RUN_ATTEMPT" --commit "$QUALIFICATION_SHA" --name qualification-evidence --dir "$work/qualification-evidence"
           manifest="$work/qualification-evidence/qualification.json"
           test -f "$manifest"
           cp "$manifest" release/qualification.json
@@ -148,6 +149,7 @@ jobs:
           EXPECTED_SHA: ${{ needs.check-qualification.outputs.commit }}
           QUALIFICATION_RUN_ID: ${{ needs.check-qualification.outputs.run_id }}
           QUALIFICATION_RUN_ATTEMPT: ${{ needs.check-qualification.outputs.run_attempt }}
+          QUALIFICATION_SHA: ${{ needs.check-qualification.outputs.commit }}
           VERSION: ${{ needs.check-qualification.outputs.version }}
           RELEASE: ${{ needs.check-qualification.outputs.release }}
         shell: bash
@@ -178,6 +180,7 @@ jobs:
       - name: Guard immutable release tag before asset upload
         env:
           EXPECTED_SHA: ${{ needs.check-qualification.outputs.commit }}
+          QUALIFICATION_SHA: ${{ needs.check-qualification.outputs.commit }}
           VERSION: ${{ needs.check-qualification.outputs.version }}
           RELEASE: ${{ needs.check-qualification.outputs.release }}
         shell: bash
@@ -236,6 +239,7 @@ jobs:
       - name: Verify published tag identity
         env:
           EXPECTED_SHA: ${{ needs.check-qualification.outputs.commit }}
+          QUALIFICATION_SHA: ${{ needs.check-qualification.outputs.commit }}
           VERSION: ${{ needs.check-qualification.outputs.version }}
           RELEASE: ${{ needs.check-qualification.outputs.release }}
         shell: bash
