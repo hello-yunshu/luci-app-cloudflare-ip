@@ -49,6 +49,16 @@ import copy, importlib.util, json, pathlib, sys
 spec=importlib.util.spec_from_file_location("qualification",sys.argv[1]); module=importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
 valid=json.load(open(sys.argv[2])); contract=pathlib.Path(sys.argv[3]); commit=valid["commit"]
 cases=[]
+for value in (None, [], {}, [valid["packageMigration"]["currentMatrices"][0]]):
+ d=copy.deepcopy(valid); d["packageMigration"]["currentMatrices"]=value; cases.append(("missing/incomplete current matrices",d,commit))
+for index in (0,1):
+ for field,value in (("sha256","broken"),("size",True),("size",0)):
+  d=copy.deepcopy(valid); d["packageMigration"]["currentMatrices"][index]["inputs"]["currentBase"][field]=value; cases.append(("invalid matrix input "+field,d,commit))
+ for field,value in (("name","wrong"),("format","unknown"),("architecture","mips"),("release",True),("packageVersion","bad")):
+  d=copy.deepcopy(valid); d["packageMigration"]["currentMatrices"][index]["inputs"]["currentBase"]["package"][field]=value; cases.append(("invalid matrix metadata "+field,d,commit))
+ for row_index in range(5):
+  for field,value in (("status","FAIL"),("runtimeAbsent",False),("runtimePresent",False),("userDataPreserved",False),("evidenceDirectory","../outside"),("from",[]),("id",[])):
+   d=copy.deepcopy(valid); d["packageMigration"]["currentMatrices"][index]["scenarios"][row_index][field]=value; cases.append(("invalid matrix scenario "+field,d,commit))
 for field in list(valid["jobs"]):
  d=copy.deepcopy(valid); del d["jobs"][field]; cases.append((f"missing required job {field}",d,commit))
  for result in ("failure", "skipped", "cancelled", "in_progress", None, True):
