@@ -48,6 +48,7 @@ jobs:
       - name: Release channel and package identity contracts
         run: |
           set -euo pipefail
+          python3 tests/build-version-policy.py
           python3 tests/qualification-artifact-download.py
           bash tests/release-channel-contract.sh
           bash tests/v2-prerelease-workflow-contract.sh
@@ -639,18 +640,8 @@ jobs:
     needs: [host-contract, openwrt-package, package-migration, rill-runtime-integration, docker-replay]
     steps:
       - uses: actions/checkout@v7
-      - name: Verify development release guard
-        shell: bash
-        run: |
-          set -euo pipefail
-          version=$(python3 scripts/package_identity.py --field version)
-          if [[ "$GITHUB_REF" == refs/heads/main ||
-            "$GITHUB_REF" == refs/heads/release/* ||
-            ( "$GITHUB_EVENT_NAME" == pull_request && "$GITHUB_BASE_REF" == main ) ]]; then
-            [[ "$version" != *-dev ]]
-          else
-            [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+-dev$ ]]
-          fi
+      - name: Verify source build version policy
+        run: python3 scripts/check-build-version-policy.py
 
   rpc-luci-contract:
     runs-on: ubuntu-latest

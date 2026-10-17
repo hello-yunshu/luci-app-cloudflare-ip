@@ -44,3 +44,10 @@ G4b/c/d、G5a 修复及完整故障矩阵、G5b 浏览器和 UCI readback、G5c 
 - 新增共享 qualification_jobs.py，定义 12 个必需 job（包含 package-identity），严格要求集合完全相等且每项 result=success。CI qualification guard、manifest writer 与严格发布验证共用该函数/CLI，缺失、额外、跳过、失败、取消或未完成均拒绝。两个 CI needs 列表同步包含 identity。
 - 对每个必需 job 分别删除并注入六种非成功状态，另测空/错误类型/额外集合；全部拒绝。正向、manifest diagnostic、合成字节绑定、版本源合同七项、预发布合同、ShellCheck error、actionlint/diff 通过。不是 hosted/真实包新资格结论。
 - artifact 新命名提交的 PR run 38999749248 已回读 in_progress；同 SHA 重复 push run 38999746629 已请求取消。
+
+## G4 版本构建策略修复
+
+- 原 CI 38946835586 的 package-release-guard 已证明：候选分支继承 2.6.0-r5 时，旧逻辑强制任意非 main/release 分支必须为 -dev，导致隔离 exact-SHA 候选测试无法全绿。
+- 新 source build policy 允许 feature 分支测试源权威给出的最终候选版本，同时 main/release 分支及其 PR base 拒绝 -dev；Stable 渠道在任何分支拒绝 -dev。只改变构建资格，不授予发布资格，release 工作流的 main/head/channel/非-dev/完整资格门禁保留。
+- 48 种 ref/event/base、version 与 channel 组合通过；实际当前候选 source 检查通过；预发布工作流合同、actionlint、diff 检查通过。
+- 远程 run 38999749248 仍 in_progress，Legacy/RPC/identity/workflow/Docker/CFST 已成功，Host 与四 SDK 在执行。
