@@ -49,6 +49,12 @@ import copy, importlib.util, json, pathlib, sys
 spec=importlib.util.spec_from_file_location("qualification",sys.argv[1]); module=importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
 valid=json.load(open(sys.argv[2])); contract=pathlib.Path(sys.argv[3]); commit=valid["commit"]
 cases=[]
+for field in list(valid["jobs"]):
+ d=copy.deepcopy(valid); del d["jobs"][field]; cases.append((f"missing required job {field}",d,commit))
+ for result in ("failure", "skipped", "cancelled", "in_progress", None, True):
+  d=copy.deepcopy(valid); d["jobs"][field]["result"]=result; cases.append((f"job {field}={result!r}",d,commit))
+for jobs in ({}, [], None, {**valid["jobs"], "unexpected": {"result":"success"}}):
+ d=copy.deepcopy(valid); d["jobs"]=jobs; cases.append((f"invalid job set {jobs!r}",d,commit))
 module.validate(valid,commit,2,True,42,contract,1)
 for value in (None, True, False, 0, -1, "1", 2):
  d=copy.deepcopy(valid)

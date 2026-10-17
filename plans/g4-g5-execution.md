@@ -37,3 +37,10 @@ G4b/c/d、G5a 修复及完整故障矩阵、G5b 浏览器和 UCI readback、G5c 
 - CI 上传的 SDK、迁移、Runtime 集成与 qualification evidence artifact 全部使用 `BASE-run-ID-attempt-N` 名称；同一 run 的不同 attempt 不再共享名称。下载保留逻辑目录，包内路径/metadata/bytes 合同不变。部分 rerun 缺少本 attempt 所需产物时拒绝，不借用旧 attempt。
 - 新只读下载工具先检查 GitHub run attempt API 的 id/attempt/head_sha，再检查全部分页的 artifact 列表，拒绝缺失/重复/过期精确名称，之后调用 gh download。PR 使用 workflow run 的 head SHA 作来源校验，包测试 manifest 仍保留实际 GITHUB_SHA；release 使用同一来源 SHA。
 - mock API 边界正向与错误 run/attempt/SHA、旧 attempt 名称、缺失/重复/过期产物负向通过；已接入 Host。严格证据、下载指南、预发布工作流合同及 actionlint/diff 检查通过。真实 hosted 新命名下载尚待本提交 CI，不将 mock 视作 hosted 通过。
+
+## G4c required-job predicate 检查点
+
+- 修复前从 HEAD 提取真实旧验证器，使用 releaseEligible=true 且 jobs={} 的完整合成 manifest，严格验证实际通过，证明缺陷。旧 jq all() 对空集合也为 true。
+- 新增共享 qualification_jobs.py，定义 12 个必需 job（包含 package-identity），严格要求集合完全相等且每项 result=success。CI qualification guard、manifest writer 与严格发布验证共用该函数/CLI，缺失、额外、跳过、失败、取消或未完成均拒绝。两个 CI needs 列表同步包含 identity。
+- 对每个必需 job 分别删除并注入六种非成功状态，另测空/错误类型/额外集合；全部拒绝。正向、manifest diagnostic、合成字节绑定、版本源合同七项、预发布合同、ShellCheck error、actionlint/diff 通过。不是 hosted/真实包新资格结论。
+- artifact 新命名提交的 PR run 38999749248 已回读 in_progress；同 SHA 重复 push run 38999746629 已请求取消。

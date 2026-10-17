@@ -721,20 +721,21 @@ jobs:
 
   qualification-guard:
     if: always()
-    needs: [host-contract, legacy-contract, rpc-luci-contract, openwrt-package, package-migration, rill-runtime-integration, package-release-guard, workflow-lint, real-cfst-smoke, release-asset-contract, docker-replay]
+    needs: [package-identity, host-contract, legacy-contract, rpc-luci-contract, openwrt-package, package-migration, rill-runtime-integration, package-release-guard, workflow-lint, real-cfst-smoke, release-asset-contract, docker-replay]
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v7
       - name: Require every qualification job
         env:
           RESULTS: ${{ toJSON(needs) }}
         run: |
           set -euo pipefail
-          echo "$RESULTS" | jq -e 'to_entries | all(.value.result == "success")'
+          python3 scripts/qualification_jobs.py <<<"$RESULTS"
           echo QUALIFICATION_COMPLETE
 
   evidence-manifest:
     if: always()
-    needs: [host-contract, legacy-contract, rpc-luci-contract, openwrt-package, package-migration, rill-runtime-integration, package-release-guard, workflow-lint, real-cfst-smoke, release-asset-contract, docker-replay]
+    needs: [package-identity, host-contract, legacy-contract, rpc-luci-contract, openwrt-package, package-migration, rill-runtime-integration, package-release-guard, workflow-lint, real-cfst-smoke, release-asset-contract, docker-replay]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
