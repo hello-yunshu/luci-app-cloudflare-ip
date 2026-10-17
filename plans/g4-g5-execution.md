@@ -1,5 +1,9 @@
 # G4、G5 执行记录
 
+## G4b strict current-matrix checkpoint
+
+Strict release validation now requires one IPK and one APK matrix, all five input roles, valid metadata/size/digest, matching candidate base/addon versions and public asset version identity. All five scenario operations and runtime/user-data assertions are checked; unsafe evidence paths and malformed IDs are rejected. Synthetic positive and tamper tests, source-authority contracts, ShellCheck, actionlint and diff checks passed. Real package execution and G4b/G4d completion remain OPEN. JSON assertions do not constitute device or online lifecycle proof.
+
 基线：CF `cb06c61bc09ec2dbb98e249d46c212e2d80238bd`，G3 十二包资格 run 38928695476 attempt 1 不变。工作分支 `codex/reliability-contracts`。当前未完成 G4/G5，不具备新的 Stable 资格。保留旧分支、已发布资产、用户配置及既有 G3 证据。
 
 ## 完成定义
