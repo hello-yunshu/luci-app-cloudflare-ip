@@ -57,3 +57,10 @@ G4b/c/d、G5a 修复及完整故障矩阵、G5b 浏览器和 UCI readback、G5c 
 - 原迁移脚本退出清除 root，artifact 仅含固定布尔值，无法复核 installed DB/owner/用户数据。新增逐 install/remove/final 阶段原始 installed DB 复制、包 files 清单、etc SHA256；details 随 migration artifact 上传，失败也上传已有详情。
 - 当前 base 安装前植入受控测试 UCI（含自定义 URL）、backup/history/用户 cron，并在安装后、addon 卸载后及最终逐项核对 SHA256。只使用隔离 root，不接触宿主配置或设备。移除测试 opkg --force-maintainer，按正常 conffile 保留行为验证。
 - bash syntax、ShellCheck error、actionlint/diff 通过。真实两种包管理器尚待新 CI 执行，未视为通过；通用 from/to metadata、最近公开输入来源、卸载/生命周期和负向矩阵仍 OPEN。APK --no-scripts 与 IPKG_INSTROOT 隔离边界明确，不能代表在线 postinst/procd 行为。
+
+## G4b 通用 current matrix 候选
+
+- 新矩阵记录实际 legacy/current base/addon 与 recentBase 五类输入的真实包 metadata、size、SHA256；历史输入若从固定源码重建，证据记录实际重建 bytes，不假称公开下载 bytes。
+- a–e 场景明确 from/to role、addon absent/retained/replaced/removed、runtime absence/presence、用户数据核对和对应详情目录。只在真实场景全部成功后生成 PASS 矩阵；CI 合并 IPK/APK currentMatrices，历史 r3ToR4 字段保留并注明不描述当前目标版本。
+- jq 合成 metadata 渲染及五场景结构检查通过；bash syntax、ShellCheck error、actionlint、diff 通过。尚需严格 matrix validator、真实包管理器运行与输入来源策略校验，G4b 未完成。
+- 最新既有 PR run 38999920322 仍 queued；其同 SHA push run 38999916824 与旧候选重复 push run 38999847002 已请求取消，保留 PR 验证。

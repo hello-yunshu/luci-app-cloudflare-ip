@@ -306,15 +306,42 @@ if [[ "$KIND" == apk ]]; then
     printf '%s\n' "$apk_repository/packages.adb" >"$APK_REPOSITORIES_FILE"
 fi
 
+# Inspect the exact input bytes, including locally rebuilt historical packages.
+for role in legacyBase legacyAddon currentBase currentAddon recentBase; do
+    case "$role" in
+        legacyBase) input="$LEGACY_BASE"; package_name="$BASE_PACKAGE" ;;
+        legacyAddon) input="$LEGACY_ADDON"; package_name="$ADDON_PACKAGE" ;;
+        currentBase) input="$CURRENT_BASE"; package_name="$BASE_PACKAGE" ;;
+        currentAddon) input="$CURRENT_ADDON"; package_name="$ADDON_PACKAGE" ;;
+        recentBase) input="$R3_BASE"; package_name="$BASE_PACKAGE" ;;
+    esac
+    python3 "$ROOT/scripts/openwrt-package-metadata.py" "$input" --format "$KIND" \
+        --apk-bin "$APK" --package-name "$package_name" --output "$EVIDENCE_DIR/$role.json"
+done
+
 run_scenario "${KIND}-a" scenario_a
 run_scenario "${KIND}-b" scenario_b
 run_scenario "${KIND}-c" scenario_c
 run_scenario "${KIND}-d" scenario_d
 run_scenario "${KIND}-e" scenario_e
 
+jq -n --arg kind "$KIND" \
+    --slurpfile old "$EVIDENCE_DIR/legacyBase.json" --slurpfile addon "$EVIDENCE_DIR/legacyAddon.json" \
+    --slurpfile current "$EVIDENCE_DIR/currentBase.json" --slurpfile compat "$EVIDENCE_DIR/currentAddon.json" \
+    --slurpfile recent "$EVIDENCE_DIR/recentBase.json" \
+    '{schemaVersion:1,packageManager:$kind,inputs:{legacyBase:$old[0],legacyAddon:$addon[0],currentBase:$current[0],currentAddon:$compat[0],recentBase:$recent[0]},
+      scenarios:[
+       {id:"a",from:["legacyBase"],to:["currentBase"],addon:"absent"},
+       {id:"b",from:["legacyBase","legacyAddon"],to:["currentBase"],addon:"retained"},
+       {id:"c",from:["legacyBase","legacyAddon"],to:["currentBase","currentAddon"],addon:"replaced"},
+       {id:"d",from:["legacyBase","legacyAddon"],to:["currentBase"],addon:"removed"},
+       {id:"e",from:["recentBase"],to:["currentBase"],addon:"absent"}
+      ] | map(. + {status:"PASS",runtimeAbsent:true,runtimePresent:true,userDataPreserved:true,evidenceDirectory:($kind+"-"+.id)})}' \
+      >"$EVIDENCE_DIR/current-matrix.json"
+
 source_tag="${SOURCE_TAG:-v2.6.0-2}"
 source_sha="${SOURCE_SHA:-unknown}"
-jq -n --arg kind "$KIND" --arg tag "$source_tag" --arg sha "$source_sha" --arg current "${GITHUB_SHA:-unknown}" \
-  '{schemaVersion:1,kind:$kind,sourceTag:$tag,sourceSHA:$sha,currentSHA:$current,legacyVersion:"2.6.0-r2",ipk:(if $kind=="ipk" then "PASS" else "NOT_APPLICABLE" end),apk:(if $kind=="apk" then "PASS" else "NOT_APPLICABLE" end),baseOnlyUpgrade:true,baseAddonToBaseUpgrade:true,addonRemovalSafe:true,r3ToR4:true,runtimeAbsent:true,runtimePresent:true}' \
+jq -n --slurpfile matrix "$EVIDENCE_DIR/current-matrix.json" --arg kind "$KIND" --arg tag "$source_tag" --arg sha "$source_sha" --arg current "${GITHUB_SHA:-unknown}" \
+  '{schemaVersion:1,currentMatrix:$matrix[0],historicalR3ToR4Meaning:"legacy field retained; current from/to identity is in currentMatrix",kind:$kind,sourceTag:$tag,sourceSHA:$sha,currentSHA:$current,legacyVersion:"2.6.0-r2",ipk:(if $kind=="ipk" then "PASS" else "NOT_APPLICABLE" end),apk:(if $kind=="apk" then "PASS" else "NOT_APPLICABLE" end),baseOnlyUpgrade:true,baseAddonToBaseUpgrade:true,addonRemovalSafe:true,r3ToR4:true,runtimeAbsent:true,runtimePresent:true}' \
   > package-migration-evidence.json
 echo "real $KIND package-manager migration matrix passed"
