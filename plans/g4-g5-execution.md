@@ -51,3 +51,9 @@ G4b/c/d、G5a 修复及完整故障矩阵、G5b 浏览器和 UCI readback、G5c 
 - 新 source build policy 允许 feature 分支测试源权威给出的最终候选版本，同时 main/release 分支及其 PR base 拒绝 -dev；Stable 渠道在任何分支拒绝 -dev。只改变构建资格，不授予发布资格，release 工作流的 main/head/channel/非-dev/完整资格门禁保留。
 - 24 种 ref/event/base、version 与 channel 组合通过；实际当前候选 source 检查通过；预发布工作流合同、actionlint、diff 检查通过。
 - 远程 run 38999749248 仍 in_progress，Legacy/RPC/identity/workflow/Docker/CFST 已成功，Host 与四 SDK 在执行。
+
+## G4b installed DB 与用户数据证据候选
+
+- 原迁移脚本退出清除 root，artifact 仅含固定布尔值，无法复核 installed DB/owner/用户数据。新增逐 install/remove/final 阶段原始 installed DB 复制、包 files 清单、etc SHA256；details 随 migration artifact 上传，失败也上传已有详情。
+- 当前 base 安装前植入受控测试 UCI（含自定义 URL）、backup/history/用户 cron，并在安装后、addon 卸载后及最终逐项核对 SHA256。只使用隔离 root，不接触宿主配置或设备。移除测试 opkg --force-maintainer，按正常 conffile 保留行为验证。
+- bash syntax、ShellCheck error、actionlint/diff 通过。真实两种包管理器尚待新 CI 执行，未视为通过；通用 from/to metadata、最近公开输入来源、卸载/生命周期和负向矩阵仍 OPEN。APK --no-scripts 与 IPKG_INSTROOT 隔离边界明确，不能代表在线 postinst/procd 行为。
