@@ -770,7 +770,7 @@ jobs:
           migration_apk=$(find "$asset_dir/package-migration-apk" -type f -name package-migration-evidence.json -print -quit)
           test -n "$migration_ipk" -a -n "$migration_apk"
           PACKAGE_MIGRATION=$(jq -n --argjson ipk "$(cat "$migration_ipk")" --argjson apk "$(cat "$migration_apk")" \
-            '{schemaVersion:1,legacyVersion:$ipk.legacyVersion,sourceTag:$ipk.sourceTag,sourceSHA:$ipk.sourceSHA,currentSHA:$ipk.currentSHA,ipk:$ipk.ipk,apk:$apk.apk,baseOnlyUpgrade:($ipk.baseOnlyUpgrade and $apk.baseOnlyUpgrade),baseAddonToBaseUpgrade:($ipk.baseAddonToBaseUpgrade and $apk.baseAddonToBaseUpgrade),addonRemovalSafe:($ipk.addonRemovalSafe and $apk.addonRemovalSafe),r3ToR4:($ipk.r3ToR4 and $apk.r3ToR4),runtimeAbsent:($ipk.runtimeAbsent and $apk.runtimeAbsent),runtimePresent:($ipk.runtimePresent and $apk.runtimePresent)}')
+            '{schemaVersion:1,currentMatrices:[$ipk.currentMatrix,$apk.currentMatrix],historicalR3ToR4Meaning:$ipk.historicalR3ToR4Meaning,legacyVersion:$ipk.legacyVersion,sourceTag:$ipk.sourceTag,sourceSHA:$ipk.sourceSHA,currentSHA:$ipk.currentSHA,ipk:$ipk.ipk,apk:$apk.apk,baseOnlyUpgrade:($ipk.baseOnlyUpgrade and $apk.baseOnlyUpgrade),baseAddonToBaseUpgrade:($ipk.baseAddonToBaseUpgrade and $apk.baseAddonToBaseUpgrade),addonRemovalSafe:($ipk.addonRemovalSafe and $apk.addonRemovalSafe),r3ToR4:($ipk.r3ToR4 and $apk.r3ToR4),runtimeAbsent:($ipk.runtimeAbsent and $apk.runtimeAbsent),runtimePresent:($ipk.runtimePresent and $apk.runtimePresent)}')
           ASSET_FILES="$asset_files"
           RILL_EVIDENCE="$(cat "$rill_evidence_file")"
           for json_input in RESULTS ARTIFACTS ASSET_FILES RILL_EVIDENCE; do
