@@ -10,6 +10,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from package_identity import validate_metadata
+from qualification_jobs import require_success
 
 HEX40 = re.compile(r"^[0-9a-fA-F]{40}$")
 HEX64 = re.compile(r"^[0-9a-fA-F]{64}$")
@@ -62,6 +63,7 @@ def validate(
         require(require_release_eligible, not require_release_eligible, "releaseEligible is false")
         return
     require(manifest.get("qualificationState"), manifest["qualificationState"] == "automated-qualification", "qualificationState is not automated-qualification")
+    require_success(manifest.get("jobs"))
     migration = manifest.get("packageMigration")
     require(migration, isinstance(migration, dict), "package migration evidence missing")
     require(migration.get("legacyVersion"), migration.get("legacyVersion") == "2.6.0-r2", "wrong legacy package version")
