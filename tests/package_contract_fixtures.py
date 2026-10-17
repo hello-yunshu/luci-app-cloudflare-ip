@@ -1,5 +1,6 @@
 """Synthetic byte-binding fixtures; not package or installation evidence."""
 from __future__ import annotations
+import copy
 import hashlib
 import json
 from pathlib import Path
@@ -7,6 +8,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 from package_identity import ROOT, filename, source
 from qualification_jobs import REQUIRED_JOBS
+from migration_matrix import SCENARIOS
 
 
 def assets_for(identity=None):
@@ -26,8 +28,23 @@ def manifest(assets=None):
     commit = '0123456789abcdef0123456789abcdef01234567'
     migration = dict(c['packageMigration'], currentSHA=commit, ipk='PASS', apk='PASS')
     migration.update({k:True for k in ('baseOnlyUpgrade','baseAddonToBaseUpgrade','addonRemovalSafe','r3ToR4','runtimeAbsent','runtimePresent')})
+    assets = assets if assets is not None else assets_for()
+    matrices=[]
+    for asset in assets:
+        kind=asset['package']['format']; inputs={}
+        for role in ('legacyBase','legacyAddon','currentBase','currentAddon','recentBase'):
+            record=copy.deepcopy(asset);record.pop('path',None);meta=record['package']
+            if role.endswith('Addon'):meta['name']='luci-app-cloudflare-ip-rill'
+            if role.startswith('legacy') or role=='recentBase':
+                meta.update(version='2.6.0',release=3 if role=='recentBase' else 2)
+                meta['packageVersion']=f"{meta['version']}-r{meta['release']}"
+            inputs[role]=record
+        matrices.append(dict(schemaVersion=1,packageManager=kind,inputs=inputs,scenarios=[
+            dict(id=k,**{'from':old,'to':new},addon=addon,status='PASS',runtimeAbsent=True,runtimePresent=True,userDataPreserved=True,evidenceDirectory=kind+'-'+k)
+            for k,(old,new,addon) in SCENARIOS.items()]))
+    migration['currentMatrices']=matrices
     return dict(schemaVersion=1, commit=commit, runId=42, runAttempt=1, jobs={name:dict(result="success") for name in REQUIRED_JOBS}, artifacts=[],
-                assetFiles=assets if assets is not None else assets_for(),
+                assetFiles=assets,
                 qualificationState='automated-qualification', releaseEligible=True,
                 packageMigration=migration, stableSourceArchiveSha256=c['resolved']['sourceArchiveSha256'],
                 rill=dict(schemaVersion=1, package=dict(repository=c['openwrtPackage']['repository'],

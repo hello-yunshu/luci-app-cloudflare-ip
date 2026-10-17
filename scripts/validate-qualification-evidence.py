@@ -11,6 +11,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from package_identity import validate_metadata
 from qualification_jobs import require_success
+from migration_matrix import validate as validate_migration_matrices
 
 HEX40 = re.compile(r"^[0-9a-fA-F]{40}$")
 HEX64 = re.compile(r"^[0-9a-fA-F]{64}$")
@@ -137,6 +138,7 @@ def validate(
             require(package_meta, isinstance(package_meta.get("architecture"), str) and package_meta["architecture"] in ("all", "noarch"), "invalid package architecture")
             validate_metadata(package_meta, name)
         require(formats, formats == {"ipk", "apk"}, "release assets must contain exactly one IPK and one APK")
+        validate_migration_matrices(migration.get("currentMatrices"), assets)
     if require_release_eligible:
         require(contract_path, contract_path is not None, "strict release validation requires the pinned contract")
         contract = json.loads(contract_path.read_text(encoding="utf-8"))
