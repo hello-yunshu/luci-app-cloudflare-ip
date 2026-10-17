@@ -55,6 +55,7 @@ jobs:
     outputs:
       commit: ${{ steps.verify.outputs.commit }}
       run_id: ${{ steps.verify.outputs.run_id }}
+      run_attempt: ${{ steps.verify.outputs.run_attempt }}
       version: ${{ steps.verify.outputs.version }}
       release: ${{ steps.verify.outputs.release }}
       channel: ${{ steps.verify.outputs.channel }}
@@ -71,6 +72,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           QUALIFICATION_RUN_ID: ${{ github.event.workflow_run.id }}
+          QUALIFICATION_RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
           QUALIFICATION_SHA: ${{ github.event.workflow_run.head_sha }}
         shell: bash
         run: |
@@ -79,7 +81,7 @@ jobs:
           gh run download "$QUALIFICATION_RUN_ID" --repo "$GITHUB_REPOSITORY" --name qualification-evidence --dir "$RUNNER_TEMP/qualification"
           manifest="$RUNNER_TEMP/qualification/qualification.json"
           test -f "$manifest"
-          python3 scripts/validate-qualification-evidence.py "$manifest" --commit "$QUALIFICATION_SHA" --require-assets 2 --require-release-eligible --run-id "$QUALIFICATION_RUN_ID" --contract contracts/rill-runtime.json
+          python3 scripts/validate-qualification-evidence.py "$manifest" --commit "$QUALIFICATION_SHA" --require-assets 2 --require-release-eligible --run-id "$QUALIFICATION_RUN_ID" --run-attempt "$QUALIFICATION_RUN_ATTEMPT" --contract contracts/rill-runtime.json
           version=$(python3 scripts/package_identity.py --field version)
           release=$(python3 scripts/package_identity.py --field release)
           python3 scripts/package_identity.py >/dev/null
@@ -97,6 +99,7 @@ jobs:
           done
           {
             echo "commit=$QUALIFICATION_SHA"
+            echo "run_attempt=$QUALIFICATION_RUN_ATTEMPT"
             echo "run_id=$QUALIFICATION_RUN_ID"
             echo "version=$version"
             echo "release=$release"
@@ -117,6 +120,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           QUALIFICATION_RUN_ID: ${{ needs.check-qualification.outputs.run_id }}
+          QUALIFICATION_RUN_ATTEMPT: ${{ needs.check-qualification.outputs.run_attempt }}
           VERSION: ${{ needs.check-qualification.outputs.version }}
           RELEASE: ${{ needs.check-qualification.outputs.release }}
         shell: bash
@@ -143,12 +147,13 @@ jobs:
         env:
           EXPECTED_SHA: ${{ needs.check-qualification.outputs.commit }}
           QUALIFICATION_RUN_ID: ${{ needs.check-qualification.outputs.run_id }}
+          QUALIFICATION_RUN_ATTEMPT: ${{ needs.check-qualification.outputs.run_attempt }}
           VERSION: ${{ needs.check-qualification.outputs.version }}
           RELEASE: ${{ needs.check-qualification.outputs.release }}
         shell: bash
         run: |
           set -euo pipefail
-          python3 scripts/validate-release-assets.py release/qualification.json release --commit "$EXPECTED_SHA" --run-id "$QUALIFICATION_RUN_ID" --version "$VERSION" --release "$RELEASE" --contract contracts/rill-runtime.json
+          python3 scripts/validate-release-assets.py release/qualification.json release --commit "$EXPECTED_SHA" --run-id "$QUALIFICATION_RUN_ID" --run-attempt "$QUALIFICATION_RUN_ATTEMPT" --version "$VERSION" --release "$RELEASE" --contract contracts/rill-runtime.json
           (cd release && sha256sum luci-app-cloudflare-ip*.ipk luci-app-cloudflare-ip*.apk > sha256sums.txt)
           bash tests/release-asset-contract.sh release "$VERSION"
       - uses: actions/upload-artifact@v7

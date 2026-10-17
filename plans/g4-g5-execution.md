@@ -24,3 +24,10 @@ G4b/c/d、G5a 修复及完整故障矩阵、G5b 浏览器和 UCI readback、G5c 
 - 真实 bounded adapter 调用真实 Legacy renderer，只修改私有候选；整条禁用服务事务通过真实 IntendedMapping/readback/发布/commit 与备份数量检查，没有 UCI 写、controller 或 init 副作用。
 - 正向用例新发现 readback validator 缺少 jq -n，空 stdin 下返回 4；修复后正确映射通过，错误 network 和 duplicate 仍拒绝。原历史 negative-only 用例不是正向资格。
 - 当前 15 个相关回归脚本通过，ShellCheck error 级及 actionlint 通过。证据：`transaction-checkpoint-index.json`。这不是 G5a 全部完成：PassWall owned-field 恢复、YAML 支持边界、完整中断/资源故障矩阵与失败 journal 持久化仍需继续。发布前比较只拒绝可检测的外部变更，不声称一次 POSIX rename 提供对所有不协作写入者的全局 CAS。
+
+## G4c attempt 绑定检查点
+
+- 最新已推送事务提交 `8a4013d8a20de9b3264a442519289035d74cf324` 的 PR CI run `38946835586` 已终态：Host、Legacy、RPC、四组 SDK、两格式真实迁移、Runtime 集成、CFST、Docker、资产合同与 workflow lint 均成功；development release guard 失败，qualification guard 因而失败。整体仍 FAIL，不具备发布资格。
+- 修复前直接调用真实严格验证器，缺少 runAttempt、布尔 true、零和任意 attempt 2 都被接受。现在严格验证要求调用者传入正整数 expected attempt，manifest 同字段必须正整数且精确相等。manifest writer 要求 GITHUB_RUN_ATTEMPT，release 两个验证入口传递 workflow_run.run_attempt。
+- 七类 manifest attempt 负向、五类 expected attempt 负向、严格校验/manifest 默认值/合成字节绑定/下载文档/渠道/预发布工作流合同通过；actionlint、ShellCheck error、diff 检查通过。修复旧负向用例未传 expected commit 导致提前拒绝的问题，避免掩盖被测字段。
+- 本检查点尚未关闭 G4c：artifact 名称/下载的 exact-attempt 来源、统一 required-job predicate 以及真实同 bytes 离线 preflight 仍 OPEN。开发分支版本策略冲突待按源版本合同修复，不豁免失败门禁。
