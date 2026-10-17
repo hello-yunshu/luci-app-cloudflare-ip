@@ -32,11 +32,17 @@ def validate(
     require_release_eligible: bool = False,
     expected_run_id: int | None = None,
     contract_path: Path | None = None,
+    expected_run_attempt: int | None = None,
 ) -> None:
     require(manifest, isinstance(manifest, dict), "manifest must be an object")
     if require_release_eligible:
         require(expected_commit, isinstance(expected_commit, str) and bool(HEX40.fullmatch(expected_commit)), "strict release validation requires the exact expected commit SHA")
         require(expected_run_id, isinstance(expected_run_id, int) and not isinstance(expected_run_id, bool) and expected_run_id > 0, "strict release validation requires the exact positive source workflow run ID")
+    if require_release_eligible:
+        require(expected_run_attempt, type(expected_run_attempt) is int and expected_run_attempt > 0, "strict release validation requires the exact positive source workflow run attempt")
+        attempt = manifest.get("runAttempt")
+        require(attempt, type(attempt) is int and attempt > 0, "runAttempt must be a positive integer")
+        require(attempt, attempt == expected_run_attempt, "manifest runAttempt does not match the source qualification workflow attempt")
     require(manifest.get("schemaVersion"), manifest.get("schemaVersion") == 1, "schemaVersion must be 1")
     commit = manifest.get("commit")
     require(commit, isinstance(commit, str) and bool(HEX40.fullmatch(commit)), "commit must be a 40-digit SHA")
@@ -153,12 +159,13 @@ def main() -> int:
     parser.add_argument("--commit")
     parser.add_argument("--require-assets", type=int)
     parser.add_argument("--require-release-eligible", action="store_true", help="enforce the complete publication gate")
+    parser.add_argument("--run-attempt", type=int, help="expected source qualification workflow attempt")
     parser.add_argument("--run-id", type=int, help="expected source qualification workflow run ID")
     parser.add_argument("--contract", type=Path, default=Path(__file__).resolve().parents[1] / "contracts/rill-runtime.json")
     args = parser.parse_args()
     try:
         data = json.loads(args.manifest.read_text(encoding="utf-8"))
-        validate(data, args.commit, args.require_assets, args.require_release_eligible, args.run_id, args.contract)
+        validate(data, args.commit, args.require_assets, args.require_release_eligible, args.run_id, args.contract, args.run_attempt)
     except (OSError, json.JSONDecodeError, ValueError) as exc:
         return fail(str(exc))
     if args.require_release_eligible:

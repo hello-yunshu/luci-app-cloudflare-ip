@@ -28,8 +28,9 @@ def require(ok: bool, message: str) -> None:
 
 
 def validate(manifest: dict, release_dir: Path, expected_commit: str, expected_run_id: int,
-             version: str, release: int, contract_path: Path, apk_bin: str | None = None) -> list[Path]:
-    QUAL.validate(manifest, expected_commit, 2, True, expected_run_id, contract_path)
+             version: str, release: int, contract_path: Path, apk_bin: str | None = None,
+             expected_run_attempt: int | None = None) -> list[Path]:
+    QUAL.validate(manifest, expected_commit, 2, True, expected_run_id, contract_path, expected_run_attempt)
     assets = manifest["assetFiles"]
     by_format: dict[str, tuple[dict, str]] = {}
     for item in assets:
@@ -71,6 +72,7 @@ def main() -> int:
     parser.add_argument("manifest", type=Path)
     parser.add_argument("release_dir", type=Path)
     parser.add_argument("--commit", required=True)
+    parser.add_argument("--run-attempt", type=int, required=True)
     parser.add_argument("--run-id", type=int, required=True)
     parser.add_argument("--version", required=True)
     parser.add_argument("--release", type=int, required=True)
@@ -79,7 +81,7 @@ def main() -> int:
     args = parser.parse_args()
     try:
         manifest = json.loads(args.manifest.read_text(encoding="utf-8"))
-        files = validate(manifest, args.release_dir, args.commit, args.run_id, args.version, args.release, args.contract, args.apk_bin)
+        files = validate(manifest, args.release_dir, args.commit, args.run_id, args.version, args.release, args.contract, args.apk_bin, args.run_attempt)
         print("release assets are bound to qualification evidence: " + ", ".join(p.name for p in files))
     except (OSError, json.JSONDecodeError, ValueError, KeyError, TypeError, PACKAGE.subprocess.CalledProcessError, PACKAGE.tarfile.TarError) as exc:
         print(f"release asset binding invalid: {exc}", file=sys.stderr)

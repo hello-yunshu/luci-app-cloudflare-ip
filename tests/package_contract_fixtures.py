@@ -25,7 +25,7 @@ def manifest(assets=None):
     commit = '0123456789abcdef0123456789abcdef01234567'
     migration = dict(c['packageMigration'], currentSHA=commit, ipk='PASS', apk='PASS')
     migration.update({k:True for k in ('baseOnlyUpgrade','baseAddonToBaseUpgrade','addonRemovalSafe','r3ToR4','runtimeAbsent','runtimePresent')})
-    return dict(schemaVersion=1, commit=commit, runId=42, jobs={}, artifacts=[],
+    return dict(schemaVersion=1, commit=commit, runId=42, runAttempt=1, jobs={}, artifacts=[],
                 assetFiles=assets if assets is not None else assets_for(),
                 qualificationState='automated-qualification', releaseEligible=True,
                 packageMigration=migration, stableSourceArchiveSha256=c['resolved']['sourceArchiveSha256'],
