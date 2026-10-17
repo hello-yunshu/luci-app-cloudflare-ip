@@ -31,3 +31,9 @@ G4b/c/d、G5a 修复及完整故障矩阵、G5b 浏览器和 UCI readback、G5c 
 - 修复前直接调用真实严格验证器，缺少 runAttempt、布尔 true、零和任意 attempt 2 都被接受。现在严格验证要求调用者传入正整数 expected attempt，manifest 同字段必须正整数且精确相等。manifest writer 要求 GITHUB_RUN_ATTEMPT，release 两个验证入口传递 workflow_run.run_attempt。
 - 七类 manifest attempt 负向、五类 expected attempt 负向、严格校验/manifest 默认值/合成字节绑定/下载文档/渠道/预发布工作流合同通过；actionlint、ShellCheck error、diff 检查通过。修复旧负向用例未传 expected commit 导致提前拒绝的问题，避免掩盖被测字段。
 - 本检查点尚未关闭 G4c：artifact 名称/下载的 exact-attempt 来源、统一 required-job predicate 以及真实同 bytes 离线 preflight 仍 OPEN。开发分支版本策略冲突待按源版本合同修复，不豁免失败门禁。
+
+## G4c artifact 来源检查点
+
+- CI 上传的 SDK、迁移、Runtime 集成与 qualification evidence artifact 全部使用 `BASE-run-ID-attempt-N` 名称；同一 run 的不同 attempt 不再共享名称。下载保留逻辑目录，包内路径/metadata/bytes 合同不变。部分 rerun 缺少本 attempt 所需产物时拒绝，不借用旧 attempt。
+- 新只读下载工具先检查 GitHub run attempt API 的 id/attempt/head_sha，再检查全部分页的 artifact 列表，拒绝缺失/重复/过期精确名称，之后调用 gh download。PR 使用 workflow run 的 head SHA 作来源校验，包测试 manifest 仍保留实际 GITHUB_SHA；release 使用同一来源 SHA。
+- mock API 边界正向与错误 run/attempt/SHA、旧 attempt 名称、缺失/重复/过期产物负向通过；已接入 Host。严格证据、下载指南、预发布工作流合同及 actionlint/diff 检查通过。真实 hosted 新命名下载尚待本提交 CI，不将 mock 视作 hosted 通过。

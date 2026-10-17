@@ -48,6 +48,7 @@ jobs:
       - name: Release channel and package identity contracts
         run: |
           set -euo pipefail
+          python3 tests/qualification-artifact-download.py
           bash tests/release-channel-contract.sh
           bash tests/v2-prerelease-workflow-contract.sh
           bash tests/immutable-tag-contract.sh
@@ -351,7 +352,7 @@ jobs:
           cp "$runtime_libgcc" "$GITHUB_WORKSPACE/output/validation-runtime/libgcc_s.so.1"
       - uses: actions/upload-artifact@v7
         with:
-          name: luci-app-cloudflare-ip-${{ matrix.pkgtype }}-${{ matrix.branch }}
+          name: luci-app-cloudflare-ip-${{ matrix.pkgtype }}-${{ matrix.branch }}-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
           path: output/
           if-no-files-found: error
 
@@ -386,11 +387,11 @@ jobs:
           path: legacy-r3
       - uses: actions/download-artifact@v8
         with:
-          name: luci-app-cloudflare-ip-${{ matrix.pkgtype }}-${{ matrix.branch }}
+          name: luci-app-cloudflare-ip-${{ matrix.pkgtype }}-${{ matrix.branch }}-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
           path: current-output
       - uses: actions/download-artifact@v8
         with:
-          name: luci-app-cloudflare-ip-ipk-v24.10.8
+          name: luci-app-cloudflare-ip-ipk-v24.10.8-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
           path: runtime-output
       - name: Install the real package manager
         shell: bash
@@ -528,7 +529,7 @@ jobs:
             R3_BASE="$r3_base" bash luci-app-cloudflare-ip/tests/package-migration.sh "${{ matrix.pkgtype }}" "$legacy_base" "$legacy_addon" "$current_base" "$current_addon" "$RUNTIME_BIN"
       - uses: actions/upload-artifact@v7
         with:
-          name: package-migration-${{ matrix.pkgtype }}-${{ matrix.branch }}
+          name: package-migration-${{ matrix.pkgtype }}-${{ matrix.branch }}-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
           path: package-migration-evidence.json
           if-no-files-found: error
 
@@ -629,7 +630,7 @@ jobs:
             > rill-runtime-integration.json
       - uses: actions/upload-artifact@v7
         with:
-          name: rill-runtime-integration-evidence
+          name: rill-runtime-integration-evidence-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
           path: rill-runtime-integration.json
           if-no-files-found: error
 
@@ -708,10 +709,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/download-artifact@v8
-        with:
-          pattern: luci-app-cloudflare-ip-*
-          path: package-assets
+      - name: Download exact-attempt SDK artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          while IFS= read -r artifact; do
+            python3 scripts/download-qualification-artifact.py --repo "$GITHUB_REPOSITORY" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --commit "${{ github.event.pull_request.head.sha || github.sha }}" --name "$artifact" --dir "package-assets/$artifact"
+          done < <(python3 -c 'from scripts.package_identity import artifact_names; print("\n".join(artifact_names()))')
       - name: Verify real SDK package metadata, bytes and public selection
         run: python3 -B scripts/check-package-assets.py package-assets
 
@@ -744,11 +748,11 @@ jobs:
           asset_dir="$RUNNER_TEMP/qualification-assets"
           mkdir -p "$asset_dir"
           while IFS= read -r artifact; do
-            gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$artifact" --dir "$asset_dir/$artifact"
+            python3 scripts/download-qualification-artifact.py --repo "$GITHUB_REPOSITORY" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --commit "${{ github.event.pull_request.head.sha || github.sha }}" --name "$artifact" --dir "$asset_dir/$artifact"
           done < <(python3 scripts/package_identity.py --public-artifacts)
-          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name package-migration-ipk-v24.10.8 --dir "$asset_dir/package-migration-ipk"
-          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name package-migration-apk-v25.12.5 --dir "$asset_dir/package-migration-apk"
-          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name rill-runtime-integration-evidence --dir "$asset_dir/rill-runtime-integration"
+          python3 scripts/download-qualification-artifact.py --repo "$GITHUB_REPOSITORY" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --commit "${{ github.event.pull_request.head.sha || github.sha }}" --name package-migration-ipk-v24.10.8 --dir "$asset_dir/package-migration-ipk"
+          python3 scripts/download-qualification-artifact.py --repo "$GITHUB_REPOSITORY" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --commit "${{ github.event.pull_request.head.sha || github.sha }}" --name package-migration-apk-v25.12.5 --dir "$asset_dir/package-migration-apk"
+          python3 scripts/download-qualification-artifact.py --repo "$GITHUB_REPOSITORY" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --commit "${{ github.event.pull_request.head.sha || github.sha }}" --name rill-runtime-integration-evidence --dir "$asset_dir/rill-runtime-integration"
           asset_files='[]'
           while IFS= read -r -d '' file; do
             metadata="$file.metadata.json"
@@ -784,6 +788,6 @@ jobs:
           RESULTS="$RESULTS" ARTIFACTS="$ARTIFACTS" ASSET_FILES="$ASSET_FILES" RILL_EVIDENCE="$RILL_EVIDENCE" PACKAGE_MIGRATION="$PACKAGE_MIGRATION" bash tests/evidence-manifest.sh qualification.json
       - uses: actions/upload-artifact@v7
         with:
-          name: qualification-evidence
+          name: qualification-evidence-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
           path: qualification.json
           if-no-files-found: error
