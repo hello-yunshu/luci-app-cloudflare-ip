@@ -529,9 +529,12 @@ jobs:
           SOURCE_TAG=v2.6.0-2 SOURCE_SHA="$source_sha" OPKG="${OPKG_BIN:-opkg}" APK="${APK_BIN:-apk}" \
             R3_BASE="$r3_base" bash luci-app-cloudflare-ip/tests/package-migration.sh "${{ matrix.pkgtype }}" "$legacy_base" "$legacy_addon" "$current_base" "$current_addon" "$RUNTIME_BIN"
       - uses: actions/upload-artifact@v7
+        if: always()
         with:
           name: package-migration-${{ matrix.pkgtype }}-${{ matrix.branch }}-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
-          path: package-migration-evidence.json
+          path: |
+            package-migration-evidence.json
+            package-migration-details/
           if-no-files-found: error
 
   rill-runtime-integration:

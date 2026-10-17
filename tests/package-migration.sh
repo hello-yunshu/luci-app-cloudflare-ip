@@ -11,7 +11,11 @@ RUNTIME_BIN="${6:?qualified Runtime binary required}"
 OPKG="${OPKG:-opkg}"
 APK="${APK:-apk}"
 R3_BASE="${R3_BASE:-$LEGACY_BASE}"
+EVIDENCE_DIR="${MIGRATION_EVIDENCE_DIR:-$PWD/package-migration-details}"
+mkdir -p "$EVIDENCE_DIR"
 WORK="$(mktemp -d)"
+SCENARIO=
+STAGE=0
 trap 'rm -rf "$WORK"' EXIT
 
 OLD_SCRIPT=/usr/libexec/cf-ip/rill.sh
@@ -23,7 +27,7 @@ ADDON_PACKAGE=luci-app-cloudflare-ip-rill
 
 manager() {
     case "$KIND" in
-        ipk) "$OPKG" --conf "$1/etc/opkg.conf" --offline-root "$1" --add-arch all:10 --force-depends --force-maintainer "${@:2}" ;;
+        ipk) "$OPKG" --conf "$1/etc/opkg.conf" --offline-root "$1" --add-arch all:10 --force-depends "${@:2}" ;;
         apk) "$APK" --root "$1" --network=no --repositories-file "$APK_REPOSITORIES_FILE" --allow-untrusted --force-non-repository "${@:2}" ;;
         *) echo "unsupported package kind: $KIND" >&2; exit 2 ;;
     esac
@@ -50,8 +54,48 @@ init_root() {
     esac
 }
 
+snapshot_root() {
+    local root="$1" label="$2" out
+    STAGE=$((STAGE + 1))
+    out="$EVIDENCE_DIR/$SCENARIO/$STAGE-$label"
+    mkdir -p "$out"
+    case "$KIND" in
+        ipk) cp -R "$root/usr/lib/opkg" "$out/installed-db" ;;
+        apk) cp -R "$root/lib/apk" "$out/installed-db" ;;
+    esac
+    manager "$root" info >"$out/manager-info.txt" 2>&1 || true
+    for owned in "$BASE_PACKAGE" "$ADDON_PACKAGE"; do
+        package_files "$root" "$owned" >"$out/$owned.files" 2>&1 || true
+    done
+    (cd "$root" && find etc -type f -exec sha256sum {} + | sort) >"$out/etc-sha256.txt"
+}
+
+seed_user_data() {
+    local root="$1"
+    mkdir -p "$root/etc/config" "$root/etc/cf_ip/backups" "$root/etc/crontabs"
+    cat >"$root/etc/config/cf_ip" <<'UCI'
+config global 'global'
+ option enabled '0'
+ option self_update_url 'https://example.invalid/private-feed'
+ option custom_user_marker 'migration-preservation'
+UCI
+    printf 'retained backup\n' >"$root/etc/cf_ip/backups/migration.yaml"
+    printf '{"retained":true}\n' >"$root/etc/cf_ip/history.json"
+    printf '17 3 * * * /usr/bin/true # migration-user-cron\n' >"$root/etc/crontabs/root"
+    (cd "$root" && sha256sum etc/config/cf_ip etc/cf_ip/backups/migration.yaml etc/cf_ip/history.json etc/crontabs/root) >"$EVIDENCE_DIR/$SCENARIO/user-before.sha256"
+}
+
+assert_user_data() {
+    local root="$1"
+    (cd "$root" && sha256sum -c "$EVIDENCE_DIR/$SCENARIO/user-before.sha256")
+}
+
 install_package() {
     local root="$1" package="$2"
+    if [[ "$package" == "$CURRENT_BASE" ]]; then
+        seed_user_data "$root"
+        snapshot_root "$root" before-current
+    fi
     case "$KIND" in
         ipk) manager "$root" install "$package" ;;
         apk)
@@ -62,6 +106,8 @@ install_package() {
             manager "$root" add --no-scripts "$name=$version"
             ;;
     esac
+    snapshot_root "$root" installed
+    if [[ "$package" == "$CURRENT_BASE" ]]; then assert_user_data "$root"; fi
 }
 
 remove_package() {
@@ -70,6 +116,8 @@ remove_package() {
         ipk) manager "$root" remove "$package" ;;
         apk) manager "$root" del --no-scripts "$package" ;;
     esac
+    snapshot_root "$root" removed
+    assert_user_data "$root"
 }
 
 assert_installed() {
@@ -169,9 +217,14 @@ fresh_root() {
 run_scenario() {
     local name="$1" root
     echo "running real $KIND package migration scenario $name"
+    SCENARIO="$name"
+    STAGE=0
+    mkdir -p "$EVIDENCE_DIR/$SCENARIO"
     root="$(fresh_root "$name")"
     shift
     "$@" "$root"
+    assert_user_data "$root"
+    snapshot_root "$root" final
 }
 
 scenario_a() {
