@@ -1642,3 +1642,12 @@ msgstr ""
 
 msgid "Service did not become ready before the timeout. Check service status and logs."
 msgstr ""
+
+msgid "Unable to verify the applied configuration. Reload and try again."
+msgstr ""
+
+msgid "Configuration still has uncommitted changes. Apply it again before restarting."
+msgstr ""
+
+msgid "Applied configuration does not match the saved settings. Reload and review the configuration."
+msgstr ""
