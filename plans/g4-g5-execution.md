@@ -1,5 +1,9 @@
 # G4、G5 执行记录
 
+## Real-UCI CI and managed-state conflict checkpoint
+
+tests/build-real-uci.sh builds pinned upstream libubox/UCI in a fresh absolute prefix. A fresh local rebuild passed all eight real-CLI rollback/commit/entry cases, including external managed-state edits, changed state before commit and preexisting pending changes. Host CI now builds and runs this real test with explicit cmake/pkg-config/json-c dependencies. The managed-state expected-after snapshot is copied before publication; rollback accepts only original or transaction-written state, refusing third-party state bytes before restoring fields or restarting. Seven related local regressions, ShellCheck, actionlint and diff checks passed. Hosted execution for this candidate is pending; complete storage/signal/concurrency fault coverage and durable journal policy remain OPEN.
+
 ## G5a PassWall owned-field candidate
 
 Real UCI (74f6277aabffc943d026f406df57c22595134c42) and libubox (da2d205a5cf3e877c45a2eec488218cbaf452e7d) were built under /tmp/cfip-g4-g5 only. The original full-export rollback demonstrably overwrote an unrelated committed user edit. The candidate journals each address/remarks write before mutation and restores only matching owned fields, preserving unrelated committed edits. Real CLI tests pass for unrelated-edit preservation, owned-field conflict refusal with retained journal, originally absent field restoration, jq row-decode failure and unrelated pending-delta preservation without implicit commit. Pending changes at transaction entry are rejected. Recovery checks pending keys before writes and commit; this is detectable conflict protection, not universal CAS against noncooperating writers. Full export remains diagnostic only.
