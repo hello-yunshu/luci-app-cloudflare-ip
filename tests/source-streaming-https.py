@@ -102,7 +102,9 @@ cfip_source_fetch_remote tls "$CFIP_URL" ip-text ipv4 community "$CFIP_RESULT"
             raw = tmp/'cache/tls/last-good.txt'
             if endpoint == 'exact': expected_raw = EXACT
             elif endpoint in ('valid', 'redirect'): expected_raw = VALID
-            assert raw.read_bytes() == expected_raw, endpoint
+            bundle = tmp/'cache/tls/last-good.json'
+            cached_bytes = json.loads(bundle.read_text())['content'].encode() if bundle.exists() else raw.read_bytes()
+            assert cached_bytes == expected_raw, endpoint
             meta = json.loads((tmp/'runtime/sources/tls/metadata.json').read_text())
             expected_cache = endpoint in ('over', 'large', 'slow', 'downgrade')
             assert meta['fromCache'] == expected_cache, (endpoint, meta)

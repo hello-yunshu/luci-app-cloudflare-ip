@@ -247,9 +247,48 @@ cfip_source_cache_valid() {
     ' "$marker" >/dev/null 2>&1
 }
 
+# Publish bytes and qualification metadata as one rename, preserving the old
+# bundle until the replacement is fully written and its byte roundtrip checked.
+cfip_source_cache_publish() {
+    local pdir="$1" raw="$2" id="$3" url="$4" parser="$5" family="$6" source_class="$7" hash="$8" pc="$9" rc="${10}" candidate observed bytes
+    [[ ! -d "$pdir/last-good.json" && ! -L "$pdir/last-good.json" ]] || return 1
+    candidate="$(mktemp "$pdir/.cache.XXXXXX")" || return 1
+    if ! jq -cn --rawfile content "$raw" --arg id "$id" --arg hash "$hash" --arg url "$url" --arg parser "$parser" --arg family "$family" --arg class "$source_class" --argjson parsed "$pc" --argjson rejected "$rc" \
+        '{schemaVersion:2,id:$id,url:$url,parser:$parser,family:$family,sourceClass:$class,contentHash:$hash,parsedCount:$parsed,rejectedCount:$rejected,lastSuccessAt:now,content:$content}' >"$candidate"; then
+        rm -f "$candidate"; return 1
+    fi
+    bytes="$(wc -c <"$candidate")" || { rm -f "$candidate"; return 1; }
+    ((bytes <= CFIP_SOURCE_MAX_BYTES*6+16384)) || { rm -f "$candidate"; return 1; }
+    observed="$(jq -rj '.content' "$candidate" | sha256sum | awk '{print $1}')" || { rm -f "$candidate"; return 1; }
+    [[ "$observed" == "$hash" ]] || { rm -f "$candidate"; return 1; }
+    chmod 600 "$candidate" || { rm -f "$candidate"; return 1; }
+    mv -f "$candidate" "$pdir/last-good.json" || { rm -f "$candidate"; return 1; }
+}
+
+# Extract one bounded bundle snapshot. Legacy schema-2 pairs remain readable
+# only when no bundle exists; a corrupt new bundle never falls back to an old pair.
+cfip_source_cache_snapshot() {
+    local pdir="$1" raw="$2" marker="$3" bundle bytes cap=$((CFIP_SOURCE_MAX_BYTES*6+16384)) result=0
+    if [[ -e "$pdir/last-good.json" || -L "$pdir/last-good.json" ]]; then
+        [[ -f "$pdir/last-good.json" && ! -L "$pdir/last-good.json" ]] || return 1
+        bundle="$(mktemp "${raw}.bundle.XXXXXX")" || return 1
+        head -c "$((cap+1))" "$pdir/last-good.json" >"$bundle" || result=1
+        bytes="$(wc -c <"$bundle")" || result=1
+        if ((result == 0 && bytes <= cap)) && jq -e '(.content|type)=="string"' "$bundle" >/dev/null 2>&1; then
+            jq -rj '.content' "$bundle" | head -c "$((CFIP_SOURCE_MAX_BYTES+1))" >"$raw" || result=1
+            jq 'del(.content)' "$bundle" | head -c 16385 >"$marker" || result=1
+        else result=1; fi
+        rm -f "$bundle"
+        return "$result"
+    fi
+    [[ -s "$pdir/last-good.txt" && -s "$pdir/metadata.json" ]] || return 1
+    head -c "$((CFIP_SOURCE_MAX_BYTES+1))" "$pdir/last-good.txt" >"$raw" || return 1
+    head -c 16385 "$pdir/metadata.json" >"$marker"
+}
+
 cfip_source_fetch_remote() {
     local id="$1" url="$2" parser="$3" family="$4" source_class="$5" output="$6"
-    local rdir pdir tmp raw parsed bytes lines hash="" oldhash="" pc=0 rc=0 error="" remaining connect_timeout fetch_rc=0 cached cache_error=cache_missing
+    local rdir pdir tmp raw parsed bytes lines hash="" pc=0 rc=0 error="" remaining connect_timeout fetch_rc=0 cached cache_marker cache_error=cache_missing
     rdir="$CFIP_SOURCE_RUNTIME_DIR/$id"; pdir="$CFIP_SOURCE_CACHE_DIR/$id"
     mkdir -p "$rdir" "$pdir"
     tmp="$(mktemp "$rdir/fetch.XXXXXX")" || return 1
@@ -273,17 +312,13 @@ cfip_source_fetch_remote() {
             pc="$(jq -r '.parsedCount//0' "$parsed" 2>/dev/null || printf 0)"; rc="$(jq -r '.rejectedCount//0' "$parsed" 2>/dev/null || printf 0)"
             if [[ -z "$error" ]] && ((pc >= CFIP_SOURCE_MIN_VALID_REMOTE)); then
                 hash="$(sha256sum "$tmp" | awk '{print $1}')" || { rm -f "$tmp"; return 1; }
-                if [[ -f "$raw" ]] && (( $(wc -c <"$raw") <= CFIP_SOURCE_MAX_BYTES )); then
-                    oldhash="$(sha256sum "$raw" | awk '{print $1}')" || oldhash=""
+                if cfip_source_cache_publish "$pdir" "$tmp" "$id" "$url" "$parser" "$family" "$source_class" "$hash" "$pc" "$rc"; then
+                    cfip_source_meta_write "$id" true false false "$pc" "$rc" "" "$hash"
+                    jq '.records' "$parsed" | cfip_atomic_write "$output" || { rm -f "$tmp"; return 1; }
+                    rm -f "$tmp"
+                    return 0
                 fi
-                if [[ "$hash" != "$oldhash" ]]; then
-                    cat "$tmp" | cfip_atomic_write "$raw" || { rm -f "$tmp"; return 1; }
-                fi
-                jq -cn --arg id "$id" --arg hash "$hash" --arg url "$url" --arg parser "$parser" --arg family "$family" --arg class "$source_class" --argjson parsed "$pc" --argjson rejected "$rc" '{schemaVersion:2,id:$id,url:$url,parser:$parser,family:$family,sourceClass:$class,contentHash:$hash,parsedCount:$parsed,rejectedCount:$rejected,lastSuccessAt:now}' | cfip_atomic_write "$pdir/metadata.json" || { rm -f "$tmp"; return 1; }
-                cfip_source_meta_write "$id" true false false "$pc" "$rc" "" "$hash"
-                jq '.records' "$parsed" | cfip_atomic_write "$output"
-                rm -f "$tmp"
-                return 0
+                error=cache_publication_failed
             fi
             error="${error:-too_few_valid_candidates}"
         else
@@ -296,21 +331,22 @@ cfip_source_fetch_remote() {
 
     # Validate a bounded byte snapshot, not a live file which may change after hashing.
     cached="$(mktemp "$rdir/cache.XXXXXX")" || return 1
-    [[ -s "$raw" ]] && cache_error=cache_unqualified
-    if [[ -s "$raw" ]] && head -c "$((CFIP_SOURCE_MAX_BYTES+1))" "$raw" >"$cached" &&
-        cfip_source_cache_valid "$cached" "$pdir/metadata.json" "$id" "$url" "$parser" "$family" "$source_class" &&
+    cache_marker="$(mktemp "$rdir/cache-meta.XXXXXX")" || { rm -f "$cached"; return 1; }
+    [[ -e "$pdir/last-good.json" || -s "$raw" ]] && cache_error=cache_unqualified
+    if cfip_source_cache_snapshot "$pdir" "$cached" "$cache_marker" &&
+        cfip_source_cache_valid "$cached" "$cache_marker" "$id" "$url" "$parser" "$family" "$source_class" &&
         cfip_parse_source_file "$cached" "$parser" "$id" "$source_class" "$family" true "$parsed"; then
         cache_error=cache_insufficient
         pc="$(jq -r '.parsedCount//0' "$parsed" 2>/dev/null || printf 0)"; rc="$(jq -r '.rejectedCount//0' "$parsed" 2>/dev/null || printf 0)"
         if ((pc >= CFIP_SOURCE_MIN_VALID_REMOTE)); then
             hash="$(sha256sum "$cached" | awk '{print $1}')"
             cfip_source_meta_write "$id" true true true "$pc" "$rc" "$error" "$hash"
-            jq '.records' "$parsed" | cfip_atomic_write "$output"
-            rm -f "$cached"
+            jq '.records' "$parsed" | cfip_atomic_write "$output" || { rm -f "$cached" "$cache_marker"; return 1; }
+            rm -f "$cached" "$cache_marker"
             return 0
         fi
     fi
-    rm -f "$cached"
+    rm -f "$cached" "$cache_marker"
     cfip_source_meta_write "$id" false true false 0 0 "$error" "" "$cache_error"
     printf '[]' | cfip_atomic_write "$output"
     return 1
