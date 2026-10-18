@@ -71,3 +71,24 @@ if cfip_txn_rollback passwall; then recovery=success; else recovery=conflict; fi
 [[ "$(uci changes passwall)" == "$pending" ]] || { echo "FAIL: rollback $recovery changed or committed unrelated pending delta" >&2; exit 1; }
 [[ "$(uci get passwall.unrelated.remarks)" == 'pending user edit' ]]
 echo 'PASS real UCI: unrelated pending delta preserved without implicit commit'
+uci revert passwall
+cfip_txn_prepare passwall
+cfip_passwall_set_owned passwall.owned.address 104.16.1.5
+uci commit passwall
+printf '{"external":"user state edit"}\n' >"$CFIP_PASSWALL_STATE_FILE"
+CFIP_TXN_STATE=MUTATED
+if cfip_txn_rollback passwall; then echo 'managed-state external conflict accepted' >&2; exit 1; fi
+[[ "$(cat "$CFIP_PASSWALL_STATE_FILE")" == '{"external":"user state edit"}' ]]
+[[ -f "$CFIP_TXN_DIR/passwall-fields.json" ]]
+echo 'PASS real UCI: external managed-state edits preserved with journal'
+cfip_txn_prepare passwall
+printf '{"candidate":true}\n' >"$CFIP_TXN_DIR/passwall-managed.json.pending"
+printf '{"external":"changed before commit"}\n' >"$CFIP_PASSWALL_STATE_FILE"
+if cfip_txn_commit; then echo 'managed-state commit conflict accepted' >&2; exit 1; fi
+[[ "$(cat "$CFIP_PASSWALL_STATE_FILE")" == '{"external":"changed before commit"}' ]]
+echo 'PASS real UCI: commit rejects changed managed-state file'
+uci set 'passwall.unrelated.remarks=preexisting pending edit'
+pending="$(uci changes passwall)"
+if cfip_txn_prepare passwall; then echo 'preexisting pending changes accepted' >&2; exit 1; fi
+[[ "$(uci changes passwall)" == "$pending" ]]
+echo 'PASS real UCI: transaction entry rejects and preserves pending user changes'

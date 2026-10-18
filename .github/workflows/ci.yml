@@ -25,7 +25,13 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install host tools
-        run: sudo apt-get update && sudo apt-get install -y jq ripgrep shellcheck
+        run: sudo apt-get update && sudo apt-get install -y jq ripgrep shellcheck cmake pkg-config libjson-c-dev
+      - name: Build and verify isolated real UCI rollback
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash tests/build-real-uci.sh "$RUNNER_TEMP/real-uci"
+          UCI_REAL_BIN="$RUNNER_TEMP/real-uci/uci-build/uci" bash tests/passwall-real-uci-rollback.sh
       - name: Shell syntax and lint
         shell: bash
         run: |

@@ -24,6 +24,22 @@ cfip_passwall_set_owned() {
     uci set "$key=$value"
 }
 
+cfip_passwall_state_matches_before() {
+    local state_file="${CFIP_PASSWALL_STATE_FILE:-${CFIP_STATUS_DIR:-/etc/cf_ip}/passwall-managed.json}"
+    if [[ "$(cat "$CFIP_TXN_DIR/passwall-managed.state")" == present ]]; then
+        [[ -f "$state_file" && ! -L "$state_file" ]] && cmp -s "$state_file" "$CFIP_TXN_DIR/passwall-managed.json"
+    else [[ ! -e "$state_file" && ! -L "$state_file" ]]; fi
+}
+
+cfip_passwall_state_safe() {
+    local state_file="${CFIP_PASSWALL_STATE_FILE:-${CFIP_STATUS_DIR:-/etc/cf_ip}/passwall-managed.json}"
+    cfip_passwall_state_matches_before && return 0
+    if [[ -f "$state_file" && ! -L "$state_file" && -f "$CFIP_TXN_DIR/passwall-managed.written.json" ]] &&
+       cmp -s "$state_file" "$CFIP_TXN_DIR/passwall-managed.written.json"; then return 0; fi
+    CFIP_RECOVERY_ERROR="PassWall managed state changed outside this transaction; preserved state and journal"
+    return 1
+}
+
 cfip_passwall_check_pending() {
     local changes line key
     changes="$(uci changes passwall 2>/dev/null)" || return 1
@@ -138,9 +154,12 @@ cfip_txn_rollback() {
     rm -f "$CFIP_TXN_DIR/passwall-managed.json.pending" 2>/dev/null || true
     case "$mode" in
       passwall)
+        cfip_passwall_state_safe || return 1
         cfip_passwall_restore_fields || return 1
         local state_file="${CFIP_PASSWALL_STATE_FILE:-${CFIP_STATUS_DIR:-/etc/cf_ip}/passwall-managed.json}"
-        if [[ "$(cat "$CFIP_TXN_DIR/passwall-managed.state" 2>/dev/null || printf absent)" == present ]]; then
+        cfip_passwall_state_safe || return 1
+        if cfip_passwall_state_matches_before; then :
+        elif [[ "$(cat "$CFIP_TXN_DIR/passwall-managed.state")" == present ]]; then
             mkdir -p "${state_file%/*}" 2>/dev/null || return 1
             cp -p "$CFIP_TXN_DIR/passwall-managed.json" "${state_file}.rollback.$$" || return 1
             mv "${state_file}.rollback.$$" "$state_file" || return 1
@@ -228,6 +247,8 @@ cfip_txn_trim_openclash_backups() {
 
 cfip_txn_commit() {
     if [[ -n "$CFIP_TXN_DIR" && -f "$CFIP_TXN_DIR/passwall-managed.json.pending" ]]; then
+        cfip_passwall_state_matches_before || { CFIP_RECOVERY_ERROR="PassWall managed state changed before commit"; return 1; }
+        cp "$CFIP_TXN_DIR/passwall-managed.json.pending" "$CFIP_TXN_DIR/passwall-managed.written.json" || return 1
         mv "$CFIP_TXN_DIR/passwall-managed.json.pending" "${CFIP_PASSWALL_STATE_FILE:-${CFIP_STATUS_DIR:-/etc/cf_ip}/passwall-managed.json}" || return 1
     fi
     [[ -n "$CFIP_TXN_DIR" ]] && rm -rf "$CFIP_TXN_DIR" 2>/dev/null || true
