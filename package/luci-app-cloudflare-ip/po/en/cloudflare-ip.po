@@ -1562,3 +1562,9 @@ msgstr "Unable to refresh sources: %s"
 
 msgid "OpenClash service restored and health verified; new nodes were not applied."
 msgstr "OpenClash service restored and health verified; new nodes were not applied."
+
+msgid "Service readiness check was cancelled."
+msgstr "Service readiness check was cancelled."
+
+msgid "Service did not become ready before the timeout. Check service status and logs."
+msgstr "Service did not become ready before the timeout. Check service status and logs."

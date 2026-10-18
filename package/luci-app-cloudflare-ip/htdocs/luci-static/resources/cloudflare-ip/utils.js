@@ -52,30 +52,52 @@ function waitForServiceReady(callStatus, options) {
 	options = options || {};
 	var interval = options.interval || 3000;
 	var timeout = options.timeout || 120000;
-	var isReady = options.isReady || function(s) { return s && s.running && s.last_result !== 'running'; };
-	var startedAt = Date.now();
-
-	function wait(delay) {
-		return new Promise(function(resolve) {
-			window.setTimeout(resolve, delay);
-		});
-	}
-
-	function poll() {
-		if (options.isActive && !options.isActive())
-			return Promise.resolve({});
-
-		return callStatus().then(function(status) {
-			status = status || {};
-			if (isReady(status))
-				return status;
-			if (Date.now() - startedAt >= timeout)
-				return status;
-			return wait(interval).then(poll);
-		});
-	}
-
-	return poll();
+	var isReady = options.isReady || function(s) {
+		return s && s.running && s.last_result !== 'running' && s.jobRunning !== true && s.active_run !== true;
+	};
+	return new Promise(function(resolve, reject) {
+		var settled = false, pollTimer = null, activeTimer = null, deadlineTimer = null;
+		function finish(error, status) {
+			if (settled) return;
+			settled = true;
+			[pollTimer, activeTimer, deadlineTimer].forEach(function(timer) {
+				if (timer !== null) window.clearTimeout(timer);
+			});
+			if (error) reject(error); else resolve(status);
+		}
+		function failure(code, message) {
+			var error = new Error(message);
+			error.code = code;
+			finish(error);
+		}
+		function active() {
+			if (settled) return false;
+			if (options.isActive && !options.isActive()) {
+				failure('ServiceReadyCancelled', _('Service readiness check was cancelled.'));
+				return false;
+			}
+			return true;
+		}
+		function checkActive() {
+			try {
+				if (active()) activeTimer = window.setTimeout(checkActive, interval);
+			} catch (error) { finish(error); }
+		}
+		function poll() {
+			try { if (!active()) return; } catch (error) { finish(error); return; }
+			Promise.resolve().then(callStatus).then(function(status) {
+				if (!active()) return;
+				status = status || {};
+				if (isReady(status)) finish(null, status);
+				else pollTimer = window.setTimeout(poll, interval);
+			}).catch(function(error) { finish(error); });
+		}
+		deadlineTimer = window.setTimeout(function() {
+			failure('ServiceReadyTimeout', _('Service did not become ready before the timeout. Check service status and logs.'));
+		}, timeout);
+		if (options.isActive) checkActive();
+		poll();
+	});
 }
 
 function requireSuccess(result) {

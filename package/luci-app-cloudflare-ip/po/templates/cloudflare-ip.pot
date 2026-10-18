@@ -1636,3 +1636,9 @@ msgstr ""
 
 msgid "OpenClash service restored and health verified; new nodes were not applied."
 msgstr ""
+
+msgid "Service readiness check was cancelled."
+msgstr ""
+
+msgid "Service did not become ready before the timeout. Check service status and logs."
+msgstr ""
