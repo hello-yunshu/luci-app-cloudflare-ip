@@ -6,22 +6,31 @@
 # This bounds the mapping reader; it is not a general YAML validity checker.
 cfip_openclash_yaml_supported() {
     awk '
-      function reject() { print "unsupported OpenClash proxy YAML at line " NR > "/dev/stderr"; bad=1; exit 1 }
-      /\t/ { reject() }
+      function reject(reason) { print "unsupported OpenClash proxy YAML at line " NR ": " reason > "/dev/stderr"; bad=1; exit 1 }
+      /\t/ { reject("tab indentation or scalar") }
       /^proxies:/ {
-        if (seen++) reject()
+        if (seen++) reject("duplicate proxies section")
         value=$0; sub(/^proxies:[ ]*/, "", value)
-        if (value!="" && value !~ /^#/) reject()
+        if (value!="" && value !~ /^#/) reject("proxies must use block sequence form")
         active=1; next
       }
       /^[^ #][^:]*:/ { active=0 }
       active {
         text=$0; sub(/^[ ]*/, "", text)
         if (text=="" || text ~ /^#/) next
-        if (text ~ /^-[ ]*/ && text !~ /^-[ ]+name:/ && text !~ /^-[ ]*$/) reject()
-        if (text ~ /^<<:/) reject()
+        if (text ~ /^-[ ]*/ && text !~ /^-[ ]+name:/ && text !~ /^-[ ]*$/) reject("proxy entries require block name-first form")
+        if (text ~ /^<<:/) reject("merge key")
+        if (text ~ /^-[ ]+name:/) {
+            for (field in mapped) delete mapped[field]
+            key="name"
+            proxy_indent=match($0,/[^ ]/)-1
+        } else { key=text; sub(/:.*/, "", key) }
+        if (key ~ /^(name|type|server|tls|network|servername|Host)$/) {
+            if (mapped[key]++) reject("duplicate mapped field " key)
+            if (key!="name" && key!="Host" && match($0,/[^ ]/)-1 != proxy_indent+2) reject("nested mapped field " key)
+        }
         value=text; sub(/^[^:]+:[ ]*/, "", value)
-        if (value ~ /^[{&*!|>]/) reject()
+        if (value ~ /^[{&*!|>]/) reject("flow map, anchor, alias, tag or block scalar")
       }
       END { if (!seen || bad) exit 1 }
     ' "$1"

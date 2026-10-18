@@ -1,5 +1,9 @@
 # G4、G5 执行记录
 
+## Y01 duplicate-field ambiguity checkpoint
+
+The actual mapping reader accepted a second server field silently before this change. All three support checks now reject duplicate mapped fields and node identity fields nested below their supported direct depth, reporting line plus reason. Duplicate type/server/tls/network/servername/Host and nested-type negatives pass; supported block, both self-contained engines, section isolation, protocol/readback and renderer regressions pass. docs/OPENCLASH_YAML_SUPPORT.md records the exact current boundary and the still-open full-document/escaping/other duplicate-key requirements; this is not a complete YAML validator or Y01 closure. Static checks passed.
+
 ## Legacy/standalone unsupported-proxy entry gate
 
 Both self-contained engines now invoke the conservative proxy support check before creating config temp files/backups. The two-engine rejection regression verifies unsupported mixed inline input fails, config bytes remain identical, and no temp/backup is created. It also compares the embedded function definitions with the canonical mapping-reader definition to prevent drift without adding runtime file dependencies to the standalone script. Supported section, protocol, first/second/third, suffix, actual renderer and readback regressions pass; ShellCheck/actionlint/diff checks pass. Whole-document syntax/duplicate-key handling and complete Y01 support policy remain OPEN.

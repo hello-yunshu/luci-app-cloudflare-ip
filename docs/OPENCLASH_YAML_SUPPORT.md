@@ -1,0 +1,9 @@
+# OpenClash YAML transformation boundary
+
+Endpoint transformation and readback support a conservative block-form `proxies` sequence. Each proxy starts with `- name:`. Node identity fields (`type`, `server`, `tls`, `network`, `servername`) use scalar values directly inside that node; the supported transport header uses `Host`. Mapping is scoped to the top-level `proxies` section. Generated variants are written before leaving that section; the tested group/rule tail is retained on repeated transformations.
+
+The entry check rejects inline root/entry maps, alias/merge/anchor/tag or block-scalar forms in the proxy area, duplicate mapped fields, nested node identity fields, duplicate `proxies` sections and tabs. It reports the offending line and reason. Unsupported input is rejected before config temporary files/backups/publication in Legacy and standalone engines, and before actual/intended mapping output in v2. The self-contained engines embed the same check; a conformance test compares their function definitions.
+
+This check bounds a line-based transformer. It is **not a general YAML validator**. Whole-document grammar, arbitrary duplicate keys, escaping/comment semantics, other nested shapes and the complete supported-input policy are still under qualification. Do not treat partial mapping success or a successful init command as evidence that the whole document is valid. Y01 remains open until those requirements are explicitly tested and resolved. Existing device files are not rewritten to fit this subset automatically.
+
+Current regression scripts: `tests/openclash-yaml-boundary.sh`, `tests/openclash-transform-unsupported.sh`, `tests/openclash-transform-section.sh`, positive/negative readback and actual renderer isolation. Software fixtures do not replace the separate real-device gate.
