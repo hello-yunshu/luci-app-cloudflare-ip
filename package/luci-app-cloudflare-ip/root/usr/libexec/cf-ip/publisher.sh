@@ -202,7 +202,7 @@ cfip_publisher_owned_generation() {
 # Bootstrap compatibility links against a byte-identical legacy snapshot first.
 # Partial link conversion still serves only the old bytes, not the new candidate.
 cfip_publisher_prepare_layout() {
-    local tmp id f target snapshot_needed=false lease_pid="${BASHPID:-$$}"
+    local tmp id f target="" snapshot_needed=false lease_pid="${BASHPID:-$$}"
     [[ "$CFIP_PUBLISH_DIR" == /* && ! -L "$CFIP_PUBLISH_DIR" && ! -L "$CFIP_PUBLISH_DIR/generations" ]] || return 1
     mkdir -p "$CFIP_PUBLISH_DIR/generations" || return 1
     if [[ -e "$CFIP_PUBLISH_DIR/current" || -L "$CFIP_PUBLISH_DIR/current" ]]; then
@@ -212,6 +212,9 @@ cfip_publisher_prepare_layout() {
             if [[ -f "$CFIP_PUBLISH_DIR/$f" && ! -L "$CFIP_PUBLISH_DIR/$f" ]] && ! cmp -s "$CFIP_PUBLISH_DIR/$f" "$CFIP_PUBLISH_DIR/current/$f"; then snapshot_needed=true; fi
         done
     else snapshot_needed=true; fi
+    # Interrupted first migration may have no cursor yet. Prune only after
+    # validating any existing cursor, before adding another legacy snapshot.
+    cfip_publisher_prune_generations "${target:-}" '' || return 1
     if [[ "$snapshot_needed" == true ]]; then
         tmp="$(cfip_publisher_workspace_create stage "$lease_pid")" || return 1
         id="$(cfip_publisher_generation_id "$tmp")" || { rm -rf "$tmp"; return 1; }
@@ -263,6 +266,7 @@ cfip_publisher_render_generation() {
 cfip_publisher_prune_generations() {
     local current="$1" previous="$2" keep="${CFIP_PUBLISH_KEEP_GENERATIONS:-3}" dir retained=1 ordered
     local -a dirs=()
+    [[ -n "$current" ]] || retained=0
     [[ "$keep" =~ ^[2-8]$ ]] || return 1
     for dir in "$CFIP_PUBLISH_DIR"/generations/gen.*; do cfip_publisher_owned_generation "$dir" && dirs+=("$dir"); done
     ((${#dirs[@]} > 0)) || return 0
