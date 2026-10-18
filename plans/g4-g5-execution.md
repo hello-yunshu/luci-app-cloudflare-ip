@@ -1,5 +1,9 @@
 # G4、G5 执行记录
 
+## PassWall value-preservation checkpoint
+
+A real-UCI multiline/tab/trailing-newline remarks case failed recovery: shell substitution discarded trailing newlines and line-oriented delta scanning treated continuation text as unrelated changes. UCI and JSON value reads now preserve trailing bytes; pending validation matches complete canonical quoted records, never evals text, and checks both owned key and permitted value. The actual CLI now restores byte-identical exports for multiline/tab/trailing-newline values, single/double quotes, backslashes, glob characters and literal shell text. Existing real-UCI rollback and five fault cases, commit-failure/managed/transaction regressions, ShellCheck/actionlint/diff checks pass. Hosted run 39100627336 remains in progress; this value fix requires new qualification and does not complete G5a.
+
 ## Real-UCI storage/read fault checkpoint
 
 Five actual-CLI injection cases now pass: get failure, journal jq failure, journal rename failure, set-before-mutation failure and set-after-mutation failure. Before the read fix, a failed get was accepted as an absent original option. The read helper now verifies the parent section and rejects a failed get for a field that still exists, rather than journaling it as absent. Existing eight real-UCI cases and transaction commit-failure regression still pass; ShellCheck/actionlint/diff checks pass. The fault suite is wired into the same pinned-source real-UCI Host CI step. Hosted run 39100627336 was queued at observation; duplicate push run 39100624844 was requested cancelled. This is not the full storage/signal/concurrency matrix and does not close G5a.

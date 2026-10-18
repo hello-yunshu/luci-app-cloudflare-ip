@@ -12,7 +12,9 @@ CFIP_TXN_BACKUP_FILE=""
 # Resolve get failure conservatively: an existing unreadable option is not absent.
 cfip_passwall_read_field() {
     local field_key="$1" field_value="" field_exists=false field_listing field_line
-    if field_value="$(uci -q get "$field_key" 2>/dev/null)"; then field_exists=true
+    if field_value="$(uci -q get "$field_key" 2>/dev/null && printf '.')"; then
+        field_value="${field_value%.}"; field_value="${field_value%$'\n'}"
+        field_exists=true
     else
         field_listing="$(uci -q show "${field_key%.*}" 2>/dev/null)" || return 1
         while IFS= read -r field_line; do
@@ -21,6 +23,12 @@ cfip_passwall_read_field() {
     fi
     printf -v "$2" '%s' "$field_value"
     printf -v "$3" '%s' "$field_exists"
+}
+
+cfip_passwall_json_string() {
+    local json_decoded
+    json_decoded="$(jq -j "$2" <<<"$1" && printf '.')" || return 1
+    printf -v "$3" '%s' "${json_decoded%.}"
 }
 
 # Journal planned writes before UCI mutation; the full export is diagnostic only.
@@ -55,16 +63,34 @@ cfip_passwall_state_safe() {
 }
 
 cfip_passwall_check_pending() {
-    local changes line key
+    local changes remaining rows row key quoted record value_field prefix suffix
     changes="$(uci changes passwall 2>/dev/null)" || return 1
-    while IFS= read -r line; do
-        [[ -n "$line" ]] || continue
-        key="${line%%=*}"; key="${key#-}"
-        if ! jq -e --arg key "$key" 'any(.[]; .key==$key)' "$CFIP_TXN_DIR/passwall-fields.json" >/dev/null; then
-            CFIP_RECOVERY_ERROR="PassWall has unrelated pending UCI changes; preserved without commit"
-            return 1
-        fi
-    done <<<"$changes"
+    [[ -n "$changes" ]] || return 0
+    rows="$(jq -c '.[]' "$CFIP_TXN_DIR/passwall-fields.json")" || return 1
+    remaining=$'\n'"$changes"$'\n'
+    while IFS= read -r row; do
+        [[ -n "$row" ]] || continue
+        key="$(jq -r '.key' <<<"$row")" || return 1
+        for value_field in before expected; do
+            quoted="$(jq -r --arg field "$value_field" '.[$field]|@sh' <<<"$row")" || return 1
+            record=$'\n'"$key=$quoted"$'\n'
+            # Match a complete canonical UCI delta record, including quoted
+            # multiline values. Never eval UCI text or split values into lines.
+            while [[ "$remaining" == *"$record"* ]]; do
+                prefix="${remaining%%"$record"*}"; suffix="${remaining#*"$record"}"
+                remaining="$prefix"$'\n'"$suffix"
+            done
+        done
+        record=$'\n'"-$key"$'\n'
+        while [[ "$remaining" == *"$record"* ]]; do
+            prefix="${remaining%%"$record"*}"; suffix="${remaining#*"$record"}"
+            remaining="$prefix"$'\n'"$suffix"
+        done
+    done <<<"$rows"
+    if [[ -n "${remaining//$'\n'/}" ]]; then
+        CFIP_RECOVERY_ERROR="PassWall has unrelated pending UCI changes; preserved without commit"
+        return 1
+    fi
 }
 
 cfip_passwall_restore_fields() {
@@ -81,7 +107,7 @@ cfip_passwall_restore_fields() {
     while IFS= read -r row; do
         key="$(jq -r '.key' <<<"$row")" || return 1
         [[ "$key" =~ ^passwall\.[a-zA-Z0-9_]+\.(address|remarks)$ ]] || return 1
-        before="$(jq -r '.before' <<<"$row")" || return 1; expected="$(jq -r '.expected' <<<"$row")" || return 1
+        cfip_passwall_json_string "$row" '.before' before || return 1; cfip_passwall_json_string "$row" '.expected' expected || return 1
         existed="$(jq -r '.existed' <<<"$row")" || return 1; present=false
         cfip_passwall_read_field "$key" current present || return 1
         if [[ "$present" == true && "$current" == "$expected" ]] ||
@@ -92,8 +118,8 @@ cfip_passwall_restore_fields() {
         fi
     done <"$rows"
     while IFS= read -r row; do
-        key="$(jq -r '.key' <<<"$row")" || return 1; before="$(jq -r '.before' <<<"$row")" || return 1
-        expected="$(jq -r '.expected' <<<"$row")" || return 1; existed="$(jq -r '.existed' <<<"$row")" || return 1
+        key="$(jq -r '.key' <<<"$row")" || return 1; cfip_passwall_json_string "$row" '.before' before || return 1
+        cfip_passwall_json_string "$row" '.expected' expected || return 1; existed="$(jq -r '.existed' <<<"$row")" || return 1
         present=false; cfip_passwall_read_field "$key" current present || return 1
         if [[ "$present" == "$existed" && ( "$present" == false || "$current" == "$before" ) ]]; then continue; fi
         [[ "$present" == true && "$current" == "$expected" ]] || { CFIP_RECOVERY_ERROR="PassWall owned field changed during recovery: $key"; return 1; }
@@ -103,7 +129,7 @@ cfip_passwall_restore_fields() {
     cfip_passwall_check_pending || return 1
     uci commit passwall >/dev/null 2>&1 || return 1
     while IFS= read -r row; do
-        key="$(jq -r '.key' <<<"$row")" || return 1; before="$(jq -r '.before' <<<"$row")" || return 1
+        key="$(jq -r '.key' <<<"$row")" || return 1; cfip_passwall_json_string "$row" '.before' before || return 1
         existed="$(jq -r '.existed' <<<"$row")" || return 1; present=false
         cfip_passwall_read_field "$key" current present || return 1
         [[ "$present" == "$existed" && ( "$present" == false || "$current" == "$before" ) ]] || return 1

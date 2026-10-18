@@ -92,3 +92,28 @@ pending="$(uci changes passwall)"
 if cfip_txn_prepare passwall; then echo 'preexisting pending changes accepted' >&2; exit 1; fi
 [[ "$(uci changes passwall)" == "$pending" ]]
 echo 'PASS real UCI: transaction entry rejects and preserves pending user changes'
+uci revert passwall
+uci set $'passwall.owned.remarks=first line\nsecond line\tend\n\n'
+uci commit passwall
+uci export passwall >"$TMP/special-before"
+cfip_txn_prepare passwall
+cfip_passwall_set_owned passwall.owned.remarks 'temporary remarks'
+uci commit passwall
+CFIP_TXN_STATE=MUTATED
+cfip_txn_rollback passwall
+uci export passwall >"$TMP/special-after"
+cmp "$TMP/special-before" "$TMP/special-after" || { echo 'FAIL: special-character remarks were not restored byte-for-byte' >&2; exit 1; }
+echo 'PASS real UCI: tabs, multiline and trailing-newline remarks preserved'
+for original in "single ' quote and [*]? glob" 'literal $(printf do-not-execute) and `printf do-not-execute`' 'backslash \ and "double quotes"'; do
+    uci set "passwall.owned.remarks=$original"
+    uci commit passwall
+    uci export passwall >"$TMP/quoted-before"
+    cfip_txn_prepare passwall
+    cfip_passwall_set_owned passwall.owned.remarks 'temporary remarks'
+    uci commit passwall
+    CFIP_TXN_STATE=MUTATED
+    cfip_txn_rollback passwall
+    uci export passwall >"$TMP/quoted-after"
+    cmp "$TMP/quoted-before" "$TMP/quoted-after"
+done
+echo 'PASS real UCI: quote, glob, backslash and literal shell text preserved'
