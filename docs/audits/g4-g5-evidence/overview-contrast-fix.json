@@ -1,0 +1,295 @@
+{
+  "sourceBaseCommit": "0d8460f7e186b3961586ba2d0c2776b6b9f3fa69",
+  "scope": "real LuCI Bootstrap dark/light overview samples; not complete accessibility/eight-view acceptance",
+  "deployedFiles": {
+    "cloudflare-ip/cloudflare-ip.css": "68569a29c20668be0b9659274a1c046fa0ce7b729ba8150caff4c7e41bbaa91a",
+    "view/cloudflare-ip/overview.js": "dd28603c0c41d2100c2e993f4d4ad2854e81cce72e174bbb4645c5b37c434e54"
+  },
+  "samplesPerTheme": 12,
+  "minContrast": {
+    "dark": 7.19,
+    "light": 4.87
+  },
+  "themeRestored": "/luci-static/bootstrap",
+  "dark": [
+    {
+      "background": [
+        34,
+        34,
+        34
+      ],
+      "color": "rgb(191, 191, 191)",
+      "contrast": 8.65,
+      "selector": ".cfi-kv-table td",
+      "text": "passwall"
+    },
+    {
+      "background": [
+        44,
+        44,
+        44
+      ],
+      "color": "rgb(174, 188, 202)",
+      "contrast": 7.21,
+      "selector": ".cfi-kv-table th",
+      "text": "Mode"
+    },
+    {
+      "background": [
+        34,
+        34,
+        34
+      ],
+      "color": "rgb(158, 203, 255)",
+      "contrast": 9.42,
+      "selector": ".cfi-kv-table td a",
+      "text": "hello-yunshu/luci-app-cloudflare-ip"
+    },
+    {
+      "background": [
+        37.60000075,
+        53.79998499999999,
+        41.949982
+      ],
+      "color": "rgb(140, 232, 172)",
+      "contrast": 8.7,
+      "selector": ".cfi-badge.green",
+      "text": "\u2714 Installed"
+    },
+    {
+      "background": [
+        61.300006749999994,
+        52.14999475,
+        28.9
+      ],
+      "color": "rgb(242, 201, 109)",
+      "contrast": 7.8,
+      "selector": ".cfi-badge.orange",
+      "text": "\u2718 Not Installed"
+    },
+    {
+      "background": [
+        61.449985,
+        40.1500135,
+        40.1500135
+      ],
+      "color": "rgb(255, 171, 171)",
+      "contrast": 7.59,
+      "selector": ".cfi-badge.red",
+      "text": "\u2718 Not Installed"
+    },
+    {
+      "background": [
+        34,
+        34,
+        34
+      ],
+      "color": "rgb(174, 188, 202)",
+      "contrast": 8.22,
+      "selector": ".ys-tool-footer-version",
+      "text": "v2.6.0-r5"
+    },
+    {
+      "background": [
+        48.8800048,
+        54.2799868,
+        60.52
+      ],
+      "color": "rgb(158, 203, 255)",
+      "contrast": 7.19,
+      "selector": ".ys-tool-footer-link",
+      "text": "Project"
+    },
+    {
+      "background": [
+        34,
+        34,
+        34
+      ],
+      "color": "rgb(242, 201, 109)",
+      "contrast": 10.11,
+      "selector": ".cfi-status-text h3",
+      "text": "Service Stopped"
+    },
+    {
+      "background": [
+        34,
+        34,
+        34
+      ],
+      "color": "rgb(174, 188, 202)",
+      "contrast": 8.22,
+      "selector": ".cfi-status-text p",
+      "text": "Cloudflare IP optimization service is not running. Click Start to begin."
+    },
+    {
+      "background": [
+        34,
+        34,
+        34
+      ],
+      "color": "rgb(174, 188, 202)",
+      "contrast": 8.22,
+      "selector": ".cfi-stat-label",
+      "text": "Best IP Count"
+    },
+    {
+      "background": [
+        34,
+        34,
+        34
+      ],
+      "color": "rgb(255, 171, 171)",
+      "contrast": 8.84,
+      "selector": ".cfi-stat-value",
+      "text": "0"
+    }
+  ],
+  "light": [
+    {
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "color": "rgb(64, 64, 64)",
+      "contrast": 10.37,
+      "selector": ".cfi-kv-table td",
+      "text": "passwall"
+    },
+    {
+      "background": [
+        245,
+        245,
+        245
+      ],
+      "color": "rgb(88, 107, 126)",
+      "contrast": 5.04,
+      "selector": ".cfi-kv-table th",
+      "text": "Mode"
+    },
+    {
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "color": "rgb(23, 105, 170)",
+      "contrast": 5.77,
+      "selector": ".cfi-kv-table td a",
+      "text": "hello-yunshu/luci-app-cloudflare-ip"
+    },
+    {
+      "background": [
+        225.45000075,
+        241.649985,
+        229.799982
+      ],
+      "color": "rgb(23, 107, 49)",
+      "contrast": 5.66,
+      "selector": ".cfi-badge.green",
+      "text": "\u2714 Installed"
+    },
+    {
+      "background": [
+        249.15000675,
+        239.99999475,
+        216.75
+      ],
+      "color": "rgb(128, 86, 0)",
+      "contrast": 5.69,
+      "selector": ".cfi-badge.orange",
+      "text": "\u2718 Not Installed"
+    },
+    {
+      "background": [
+        249.299985,
+        228.0000135,
+        228.0000135
+      ],
+      "color": "rgb(165, 32, 32)",
+      "contrast": 6.1,
+      "selector": ".cfi-badge.red",
+      "text": "\u2718 Not Installed"
+    },
+    {
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "color": "rgb(88, 107, 126)",
+      "contrast": 5.5,
+      "selector": ".ys-tool-footer-version",
+      "text": "v2.6.0-r5"
+    },
+    {
+      "background": [
+        227.16000066,
+        237.000009,
+        244.8000102
+      ],
+      "color": "rgb(23, 105, 170)",
+      "contrast": 4.87,
+      "selector": ".ys-tool-footer-link",
+      "text": "Project"
+    },
+    {
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "color": "rgb(128, 86, 0)",
+      "contrast": 6.46,
+      "selector": ".cfi-status-text h3",
+      "text": "Service Stopped"
+    },
+    {
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "color": "rgb(88, 107, 126)",
+      "contrast": 5.5,
+      "selector": ".cfi-status-text p",
+      "text": "Cloudflare IP optimization service is not running. Click Start to begin."
+    },
+    {
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "color": "rgb(88, 107, 126)",
+      "contrast": 5.5,
+      "selector": ".cfi-stat-label",
+      "text": "Best IP Count"
+    },
+    {
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "color": "rgb(165, 32, 32)",
+      "contrast": 7.43,
+      "selector": ".cfi-stat-value",
+      "text": "0"
+    }
+  ],
+  "evidence": {
+    "overview-fixed.png": "6271ad1f392e2ddd30b9969d46efddb1914109aa2ff6fff745cb5401cc7f5719",
+    "overview-contrast-fixed.png": "e61cb8a07ac2792d87212608e85d2c0b47c1cda4a9b57055d122cc6984120dec",
+    "overview-contrast-fixed-top.png": "369c22500de175fc26f538e2afb0b4602886ff5142b0371788ab7d4961146094",
+    "overview-light-contrast-fixed.png": "c968bc792af1382d32770778e79f381df1586993961b04a2cdf9d0d56e5ca035",
+    "dark-contrast-after.json": "b57867018ec29987b8148afff980d937453fe4dbebfd6302015b4a84b0cb2c50",
+    "light-contrast-after.json": "28f66e1c6e55ffe7a3c2b37afa16909acf22a5d8a924bb02fbbb4eda98619b7d"
+  },
+  "remaining": [
+    "responsive/keyboard/action matrix",
+    "all other views",
+    "latest SDK/CI qualification"
+  ]
+}

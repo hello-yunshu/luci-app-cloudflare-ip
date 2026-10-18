@@ -191,15 +191,15 @@ var css = `
 	.cfi-status-banner.stopped { border-left: 5px solid var(--warning-color, #d89b00); }
 	.cfi-status-banner.running-test { border-left: 5px solid var(--main-color, #0069d9); }
 	.cfi-status-icon { font-size: 2.5em; line-height: 1; flex-shrink: 0; }
-	.cfi-status-icon.running { color: var(--success-color, #3aa657); }
-	.cfi-status-icon.stopped { color: var(--warning-color, #d89b00); }
-	.cfi-status-icon.running-test { color: var(--main-color, #0069d9); animation: cfi-pulse 1.5s ease-in-out infinite; }
+	.cfi-status-icon.running { color: var(--cfi-success-text); }
+	.cfi-status-icon.stopped { color: var(--cfi-warning-text); }
+	.cfi-status-icon.running-test { color: var(--cfi-link); animation: cfi-pulse 1.5s ease-in-out infinite; }
 	.cfi-status-text h3 { margin: 0 0 0.2em 0; font-size: 1.3em; }
-	.cfi-status-text h3.running { color: var(--success-color, #3aa657); }
-	.cfi-status-text h3.stopped { color: var(--warning-color, #d89b00); }
-	.cfi-status-text h3.running-test { color: var(--main-color, #0069d9); }
+	.cfi-status-text h3.running { color: var(--cfi-success-text); }
+	.cfi-status-text h3.stopped { color: var(--cfi-warning-text); }
+	.cfi-status-text h3.running-test { color: var(--cfi-link); }
 	@keyframes cfi-pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
-	.cfi-status-text p { margin: 0; color: var(--subtext-color, #666); font-size: 0.9em; }
+	.cfi-status-text p { margin: 0; color: var(--cfi-muted); font-size: 0.9em; }
 	.cfi-stats-grid {
 		display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
 		gap: 1em; margin-bottom: 1.5em;
@@ -210,13 +210,13 @@ var css = `
 	}
 	.cfi-stat-card .cfi-stat-value {
 		font-size: 1.8em; font-weight: bold; line-height: 1.2;
-		color: var(--main-color, #0069d9);
+		color: var(--cfi-link);
 	}
-	.cfi-stat-card .cfi-stat-value.green { color: var(--success-color, #3aa657); }
-	.cfi-stat-card .cfi-stat-value.red { color: var(--danger-color, #d94b4b); }
-	.cfi-stat-card .cfi-stat-value.orange { color: var(--warning-color, #d89b00); }
+	.cfi-stat-card .cfi-stat-value.green { color: var(--cfi-success-text); }
+	.cfi-stat-card .cfi-stat-value.red { color: var(--cfi-danger-text); }
+	.cfi-stat-card .cfi-stat-value.orange { color: var(--cfi-warning-text); }
 	.cfi-stat-card .cfi-stat-label {
-		font-size: 0.85em; color: var(--subtext-color, #666);
+		font-size: 0.85em; color: var(--cfi-muted);
 		margin-top: 0.3em;
 	}
 	@media (max-width: 600px) {
@@ -521,7 +521,7 @@ return view.extend({
 				'href': 'https://github.com/hello-yunshu/luci-app-cloudflare-ip',
 				'target': '_blank',
 				'rel': 'noopener',
-				'style': 'color:var(--main-color, #0069d9);text-decoration:none'
+				'style': 'text-decoration:underline'
 			}, 'hello-yunshu/luci-app-cloudflare-ip'))
 		]));
 
