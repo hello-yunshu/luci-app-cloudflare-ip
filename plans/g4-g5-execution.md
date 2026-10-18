@@ -1,5 +1,9 @@
 # G4、G5 执行记录
 
+## Hosted Host failure and fixture alignment
+
+Run 39100843086 Host failed immediately after recovery-deadline, at sync-single-restart. Job 117596612910 raw logs and a local traced reproduction show the old UCI fixture lacks `changes`; the new transaction correctly rejects an unreadable pending-delta state before snapshot. Sync/signal fixtures now explicitly return no pending delta. Signal cases call the actual journaled owned-write helper and model real option reads instead of bypassing it with raw writes. Local sync single-restart, stop-failure cleanup and TERM rollback pass. The child-tree case is SKIPPED on macOS; an isolated Linux container invocation is still pending, not PASS. A frozen driver is executing all current V2 Host commands, recording individual return codes under /tmp/cfip-g4-g5/current-host-full; completion is not yet asserted. Production guards are unchanged by this fixture repair.
+
 ## Y01 duplicate-field ambiguity checkpoint
 
 The actual mapping reader accepted a second server field silently before this change. All three support checks now reject duplicate mapped fields and node identity fields nested below their supported direct depth, reporting line plus reason. Duplicate type/server/tls/network/servername/Host and nested-type negatives pass; supported block, both self-contained engines, section isolation, protocol/readback and renderer regressions pass. docs/OPENCLASH_YAML_SUPPORT.md records the exact current boundary and the still-open full-document/escaping/other duplicate-key requirements; this is not a complete YAML validator or Y01 closure. Static checks passed.
