@@ -90,7 +90,7 @@ cfip_txn_rollback() {
             CFIP_RECOVERY_ERROR="${CFIP_OPENCLASH_SERVICE_ERROR:-OpenClashRecoveryFailed}"
             return 1
         fi
-        local restored_config=false config_conflict=false
+        local restored_config=false
         if cmp -s "$CFIP_OPENCLASH_CONFIG" "$CFIP_TXN_DIR/openclash.yaml"; then
             :
         elif [[ -f "$CFIP_TXN_DIR/openclash.written.yaml" ]] && cmp -s "$CFIP_OPENCLASH_CONFIG" "$CFIP_TXN_DIR/openclash.written.yaml"; then
@@ -98,8 +98,11 @@ cfip_txn_rollback() {
             mv "${CFIP_OPENCLASH_CONFIG}.rollback.$$" "$CFIP_OPENCLASH_CONFIG" || return 1
             restored_config=true
         else
-            config_conflict=true
             CFIP_RECOVERY_ERROR="OpenClash config changed outside this transaction; preserved current file and snapshot"
+            # Do not start a stopped service with bytes this transaction never
+            # validated. Keep the journal and report incomplete recovery.
+            CFIP_STOPPED_MODE=""
+            return 1
         fi
         if [[ "$CFIP_OPENCLASH_EXPECTED_ENABLED" == 1 ]] && {
             [[ "$CFIP_OPENCLASH_CF_STOPPED" == true && "$CFIP_OPENCLASH_RECOVERY_ATTEMPTED" != true ]] ||
@@ -119,7 +122,6 @@ cfip_txn_rollback() {
             # UCI on rollback; this preserves detectable user changes.
             CFIP_STOPPED_MODE=""
         fi
-        [[ "$config_conflict" != true ]] || return 1
         CFIP_TXN_ROLLED_BACK=true
         CFIP_TXN_STATE=ROLLED_BACK
         ;;

@@ -1,5 +1,9 @@
 # G4、G5 执行记录
 
+## G5a external-conflict recovery checkpoint
+
+The new rollback regression reproduced an unsafe restart after detecting an externally edited OpenClash file (stopped=true, serviceApplied=true). Rollback now returns failure immediately, preserving external bytes and both journal snapshots without starting the unvalidated configuration. Four stopped/applied combinations and repeated recovery attempts pass; a positive known-bytes recovery restores the original and restarts exactly once. Existing write-failure, review-regression, commit-failure, single-restart and original-service-state tests passed, as did ShellCheck/actionlint/diff checks. This closes this specific conflict path only; PassWall owned-field recovery, YAML boundaries and the full G5 fault matrix remain OPEN. Before evidence: /tmp/cfip-g4-g5/rollback-external-before.log.
+
 ## Hosted migration and offline preflight checkpoint
 
 Run 39000051779 attempt 1 completed SUCCESS at head 07802d4. The tested merge commit 229363fb1c900df6b484a5246645395ec628b689 and head have identical tree 04d32482234e8b388775f284cd94e2018fb93ec1. Downloaded details independently confirm all ten final installed DB snapshots and matching before/final hashes for four controlled user files. Actual public IPK/APK bytes passed offline metadata/byte preflight; wrong attempt and a one-byte mutation of the actual IPK copy failed without a success receipt. Receipt and reproduction guidance are in docs/RELEASE_PREFLIGHT.md. Full downloaded evidence is retained in /Users/yunshu/Downloads/cfip-g4-g5-evidence/run-39000051779. This does not close broader negative migration, uninstall/lifecycle, final changed-SHA qualification or G5 requirements. Publication NOT RUN; device acceptance NOT EVALUATED.
