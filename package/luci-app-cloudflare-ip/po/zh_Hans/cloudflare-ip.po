@@ -1666,3 +1666,12 @@ msgstr "服务就绪检查已取消。"
 
 msgid "Service did not become ready before the timeout. Check service status and logs."
 msgstr "服务未在规定时间内就绪，请检查服务状态和日志。"
+
+msgid "Unable to verify the applied configuration. Reload and try again."
+msgstr "无法确认配置是否已应用，请刷新后重试。"
+
+msgid "Configuration still has uncommitted changes. Apply it again before restarting."
+msgstr "配置仍有未提交的更改，请先重新应用再重启。"
+
+msgid "Applied configuration does not match the saved settings. Reload and review the configuration."
+msgstr "已应用的配置与保存的设置不一致，请刷新并核对配置。"

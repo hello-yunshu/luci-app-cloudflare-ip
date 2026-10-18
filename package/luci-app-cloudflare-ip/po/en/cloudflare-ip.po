@@ -1568,3 +1568,12 @@ msgstr "Service readiness check was cancelled."
 
 msgid "Service did not become ready before the timeout. Check service status and logs."
 msgstr "Service did not become ready before the timeout. Check service status and logs."
+
+msgid "Unable to verify the applied configuration. Reload and try again."
+msgstr "Unable to verify the applied configuration. Reload and try again."
+
+msgid "Configuration still has uncommitted changes. Apply it again before restarting."
+msgstr "Configuration still has uncommitted changes. Apply it again before restarting."
+
+msgid "Applied configuration does not match the saved settings. Reload and review the configuration."
+msgstr "Applied configuration does not match the saved settings. Reload and review the configuration."

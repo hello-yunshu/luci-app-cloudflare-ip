@@ -7,6 +7,8 @@
 
 var FOOTER_VERSION = '@PKG_FULL_VERSION@';
 
+var callReadConfig = rpc.declare({ object: 'uci', method: 'get', params: [ 'config' ], expect: { values: {} }, reject: true });
+
 var callStatus = rpc.declare({ object: 'cf_ip', method: 'status', expect: { '': {} } });
 var callCheckEnv = rpc.declare({ object: 'cf_ip', method: 'check-env', expect: { '': {} } });
 var callValidateConfig = rpc.declare({ object: 'cf_ip', method: 'validate-config', params: [ 'candidate' ], expect: { '': {} } });
@@ -133,6 +135,50 @@ function buildStagedCandidate() {
 	return candidate;
 }
 
+function configSnapshot(values) {
+	if (!values || typeof values !== 'object' || Array.isArray(values) || !Object.keys(values).length)
+		throw new Error(_('Unable to verify the applied configuration. Reload and try again.'));
+	var snapshot = Object.create(null);
+	Object.keys(values).sort().forEach(function(name) {
+		var section = values[name], options = Object.create(null);
+		if (!section || typeof section !== 'object' || typeof section['.type'] !== 'string')
+			throw new Error(_('Unable to verify the applied configuration. Reload and try again.'));
+		Object.keys(section).sort().forEach(function(option) {
+			if (option.charAt(0) !== '.') {
+				var value = section[option];
+				options[option] = Array.isArray(value) ? value.map(String) : String(value);
+			}
+		});
+		snapshot[name] = { type: section['.type'], options: options };
+	});
+	return snapshot;
+}
+
+function stagedConfigSnapshot() {
+	var sections = Object.create(null);
+	uci.sections('cf_ip').forEach(function(section) {
+		if (typeof section['.name'] !== 'string' || !section['.name'] || sections[section['.name']])
+			throw new Error(_('Unable to verify the applied configuration. Reload and try again.'));
+		sections[section['.name']] = section;
+	});
+	return configSnapshot(sections);
+}
+
+function readAppliedConfig(expected) {
+	return Promise.all([ callReadConfig('cf_ip'), uci.changes() ]).then(function(result) {
+		var values = result[0], changes = result[1];
+		if (!changes || typeof changes !== 'object' || Array.isArray(changes))
+			throw new Error(_('Unable to verify the applied configuration. Reload and try again.'));
+		if (Object.prototype.hasOwnProperty.call(changes, 'cf_ip') && !Array.isArray(changes.cf_ip))
+			throw new Error(_('Unable to verify the applied configuration. Reload and try again.'));
+		if (changes.cf_ip && changes.cf_ip.length)
+			throw new Error(_('Configuration still has uncommitted changes. Apply it again before restarting.'));
+		if (JSON.stringify(configSnapshot(values)) !== JSON.stringify(expected))
+			throw new Error(_('Applied configuration does not match the saved settings. Reload and review the configuration.'));
+		return values;
+	});
+}
+
 function loadSharedCSS() {
 	if (!document.getElementById('cfi-shared-css')) {
 		var link = E('link', {
@@ -253,16 +299,17 @@ function createHandleSave(m) {
 
 function createHandleSaveApply(m) {
 	m.handleSaveApply = function(ev, mode) {
-		var candidate;
+		var candidate, expected;
 		return this.handleSave(ev).then(function() {
 			candidate = buildStagedCandidate();
+			expected = stagedConfigSnapshot();
 			return callValidateConfig(candidate).then(requireSuccess);
 		}).then(function() {
 			return safeApply();
 		}).then(function() {
-			return uci.load('cf_ip');
-		}).then(function() {
-			if (uci.get('cf_ip', 'main', 'enabled') !== '1') {
+			return readAppliedConfig(expected);
+		}).then(function(applied) {
+			if (!applied.main || applied.main.enabled !== '1') {
 				ui.addNotification(null, E('p', _('Configuration saved and applied.')), 'info');
 				reloadSoon(600);
 				return;

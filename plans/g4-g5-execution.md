@@ -1,5 +1,11 @@
 # G4、G5 执行记录
 
+## G5b fresh full-config readback candidate
+
+An actual-utils save-handler regression reproduces false success when uci.load reuses staged cache after apply/code-5 while backend settings differ. The handler now snapshots every staged cf_ip section/type/option (including custom sources), reads through an independent reject-enabled UCI get RPC, and checks fresh UCI changes for that package. It compares normalized full snapshots before restart/success. Pending changes, differing/deleted sections/options, malformed data and RPC failure stop success/restart; matching code-5 readback and enabled-service restart/ready pass. Unrelated packages' pending changes do not block cf_ip. No ACL expansion or shared-cache unload was added; errors do not print setting values. Catalog and module/static checks pass. This remains module/API evidence; real LuCI browser/rpcd verification, busy/generation and concurrent change windows are OPEN. Source/API inspection and before/after logs are retained under Downloads/cfip-g4-g5-evidence/luci-readback.
+
+The isolated Linux invocation with jq installed completed both TERM and child-tree rollback successfully. PR CI 39102692151 at eb1b2c6 completed SUCCESS; it does not cover this newer readback candidate.
+
 ## G5b readiness promise checkpoint
 
 The actual utils module returned a non-ready status normally on timeout, allowing the save chain to display ready success; the new module regression reproduces this against the old source. Readiness now resolves only for an idle ready service, rejects timeout/cancellation with explicit codes, preserves RPC failures, bounds a hanging RPC with an independent total deadline, and clears polling timers after settlement. The real-module Node harness covers active jobs, hanging RPC, inactive view, cancellation during a hanging request, network failure, late failure and no polling after timeout. English/Chinese catalogs and template include the new messages; msgfmt, module syntax, staged-validation and workflow checks pass. These are module tests, not browser/device proof. Fresh UCI readback, generation/busy handling and eight-view browser acceptance remain OPEN.
