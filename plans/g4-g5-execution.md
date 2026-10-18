@@ -1,5 +1,13 @@
 # G4、G5 执行记录
 
+## G5d LAN ownership and interface-event checkpoint
+
+Preceding-source 90a13fe PR run 39143422601 completed SUCCESS; exact source SHA/run attempt/API identity is retained in the receipt. The current init change still requires its own final qualification.
+
+Old start_service accepted a private address not owned by LAN. The init now validates strict IPv4/private ranges, reads only an up LAN interface, and requires explicit bind membership in its current address list; auto bind chooses the first qualified address. A native interface.* LAN trigger reloads the service after interface changes. Existing native reload semantics are retained: a clean-runtime comparison proved extra instance deletion/restart code unnecessary and it was removed.
+
+Host/OpenWrt policy fixtures cover private boundaries, malformed/foreign/public/wildcard/loopback addresses, multiple LAN addresses, address changes/loss and trigger arguments. A dedicated isolated real procd/uhttpd runtime passes event-driven rebind, old-address closure, interface loss listener removal and restoration. Exact pre-fix init fails the rebind test. The runtime has network none/no published ports; network status, loopback private policy and event interface name are fixture-controlled, while production trigger body and native reload/listener mechanics run. Initial tests against the broader LuCI rootfs were interfered with by default network-service callbacks and are not PASS. Final proof uses a separate minimal runtime; no business container or production network was restarted. HTTP/module/package regressions and syntax/ShellCheck error/actionlint/diff pass. Evidence: publisher-lan-rebind.json. Physical LAN/netifd delivery, generation publication, disabled/status reconciliation, other G4/G5 and final exact-SHA hosted qualification remain OPEN.
+
 ## G5d publisher HTTP readiness checkpoint
 
 The actual HTTP regression proves init exit 0 produced success despite stale response bytes. Publisher now performs bounded direct, proxy-free HTTP readback and compares the response to newly published result.json before success. Default readiness has three one-second transport attempts with one-second gaps and a sink bounded to expected size plus one byte. Failed readback records publisher_http_readback_failed and returns failure.
