@@ -77,6 +77,7 @@ jobs:
           bash tests/v2-lan-publisher.sh
           sh tests/publisher-lan-policy.sh
           bash tests/publisher-status-honesty.sh
+          bash tests/publisher-workspace-leases.sh
           bash tests/publisher-generation-atomic.sh
           python3 tests/publisher-generation-http.py
           python3 tests/publisher-http-readback.py

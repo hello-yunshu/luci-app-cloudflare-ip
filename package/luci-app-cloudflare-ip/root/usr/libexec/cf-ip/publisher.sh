@@ -5,6 +5,91 @@ CFIP_PUBLISH_DIR="${CFIP_PUBLISH_DIR:-${CFIP_RUNTIME_DIR:-/tmp/cf_ip}/publish}"
 CFIP_PUBLISH_STATUS_FILE="${CFIP_PUBLISH_STATUS_FILE:-${CFIP_RUNTIME_DIR:-/tmp/cf_ip}/publisher-status.json}"
 CFIP_PUBLISH_INIT="${CFIP_PUBLISH_INIT:-/etc/init.d/cf_ip_publisher}"
 
+cfip_publisher_directory_mode() {
+    local mode
+    mode="$(LC_ALL=C ls -ld "$1")" || return 1
+    mode="${mode%% *}"
+    [[ "$mode" =~ ^d[rwxstST-]{9} ]] || return 1
+    printf '%s' "${mode:0:10}"
+}
+
+cfip_publisher_workspace_root() {
+    local parent root mode tag=cf-ip-publisher-work-v1
+    [[ "$CFIP_PUBLISH_DIR" == /* && "$CFIP_PUBLISH_DIR" != / && "$CFIP_PUBLISH_DIR" != */ ]] || return 1
+    parent="${CFIP_PUBLISH_DIR%/*}"; root="$parent/.cfip-publisher-work"
+    [[ -d "$parent" && ! -L "$parent" ]] || return 1
+    [[ -O "$parent" ]] || return 1
+    mode="$(cfip_publisher_directory_mode "$parent")" || return 1
+    [[ "${mode:5:1}${mode:8:1}" != *w* || "${mode:9:1}" == [tT] ]] || return 1
+    [[ ! -L "$root" ]] || return 1
+    if [[ ! -e "$root" ]]; then mkdir -m 700 "$root" 2>/dev/null || [[ -d "$root" && ! -L "$root" ]] || return 1; fi
+    [[ -d "$root" && -O "$root" ]] || return 1
+    mode="$(cfip_publisher_directory_mode "$root")" || return 1
+    [[ "${mode:5:1}${mode:8:1}" != *w* ]] || return 1
+    if [[ ! -L "$root/.owner" || "$(readlink "$root/.owner")" != "$tag" ]]; then
+        [[ ! -e "$root/.owner" && ! -L "$root/.owner" ]] || return 1
+        if [[ -n "$(find "$root" -mindepth 1 -maxdepth 1 -print | head -n 1)" ]]; then
+            [[ -L "$root/.owner" && "$(readlink "$root/.owner")" == "$tag" ]] || return 1
+        else
+            ln -s "$tag" "$root/.owner" 2>/dev/null || { [[ -L "$root/.owner" && "$(readlink "$root/.owner")" == "$tag" ]] || return 1; }
+        fi
+    fi
+    chmod 700 "$root" || return 1
+    printf '%s' "$root"
+}
+
+cfip_publisher_workspace_pid() {
+    local name="${1##*/}"
+    name="${name#.reap.}"
+    [[ "$name" =~ ^(stage|link|readback)\.([1-9][0-9]{0,9})\.[A-Za-z0-9]{6}$ ]] || return 1
+    printf '%s' "${BASH_REMATCH[2]}"
+}
+
+cfip_publisher_workspace_alive() {
+    kill -0 "$1" 2>/dev/null || [[ -d "/proc/$1" ]]
+}
+
+# First detach a dead owner's path atomically. An orphaned external mv can
+# then either have completed before us, or fail to find its old source path.
+cfip_publisher_workspace_reap() {
+    local dir="$1" root="${1%/*}" name="${1##*/}" pid quarantine
+    [[ -d "$dir" && ! -L "$dir" && -O "$dir" ]] || return 0
+    pid="$(cfip_publisher_workspace_pid "$name")" || return 0
+    if [[ "$name" != .reap.* ]]; then
+        cfip_publisher_workspace_alive "$pid" && return 0
+        quarantine="$root/.reap.$name"
+        [[ ! -e "$quarantine" && ! -L "$quarantine" ]] || return 0
+        case "$(uname -s)" in
+            Darwin) mv -fh "$dir" "$quarantine" 2>/dev/null || { [[ ! -e "$dir" ]] && return 0; return 1; } ;;
+            *) mv -fT "$dir" "$quarantine" 2>/dev/null || { [[ ! -e "$dir" ]] && return 0; return 1; } ;;
+        esac
+        dir="$quarantine"
+    fi
+    rm -rf "$dir"
+}
+
+cfip_publisher_workspace_sweep() {
+    local root="$1" dir
+    # Only owned PID-framed directories are candidates; unknown entries remain.
+    while IFS= read -r dir; do cfip_publisher_workspace_reap "$dir" || return 1; done < <(find "$root" -mindepth 1 -maxdepth 1 -type d -print | head -n 64)
+}
+
+cfip_publisher_workspace_create() {
+    local kind="$1" pid="$2" root dir count
+    case "$kind" in stage|link|readback) ;; *) return 1 ;; esac
+    [[ "$pid" =~ ^[1-9][0-9]{0,9}$ ]] && cfip_publisher_workspace_alive "$pid" || return 1
+    root="$(cfip_publisher_workspace_root)" || return 1
+    cfip_publisher_workspace_sweep "$root" || return 1
+    dir="$(mktemp -d "$root/$kind.$pid.XXXXXX")" || return 1
+    # Reserve the empty directory BEFORE counting. Concurrent reservations are
+    # visible to each other; rejected reservations never receive payload bytes.
+    # Unknown directories also consume capacity rather than being deleted.
+    count="$(find "$root" -mindepth 1 -maxdepth 1 -type d -print | head -n 17 | wc -l)" || { rm -rf "$dir"; return 1; }
+    if ((count <= 16)); then printf '%s' "$dir"; return 0; fi
+    rm -rf "$dir"
+    return 1
+}
+
 cfip_publisher_resolve_bind() {
     local bind="$1" status address
     if [[ -n "$bind" && "$bind" != lan-auto ]]; then
@@ -25,10 +110,11 @@ cfip_publisher_resolve_bind() {
 cfip_publisher_wait_ready() {
     local bind="$1" port="$2" expected="$3" path="${4:-/result.json}" tmp bytes attempt generation count attempts="${CFIP_PUBLISH_READY_ATTEMPTS:-3}"
     local -a statuses
+    local lease_pid="${BASHPID:-$$}"
     [[ "$attempts" =~ ^[1-5]$ && "$port" =~ ^[0-9]{1,5}$ ]] || return 1
     port=$((10#$port)); ((port >= 1024 && port <= 65535)) || return 1
     bind="$(cfip_publisher_resolve_bind "$bind")" || return 1
-    tmp="$(mktemp -d "${CFIP_RUNTIME_DIR:-/tmp/cf_ip}/publisher-readback.XXXXXX")" || return 1
+    tmp="$(cfip_publisher_workspace_create readback "$lease_pid")" || return 1
     head -c 1048577 "$expected" >"$tmp/expected" || { rm -rf "$tmp"; return 1; }
     bytes="$(wc -c <"$tmp/expected")" || { rm -rf "$tmp"; return 1; }
     if ! ((bytes > 0 && bytes <= 1048576)) || ! jq -e '.schemaVersion==1 and (.ips|type)=="array" and (.selected|type)=="array"' "$tmp/expected" >/dev/null 2>&1; then rm -rf "$tmp"; return 1; fi
@@ -89,9 +175,9 @@ cfip_publisher_generation_id() {
 }
 
 cfip_publisher_link_swap() {
-    local target="$1" destination="$2" tmp rc=0
+    local target="$1" destination="$2" tmp rc=0 lease_pid="${BASHPID:-$$}"
     [[ ! -d "$destination" || -L "$destination" ]] || return 1
-    tmp="$(mktemp -d "${CFIP_PUBLISH_DIR%/*}/.cfip-link.XXXXXX")" || return 1
+    tmp="$(cfip_publisher_workspace_create link "$lease_pid")" || return 1
     if ln -s "$target" "$tmp/link"; then
         case "$(uname -s)" in
             Darwin) mv -fh "$tmp/link" "$destination" || rc=1 ;;
@@ -116,7 +202,7 @@ cfip_publisher_owned_generation() {
 # Bootstrap compatibility links against a byte-identical legacy snapshot first.
 # Partial link conversion still serves only the old bytes, not the new candidate.
 cfip_publisher_prepare_layout() {
-    local tmp id f target snapshot_needed=false
+    local tmp id f target snapshot_needed=false lease_pid="${BASHPID:-$$}"
     [[ "$CFIP_PUBLISH_DIR" == /* && ! -L "$CFIP_PUBLISH_DIR" && ! -L "$CFIP_PUBLISH_DIR/generations" ]] || return 1
     mkdir -p "$CFIP_PUBLISH_DIR/generations" || return 1
     if [[ -e "$CFIP_PUBLISH_DIR/current" || -L "$CFIP_PUBLISH_DIR/current" ]]; then
@@ -127,7 +213,7 @@ cfip_publisher_prepare_layout() {
         done
     else snapshot_needed=true; fi
     if [[ "$snapshot_needed" == true ]]; then
-        tmp="$(mktemp -d "${CFIP_PUBLISH_DIR%/*}/.cfip-publish.XXXXXX")" || return 1
+        tmp="$(cfip_publisher_workspace_create stage "$lease_pid")" || return 1
         id="$(cfip_publisher_generation_id "$tmp")" || { rm -rf "$tmp"; return 1; }
         for f in ip.txt best-ipv4.txt best-ipv6.txt result.json; do
             if [[ -d "$CFIP_PUBLISH_DIR/$f" ]]; then rm -rf "$tmp"; return 1; fi
@@ -193,12 +279,12 @@ cfip_publisher_publish_error() {
 }
 
 cfip_publish_result() {
-    local selected="$1" tmp id count bind port previous generation_dir keep="${CFIP_PUBLISH_KEEP_GENERATIONS:-3}"
+    local selected="$1" tmp id count bind port previous generation_dir keep="${CFIP_PUBLISH_KEEP_GENERATIONS:-3}" lease_pid="${BASHPID:-$$}"
     [[ "${CFIP_PUBLISH_ENABLED:-false}" == true ]] || { cfip_publisher_disable; return $?; }
     [[ "$keep" =~ ^[2-8]$ ]] || { cfip_publisher_publish_error publisher_retention_policy_invalid; return 2; }
     [[ -s "$selected" && "$CFIP_PUBLISH_DIR" == /* && "$CFIP_PUBLISH_DIR" != / && ! -L "$CFIP_PUBLISH_DIR" ]] || return 2
     mkdir -p "${CFIP_PUBLISH_DIR%/*}" || return 1
-    tmp="$(mktemp -d "${CFIP_PUBLISH_DIR%/*}/.cfip-publish.XXXXXX")" || return 1
+    tmp="$(cfip_publisher_workspace_create stage "$lease_pid")" || { cfip_publisher_publish_error publisher_workspace_unavailable; return 1; }
     id="$(cfip_publisher_generation_id "$tmp")" || { rm -rf "$tmp"; return 1; }
     if ! cfip_publisher_render_generation "$selected" "$tmp" "$id"; then rm -rf "$tmp"; cfip_publisher_publish_error publisher_render_failed; return 1; fi
     count="$(jq '.selected|length' "$tmp/result.json")" || { rm -rf "$tmp"; return 1; }
