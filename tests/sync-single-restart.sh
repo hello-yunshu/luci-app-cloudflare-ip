@@ -14,6 +14,7 @@ set -euo pipefail
 state="${UCI_FAKE_STATE:?}"
 if [[ "${1:-}" == -q ]]; then shift; fi
 case "${1:-}" in
+  changes) : ;; # This fixture has no external pending delta.
   get)
     case "$2" in
       cf_ip.main.enabled) printf '0' ;; cf_ip.main.mode) printf 'passwall' ;; cf_ip.main.ip_count) printf '1' ;;

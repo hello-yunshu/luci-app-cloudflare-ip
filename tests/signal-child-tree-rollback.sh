@@ -12,11 +12,17 @@ set -euo pipefail
 state="${UCI_FAKE_STATE:?}"
 [[ "${1:-}" == -q ]] && shift
 case "${1:-}" in
+  changes) : ;; # This fixture has no external pending delta.
   export|show) cat "$state" ;;
   import) cat >"$state" ;;
   set) pair="$2"; key="${pair%%=*}"; value="${pair#*=}"; sed "s#^${key}=.*#${key}='${value}'#" "$state" >"$state.next"; mv "$state.next" "$state" ;;
   commit|revert) cat >/dev/null || true ;;
-  get) exit 1 ;;
+  get)
+    key="${2#passwall.}"; section="${key%%.*}"; field="${key#*.}"
+    value="$(sed -n "s/^passwall\.${section}\.${field}=//p" "$state" | head -1)"
+    [[ -n "$value" ]] || exit 1
+    printf '%s\n' "${value:1:${#value}-2}"
+    ;;
   *) exit 1 ;;
 esac
 EOF
@@ -29,7 +35,7 @@ bash -c '
   source "$CFIP_LIB_DIR/common.sh"
   source "$CFIP_LIB_DIR/transaction.sh"
   cfip_txn_prepare passwall
-  uci set passwall.s1.address=mutated.example
+  cfip_passwall_set_owned passwall.s1.address mutated.example
   uci commit passwall
   trap "cfip_cancel_active_operation; cfip_txn_rollback passwall; exit 143" INT TERM
   cfip_run_with_timeout 10 bash -c '\''printf stage-1 >"$1"; : >"$2"; (sleep 3; printf stage-2 >>"$1") & wait'\'' bash "$RACE_FILE" "$RACE_FILE.ready"
