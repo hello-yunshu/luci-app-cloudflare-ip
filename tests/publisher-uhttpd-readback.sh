@@ -27,6 +27,12 @@ printf '[{"ip":"104.18.1.1","family":"ipv4"}]' >"$TMP/selected"
 cfip_publish_result "$TMP/selected"
 jq -e '.success==true' "$CFIP_PUBLISH_STATUS_FILE" >/dev/null
 echo 'PASS actual isolated uhttpd serves exact published bytes'
+prefix="$(jq -r '.generationPath' "$CFIP_PUBLISH_DIR/result.json")"
+while IFS=$'\t' read -r name hash; do
+ curl --noproxy '*' -fsS --connect-timeout 1 --max-time 2 "http://$CFIP_PUBLISH_BIND:$CFIP_PUBLISH_PORT$prefix/$name" -o "$TMP/download"
+ test "$(sha256sum "$TMP/download" | awk '{print $1}')" = "$hash"
+done < <(jq -r '.artifacts|to_entries[]|[.key,.value.sha256]|@tsv' "$CFIP_PUBLISH_DIR/result.json")
+echo 'PASS actual uhttpd serves pinned generation artifacts with matching digests'
 cfip_publisher_status_json | jq -e '.success==true and .listenerReady==true' >/dev/null
 # The independent backend command must read enabled state from a real isolated
 # UCI configuration, rather than its process-default disabled flag.

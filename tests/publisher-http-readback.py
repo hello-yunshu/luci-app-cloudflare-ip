@@ -15,9 +15,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.send_response(500 if self.server.mode=='http-error' else 200); self.end_headers()
         try:
             if self.server.mode=='slow': time.sleep(2)
-            if self.server.mode == 'stale': body=b'{"runId":"stale"}'
+            if self.server.mode == 'stale' or (self.server.mode=='root-stale' and not self.path.startswith('/generations/')): body=b'{"runId":"stale"}'
             elif self.server.mode == 'oversized': body=b'x'*100000
-            else: body=(self.server.directory/'result.json').read_bytes()
+            else: body=(self.server.directory/self.path.lstrip('/')).read_bytes()
             self.wfile.write(body)
         except (BrokenPipeError, ConnectionResetError): pass
 with tempfile.TemporaryDirectory(prefix='cfip-publisher-http-') as d:
@@ -34,12 +34,15 @@ cfip_publish_result "$CFIP_SELECTED"
     env=dict(os.environ,CFIP_COMMON=str(ROOT/'package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/common.sh'),CFIP_PUBLISHER=os.environ.get('CFIP_TEST_PUBLISHER',str(ROOT/'package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/publisher.sh')),CFIP_SELECTED=str(selected),CFIP_RUNTIME_DIR=str(tmp/'runtime'),CFIP_PUBLISH_DIR=str(tmp/'publish'),CFIP_PUBLISH_STATUS_FILE=str(tmp/'status.json'),CFIP_PUBLISH_INIT=str(init),CFIP_PUBLISH_ENABLED='true',CFIP_PUBLISH_BIND='127.0.0.1',CFIP_PUBLISH_PORT=str(server.server_port),CFIP_PUBLISH_READY_ATTEMPTS='1',CFIP_RUN_ID='actual-http-test',http_proxy='http://127.0.0.1:1',all_proxy='http://127.0.0.1:1',NO_PROXY='',no_proxy='')
     results=[]
     try:
-        for mode in ('valid','stale','oversized','http-error','slow'):
+        for mode in ('valid','root-stale','stale','oversized','http-error','slow'):
             server.mode=mode
+            before={name:(tmp/'publish'/name).read_bytes() for name in ('ip.txt','best-ipv4.txt','best-ipv6.txt','result.json')} if (tmp/'publish/result.json').exists() else None
             run=subprocess.run(['bash','-c',script],env=env,capture_output=True,text=True,timeout=10)
             status=json.loads((tmp/'status.json').read_text())
             if mode=='valid': assert run.returncode==0 and status['success'],(mode,run.stderr,status)
-            else: assert run.returncode!=0 and not status['success'],f'{mode}: init exit 0 was incorrectly treated as readiness: {status}'
+            else:
+                assert run.returncode!=0 and not status['success'],f'{mode}: init exit 0 was incorrectly treated as readiness: {status}'
+                assert before=={name:(tmp/'publish'/name).read_bytes() for name in before},'failed publication changed public bytes'
             assert not list((tmp/'runtime').glob('publisher-readback.*')), 'readback temporary file leaked'
             if mode=='valid':
                 saved=(tmp/'status.json').read_bytes()

@@ -11,4 +11,4 @@ Stop attempts check both the previously published and current configured endpoin
 
 Stored observations are bounded before JSON parsing. Query timestamps are returned as `lastCheckedAt`; the original publication timestamp remains intact. HTTP listener checks and temporary files do not change UCI or restart services.
 
-Multi-file generation consistency and publication atomicity are separate requirements and are not established by this status/readback protocol.
+Generation consistency uses the versioned read protocol in LAN_RESULT_PROTOCOL.md. Readback compares a bounded private snapshot of the expected manifest and reports its matched generation/count, rather than combining metadata from two cursor states.
