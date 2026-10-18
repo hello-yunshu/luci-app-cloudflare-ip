@@ -1675,3 +1675,6 @@ msgstr "配置仍有未提交的更改，请先重新应用再重启。"
 
 msgid "Applied configuration does not match the saved settings. Reload and review the configuration."
 msgstr "已应用的配置与保存的设置不一致，请刷新并核对配置。"
+
+msgid "Applying configuration..."
+msgstr "正在应用配置…"

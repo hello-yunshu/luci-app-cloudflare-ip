@@ -77,9 +77,16 @@ printf '%s\n' '{"truncated":' >"$CFIP_STATUS_DIR/rill-evidence.json"
 printf '%s\n' '{"assistedDisagreementCount":2}' >"$CFIP_STATUS_DIR/rill-holdout-cadence.json"
 printf '{"contextFingerprint":"%064d"}\n' 1 >"$CFIP_STATUS_DIR/rill-state-meta.json"
 snapshot_state() {
-    find "$CFIP_STATUS_DIR" -type f -printf '%P\n' | sort
-    find "$CFIP_STATUS_DIR" -type f -print0 | sort -z | xargs -0 -r sha256sum
+    python3 - "$CFIP_STATUS_DIR" <<'PY_SNAPSHOT'
+import hashlib,json,sys
+from pathlib import Path
+root=Path(sys.argv[1]);files=sorted(p for p in root.rglob('*') if p.is_file())
+if not files: raise SystemExit('state fixture must not be empty')
+for file in files:
+    print(json.dumps([str(file.relative_to(root)),hashlib.sha256(file.read_bytes()).hexdigest()]))
+PY_SNAPSHOT
 }
+
 before_validation="$(snapshot_state)"
 staged="$($BIN --validate-config '{"cf_ip.passwall.target_domain":"two.example"}')"
 jq -e '.success == true and .valid == true' <<<"$staged" >/dev/null

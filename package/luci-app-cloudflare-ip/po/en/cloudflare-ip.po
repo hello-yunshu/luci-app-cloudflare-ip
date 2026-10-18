@@ -1577,3 +1577,6 @@ msgstr "Configuration still has uncommitted changes. Apply it again before resta
 
 msgid "Applied configuration does not match the saved settings. Reload and review the configuration."
 msgstr "Applied configuration does not match the saved settings. Reload and review the configuration."
+
+msgid "Applying configuration..."
+msgstr "Applying configuration..."

@@ -1,5 +1,11 @@
 # G4、G5 执行记录
 
+## G5b duplicate-save and stale-response checkpoint
+
+The real-utils harness reproduced two saves from duplicate clicks. The shared handler now returns one pending operation, marks the originating button busy, restores it after success/failure, and permits a later retry. Form.root connectivity and handler generation prevent stale responses from restarting, notifying or scheduling a reload after view replacement. Delayed reload callbacks also recheck activity. Button ownership prevents an older operation from unlocking a newer operation sharing that button; original labels survive overlapping generations. Module tests cover duplicate calls, rejected/synchronous saves, retry, disconnected form, replaced handler and overlapping old/new readback completions. These tests and readiness/full-readback/catalog/static checks pass, but real browser interaction, eight-view responsive/keyboard coverage and other action paths remain OPEN.
+
+The staged-validation state snapshot now uses portable Python filename/hash enumeration and rejects an empty fixture, removing macOS find -printf warnings. It passed again with actual state hashes. Before/after concurrency evidence is under Downloads/cfip-g4-g5-evidence/luci-concurrency. These changes need new remote qualification.
+
 ## G5b fresh full-config readback candidate
 
 An actual-utils save-handler regression reproduces false success when uci.load reuses staged cache after apply/code-5 while backend settings differ. The handler now snapshots every staged cf_ip section/type/option (including custom sources), reads through an independent reject-enabled UCI get RPC, and checks fresh UCI changes for that package. It compares normalized full snapshots before restart/success. Pending changes, differing/deleted sections/options, malformed data and RPC failure stop success/restart; matching code-5 readback and enabled-service restart/ready pass. Unrelated packages' pending changes do not block cf_ip. No ACL expansion or shared-cache unload was added; errors do not print setting values. Catalog and module/static checks pass. This remains module/API evidence; real LuCI browser/rpcd verification, busy/generation and concurrent change windows are OPEN. Source/API inspection and before/after logs are retained under Downloads/cfip-g4-g5-evidence/luci-readback.

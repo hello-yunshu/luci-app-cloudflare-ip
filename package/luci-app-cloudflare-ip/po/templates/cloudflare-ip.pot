@@ -1651,3 +1651,6 @@ msgstr ""
 
 msgid "Applied configuration does not match the saved settings. Reload and review the configuration."
 msgstr ""
+
+msgid "Applying configuration..."
+msgstr ""

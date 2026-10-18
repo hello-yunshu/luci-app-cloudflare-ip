@@ -113,6 +113,7 @@ jobs:
           bash tests/delayed-feedback-reset-lineage.sh
           bash tests/prefix-colo-intelligence.sh
           bash tests/prefix-failure-decay.sh
+          node tests/luci-save-singleflight.cjs
           node tests/luci-save-readback.cjs
           node tests/luci-ready-state.cjs
           bash tests/luci-validation-contract.sh
