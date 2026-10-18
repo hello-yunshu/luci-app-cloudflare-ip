@@ -25,7 +25,7 @@ cfip_atomic_write() {
     tmp="$(mktemp "${output}.tmp.XXXXXX")" || return 1
     cat >"$tmp" || { rm -f "$tmp"; return 1; }
     chmod 600 "$tmp" 2>/dev/null || true
-    mv "$tmp" "$output"
+    mv "$tmp" "$output" || { rm -f "$tmp"; return 1; }
 }
 
 cfip_generate_run_id() {

@@ -71,6 +71,7 @@ jobs:
           bash tests/source-cache-trust.sh
           bash tests/source-cache-publication.sh
           bash tests/source-runtime-write-failure.sh
+          bash tests/atomic-write-failure.sh
           python3 tests/source-streaming-https.py
           bash tests/v2-single-cfst.sh
           bash tests/v2-lan-publisher.sh
