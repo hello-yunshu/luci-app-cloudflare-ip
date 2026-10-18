@@ -1,5 +1,9 @@
 # G4、G5 执行记录
 
+## OpenClash mapping section isolation
+
+A supported proxy followed by a proxy-groups selector produced two actual mapping records before the fix: the selector was incorrectly parsed as a proxy node. Mapping extraction now starts only at top-level proxies and emits/resets at the next top-level section. The new group-isolation case, mixed-YAML boundary suite, positive/negative readback, real renderer isolation and protocol matrix pass, together with ShellCheck/actionlint/diff checks. Legacy transformer section handling and full-document support validation still require work; this is not complete Y01 evidence. Before log: /tmp/cfip-g4-g5/yaml-groups-before.log.
+
 ## Y01 mixed-proxy mapping checkpoint
 
 Before evidence: a supported block proxy plus an inline proxy returned successful actual mapping containing only one proxy. A conservative proxy-boundary check now runs before actual/intended mapping generation and rejects mixed inline maps, alias/merge forms, folded values, inline root proxies, duplicate proxies roots and tabs. Supported block mapping, positive/negative readback and real renderer isolation tests pass; boundary negatives produce no partial output. Host CI includes the boundary regression. This is explicitly a mapping-reader support boundary, not general YAML validation: whole-file grammar, duplicate/nested-key rules and standalone Legacy entry coverage remain OPEN. Y01/G5a are not complete.
