@@ -1184,11 +1184,35 @@ process_openclash_block() {
 	fi
 }
 
+cfip_openclash_yaml_supported() {
+    awk '
+      function reject() { print "unsupported OpenClash proxy YAML at line " NR > "/dev/stderr"; bad=1; exit 1 }
+      /\t/ { reject() }
+      /^proxies:/ {
+        if (seen++) reject()
+        value=$0; sub(/^proxies:[ ]*/, "", value)
+        if (value!="" && value !~ /^#/) reject()
+        active=1; next
+      }
+      /^[^ #][^:]*:/ { active=0 }
+      active {
+        text=$0; sub(/^[ ]*/, "", text)
+        if (text=="" || text ~ /^#/) next
+        if (text ~ /^-[ ]*/ && text !~ /^-[ ]+name:/ && text !~ /^-[ ]*$/) reject()
+        if (text ~ /^<<:/) reject()
+        value=text; sub(/^[^:]+:[ ]*/, "", value)
+        if (value ~ /^[{&*!|>]/) reject()
+      }
+      END { if (!seen || bad) exit 1 }
+    ' "$1"
+}
+
 update_openclash() {
 	local line backup backup_ts backup_seq=0
 
 	[[ -f "$OPENCLASH_CONFIG" ]] || die "OpenClash config not found: $OPENCLASH_CONFIG"
 	[[ -n "$OPENCLASH_TARGET_DOMAIN" ]] || die "OPENCLASH_TARGET_DOMAIN is empty"
+	cfip_openclash_yaml_supported "$OPENCLASH_CONFIG" || die "unsupported OpenClash proxy YAML; original config preserved"
 	openclash_check_before_write || die "${_OPENCLASH_SERVICE_ERROR:-OpenClash state could not be verified}"
 	if [[ -n "$_OPENCLASH_CONFIG_SNAPSHOT" ]]; then
 		cmp -s "$OPENCLASH_CONFIG" "$_OPENCLASH_CONFIG_SNAPSHOT" || die "OpenClash config changed during measurement; preserved external changes"

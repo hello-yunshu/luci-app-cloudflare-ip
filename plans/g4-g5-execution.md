@@ -1,5 +1,9 @@
 # G4、G5 执行记录
 
+## Legacy/standalone unsupported-proxy entry gate
+
+Both self-contained engines now invoke the conservative proxy support check before creating config temp files/backups. The two-engine rejection regression verifies unsupported mixed inline input fails, config bytes remain identical, and no temp/backup is created. It also compares the embedded function definitions with the canonical mapping-reader definition to prevent drift without adding runtime file dependencies to the standalone script. Supported section, protocol, first/second/third, suffix, actual renderer and readback regressions pass; ShellCheck/actionlint/diff checks pass. Whole-document syntax/duplicate-key handling and complete Y01 support policy remain OPEN.
+
 ## Legacy/standalone transform section checkpoint
 
 The original standalone transformer changed the proxy-groups tail while generating two variants: a top-level section header was carried inside the final proxy template. Both standalone and Legacy now process blocks only within top-level proxies and emit missing variants before leaving that section. A real two-engine regression runs transformation twice and verifies unchanged tested group/rule tails, one group header and exactly two proxy server entries. Protocol matrix, actual renderer, suffix, first/second/third run, backup roundtrip and review regressions pass, as do ShellCheck/actionlint/diff checks. Host CI includes the two-engine test. Whole-document YAML validity and Legacy unsupported-syntax rejection remain OPEN.
