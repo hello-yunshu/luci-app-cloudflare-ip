@@ -1,5 +1,9 @@
 # G4、G5 执行记录
 
+## Legacy/standalone transform section checkpoint
+
+The original standalone transformer changed the proxy-groups tail while generating two variants: a top-level section header was carried inside the final proxy template. Both standalone and Legacy now process blocks only within top-level proxies and emit missing variants before leaving that section. A real two-engine regression runs transformation twice and verifies unchanged tested group/rule tails, one group header and exactly two proxy server entries. Protocol matrix, actual renderer, suffix, first/second/third run, backup roundtrip and review regressions pass, as do ShellCheck/actionlint/diff checks. Host CI includes the two-engine test. Whole-document YAML validity and Legacy unsupported-syntax rejection remain OPEN.
+
 ## OpenClash mapping section isolation
 
 A supported proxy followed by a proxy-groups selector produced two actual mapping records before the fix: the selector was incorrectly parsed as a proxy node. Mapping extraction now starts only at top-level proxies and emits/resets at the next top-level section. The new group-isolation case, mixed-YAML boundary suite, positive/negative readback, real renderer isolation and protocol matrix pass, together with ShellCheck/actionlint/diff checks. Legacy transformer section handling and full-document support validation still require work; this is not complete Y01 evidence. Before log: /tmp/cfip-g4-g5/yaml-groups-before.log.
