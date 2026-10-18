@@ -33,3 +33,14 @@ for form in alias merge folded flow-root; do
     [[ ! -e "$TMP/$form.json" ]]
 done
 echo 'PASS supported block mapping and unsupported alias/merge/folded/flow-root boundaries'
+cp "$TMP/supported.yaml" "$TMP/with-groups.yaml"
+cat >>"$TMP/with-groups.yaml" <<'YAML'
+proxy-groups:
+  - name: User selector
+    type: select
+    proxies:
+      - Supported
+YAML
+cfip_openclash_actual_mapping "$TMP/with-groups.yaml" "$TMP/group-mapping.json"
+jq -e 'length==1 and .[0].name=="Supported"' "$TMP/group-mapping.json" >/dev/null || { echo 'FAIL proxy-group parsed as a proxy node' >&2; exit 1; }
+echo 'PASS mapping is scoped to the top-level proxies section'

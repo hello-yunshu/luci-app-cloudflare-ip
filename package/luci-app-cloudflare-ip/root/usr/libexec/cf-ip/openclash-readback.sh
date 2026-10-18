@@ -47,6 +47,9 @@ cfip_openclash_mapping_tsv() {
     awk '
       function trim(v) { gsub(/^[[:space:]]+|[[:space:]]+$/, "", v); gsub(/^["'"'"']|["'"'"']$/, "", v); return v }
       function emit() { if (name != "") printf "%s%c%s%c%s%c%s%c%s%c%s%c%s%c", name,0,type,0,server,0,tls,0,network,0,servername,0,host,0 }
+      /^proxies:[ ]*($|#)/ { active=1; next }
+      /^[^ #][^:]*:/ { if (active) { emit(); name="" }; active=0; next }
+      !active { next }
       /^[[:space:]]*-[[:space:]]+name:[[:space:]]*/ {
         emit(); line=$0; sub(/^[[:space:]]*-[[:space:]]+name:[[:space:]]*/, "", line)
         name=trim(line); type=""; server=""; tls=""; network=""; servername=""; host=""; next
