@@ -11,14 +11,15 @@ curl(){ cat "$TMP/remote"; }
 cfip_source_fetch_remote trust https://one.example/list ip-text ipv4 community "$TMP/result"
 cp -R "$CFIP_SOURCE_CACHE_DIR/trust" "$TMP/pristine"
 curl(){ return 22; }
-for scenario in valid bare legacy hash url parser family class id expired future oversized malformed; do
+for scenario in valid pair bare legacy hash url parser family class id expired future oversized malformed bundle-shadow; do
  rm -rf "$CFIP_SOURCE_CACHE_DIR/trust"
  cp -R "$TMP/pristine" "$CFIP_SOURCE_CACHE_DIR/trust"
- dir="$CFIP_SOURCE_CACHE_DIR/trust"; meta="$dir/metadata.json"
+ dir="$CFIP_SOURCE_CACHE_DIR/trust"; meta="$dir/last-good.json"
  case "$scenario" in
-  bare) rm "$meta" ;;
+  pair) jq -rj '.content' "$meta" >"$dir/last-good.txt"; jq 'del(.content)' "$meta" >"$dir/metadata.json"; rm "$meta" ;;
+  bare) jq -rj '.content' "$meta" >"$dir/last-good.txt"; rm "$meta" ;;
   legacy) jq ' .schemaVersion=1' "$meta" >"$meta.next"; mv "$meta.next" "$meta" ;;
-  hash) printf '104.18.9.1\n104.18.9.2\n' >"$dir/last-good.txt" ;;
+  hash) jq '.content="104.18.9.1\n104.18.9.2\n"' "$meta" >"$meta.next"; mv "$meta.next" "$meta" ;;
   url) jq '.url="https://other.example/list"' "$meta" >"$meta.next"; mv "$meta.next" "$meta" ;;
   parser) jq '.parser="cidr"' "$meta" >"$meta.next"; mv "$meta.next" "$meta" ;;
   family) jq '.family="ipv6"' "$meta" >"$meta.next"; mv "$meta.next" "$meta" ;;
@@ -26,11 +27,12 @@ for scenario in valid bare legacy hash url parser family class id expired future
   id) jq '.id="other"' "$meta" >"$meta.next"; mv "$meta.next" "$meta" ;;
   expired) jq '.lastSuccessAt=(now-604801)' "$meta" >"$meta.next"; mv "$meta.next" "$meta" ;;
   future) jq '.lastSuccessAt=(now+3600)' "$meta" >"$meta.next"; mv "$meta.next" "$meta" ;;
-  oversized) head -c 524289 /dev/zero >"$dir/last-good.txt" ;;
+  oversized) head -c 524289 /dev/zero >"$TMP/oversized"; jq --rawfile content "$TMP/oversized" '.content=$content' "$meta" >"$meta.next"; mv "$meta.next" "$meta" ;;
+  bundle-shadow) jq -rj '.content' "$meta" >"$dir/last-good.txt"; jq 'del(.content)' "$meta" >"$dir/metadata.json"; printf 'broken' >"$meta" ;;
   malformed) printf 'broken' >"$meta" ;;
  esac
  rc=0; cfip_source_fetch_remote trust https://one.example/list ip-text ipv4 community "$TMP/result" || rc=$?
- if [[ "$scenario" == valid ]]; then
+ if [[ "$scenario" == valid || "$scenario" == pair ]]; then
   test "$rc" = 0; test "$(jq length "$TMP/result")" = 2
  else
   test "$rc" != 0 || { echo "FAIL untrusted cache accepted: $scenario"; exit 1; }
@@ -42,10 +44,11 @@ done
 # A successful byte-identical refresh must renew age and recover modified disk bytes.
 curl(){ cat "$TMP/remote"; }
 cfip_source_fetch_remote trust https://one.example/list ip-text ipv4 community "$TMP/result"
-meta="$CFIP_SOURCE_CACHE_DIR/trust/metadata.json"
+meta="$CFIP_SOURCE_CACHE_DIR/trust/last-good.json"
 jq '.lastSuccessAt=1' "$meta" >"$meta.next"; mv "$meta.next" "$meta"
-printf '104.18.9.1\n104.18.9.2\n' >"$CFIP_SOURCE_CACHE_DIR/trust/last-good.txt"
+jq '.content="104.18.9.1\n104.18.9.2\n"' "$meta" >"$meta.next"; mv "$meta.next" "$meta"
 cfip_source_fetch_remote trust https://one.example/list ip-text ipv4 community "$TMP/result"
-cmp "$TMP/remote" "$CFIP_SOURCE_CACHE_DIR/trust/last-good.txt"
+jq -rj '.content' "$meta" >"$TMP/observed"
+cmp "$TMP/remote" "$TMP/observed"
 jq -e '.lastSuccessAt > now-60' "$meta" >/dev/null
 echo 'PASS source cache same-bytes refresh renews age and repairs changed bytes'
