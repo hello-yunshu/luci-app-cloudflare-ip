@@ -1502,8 +1502,24 @@ update_openclash() {
 	OPENCLASH_LAST_LINE_BLANK=true
 	BLOCK_LINES=()
 
+	local in_proxies=false
 	while IFS= read -r line || [[ -n "$line" ]]; do
 		line="${line%$'\r'}"
+		if [[ "$line" =~ ^proxies:[[:space:]]*($|#) ]]; then
+			in_proxies=true
+			write_openclash_line "$line"
+			continue
+		fi
+		if [[ "$in_proxies" == true && "$line" =~ ^[^[:space:]#][^:]*: ]]; then
+			process_openclash_block
+			BLOCK_LINES=()
+			append_missing_openclash_variants
+			in_proxies=false
+		fi
+		if [[ "$in_proxies" != true ]]; then
+			printf '%s\n' "$line" >>"$TMP_CONFIG"
+			continue
+		fi
 		if [[ "$line" =~ ^[[:space:]]*-[[:space:]]+name:[[:space:]]*.+$ && ${#BLOCK_LINES[@]} -gt 0 ]]; then
 			process_openclash_block
 			BLOCK_LINES=("$line")
@@ -1511,8 +1527,10 @@ update_openclash() {
 			BLOCK_LINES+=("$line")
 		fi
 	done <"$OPENCLASH_CONFIG"
-	process_openclash_block
-	append_missing_openclash_variants
+	if [[ "$in_proxies" == true ]]; then
+		process_openclash_block
+		append_missing_openclash_variants
+	fi
 
 	((OPENCLASH_UPDATED > 0)) || {
 		rm -f "$TMP_CONFIG"

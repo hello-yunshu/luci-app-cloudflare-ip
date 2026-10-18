@@ -74,6 +74,7 @@ jobs:
           bash tests/openclash-rollback-external-conflict.sh
           bash tests/openclash-transaction-write-failure.sh
           bash tests/openclash-render-isolation.sh
+          bash tests/openclash-transform-section.sh
           bash tests/openclash-yaml-boundary.sh
           bash tests/openclash-readback-positive.sh
           bash tests/openclash-restore-publication.sh
