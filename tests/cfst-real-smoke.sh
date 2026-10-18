@@ -12,4 +12,10 @@ CFIP_INPUT_POOL_FILE="$TMP/pool.json"
 jq -Rn '[inputs|select(length>0)|{ip:(split("/")[0]),family:(if contains(":") then "ipv6" else "ipv4" end)}]' <"$INPUT" >"$CFIP_INPUT_POOL_FILE"
 cfip_parse_cfst "$TMP/parsed.json" tcp 8 "$OUT:auto"
 jq -e 'type=="array"' "$TMP/parsed.json" >/dev/null
+if [[ -n "${CFST_EVIDENCE_DIR:-}" ]]; then
+    mkdir -p "$CFST_EVIDENCE_DIR"
+    cp "$INPUT" "$CFST_EVIDENCE_DIR/input.txt"
+    cp "$OUT" "$CFST_EVIDENCE_DIR/result.csv"
+    cp "$TMP/parsed.json" "$CFST_EVIDENCE_DIR/parsed.json"
+fi
 echo 'real CFST execution and CandidateObservation parse passed'

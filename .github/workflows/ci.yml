@@ -55,6 +55,7 @@ jobs:
       - name: Release channel and package identity contracts
         run: |
           set -euo pipefail
+          python3 tests/cfst-smoke-bytes.py
           python3 tests/build-version-policy.py
           python3 tests/qualification-artifact-download.py
           bash tests/release-channel-contract.sh
@@ -693,24 +694,30 @@ jobs:
       - name: Install tools
         run: sudo apt-get update && sudo apt-get install -y jq
       - name: Download and execute real CFST
+        env:
+          GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/cfst"
           release_json="$RUNNER_TEMP/cfst/release.json"
-          curl -fsSL --retry 3 https://api.github.com/repos/XIU2/CloudflareSpeedTest/releases/latest -o "$release_json"
-          asset_url=$(jq -r '.assets[] | select(.name|test("linux_amd64.*tar.gz$"; "i")) | .browser_download_url' "$release_json" | head -n1)
-          test -n "$asset_url"
-          curl -fsSL --retry 3 "$asset_url" -o "$RUNNER_TEMP/cfst/archive"
-          tar -xf "$RUNNER_TEMP/cfst/archive" -C "$RUNNER_TEMP/cfst"
-          cfst=$(find "$RUNNER_TEMP/cfst" -type f -name cfst | head -n1)
-          test -n "$cfst"
-          chmod +x "$cfst"
+          gh api repos/XIU2/CloudflareSpeedTest/releases/latest > "$release_json"
+          asset_url=$(python3 scripts/prepare-cfst-smoke.py asset-url "$release_json")
+          curl -fsSL --proto '=https' --proto-redir '=https' --retry 3 --connect-timeout 10 --max-time 120 --max-filesize 67108864 "$asset_url" -o "$RUNNER_TEMP/cfst/archive"
+          cfst=$(python3 scripts/prepare-cfst-smoke.py verify "$release_json" "$RUNNER_TEMP/cfst/archive" "$RUNNER_TEMP/cfst/verified")
           cat > "$RUNNER_TEMP/cfst/input.txt" <<'EOF_INPUT'
           104.16.1.1/32
           2606:4700::1111/128
           EOF_INPUT
-          bash tests/cfst-real-smoke.sh "$cfst" "$RUNNER_TEMP/cfst/input.txt"
+          env -u GH_TOKEN -u GITHUB_TOKEN CFST_EVIDENCE_DIR="$RUNNER_TEMP/cfst/execution" bash tests/cfst-real-smoke.sh "$cfst" "$RUNNER_TEMP/cfst/input.txt"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: cfst-byte-qualification-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/cfst/release.json
+            ${{ runner.temp }}/cfst/verified/cfst-byte-qualification.json
+            ${{ runner.temp }}/cfst/execution/
+          if-no-files-found: error
 
   release-asset-contract:
     needs: openwrt-package

@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "releaseId": 315160218,
+  "tag": "v2.3.5",
+  "assetId": 491252222,
+  "assetName": "cfst_linux_amd64.tar.gz",
+  "archiveSha256": "c4c8fc76b4e1bf2bdb5ced8b765956d82dda7bc4eb59df5c04053f0f7db98d90",
+  "archiveSize": 3166688,
+  "binarySha256": "2d0b1f831eea02ea2eb98d1cecbe9d8d631a72f19c46b23bb0457cb12f75e556",
+  "binarySize": 7930040,
+  "architecture": "amd64",
+  "execution": "PASS",
+  "scope": "isolated Linux real CFST bounded execution and CandidateObservation parsing; not device/soak acceptance",
+  "observationCount": 1,
+  "smokeImageId": "sha256:15857b3901d50f58b52d2d8a2a98d9ef6d54b0e5dfea76df1cc13fdf838a7d37",
+  "evidence": {
+    "input.txt": "cae8e198369c711b187311bf685a61b3e76a61e365a3a343392bde638daeff90",
+    "parsed.json": "94fae2340cae26a19b07b70329c968cb2ace8bccb332060b977519ec25530a6a",
+    "result.csv": "3c00e447e3b2bfd40a0ee4f7d75f9faf38ce79d0c9ccd327be550e9501099c5e"
+  }
+}
