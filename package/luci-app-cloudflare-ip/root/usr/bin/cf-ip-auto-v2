@@ -630,7 +630,7 @@ cmd_clear_log(){ mkdir -p "${CFIP_LOG_FILE%/*}"; : >"$CFIP_LOG_FILE"; jq -cn '{s
 cmd_ip_history(){ local runs='[]' legacy='{}'; [[ -f "$CFIP_RUN_HISTORY" ]] && runs="$(tail -n 100 "$CFIP_RUN_HISTORY" | jq -s '.' 2>/dev/null || printf '[]')"; [[ -x "$CFIP_LEGACY_BIN" ]] && legacy="$("$CFIP_LEGACY_BIN" --ip-history 2>/dev/null || printf '{}')"; jq -n --argjson runs "$runs" --argjson legacy "$legacy" '{success:true,runs:$runs,ips:($legacy.ips//[])}'; }
 cmd_download_cfst(){ load_config >/dev/null; WORK_DIR_OVERRIDE="$CFIP_WORK_DIR" "$CFIP_LEGACY_BIN" --download-cfst; }
 cmd_source_status(){ cfip_source_status_json | jq -c '{success:true,sources:.}'; }
-cmd_publisher_status(){ cfip_publisher_status_json; }
+cmd_publisher_status(){ load_config >/dev/null || return 1; cfip_publisher_status_json; }
 cmd_source_registry(){ cfip_builtin_registry_json | jq -c '{success:true,presets:.}'; }
 cmd_rill_self_check(){
     load_config >/dev/null || return 1

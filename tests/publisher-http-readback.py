@@ -41,6 +41,32 @@ cfip_publish_result "$CFIP_SELECTED"
             if mode=='valid': assert run.returncode==0 and status['success'],(mode,run.stderr,status)
             else: assert run.returncode!=0 and not status['success'],f'{mode}: init exit 0 was incorrectly treated as readiness: {status}'
             assert not list((tmp/'runtime').glob('publisher-readback.*')), 'readback temporary file leaked'
+            if mode=='valid':
+                saved=(tmp/'status.json').read_bytes()
+                query_script='source "$CFIP_COMMON"; source "$CFIP_PUBLISHER"; cfip_publisher_status_json'
+                for check_mode in ('valid','stale','valid'):
+                    server.mode=check_mode
+                    query=subprocess.run(['bash','-c',query_script],env=env,capture_output=True,text=True,timeout=5)
+                    queried=json.loads(query.stdout)
+                    assert queried['success']==(check_mode=='valid'),queried
+                    assert (tmp/'status.json').read_bytes()==saved,'status query rewrote stored observation'
+                other=http.server.ThreadingHTTPServer(('127.0.0.1',0),Handler);other.daemon_threads=True
+                other.directory=tmp/'publish';other.mode='valid'
+                threading.Thread(target=other.serve_forever,daemon=True).start()
+                try:
+                    server.mode='stale'
+                    query=subprocess.run(['bash','-c',query_script],env=dict(env,CFIP_PUBLISH_PORT=str(other.server_port)),capture_output=True,text=True,timeout=5)
+                    queried=json.loads(query.stdout)
+                    assert queried['success'] and queried['port']==other.server_port,queried
+                    assert (tmp/'status.json').read_bytes()==saved
+                    results.append({'mode':'configured-port-change-query','ready':True,'storedObservationUnchanged':True})
+                finally:
+                    other.shutdown();other.server_close()
+                server.mode='valid'
+                noop_stop=subprocess.run(['bash','-c',script],env=dict(env,CFIP_PUBLISH_ENABLED='false'),capture_output=True,text=True,timeout=5)
+                stopped=json.loads((tmp/'status.json').read_text())
+                assert noop_stop.returncode!=0 and stopped['error']=='publisher_still_responding',stopped
+                results.append({'mode':'noop-stop-with-live-listener','exitCode':noop_stop.returncode,'status':stopped})
             results.append({'mode':mode,'exitCode':run.returncode,'status':status})
         print(json.dumps({'status':'PASS','scope':'Actual loopback HTTP/curl with mocked init; LAN membership/procd/rebind not evaluated','cases':results},indent=2))
     finally:
