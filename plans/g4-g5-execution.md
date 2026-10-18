@@ -1,5 +1,13 @@
 # G4、G5 执行记录
 
+## Real LuCI runtime established
+
+Official OpenWrt 24.10.8 ARM64 rootfs SHA256 was checked before import. A separate non-privileged cfip-luci-qualification container runs real procd/ubus/rpcd/LuCI, bound only to 127.0.0.1:32768. Existing business containers were not changed. The actual current Makefile prepare/compile/install macros generated a 38-file source payload for 48af71d, then rpcd registered cf_ip and its status/check-env/version methods. This is development runtime evidence, not SDK package/installed DB qualification.
+
+The browser loaded the actual plugin overview and clicked Refresh Environment, observing TAR/JQ become Installed with a success message. Initial page + backend JSON reproduce two open defects: initial nested env ignored and package-release suffix omitted from footer. Before/after screenshots, rootfs/payload hashes and JSON are retained in Downloads/cfip-g4-g5-evidence/luci-runtime and indexed in docs/audits/g4-g5-evidence/luci-runtime-initial.json. Eight-view responsive/keyboard/save/apply/restart coverage remains OPEN. The browser tab and container are retained for continuation.
+
+Latest candidate PR run 39119216911 real-cfst-smoke failed because the unauthenticated GitHub metadata curl returned 403. A separate authenticated read confirms the current asset has a SHA256 digest. Authentication plus pre-execution digest binding still need implementation; the failed gate was not bypassed. Duplicate same-SHA push run 39119212740 was requested cancelled.
+
 ## G5b duplicate-save and stale-response checkpoint
 
 The real-utils harness reproduced two saves from duplicate clicks. The shared handler now returns one pending operation, marks the originating button busy, restores it after success/failure, and permits a later retry. Form.root connectivity and handler generation prevent stale responses from restarting, notifying or scheduling a reload after view replacement. Delayed reload callbacks also recheck activity. Button ownership prevents an older operation from unlocking a newer operation sharing that button; original labels survive overlapping generations. Module tests cover duplicate calls, rejected/synchronous saves, retry, disconnected form, replaced handler and overlapping old/new readback completions. These tests and readiness/full-readback/catalog/static checks pass, but real browser interaction, eight-view responsive/keyboard coverage and other action paths remain OPEN.
