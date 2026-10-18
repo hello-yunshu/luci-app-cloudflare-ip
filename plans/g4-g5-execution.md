@@ -1,5 +1,9 @@
 # G4、G5 执行记录
 
+## G5d interrupted bootstrap generation retention checkpoint
+
+Six KILLs immediately before the first current-pointer switch reproduced six accumulated owned legacy snapshots. Layout now validates any existing cursor, then prunes owned generations before adding the next bootstrap snapshot; the no-current retention count starts at zero. The same six-KILL regression leaves four owned snapshots with default retention, preserves the legacy bytes and an unknown user directory, and successfully completes migration. An invalid current pointer refuses layout before pruning any generation. Host and isolated OpenWrt pass; generation failure/KILL, workspace, native uhttpd and actual two-reader HTTP regressions pass. Receipt: publisher-bootstrap-retention.json. This bounds the listed software interruption case, not power-loss durability, unmarked or source-cache orphans, full G4/G5 resource/lifecycle matrix or final exact-SHA hosted/artifact qualification.
+
 ## G5d private publisher workspace recovery checkpoint
 
 The pre-change KILL regression leaves one private link workspace after a subsequent successful publication. Staging/link/readback allocation now uses an owner-marked private namespace, captures the caller PID before command substitution and preserves live or reused PIDs. Dead-owner paths are atomically quarantined before deletion; failed quarantine refuses allocation. Unknown data/symlinks and nonempty unowned or unsafe writable namespaces are preserved/refused. Empty reservations are counted before payload admission, with a sampled sixteen-directory limit and explicit publisher_workspace_unavailable failure. Concurrent bursts may refuse all requests; a later retry is required. No new stat dependency is introduced: the real minimal OpenWrt runtime exposed its absence and the implementation uses Bash ownership checks plus available ls.
