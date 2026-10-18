@@ -1,5 +1,11 @@
 # G4、G5 执行记录
 
+## Shared atomic-write failed-rename cleanup checkpoint
+
+The new regression proves a failed publication rename leaves its private tmp file. cfip_atomic_write now attempts to unlink exactly that candidate and returns failure. Eight repeated rename/stream/allocation failures preserve old destination bytes and an unrelated preexisting temporary-name file, remove private candidates when unlink is possible, and permit successful retry. Host and actual isolated OpenWrt rootfs pass; source runtime/publication, transaction, LAN publisher and status regressions plus syntax/ShellCheck error/actionlint/diff checks pass. Evidence: atomic-write-cleanup.json. This does not cover KILL orphans, read-only filesystem transitions or physical ENOSPC, and does not close G4/G5.
+
+Latest aa81e04 PR CI 39142461047 was retained while six duplicate/superseded live runs were requested cancelled. Older push run 39140849991 failed its APK SDK preparation because git.openwrt.org could not connect; the exact failure log is retained, and that run remains FAIL rather than being waived. New source requires final exact-SHA qualification.
+
 ## G5c runtime write failure propagation checkpoint
 
 Injected runtime metadata rename failure reproduced a fresh fetch returning success. Fresh and cached paths now propagate status publication failure, and publish records before success status so an output failure cannot publish a new success first. Built-in/custom collectors skip failed remote sources instead of aggregating preexisting records; invalid custom URLs also skip aggregation.
