@@ -1,5 +1,9 @@
 # G4、G5 执行记录
 
+## Real-UCI storage/read fault checkpoint
+
+Five actual-CLI injection cases now pass: get failure, journal jq failure, journal rename failure, set-before-mutation failure and set-after-mutation failure. Before the read fix, a failed get was accepted as an absent original option. The read helper now verifies the parent section and rejects a failed get for a field that still exists, rather than journaling it as absent. Existing eight real-UCI cases and transaction commit-failure regression still pass; ShellCheck/actionlint/diff checks pass. The fault suite is wired into the same pinned-source real-UCI Host CI step. Hosted run 39100627336 was queued at observation; duplicate push run 39100624844 was requested cancelled. This is not the full storage/signal/concurrency matrix and does not close G5a.
+
 ## Real-UCI CI and managed-state conflict checkpoint
 
 tests/build-real-uci.sh builds pinned upstream libubox/UCI in a fresh absolute prefix. A fresh local rebuild passed all eight real-CLI rollback/commit/entry cases, including external managed-state edits, changed state before commit and preexisting pending changes. Host CI now builds and runs this real test with explicit cmake/pkg-config/json-c dependencies. The managed-state expected-after snapshot is copied before publication; rollback accepts only original or transaction-written state, refusing third-party state bytes before restoring fields or restarting. Seven related local regressions, ShellCheck, actionlint and diff checks passed. Hosted execution for this candidate is pending; complete storage/signal/concurrency fault coverage and durable journal policy remain OPEN.
