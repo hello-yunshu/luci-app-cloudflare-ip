@@ -9,6 +9,77 @@ CFIP_TXN_COMMITTED=false
 CFIP_TXN_ORIGINAL_RUNNING=false
 CFIP_TXN_BACKUP_FILE=""
 
+# Journal planned writes before UCI mutation; the full export is diagnostic only.
+cfip_passwall_set_owned() {
+    local key="$1" value="$2" old exists=false journal next
+    [[ "$key" =~ ^passwall\.[a-zA-Z0-9_]+\.(address|remarks)$ ]] || return 1
+    if [[ -z "${CFIP_TXN_DIR:-}" ]]; then uci set "$key=$value"; return; fi
+    journal="$CFIP_TXN_DIR/passwall-fields.json"; next="$journal.next"
+    [[ -f "$journal" ]] || return 1
+    if old="$(uci -q get "$key" 2>/dev/null)"; then exists=true; fi
+    jq --arg key "$key" --arg old "$old" --arg value "$value" --argjson exists "$exists" '
+      if any(.[]; .key==$key) then map(if .key==$key then .expected=$value else . end)
+      else . + [{key:$key,existed:$exists,before:$old,expected:$value}] end' "$journal" >"$next" || return 1
+    mv "$next" "$journal" || return 1
+    uci set "$key=$value"
+}
+
+cfip_passwall_check_pending() {
+    local changes line key
+    changes="$(uci changes passwall 2>/dev/null)" || return 1
+    while IFS= read -r line; do
+        [[ -n "$line" ]] || continue
+        key="${line%%=*}"; key="${key#-}"
+        if ! jq -e --arg key "$key" 'any(.[]; .key==$key)' "$CFIP_TXN_DIR/passwall-fields.json" >/dev/null; then
+            CFIP_RECOVERY_ERROR="PassWall has unrelated pending UCI changes; preserved without commit"
+            return 1
+        fi
+    done <<<"$changes"
+}
+
+cfip_passwall_restore_fields() {
+    local journal="$CFIP_TXN_DIR/passwall-fields.json" row key before expected existed current present rows
+    [[ -f "$journal" ]] && jq -e 'type=="array" and all(.[];
+        (.key|type)=="string" and (.before|type)=="string" and
+        (.expected|type)=="string" and (.existed|type)=="boolean")' "$journal" >/dev/null || return 1
+    rows="$CFIP_TXN_DIR/passwall-fields.rows"
+    # A process substitution would hide jq failures and make an empty loop
+    # look like successful recovery. Decode once and check its status first.
+    jq -c '.[]' "$journal" >"$rows" || return 1
+    cfip_passwall_check_pending || return 1
+    # Validate all owned fields before changing any. Unrelated fields are untouched.
+    while IFS= read -r row; do
+        key="$(jq -r '.key' <<<"$row")" || return 1
+        [[ "$key" =~ ^passwall\.[a-zA-Z0-9_]+\.(address|remarks)$ ]] || return 1
+        before="$(jq -r '.before' <<<"$row")" || return 1; expected="$(jq -r '.expected' <<<"$row")" || return 1
+        existed="$(jq -r '.existed' <<<"$row")" || return 1; present=false
+        if current="$(uci -q get "$key" 2>/dev/null)"; then present=true; fi
+        if [[ "$present" == true && "$current" == "$expected" ]] ||
+           { [[ "$present" == "$existed" ]] && [[ "$present" == false || "$current" == "$before" ]]; }; then :
+        else
+            CFIP_RECOVERY_ERROR="PassWall owned field changed outside this transaction: $key"
+            return 1
+        fi
+    done <"$rows"
+    while IFS= read -r row; do
+        key="$(jq -r '.key' <<<"$row")" || return 1; before="$(jq -r '.before' <<<"$row")" || return 1
+        expected="$(jq -r '.expected' <<<"$row")" || return 1; existed="$(jq -r '.existed' <<<"$row")" || return 1
+        present=false; if current="$(uci -q get "$key" 2>/dev/null)"; then present=true; fi
+        if [[ "$present" == "$existed" && ( "$present" == false || "$current" == "$before" ) ]]; then continue; fi
+        [[ "$present" == true && "$current" == "$expected" ]] || { CFIP_RECOVERY_ERROR="PassWall owned field changed during recovery: $key"; return 1; }
+        if [[ "$existed" == true ]]; then uci set "$key=$before" >/dev/null || return 1
+        else uci -q delete "$key" >/dev/null || return 1; fi
+    done <"$rows"
+    cfip_passwall_check_pending || return 1
+    uci commit passwall >/dev/null 2>&1 || return 1
+    while IFS= read -r row; do
+        key="$(jq -r '.key' <<<"$row")" || return 1; before="$(jq -r '.before' <<<"$row")" || return 1
+        existed="$(jq -r '.existed' <<<"$row")" || return 1; present=false
+        if current="$(uci -q get "$key" 2>/dev/null)"; then present=true; fi
+        [[ "$present" == "$existed" && ( "$present" == false || "$current" == "$before" ) ]] || return 1
+    done <"$rows"
+}
+
 cfip_txn_restart_original_service() {
     local service="$1" deadline_class="${2:-normal}"
     [[ "${CFIP_TXN_ORIGINAL_RUNNING:-false}" == true ]] || return 0
@@ -28,9 +99,15 @@ cfip_txn_prepare() {
     elif declare -F cfip_service_running >/dev/null 2>&1 && cfip_service_running "$mode" measurement; then
         CFIP_TXN_ORIGINAL_RUNNING=true
     fi
+    if [[ "$mode" == passwall ]]; then
+        local pending_changes
+        pending_changes="$(uci changes passwall 2>/dev/null)" || return 1
+        [[ -z "$pending_changes" ]] || { CFIP_RECOVERY_ERROR="PassWall has pending user changes before transaction"; return 1; }
+    fi
     CFIP_TXN_DIR="$(mktemp -d "${CFIP_RUNTIME_DIR:-/tmp/cf_ip}/txn-${CFIP_RUN_ID}.XXXXXX")" || return 1
     case "$mode" in
       passwall)
+        printf '[]\n' >"$CFIP_TXN_DIR/passwall-fields.json" || return 1
         uci export passwall >"$CFIP_TXN_DIR/passwall.uci" 2>/dev/null || { rm -rf "$CFIP_TXN_DIR"; CFIP_TXN_DIR=""; return 1; }
         if [[ -f "${CFIP_PASSWALL_STATE_FILE:-${CFIP_STATUS_DIR:-/etc/cf_ip}/passwall-managed.json}" ]]; then
             cp -p "${CFIP_PASSWALL_STATE_FILE:-${CFIP_STATUS_DIR:-/etc/cf_ip}/passwall-managed.json}" "$CFIP_TXN_DIR/passwall-managed.json" || { rm -rf "$CFIP_TXN_DIR"; CFIP_TXN_DIR=""; return 1; }
@@ -61,9 +138,7 @@ cfip_txn_rollback() {
     rm -f "$CFIP_TXN_DIR/passwall-managed.json.pending" 2>/dev/null || true
     case "$mode" in
       passwall)
-        uci -q revert passwall || true
-        uci import passwall <"$CFIP_TXN_DIR/passwall.uci" >/dev/null 2>&1 || return 1
-        uci commit passwall >/dev/null 2>&1 || return 1
+        cfip_passwall_restore_fields || return 1
         local state_file="${CFIP_PASSWALL_STATE_FILE:-${CFIP_STATUS_DIR:-/etc/cf_ip}/passwall-managed.json}"
         if [[ "$(cat "$CFIP_TXN_DIR/passwall-managed.state" 2>/dev/null || printf absent)" == present ]]; then
             mkdir -p "${state_file%/*}" 2>/dev/null || return 1
@@ -78,7 +153,6 @@ cfip_txn_rollback() {
             ((recovery_rc == 124)) && CFIP_RECOVERY_ERROR="RecoveryTimeout" || CFIP_RECOVERY_ERROR="RecoveryRestartFailed"
             return 1
         fi
-        uci export passwall 2>/dev/null | cmp -s - "$CFIP_TXN_DIR/passwall.uci" || return 1
         CFIP_TXN_ROLLED_BACK=true
         CFIP_TXN_STATE=ROLLED_BACK
         ;;
@@ -200,8 +274,8 @@ cfip_passwall_apply_selected() {
         done
         if [[ "$still_target" != true ]]; then
             managed_base="$(jq -r --arg s "$state_section" '.sections[]|select(.section==$s)|.baseRemarks//""' <<<"$state")"
-            uci set "passwall.${state_section}.address=${saved_domain}" >/dev/null || return 1
-            [[ -z "$managed_base" ]] || uci set "passwall.${state_section}.remarks=${managed_base}" >/dev/null || return 1
+            cfip_passwall_set_owned "passwall.${state_section}.address" "$saved_domain" >/dev/null || return 1
+            [[ -z "$managed_base" ]] || cfip_passwall_set_owned "passwall.${state_section}.remarks" "$managed_base" >/dev/null || return 1
             cfip_log "PassWall ownership relinquished for removed target ${saved_domain} in ${state_section}"
             continue
         fi
@@ -231,14 +305,15 @@ cfip_passwall_apply_selected() {
     for idx in "${!sections[@]}"; do
         section="${sections[$idx]}"; domain="${section_domains[$idx]}"; ip="$(jq -r --argjson i "$((idx%count))" '.[$i].ip' "$selected")"
         [[ "$ip" != null && -n "$ip" ]] || { rm -f "$tmp"; return 1; }
-        uci set "passwall.${section}.address=${ip}" >/dev/null || { rm -f "$tmp"; return 1; }
+        cfip_passwall_set_owned "passwall.${section}.address" "$ip" >/dev/null || { rm -f "$tmp"; return 1; }
         base_remarks="${base_names[$idx]}"; new_remarks="${old_remarks_list[$idx]}"
         if [[ -n "${CFIP_PASSWALL_NAME_SUFFIX:-}" && -n "$base_remarks" ]]; then
             new_remarks="${base_remarks}$(cfip_passwall_expand_suffix "$CFIP_PASSWALL_NAME_SUFFIX" "$((idx+1))" "$ip")"
-            uci set "passwall.${section}.remarks=${new_remarks}" >/dev/null || { rm -f "$tmp"; return 1; }
+            cfip_passwall_set_owned "passwall.${section}.remarks" "$new_remarks" >/dev/null || { rm -f "$tmp"; return 1; }
         fi
         jq --arg section "$section" --arg domain "$domain" --arg base "$base_remarks" --arg address "$ip" --arg remarks "$new_remarks" '. + [{section:$section,domain:$domain,baseRemarks:$base,lastAddress:$address,lastRemarks:$remarks}]' "$tmp" >"$tmp.next" && mv "$tmp.next" "$tmp" || { rm -f "$tmp"; return 1; }
     done
+    if [[ -n "${CFIP_TXN_DIR:-}" ]]; then cfip_passwall_check_pending || { rm -f "$tmp"; return 1; }; fi
     uci commit passwall >/dev/null || { rm -f "$tmp"; return 1; }
     for idx in "${!sections[@]}"; do
         section="${sections[$idx]}"; ip="$(jq -r --arg s "$section" '.[]|select(.section==$s)|.lastAddress' "$tmp")"
