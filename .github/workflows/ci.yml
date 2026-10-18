@@ -32,6 +32,7 @@ jobs:
           set -euo pipefail
           bash tests/build-real-uci.sh "$RUNNER_TEMP/real-uci"
           UCI_REAL_BIN="$RUNNER_TEMP/real-uci/uci-build/uci" bash tests/passwall-real-uci-rollback.sh
+          UCI_REAL_BIN="$RUNNER_TEMP/real-uci/uci-build/uci" bash tests/passwall-real-uci-faults.sh
       - name: Shell syntax and lint
         shell: bash
         run: |

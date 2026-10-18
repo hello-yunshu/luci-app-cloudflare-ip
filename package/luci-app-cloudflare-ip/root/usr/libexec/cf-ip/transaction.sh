@@ -9,6 +9,20 @@ CFIP_TXN_COMMITTED=false
 CFIP_TXN_ORIGINAL_RUNNING=false
 CFIP_TXN_BACKUP_FILE=""
 
+# Resolve get failure conservatively: an existing unreadable option is not absent.
+cfip_passwall_read_field() {
+    local field_key="$1" field_value="" field_exists=false field_listing field_line
+    if field_value="$(uci -q get "$field_key" 2>/dev/null)"; then field_exists=true
+    else
+        field_listing="$(uci -q show "${field_key%.*}" 2>/dev/null)" || return 1
+        while IFS= read -r field_line; do
+            [[ "$field_line" != "$field_key="* ]] || return 1
+        done <<<"$field_listing"
+    fi
+    printf -v "$2" '%s' "$field_value"
+    printf -v "$3" '%s' "$field_exists"
+}
+
 # Journal planned writes before UCI mutation; the full export is diagnostic only.
 cfip_passwall_set_owned() {
     local key="$1" value="$2" old exists=false journal next
@@ -16,7 +30,7 @@ cfip_passwall_set_owned() {
     if [[ -z "${CFIP_TXN_DIR:-}" ]]; then uci set "$key=$value"; return; fi
     journal="$CFIP_TXN_DIR/passwall-fields.json"; next="$journal.next"
     [[ -f "$journal" ]] || return 1
-    if old="$(uci -q get "$key" 2>/dev/null)"; then exists=true; fi
+    cfip_passwall_read_field "$key" old exists || return 1
     jq --arg key "$key" --arg old "$old" --arg value "$value" --argjson exists "$exists" '
       if any(.[]; .key==$key) then map(if .key==$key then .expected=$value else . end)
       else . + [{key:$key,existed:$exists,before:$old,expected:$value}] end' "$journal" >"$next" || return 1
@@ -69,7 +83,7 @@ cfip_passwall_restore_fields() {
         [[ "$key" =~ ^passwall\.[a-zA-Z0-9_]+\.(address|remarks)$ ]] || return 1
         before="$(jq -r '.before' <<<"$row")" || return 1; expected="$(jq -r '.expected' <<<"$row")" || return 1
         existed="$(jq -r '.existed' <<<"$row")" || return 1; present=false
-        if current="$(uci -q get "$key" 2>/dev/null)"; then present=true; fi
+        cfip_passwall_read_field "$key" current present || return 1
         if [[ "$present" == true && "$current" == "$expected" ]] ||
            { [[ "$present" == "$existed" ]] && [[ "$present" == false || "$current" == "$before" ]]; }; then :
         else
@@ -80,7 +94,7 @@ cfip_passwall_restore_fields() {
     while IFS= read -r row; do
         key="$(jq -r '.key' <<<"$row")" || return 1; before="$(jq -r '.before' <<<"$row")" || return 1
         expected="$(jq -r '.expected' <<<"$row")" || return 1; existed="$(jq -r '.existed' <<<"$row")" || return 1
-        present=false; if current="$(uci -q get "$key" 2>/dev/null)"; then present=true; fi
+        present=false; cfip_passwall_read_field "$key" current present || return 1
         if [[ "$present" == "$existed" && ( "$present" == false || "$current" == "$before" ) ]]; then continue; fi
         [[ "$present" == true && "$current" == "$expected" ]] || { CFIP_RECOVERY_ERROR="PassWall owned field changed during recovery: $key"; return 1; }
         if [[ "$existed" == true ]]; then uci set "$key=$before" >/dev/null || return 1
@@ -91,7 +105,7 @@ cfip_passwall_restore_fields() {
     while IFS= read -r row; do
         key="$(jq -r '.key' <<<"$row")" || return 1; before="$(jq -r '.before' <<<"$row")" || return 1
         existed="$(jq -r '.existed' <<<"$row")" || return 1; present=false
-        if current="$(uci -q get "$key" 2>/dev/null)"; then present=true; fi
+        cfip_passwall_read_field "$key" current present || return 1
         [[ "$present" == "$existed" && ( "$present" == false || "$current" == "$before" ) ]] || return 1
     done <"$rows"
 }
