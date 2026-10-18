@@ -8,6 +8,7 @@
 CFIP_SOURCE_CACHE_DIR="${CFIP_SOURCE_CACHE_DIR:-${CFIP_STATUS_DIR:-/etc/cf_ip}/sources}"
 CFIP_SOURCE_RUNTIME_DIR="${CFIP_SOURCE_RUNTIME_DIR:-${CFIP_RUNTIME_DIR:-/tmp/cf_ip}/sources}"
 CFIP_SOURCE_MAX_BYTES="${CFIP_SOURCE_MAX_BYTES:-524288}"
+CFIP_SOURCE_CACHE_MAX_AGE_SECONDS="${CFIP_SOURCE_CACHE_MAX_AGE_SECONDS:-604800}"
 CFIP_SOURCE_MAX_LINES="${CFIP_SOURCE_MAX_LINES:-4096}"
 CFIP_SOURCE_CONNECT_TIMEOUT="${CFIP_SOURCE_CONNECT_TIMEOUT:-5}"
 CFIP_SOURCE_TOTAL_TIMEOUT="${CFIP_SOURCE_TOTAL_TIMEOUT:-15}"
@@ -178,11 +179,11 @@ cfip_parse_source_file() {
 }
 
 cfip_source_meta_write() {
-    local id="$1" success="$2" stale="$3" from_cache="$4" parsed="$5" rejected="$6" error="$7" hash="$8" meta
+    local id="$1" success="$2" stale="$3" from_cache="$4" parsed="$5" rejected="$6" error="$7" hash="$8" cache_error="${9:-}" meta
     meta="$CFIP_SOURCE_RUNTIME_DIR/$id/metadata.json"
     mkdir -p "${meta%/*}"
-    jq -cn --arg id "$id" --arg error "$error" --arg hash "$hash" --argjson success "$success" --argjson stale "$stale" --argjson fromCache "$from_cache" --argjson parsed "$parsed" --argjson rejected "$rejected" \
-      '{schemaVersion:1,id:$id,success:$success,stale:$stale,fromCache:$fromCache,parsedCount:$parsed,rejectedCount:$rejected,lastError:(if $error=="" then null else $error end),contentHash:(if $hash=="" then null else $hash end),observedAt:now}' | cfip_atomic_write "$meta"
+    jq -cn --arg id "$id" --arg error "$error" --arg hash "$hash" --arg cacheError "$cache_error" --argjson success "$success" --argjson stale "$stale" --argjson fromCache "$from_cache" --argjson parsed "$parsed" --argjson rejected "$rejected" \
+      '{schemaVersion:1,id:$id,success:$success,stale:$stale,fromCache:$fromCache,parsedCount:$parsed,rejectedCount:$rejected,lastError:(if $error=="" then null else $error end),cacheError:(if $cacheError=="" then null else $cacheError end),contentHash:(if $hash=="" then null else $hash end),observedAt:now}' | cfip_atomic_write "$meta"
 }
 
 cfip_source_curl_max_filesize_supported() {
@@ -229,9 +230,26 @@ cfip_source_refresh_remaining() {
     printf '%s' "$((CFIP_SOURCE_REFRESH_DEADLINE-now))"
 }
 
+# A syntactically valid local IP list is not proof of a qualified cache.
+cfip_source_cache_valid() {
+    local raw="$1" marker="$2" id="$3" url="$4" parser="$5" family="$6" source_class="$7" bytes lines hash
+    [[ -s "$raw" && -s "$marker" ]] || return 1
+    [[ "$CFIP_SOURCE_CACHE_MAX_AGE_SECONDS" =~ ^[1-9][0-9]{0,8}$ ]] || return 1
+    bytes="$(wc -c <"$raw")" || return 1
+    lines="$(wc -l <"$raw")" || return 1
+    ((bytes <= CFIP_SOURCE_MAX_BYTES && lines <= CFIP_SOURCE_MAX_LINES)) || return 1
+    bytes="$(wc -c <"$marker")" || return 1
+    ((bytes <= 16384)) || return 1
+    hash="$(sha256sum "$raw" | awk '{print $1}')" || return 1
+    jq -e --arg id "$id" --arg url "$url" --arg parser "$parser" --arg family "$family" --arg class "$source_class" --arg hash "$hash" --argjson age "$CFIP_SOURCE_CACHE_MAX_AGE_SECONDS" '
+      .schemaVersion==2 and .id==$id and .url==$url and .parser==$parser and .family==$family and .sourceClass==$class and .contentHash==$hash and
+      (.lastSuccessAt|type)=="number" and .lastSuccessAt <= now+60 and .lastSuccessAt >= now-$age
+    ' "$marker" >/dev/null 2>&1
+}
+
 cfip_source_fetch_remote() {
     local id="$1" url="$2" parser="$3" family="$4" source_class="$5" output="$6"
-    local rdir pdir tmp raw parsed bytes lines hash="" oldhash="" pc=0 rc=0 error="" remaining connect_timeout fetch_rc=0
+    local rdir pdir tmp raw parsed bytes lines hash="" oldhash="" pc=0 rc=0 error="" remaining connect_timeout fetch_rc=0 cached cache_error=cache_missing
     rdir="$CFIP_SOURCE_RUNTIME_DIR/$id"; pdir="$CFIP_SOURCE_CACHE_DIR/$id"
     mkdir -p "$rdir" "$pdir"
     tmp="$(mktemp "$rdir/fetch.XXXXXX")" || return 1
@@ -253,13 +271,15 @@ cfip_source_fetch_remote() {
         if ((bytes <= CFIP_SOURCE_MAX_BYTES && lines <= CFIP_SOURCE_MAX_LINES)); then
             cfip_parse_source_file "$tmp" "$parser" "$id" "$source_class" "$family" false "$parsed" || error=parse_failed
             pc="$(jq -r '.parsedCount//0' "$parsed" 2>/dev/null || printf 0)"; rc="$(jq -r '.rejectedCount//0' "$parsed" 2>/dev/null || printf 0)"
-            if ((pc >= CFIP_SOURCE_MIN_VALID_REMOTE)); then
-                hash="$(sha256sum "$tmp" | awk '{print $1}')"
-                [[ -f "$pdir/metadata.json" ]] && oldhash="$(jq -r '.contentHash//empty' "$pdir/metadata.json" 2>/dev/null || true)"
-                if [[ "$hash" != "$oldhash" || ! -s "$raw" || ! -s "$pdir/metadata.json" ]]; then
-                    cat "$tmp" | cfip_atomic_write "$raw"
-                    jq -cn --arg id "$id" --arg hash "$hash" --arg url "$url" --argjson parsed "$pc" --argjson rejected "$rc" '{schemaVersion:1,id:$id,url:$url,contentHash:$hash,parsedCount:$parsed,rejectedCount:$rejected,lastSuccessAt:now}' | cfip_atomic_write "$pdir/metadata.json"
+            if [[ -z "$error" ]] && ((pc >= CFIP_SOURCE_MIN_VALID_REMOTE)); then
+                hash="$(sha256sum "$tmp" | awk '{print $1}')" || { rm -f "$tmp"; return 1; }
+                if [[ -f "$raw" ]] && (( $(wc -c <"$raw") <= CFIP_SOURCE_MAX_BYTES )); then
+                    oldhash="$(sha256sum "$raw" | awk '{print $1}')" || oldhash=""
                 fi
+                if [[ "$hash" != "$oldhash" ]]; then
+                    cat "$tmp" | cfip_atomic_write "$raw" || { rm -f "$tmp"; return 1; }
+                fi
+                jq -cn --arg id "$id" --arg hash "$hash" --arg url "$url" --arg parser "$parser" --arg family "$family" --arg class "$source_class" --argjson parsed "$pc" --argjson rejected "$rc" '{schemaVersion:2,id:$id,url:$url,parser:$parser,family:$family,sourceClass:$class,contentHash:$hash,parsedCount:$parsed,rejectedCount:$rejected,lastSuccessAt:now}' | cfip_atomic_write "$pdir/metadata.json" || { rm -f "$tmp"; return 1; }
                 cfip_source_meta_write "$id" true false false "$pc" "$rc" "" "$hash"
                 jq '.records' "$parsed" | cfip_atomic_write "$output"
                 rm -f "$tmp"
@@ -274,18 +294,24 @@ cfip_source_fetch_remote() {
     fi
     rm -f "$tmp"
 
-    # Fail over to persistent last-good data, never to an unvalidated partial fetch.
-    if [[ -s "$raw" ]]; then
-        cfip_parse_source_file "$raw" "$parser" "$id" "$source_class" "$family" true "$parsed" || true
+    # Validate a bounded byte snapshot, not a live file which may change after hashing.
+    cached="$(mktemp "$rdir/cache.XXXXXX")" || return 1
+    [[ -s "$raw" ]] && cache_error=cache_unqualified
+    if [[ -s "$raw" ]] && head -c "$((CFIP_SOURCE_MAX_BYTES+1))" "$raw" >"$cached" &&
+        cfip_source_cache_valid "$cached" "$pdir/metadata.json" "$id" "$url" "$parser" "$family" "$source_class" &&
+        cfip_parse_source_file "$cached" "$parser" "$id" "$source_class" "$family" true "$parsed"; then
+        cache_error=cache_insufficient
         pc="$(jq -r '.parsedCount//0' "$parsed" 2>/dev/null || printf 0)"; rc="$(jq -r '.rejectedCount//0' "$parsed" 2>/dev/null || printf 0)"
         if ((pc >= CFIP_SOURCE_MIN_VALID_REMOTE)); then
-            hash="$(sha256sum "$raw" | awk '{print $1}')"
+            hash="$(sha256sum "$cached" | awk '{print $1}')"
             cfip_source_meta_write "$id" true true true "$pc" "$rc" "$error" "$hash"
             jq '.records' "$parsed" | cfip_atomic_write "$output"
+            rm -f "$cached"
             return 0
         fi
     fi
-    cfip_source_meta_write "$id" false true false 0 0 "$error" ""
+    rm -f "$cached"
+    cfip_source_meta_write "$id" false true false 0 0 "$error" "" "$cache_error"
     printf '[]' | cfip_atomic_write "$output"
     return 1
 }
