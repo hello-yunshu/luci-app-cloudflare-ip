@@ -1,5 +1,11 @@
 # G4、G5 执行记录
 
+## G5c runtime write failure propagation checkpoint
+
+Injected runtime metadata rename failure reproduced a fresh fetch returning success. Fresh and cached paths now propagate status publication failure, and publish records before success status so an output failure cannot publish a new success first. Built-in/custom collectors skip failed remote sources instead of aggregating preexisting records; invalid custom URLs also skip aggregation.
+
+Host and actual isolated OpenWrt rootfs pass fresh/cache status and output failure cases, qualified-cache reuse after recovery and rejected built-in/custom record exclusion. Source cache trust/publication, real local HTTPS and source-engine regressions passed; ShellCheck error/syntax/actionlint/diff pass. Evidence: source-runtime-write-failure.json. Faults are injected renames, not physical disk/flash exhaustion. Orphan cleanup, broader resource/aggregate deadline cases, remaining G4/G5 and final hosted qualification remain OPEN.
+
 ## G5c atomic cache bundle publication checkpoint
 
 A real failure injection reproduced changed raw last-good bytes after metadata rename failed, losing the previous qualified pair. New refreshes write a private bounded JSON bundle with content plus qualification fields, verify byte-preserving roundtrip, chmod it and switch it with one same-directory rename. Readers extract raw bytes and marker from one bounded snapshot. Qualified legacy schema-2 pairs remain readable only before a bundle exists; malformed new bundles cannot downgrade to legacy pairs. Publication failure attempts the old qualified cache and reports cache_publication_failed. Cache trust/TLS fixtures now inspect the authoritative bundle format.
