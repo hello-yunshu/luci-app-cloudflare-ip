@@ -6,6 +6,7 @@
 'require baseclass';
 
 var FOOTER_VERSION = '@PKG_FULL_VERSION@';
+var saveApplySequence = 0;
 
 var callReadConfig = rpc.declare({ object: 'uci', method: 'get', params: [ 'config' ], expect: { values: {} }, reject: true });
 
@@ -32,7 +33,9 @@ function setBusy(button, label) {
 	if (!button)
 		return;
 	button.disabled = true;
-	button.setAttribute('data-original-title', button.textContent);
+	button.setAttribute('aria-busy', 'true');
+	if (button.getAttribute('data-original-title') == null)
+		button.setAttribute('data-original-title', button.textContent);
 	button.textContent = label;
 }
 
@@ -40,12 +43,14 @@ function resetBusy(button) {
 	if (!button)
 		return;
 	button.disabled = false;
+	button.removeAttribute('aria-busy');
 	button.textContent = button.getAttribute('data-original-title') || button.textContent;
 	button.removeAttribute('data-original-title');
 }
 
-function reloadSoon(delay) {
+function reloadSoon(delay, isActive) {
 	window.setTimeout(function() {
+		if (isActive && !isActive()) return;
 		window.location.reload();
 	}, delay || 1200);
 }
@@ -298,33 +303,66 @@ function createHandleSave(m) {
 }
 
 function createHandleSaveApply(m) {
+	var pending = null;
+	var generation = (m.__cfipApplyGeneration || 0) + 1;
+	m.__cfipApplyGeneration = generation;
 	m.handleSaveApply = function(ev, mode) {
-		var candidate, expected;
-		return this.handleSave(ev).then(function() {
+		if (pending) return pending;
+		var candidate, expected, owner = this;
+		var button = ev && ev.currentTarget && ev.currentTarget.tagName === 'BUTTON' ? ev.currentTarget : null;
+		var root = m.root, buttonOwner = String(++saveApplySequence);
+		function isActive() {
+			return m.__cfipApplyGeneration === generation && (!root || root.isConnected !== false) && (!button || button.isConnected !== false);
+		}
+		function requireActive() {
+			if (!isActive()) { var error = new Error('SaveApplyCancelled'); error.code = 'SaveApplyCancelled'; throw error; }
+		}
+		if (button) button.setAttribute('data-cfi-apply-owner', buttonOwner);
+		setBusy(button, _('Applying configuration...'));
+		var operation = Promise.resolve().then(function() { requireActive(); return owner.handleSave(ev); }).then(function() {
+			requireActive();
 			candidate = buildStagedCandidate();
 			expected = stagedConfigSnapshot();
 			return callValidateConfig(candidate).then(requireSuccess);
 		}).then(function() {
+			requireActive();
 			return safeApply();
 		}).then(function() {
+			requireActive();
 			return readAppliedConfig(expected);
 		}).then(function(applied) {
+			requireActive();
 			if (!applied.main || applied.main.enabled !== '1') {
 				ui.addNotification(null, E('p', _('Configuration saved and applied.')), 'info');
-				reloadSoon(600);
+				reloadSoon(600, isActive);
 				return;
 			}
 
 			ui.addNotification(null, E('p', _('Configuration saved. Restarting service...')), 'info');
 			return callServiceRestart().then(requireSuccess).then(function() {
-				return waitForServiceReady(callStatus);
+				requireActive();
+				return waitForServiceReady(callStatus, { isActive: isActive });
 			}).then(function(status) {
+				requireActive();
 				ui.addNotification(null, E('p', _('Configuration applied and service is ready.')), 'info');
-				reloadSoon(300);
+				reloadSoon(300, isActive);
 			});
 		}).catch(function(e) {
+			if (!isActive() || (e && e.code === 'SaveApplyCancelled')) return;
 			ui.addNotification(null, E('p', _('Unable to apply configuration: %s').format(e.message)), 'error');
 		});
+		function cleanup() {
+			if (button && button.getAttribute('data-cfi-apply-owner') === buttonOwner) {
+				resetBusy(button); button.removeAttribute('data-cfi-apply-owner');
+			}
+			pending = null;
+		}
+		pending = operation.then(function(value) {
+			cleanup(); return value;
+		}, function(error) {
+			cleanup(); throw error;
+		});
+		return pending;
 	};
 }
 
