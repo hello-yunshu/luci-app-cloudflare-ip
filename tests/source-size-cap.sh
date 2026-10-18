@@ -17,7 +17,7 @@ curl() {
         [[ "$previous" == -o ]] && out="$arg"
         previous="$arg"
     done
-    cp "$TMP/remote.txt" "$out"
+    cat "$TMP/remote.txt" >"$out"
 }
 export -f curl
 

@@ -70,7 +70,7 @@ cat >"$TMP/remote.txt" <<'DATA'
 104.18.1.1
 104.18.1.2:8443#seed
 DATA
-curl(){ local out="" prev="" a; for a in "$@"; do [[ "$prev" == -o ]] && out="$a"; prev="$a"; done; cp "$TMP/remote.txt" "$out"; }
+curl(){ local out="" prev="" a; for a in "$@"; do [[ "$prev" == -o ]] && out="$a"; prev="$a"; done; cat "$TMP/remote.txt" >"$out"; }
 export -f curl
 cfip_source_fetch_remote cache-test https://example.test/ip.txt ip-text ipv4 community "$TMP/fresh.json"
 test "$(jq 'length' "$TMP/fresh.json")" -eq 2
@@ -85,7 +85,7 @@ jq -e '.stale==true and .fromCache==true and .lastError=="fetch_failed"' "$CFIP_
 cat >"$TMP/remote.txt" <<'DATA'
 104.18.9.9
 DATA
-curl(){ local out="" prev="" a; for a in "$@"; do [[ "$prev" == -o ]] && out="$a"; prev="$a"; done; cp "$TMP/remote.txt" "$out"; }
+curl(){ local out="" prev="" a; for a in "$@"; do [[ "$prev" == -o ]] && out="$a"; prev="$a"; done; cat "$TMP/remote.txt" >"$out"; }
 export -f curl
 cfip_source_fetch_remote cache-test https://example.test/ip.txt ip-text ipv4 community "$TMP/too-small.json"
 test "$(jq 'length' "$TMP/too-small.json")" -eq 2
