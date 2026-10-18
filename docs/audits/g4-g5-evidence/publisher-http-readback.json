@@ -1,0 +1,37 @@
+{
+  "status": "CHECKPOINT_ONLY",
+  "baseCommit": "b18db3814d75aab5bad90aba32eaafc6f8bf6cf2",
+  "sourceSha256": "6f74cea8f549732f65ad7e6f41ff58afc8089491ccb9045e016fdc659c8202fb",
+  "before": "Init exit 0 was treated as publisher success despite stale/invalid HTTP bytes; exact pre-fix source fails the current HTTP regression",
+  "after": "Bounded direct HTTP result readback must exactly match newly published result.json. Up to three one-second transport attempts by default; response sink limited to expected bytes plus one. Proxies are bypassed explicitly.",
+  "httpCases": [
+    "valid bytes accepted despite deliberately invalid proxy environment",
+    "stale bytes rejected",
+    "oversized bytes rejected",
+    "HTTP 500 rejected",
+    "slow response rejected within curl deadline",
+    "temporary readback files cleaned"
+  ],
+  "uhttpdEvidence": "Actual uhttpd in isolated OpenWrt ARM64 rootfs, fixture init and loopback binding: matching response accepted; stopped listener rejected. Production LAN bind policy unchanged.",
+  "limitations": [
+    "Generation-atomic multi-file publication not yet implemented",
+    "Actual production init/procd ownership, LAN membership/rebind, port conflict and disabled cleanup still OPEN",
+    "No device or complete G4/G5/final hosted qualification"
+  ],
+  "priorCI": {
+    "runId": 39142760572,
+    "source": "b18db3814d75aab5bad90aba32eaafc6f8bf6cf2",
+    "host": "success",
+    "legacy": "success",
+    "realCFST": "success",
+    "SDK": "in_progress at observation"
+  },
+  "evidence": {
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-http-readback/before.log": "18841de57b91d7e2525e75dd027033075629eecaf6079aacd13befbdce05ffca",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-http-readback/counterfactual.log": "84bdc584c5be2410f92cf494c763b2c54a0787347c238a3d4930a27780ad472e",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-http-readback/after.json": "9981bac9906b97fb06432aa9ca2a70e5b98105c514e36b3de1a509e7e19baa8a",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-http-readback/uhttpd-after.log": "1399ad74f3b964251635e001822f53b1fed33ff2a42053949210675c840a5dc2",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-http-readback/module-after.log": "c588d21e1c7336dc6508c715dfa6ddb922fa42ed6cc88502da995d85936c4dc5",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-http-readback/status-after.log": "64d946744aabf6cf9653ff8273c911466b0a7826cb2bbeb8a6d78b540319a7c5"
+  }
+}

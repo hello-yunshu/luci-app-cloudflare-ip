@@ -1,0 +1,47 @@
+#!/usr/bin/env python3
+"""Actual local HTTP/curl readback, with init mocked; no LAN/procd qualification."""
+import http.server
+import json
+import os
+from pathlib import Path
+import subprocess
+import tempfile
+import threading
+import time
+ROOT = Path(__file__).resolve().parents[1]
+class Handler(http.server.BaseHTTPRequestHandler):
+    def log_message(self, *_): pass
+    def do_GET(self):
+        self.send_response(500 if self.server.mode=='http-error' else 200); self.end_headers()
+        try:
+            if self.server.mode=='slow': time.sleep(2)
+            if self.server.mode == 'stale': body=b'{"runId":"stale"}'
+            elif self.server.mode == 'oversized': body=b'x'*100000
+            else: body=(self.server.directory/'result.json').read_bytes()
+            self.wfile.write(body)
+        except (BrokenPipeError, ConnectionResetError): pass
+with tempfile.TemporaryDirectory(prefix='cfip-publisher-http-') as d:
+    tmp=Path(d); (tmp/'runtime').mkdir()
+    init=tmp/'init';init.write_text('#!/bin/sh\nexit 0\n');init.chmod(0o755)
+    selected=tmp/'selected.json';selected.write_text('[{"ip":"104.18.1.1","family":"ipv4"}]')
+    server=http.server.ThreadingHTTPServer(('127.0.0.1',0),Handler);server.daemon_threads=True;server.directory=tmp/'publish'
+    thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
+    script='''set -euo pipefail
+source "$CFIP_COMMON"
+source "$CFIP_PUBLISHER"
+cfip_publish_result "$CFIP_SELECTED"
+'''
+    env=dict(os.environ,CFIP_COMMON=str(ROOT/'package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/common.sh'),CFIP_PUBLISHER=os.environ.get('CFIP_TEST_PUBLISHER',str(ROOT/'package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/publisher.sh')),CFIP_SELECTED=str(selected),CFIP_RUNTIME_DIR=str(tmp/'runtime'),CFIP_PUBLISH_DIR=str(tmp/'publish'),CFIP_PUBLISH_STATUS_FILE=str(tmp/'status.json'),CFIP_PUBLISH_INIT=str(init),CFIP_PUBLISH_ENABLED='true',CFIP_PUBLISH_BIND='127.0.0.1',CFIP_PUBLISH_PORT=str(server.server_port),CFIP_PUBLISH_READY_ATTEMPTS='1',CFIP_RUN_ID='actual-http-test',http_proxy='http://127.0.0.1:1',all_proxy='http://127.0.0.1:1',NO_PROXY='',no_proxy='')
+    results=[]
+    try:
+        for mode in ('valid','stale','oversized','http-error','slow'):
+            server.mode=mode
+            run=subprocess.run(['bash','-c',script],env=env,capture_output=True,text=True,timeout=10)
+            status=json.loads((tmp/'status.json').read_text())
+            if mode=='valid': assert run.returncode==0 and status['success'],(mode,run.stderr,status)
+            else: assert run.returncode!=0 and not status['success'],f'{mode}: init exit 0 was incorrectly treated as readiness: {status}'
+            assert not list((tmp/'runtime').glob('publisher-readback.*')), 'readback temporary file leaked'
+            results.append({'mode':mode,'exitCode':run.returncode,'status':status})
+        print(json.dumps({'status':'PASS','scope':'Actual loopback HTTP/curl with mocked init; LAN membership/procd/rebind not evaluated','cases':results},indent=2))
+    finally:
+        server.shutdown();server.server_close()

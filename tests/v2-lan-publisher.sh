@@ -13,6 +13,8 @@ CFIP_PUBLISH_INIT="$TMP/fake-init"; CFIP_PUBLISH_DIR="$TMP/publish"; CFIP_PUBLIS
 cat >"$TMP/selected.json" <<'JSON'
 [{"ip":"104.16.1.1","family":"ipv4"},{"ip":"2606:4700::1","family":"ipv6"}]
 JSON
+# Module fixture only: HTTP bytes are mocked here. Separate real HTTP test exists.
+curl(){ cat "$CFIP_PUBLISH_DIR/result.json"; }
 cfip_publish_result "$TMP/selected.json"
 grep -qx '104.16.1.1' "$TMP/publish/best-ipv4.txt"
 grep -qx '2606:4700::1' "$TMP/publish/best-ipv6.txt"
