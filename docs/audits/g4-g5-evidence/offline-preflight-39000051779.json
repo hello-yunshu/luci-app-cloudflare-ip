@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "scope": "offline-package-preflight",
+  "commit": "229363fb1c900df6b484a5246645395ec628b689",
+  "runId": 39000051779,
+  "runAttempt": 1,
+  "manifestSha256": "75278dd236d882245f03bedc6bd5c07babc078f8134fa6284160dd20ea25b6d5",
+  "assets": [
+    {
+      "name": "luci-app-cloudflare-ip_2.6.0-r5_all.ipk",
+      "size": 142829,
+      "sha256": "6133090ebc4c174a17365afd1b765d6cc1c9134551e870695a045a9705c4c315"
+    },
+    {
+      "name": "luci-app-cloudflare-ip-2.6.0-r5.apk",
+      "size": 142985,
+      "sha256": "a4d9dbb07f4324658f1015b9087ebb605f4dcb7819801efd0c1ec36d7c315f1e"
+    }
+  ],
+  "publication": "NOT RUN",
+  "deviceAcceptance": "NOT EVALUATED"
+}

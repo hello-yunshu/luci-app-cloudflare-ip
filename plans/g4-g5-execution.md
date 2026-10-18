@@ -1,5 +1,9 @@
 # G4、G5 执行记录
 
+## Hosted migration and offline preflight checkpoint
+
+Run 39000051779 attempt 1 completed SUCCESS at head 07802d4. The tested merge commit 229363fb1c900df6b484a5246645395ec628b689 and head have identical tree 04d32482234e8b388775f284cd94e2018fb93ec1. Downloaded details independently confirm all ten final installed DB snapshots and matching before/final hashes for four controlled user files. Actual public IPK/APK bytes passed offline metadata/byte preflight; wrong attempt and a one-byte mutation of the actual IPK copy failed without a success receipt. Receipt and reproduction guidance are in docs/RELEASE_PREFLIGHT.md. Full downloaded evidence is retained in /Users/yunshu/Downloads/cfip-g4-g5-evidence/run-39000051779. This does not close broader negative migration, uninstall/lifecycle, final changed-SHA qualification or G5 requirements. Publication NOT RUN; device acceptance NOT EVALUATED.
+
 ## G4b strict current-matrix checkpoint
 
 Strict release validation now requires one IPK and one APK matrix, all five input roles, valid metadata/size/digest, matching candidate base/addon versions and public asset version identity. All five scenario operations and runtime/user-data assertions are checked; unsafe evidence paths and malformed IDs are rejected. Synthetic positive and tamper tests, source-authority contracts, ShellCheck, actionlint and diff checks passed. Real package execution and G4b/G4d completion remain OPEN. JSON assertions do not constitute device or online lifecycle proof.
