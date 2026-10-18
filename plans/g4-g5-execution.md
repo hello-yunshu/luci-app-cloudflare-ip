@@ -1,5 +1,11 @@
 # G4、G5 执行记录
 
+## Actual View save/apply integration checkpoint
+
+Real native View.addFooter calls View.handleSaveApply, but all four plugin forms had installed the shared handlers on form.Map. Actual Settings Save & Apply bypassed backend validation and persisted the unsupported no-proxy sentinel none. The four forms now pass their View owner to shared save/apply hooks; Map.root remains the connectivity boundary. The no-proxy choice is readonly and retains a valid stored target instead of writing none. Backend validation remains strict.
+
+The regression fails against pre-fix utils and passes after repair. Actual browser Settings rejects an empty PassWall target without changing the committed IP count. With a controlled one.example target fixture, actual Save & Apply produces the success notification after independent readback, then a fresh page and CLI confirm count 5, mode passwall and enabled 0. A later save restores count 4. An expired 30-second fixture login was honestly reported as an error; after reauthentication the positive path passed. No service was enabled and no proxy/device configuration was written. Payload was regenerated using actual Makefile macros, preserving the compiled footer version. Readiness/readback/singleflight modules, staged validation, installed routing, JS syntax and diff checks pass. Only Settings was browser-exercised here; remaining views, enabled-service paths, full responsive/keyboard actions, final exact-SHA qualification and other G4/G5 requirements remain OPEN. Evidence: luci-view-binding-fix.json and retained screenshots/logs under Downloads/luci-runtime. Temporary viewport override was reset.
+
 ## Real Bootstrap light/dark contrast checkpoint
 
 Actual computed styles reproduced navy body text rgb(36,52,71) on rgb(34,34,34), dim footer text and an inline GitHub link override. Plugin-only tokens now inherit normal theme text, provide readable dark surfaces/muted/link/semantic foregrounds, and use darker light-mode foregrounds for badges and auxiliary text. Overview status/statistic copy uses those same tokens; the GitHub link no longer overrides them and is underlined. Native LuCI global theme variables and layout were not changed.

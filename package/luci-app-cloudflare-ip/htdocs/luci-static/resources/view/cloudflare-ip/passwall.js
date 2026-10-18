@@ -47,8 +47,8 @@ return view.extend({
 		o.placeholder = ' [CF-{n}]';
 		o.rmempty = true;
 
-		utils.createHandleSave(m);
-		utils.createHandleSaveApply(m);
+		utils.createHandleSave(m, this);
+		utils.createHandleSaveApply(m, this);
 
 		return utils.renderWithFooter(m.render(), utils.FOOTER_OPTIONS);
 	}

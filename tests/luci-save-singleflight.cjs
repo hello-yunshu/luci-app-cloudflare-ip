@@ -61,5 +61,17 @@ const view={root:{isConnected:true},handleSave:()=>{saveCalls++;return saved;}};
  finishNew({main});await current;readGate=null;
  assert.equal(button.disabled,false);assert.equal(button.textContent,'Save & Apply');
  assert.equal(notices.length,noticesAtNew+1);
+ const formMap={root:{isConnected:true}}, pageView={handleSave:()=>Promise.resolve()};
+ utils.createHandleSaveApply(formMap,pageView);
+ assert.equal(formMap.handleSaveApply,undefined,'native footer invokes View, not form.Map');
+ assert.equal(typeof pageView.handleSaveApply,'function');
+ const beforeBoundApply=applyCalls;
+ await pageView.handleSaveApply({currentTarget:button});
+ assert.equal(applyCalls,beforeBoundApply+1);
+ for(const page of ['settings','advanced','passwall','openclash']) {
+  const viewSource=fs.readFileSync(path.join(__dirname,'../package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip',page+'.js'),'utf8');
+  assert.match(viewSource,/utils\.createHandleSave\(m, this\)/);
+  assert.match(viewSource,/utils\.createHandleSaveApply\(m, this\)/);
+ }
  console.log('PASS actual LuCI handler coalesces duplicate clicks, restores button and permits subsequent save (module harness)');
 })().catch(error=>{console.error(error);process.exitCode=1;});
