@@ -1,5 +1,11 @@
 # G4、G5 执行记录
 
+## G5b readiness promise checkpoint
+
+The actual utils module returned a non-ready status normally on timeout, allowing the save chain to display ready success; the new module regression reproduces this against the old source. Readiness now resolves only for an idle ready service, rejects timeout/cancellation with explicit codes, preserves RPC failures, bounds a hanging RPC with an independent total deadline, and clears polling timers after settlement. The real-module Node harness covers active jobs, hanging RPC, inactive view, cancellation during a hanging request, network failure, late failure and no polling after timeout. English/Chinese catalogs and template include the new messages; msgfmt, module syntax, staged-validation and workflow checks pass. These are module tests, not browser/device proof. Fresh UCI readback, generation/busy handling and eight-view browser acceptance remain OPEN.
+
+The pre-readiness-change full V2 Host driver completed all 137 workflow commands with return code zero; its source/diff provenance and individual logs are preserved under /Users/yunshu/Downloads/cfip-g4-g5-evidence/host-baseline-fcb9f5e. The macOS child-tree case is explicitly skipped. The first isolated Linux invocation failed for missing jq; a fresh disposable invocation installing jq is still running, not PASS. Existing business containers were not restarted.
+
 ## Hosted Host failure and fixture alignment
 
 Run 39100843086 Host failed immediately after recovery-deadline, at sync-single-restart. Job 117596612910 raw logs and a local traced reproduction show the old UCI fixture lacks `changes`; the new transaction correctly rejects an unreadable pending-delta state before snapshot. Sync/signal fixtures now explicitly return no pending delta. Signal cases call the actual journaled owned-write helper and model real option reads instead of bypassing it with raw writes. Local sync single-restart, stop-failure cleanup and TERM rollback pass. The child-tree case is SKIPPED on macOS; an isolated Linux container invocation is still pending, not PASS. A frozen driver is executing all current V2 Host commands, recording individual return codes under /tmp/cfip-g4-g5/current-host-full; completion is not yet asserted. Production guards are unchanged by this fixture repair.
