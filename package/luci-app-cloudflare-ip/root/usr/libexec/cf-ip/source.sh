@@ -313,8 +313,8 @@ cfip_source_fetch_remote() {
             if [[ -z "$error" ]] && ((pc >= CFIP_SOURCE_MIN_VALID_REMOTE)); then
                 hash="$(sha256sum "$tmp" | awk '{print $1}')" || { rm -f "$tmp"; return 1; }
                 if cfip_source_cache_publish "$pdir" "$tmp" "$id" "$url" "$parser" "$family" "$source_class" "$hash" "$pc" "$rc"; then
-                    cfip_source_meta_write "$id" true false false "$pc" "$rc" "" "$hash"
                     jq '.records' "$parsed" | cfip_atomic_write "$output" || { rm -f "$tmp"; return 1; }
+                    cfip_source_meta_write "$id" true false false "$pc" "$rc" "" "$hash" || { rm -f "$tmp"; return 1; }
                     rm -f "$tmp"
                     return 0
                 fi
@@ -340,8 +340,8 @@ cfip_source_fetch_remote() {
         pc="$(jq -r '.parsedCount//0' "$parsed" 2>/dev/null || printf 0)"; rc="$(jq -r '.rejectedCount//0' "$parsed" 2>/dev/null || printf 0)"
         if ((pc >= CFIP_SOURCE_MIN_VALID_REMOTE)); then
             hash="$(sha256sum "$cached" | awk '{print $1}')"
-            cfip_source_meta_write "$id" true true true "$pc" "$rc" "$error" "$hash"
             jq '.records' "$parsed" | cfip_atomic_write "$output" || { rm -f "$cached" "$cache_marker"; return 1; }
+            cfip_source_meta_write "$id" true true true "$pc" "$rc" "$error" "$hash" || { rm -f "$cached" "$cache_marker"; return 1; }
             rm -f "$cached" "$cache_marker"
             return 0
         fi
@@ -376,7 +376,12 @@ cfip_source_collect_custom() {
             cfip_source_meta_write "$id" true false false "$(jq -r '.parsedCount//0' "$parsed")" "$(jq -r '.rejectedCount//0' "$parsed")" "" ""
         else
             url="$(uci -q get "cf_ip.$section.url" 2>/dev/null || true)"
-            if ! cfip_https_url_or_empty "$url" || [[ -z "$url" ]]; then cfip_source_meta_write "$id" false true false 0 0 invalid_url ""; printf '[]' >"$tmp"; else cfip_source_fetch_remote "$id" "$url" "$parser" "$family" "$source_class" "$tmp" || true; fi
+            if ! cfip_https_url_or_empty "$url" || [[ -z "$url" ]]; then
+                cfip_source_meta_write "$id" false true false 0 0 invalid_url ""
+                continue
+            elif ! cfip_source_fetch_remote "$id" "$url" "$parser" "$family" "$source_class" "$tmp"; then
+                continue
+            fi
         fi
         jq -s '.[0] + .[1]' "$aggregate" "$tmp" >"$aggregate.next" && mv "$aggregate.next" "$aggregate"
     done < <(uci -q show cf_ip 2>/dev/null | sed -n "s/^cf_ip\.\([^.=]*\)=source$/\1/p")
@@ -400,7 +405,7 @@ cfip_collect_enabled_sources() {
         family="$(jq -r '.family' <<<"$entry")"; cfip_source_family_allowed "$family" || [[ "$family" == auto ]] || continue
         url="$(jq -r '.url' <<<"$entry")"; parser="$(jq -r '.parser' <<<"$entry")"; source_class="$(jq -r '.sourceClass' <<<"$entry")"
         tmp="$CFIP_SOURCE_RUNTIME_DIR/$id/records.json"; mkdir -p "${tmp%/*}"
-        cfip_source_fetch_remote "$id" "$url" "$parser" "$family" "$source_class" "$tmp" || true
+        if ! cfip_source_fetch_remote "$id" "$url" "$parser" "$family" "$source_class" "$tmp"; then continue; fi
         jq -s '.[0] + .[1]' "$aggregate" "$tmp" >"$aggregate.next" && mv "$aggregate.next" "$aggregate"
     done
     cfip_source_collect_custom "$aggregate" "$status_output"
