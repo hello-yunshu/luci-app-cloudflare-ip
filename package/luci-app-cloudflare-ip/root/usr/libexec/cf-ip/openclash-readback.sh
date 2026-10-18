@@ -2,6 +2,31 @@
 # OpenClash IntendedMappingV1 readback. A server IP alone is insufficient
 # evidence: every expected proxy block is compared as one complete record.
 
+# Reject unsupported proxy forms rather than returning a partial mapping.
+# This bounds the mapping reader; it is not a general YAML validity checker.
+cfip_openclash_yaml_supported() {
+    awk '
+      function reject() { print "unsupported OpenClash proxy YAML at line " NR > "/dev/stderr"; bad=1; exit 1 }
+      /\t/ { reject() }
+      /^proxies:/ {
+        if (seen++) reject()
+        value=$0; sub(/^proxies:[ ]*/, "", value)
+        if (value!="" && value !~ /^#/) reject()
+        active=1; next
+      }
+      /^[^ #][^:]*:/ { active=0 }
+      active {
+        text=$0; sub(/^[ ]*/, "", text)
+        if (text=="" || text ~ /^#/) next
+        if (text ~ /^-[ ]*/ && text !~ /^-[ ]+name:/ && text !~ /^-[ ]*$/) reject()
+        if (text ~ /^<<:/) reject()
+        value=text; sub(/^[^:]+:[ ]*/, "", value)
+        if (value ~ /^[{&*!|>]/) reject()
+      }
+      END { if (!seen || bad) exit 1 }
+    ' "$1"
+}
+
 cfip_openclash_protocol_supported() {
     local type tls network
     type="$(printf '%s' "${1:-}" | tr 'A-Z' 'a-z')"
@@ -38,6 +63,7 @@ cfip_openclash_mapping_tsv() {
 
 cfip_openclash_actual_mapping() {
     local config="$1" output="$2" tmp row name type server tls network servername host
+    cfip_openclash_yaml_supported "$config" || return 1
     tmp="$(mktemp "${TMPDIR:-/tmp}/cfip-openclash-actual.XXXXXX")" || return 1
     printf '[]' >"$tmp"
     while IFS= read -r -d '' name && IFS= read -r -d '' type && IFS= read -r -d '' server && IFS= read -r -d '' tls && IFS= read -r -d '' network && IFS= read -r -d '' servername && IFS= read -r -d '' host; do
@@ -55,6 +81,7 @@ cfip_openclash_actual_mapping() {
 cfip_openclash_intended_from_templates() {
     local selected="$1" config="$2" domains_csv="$3" suffix="$4" filter="$5" output="$6"
     local count name type server tls network servername host domain base seq ip idx line tmp filter_lc
+    cfip_openclash_yaml_supported "$config" || return 1
     local -a domains=() ips=()
     filter_lc="$(printf '%s' "$filter" | tr 'A-Z' 'a-z')"
     IFS=',' read -r -a domains <<<"$domains_csv"

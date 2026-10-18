@@ -1,5 +1,9 @@
 # G4、G5 执行记录
 
+## Y01 mixed-proxy mapping checkpoint
+
+Before evidence: a supported block proxy plus an inline proxy returned successful actual mapping containing only one proxy. A conservative proxy-boundary check now runs before actual/intended mapping generation and rejects mixed inline maps, alias/merge forms, folded values, inline root proxies, duplicate proxies roots and tabs. Supported block mapping, positive/negative readback and real renderer isolation tests pass; boundary negatives produce no partial output. Host CI includes the boundary regression. This is explicitly a mapping-reader support boundary, not general YAML validation: whole-file grammar, duplicate/nested-key rules and standalone Legacy entry coverage remain OPEN. Y01/G5a are not complete.
+
 ## PassWall value-preservation checkpoint
 
 A real-UCI multiline/tab/trailing-newline remarks case failed recovery: shell substitution discarded trailing newlines and line-oriented delta scanning treated continuation text as unrelated changes. UCI and JSON value reads now preserve trailing bytes; pending validation matches complete canonical quoted records, never evals text, and checks both owned key and permitted value. The actual CLI now restores byte-identical exports for multiline/tab/trailing-newline values, single/double quotes, backslashes, glob characters and literal shell text. Existing real-UCI rollback and five fault cases, commit-failure/managed/transaction regressions, ShellCheck/actionlint/diff checks pass. Hosted run 39100627336 remains in progress; this value fix requires new qualification and does not complete G5a.
