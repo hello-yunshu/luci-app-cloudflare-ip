@@ -79,8 +79,8 @@ return view.extend({
 		o.placeholder = '3';
 		o.rmempty = false;
 
-		utils.createHandleSave(m);
-		utils.createHandleSaveApply(m);
+		utils.createHandleSave(m, this);
+		utils.createHandleSaveApply(m, this);
 
 		/* Build backup section as a separate DOM tree appended after the form */
 		var backupSection = E('div', { 'class': 'cbi-section cfi-section', 'id': 'oc-backups-section' });

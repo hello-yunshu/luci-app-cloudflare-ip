@@ -291,8 +291,9 @@ function renderWithFooter(rendered, options) {
 	});
 }
 
-function createHandleSave(m) {
-	m.handleSave = function(ev) {
+function createHandleSave(m, owner) {
+	owner = owner || m;
+	owner.handleSave = function(ev) {
 		var tasks = [];
 		document.getElementById('maincontent')
 			.querySelectorAll('.cbi-map').forEach(function(map) {
@@ -302,17 +303,18 @@ function createHandleSave(m) {
 	};
 }
 
-function createHandleSaveApply(m) {
+function createHandleSaveApply(m, view) {
+	view = view || m;
 	var pending = null;
-	var generation = (m.__cfipApplyGeneration || 0) + 1;
-	m.__cfipApplyGeneration = generation;
-	m.handleSaveApply = function(ev, mode) {
+	var generation = (view.__cfipApplyGeneration || 0) + 1;
+	view.__cfipApplyGeneration = generation;
+	view.handleSaveApply = function(ev, mode) {
 		if (pending) return pending;
 		var candidate, expected, owner = this;
 		var button = ev && ev.currentTarget && ev.currentTarget.tagName === 'BUTTON' ? ev.currentTarget : null;
 		var root = m.root, buttonOwner = String(++saveApplySequence);
 		function isActive() {
-			return m.__cfipApplyGeneration === generation && (!root || root.isConnected !== false) && (!button || button.isConnected !== false);
+			return view.__cfipApplyGeneration === generation && (!root || root.isConnected !== false) && (!button || button.isConnected !== false);
 		}
 		function requireActive() {
 			if (!isActive()) { var error = new Error('SaveApplyCancelled'); error.code = 'SaveApplyCancelled'; throw error; }
