@@ -1,5 +1,11 @@
 # G4、G5 执行记录
 
+## G5d private publisher workspace recovery checkpoint
+
+The pre-change KILL regression leaves one private link workspace after a subsequent successful publication. Staging/link/readback allocation now uses an owner-marked private namespace, captures the caller PID before command substitution and preserves live or reused PIDs. Dead-owner paths are atomically quarantined before deletion; failed quarantine refuses allocation. Unknown data/symlinks and nonempty unowned or unsafe writable namespaces are preserved/refused. Empty reservations are counted before payload admission, with a sampled sixteen-directory limit and explicit publisher_workspace_unavailable failure. Concurrent bursts may refuse all requests; a later retry is required. No new stat dependency is introduced: the real minimal OpenWrt runtime exposed its absence and the implementation uses Bash ownership checks plus available ls.
+
+Host and isolated OpenWrt tests cover killed-writer recovery, active owners, quota refusal/reuse, unknown paths, unsafe namespace refusal and quarantine failure. Thirty-two concurrent reservation tests check observed admission and successful subsequent retry; they do not prove a kernel-enforced global quota. Generation/HTTP/status/native uhttpd regressions remain separate evidence. Receipt: publisher-workspace-leases.json. Old unmarked orphans, bootstrap public-generation orphans, source-cache cleanup, complete storage/process lifecycle matrix, remaining G4/G5 and final exact-SHA qualification remain OPEN.
+
 ## G5d versioned LAN generation checkpoint
 
 The regression proves a partial artifact renderer failure was ignored. Publication now snapshots bounded selected input, validates public addresses/families, renders/checks every artifact privately and records hashes/sizes in a manifest. A complete generation directory is exposed, read back over its pinned HTTP URL, then a single current symlink switches all compatibility paths. Root readback failure restores the old cursor. Legacy conversion first snapshots the current byte view, so interrupted conversion and regular files left after downgrade retain old bytes. Ownership-scoped retention bounds managed generations while leaving unknown directories alone. Readback snapshots expected bytes and reports the matched generation/count even after a writer dies following the pointer commit.
