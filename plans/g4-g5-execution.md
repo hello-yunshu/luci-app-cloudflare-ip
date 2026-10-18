@@ -1,5 +1,11 @@
 # G4、G5 执行记录
 
+## G5c cache trust and age checkpoint
+
+The new regression proves that a bare syntactically valid IP file was accepted as last-good without metadata. Fallback now snapshots bounded bytes, requires a schema-2 marker binding ID/URL/parser/family/source class/digest and a recent successful validation, then reparses with current checks. Bare, schema-1, changed, reconfigured, expired/future, oversized and malformed caches reject; runtime metadata separates cacheError from the original transport failure. Default age is seven days with sixty-second future-clock tolerance. Byte-identical successful refreshes renew age and repair altered local bytes. Old files remain on disk but require a successful remote refresh to establish qualification; policy is documented in docs/SOURCE_CACHE_POLICY.md.
+
+The exact pre-fix source fails the new regression. Valid fallback, all rejection cases, identical-refresh repair, actual local trusted-TLS source suite, size/deadline and full source-engine regression pass, with ShellCheck error/syntax/actionlint/diff checks. The HTTPS test now changes server behavior behind one stable request URL, avoiding an invalid expectation of fallback across different source URLs. Evidence: source-cache-trust.json. This is not full N02 closure: preserving the previous generation across every storage/publication interruption remains OPEN, as do remaining G4/G5 and final exact-SHA hosted gates. Prior-source 386a025 PR run 39140855082 was still live at observation.
+
 ## G5c real HTTPS streaming source cap checkpoint
 
 With max-filesize feature support disabled, actual curl previously wrote 1,126,400 bytes from a local TLS chunked response despite a 2,048-byte source cap. The same regression fails against pre-fix source. A bounded head sink now accepts at most cap+1 bytes, checks both pipeline statuses and rejects overflow before parsing/cache publication; curl still enforces total/connect deadlines and HTTPS-only redirects. Existing max-filesize support remains an additional guard.

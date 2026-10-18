@@ -22,15 +22,16 @@ class Handler(http.server.BaseHTTPRequestHandler):
         pass
     def do_GET(self):
         try:
-            if self.path in ('/redirect', '/downgrade'):
-                target = f'https://localhost:{self.server.server_port}/valid' if self.path == '/redirect' else 'http://localhost:1/blocked'
+            route = '/' + self.server.mode if self.path == '/list' else self.path
+            if route in ('/redirect', '/downgrade'):
+                target = f'https://localhost:{self.server.server_port}/valid' if route == '/redirect' else 'http://localhost:1/blocked'
                 self.send_response(302)
                 self.send_header('Location', target)
                 self.send_header('Content-Length', '0')
                 self.end_headers()
                 return
             self.send_response(200)
-            if self.path == '/large':
+            if route == '/large':
                 self.send_header('Transfer-Encoding', 'chunked')
                 self.end_headers()
                 for _ in range(256):
@@ -38,7 +39,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     self.wfile.write(f'{len(block):x}\r\n'.encode() + block + b'\r\n')
                     self.wfile.flush()
                 self.wfile.write(b'0\r\n\r\n')
-            elif self.path == '/slow':
+            elif route == '/slow':
                 self.send_header('Content-Length', '10000')
                 self.end_headers()
                 for _ in range(20):
@@ -46,7 +47,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     self.wfile.flush()
                     time.sleep(.2)
             else:
-                body = EXACT if self.path == '/exact' else EXACT+b'x' if self.path == '/over' else VALID
+                body = EXACT if route == '/exact' else EXACT+b'x' if route == '/over' else VALID
                 self.send_header('Content-Length', str(len(body)))
                 self.end_headers()
                 self.wfile.write(body)
@@ -91,8 +92,9 @@ cfip_source_fetch_remote tls "$CFIP_URL" ip-text ipv4 community "$CFIP_RESULT"
     try:
         expected_raw = VALID
         for endpoint in ('valid', 'exact', 'over', 'large', 'slow', 'redirect', 'downgrade'):
+            server.mode = endpoint
             started = time.monotonic()
-            run = subprocess.run(['bash', '-c', shell], env=dict(env, CFIP_URL=f'https://localhost:{server.server_port}/{endpoint}'), capture_output=True, text=True, timeout=10)
+            run = subprocess.run(['bash', '-c', shell], env=dict(env, CFIP_URL=f'https://localhost:{server.server_port}/list'), capture_output=True, text=True, timeout=10)
             elapsed = time.monotonic()-started
             assert run.returncode == 0, (endpoint, run.stderr, run.stdout)
             records = json.loads((tmp/'result.json').read_text())
