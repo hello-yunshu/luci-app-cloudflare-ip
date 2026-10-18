@@ -17,6 +17,7 @@ set -euo pipefail
 state="${UCI_FAKE_STATE:?}"
 [[ "${1:-}" == -q ]] && shift
 case "${1:-}" in
+  changes) : ;;
   export) cat "$state" ;;
   import) cat >"$state" ;;
   revert|commit) cat >/dev/null || true ;;

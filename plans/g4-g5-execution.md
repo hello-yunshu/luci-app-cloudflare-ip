@@ -1,5 +1,11 @@
 # G4、G5 执行记录
 
+## G5a PassWall owned-field candidate
+
+Real UCI (74f6277aabffc943d026f406df57c22595134c42) and libubox (da2d205a5cf3e877c45a2eec488218cbaf452e7d) were built under /tmp/cfip-g4-g5 only. The original full-export rollback demonstrably overwrote an unrelated committed user edit. The candidate journals each address/remarks write before mutation and restores only matching owned fields, preserving unrelated committed edits. Real CLI tests pass for unrelated-edit preservation, owned-field conflict refusal with retained journal, originally absent field restoration, jq row-decode failure and unrelated pending-delta preservation without implicit commit. Pending changes at transaction entry are rejected. Recovery checks pending keys before writes and commit; this is detectable conflict protection, not universal CAS against noncooperating writers. Full export remains diagnostic only.
+
+Seven related transaction/service regression scripts plus ShellCheck, actionlint and diff checks pass. The commit-failure fixture explicitly models an empty UCI changes result. Real UCI regression is not yet wired into hosted CI. Pending-delta concurrency windows, managed-state-file conflict handling, every storage/parse/commit failure and durable failed-journal policy remain OPEN; T02/G5a are not complete. Evidence: /Users/yunshu/Downloads/cfip-g4-g5-evidence/passwall-external-edit.
+
 ## G5a external-conflict recovery checkpoint
 
 The new rollback regression reproduced an unsafe restart after detecting an externally edited OpenClash file (stopped=true, serviceApplied=true). Rollback now returns failure immediately, preserving external bytes and both journal snapshots without starting the unvalidated configuration. Four stopped/applied combinations and repeated recovery attempts pass; a positive known-bytes recovery restores the original and restarts exactly once. Existing write-failure, review-regression, commit-failure, single-restart and original-service-state tests passed, as did ShellCheck/actionlint/diff checks. This closes this specific conflict path only; PassWall owned-field recovery, YAML boundaries and the full G5 fault matrix remain OPEN. Before evidence: /tmp/cfip-g4-g5/rollback-external-before.log.
