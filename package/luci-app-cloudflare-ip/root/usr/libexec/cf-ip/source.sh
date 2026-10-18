@@ -198,6 +198,29 @@ cfip_source_curl_max_filesize_supported() {
     return 1
 }
 
+# Bound the sink independently of curl version and HTTP Content-Length. One extra
+# byte distinguishes an exact-cap response from a truncated oversized response.
+cfip_source_download() {
+    local url="$1" output="$2" connect_timeout="$3" remaining="$4" bytes
+    local -a options statuses
+    [[ "$CFIP_SOURCE_MAX_BYTES" =~ ^[1-9][0-9]{0,8}$ ]] || return 1
+    options=(-fsSL --proto '=https' --proto-redir '=https' --connect-timeout "$connect_timeout"
+        --max-time "$remaining" --max-redirs 3)
+    if cfip_source_curl_max_filesize_supported; then
+        options+=(--max-filesize "$CFIP_SOURCE_MAX_BYTES")
+    fi
+    if curl "${options[@]}" "$url" -o /dev/stdout 2>/dev/null |
+        head -c "$((CFIP_SOURCE_MAX_BYTES+1))" >"$output"; then
+        statuses=("${PIPESTATUS[@]}")
+    else
+        statuses=("${PIPESTATUS[@]}")
+    fi
+    bytes="$(wc -c <"$output")" || return 1
+    ((bytes <= CFIP_SOURCE_MAX_BYTES)) || return 63
+    ((statuses[0] == 63)) && return 63
+    ((statuses[0] == 0 && statuses[1] == 0))
+}
+
 cfip_source_refresh_remaining() {
     local now
     [[ "${CFIP_SOURCE_REFRESH_DEADLINE:-0}" =~ ^[0-9]+$ ]] || return 1
@@ -208,7 +231,7 @@ cfip_source_refresh_remaining() {
 
 cfip_source_fetch_remote() {
     local id="$1" url="$2" parser="$3" family="$4" source_class="$5" output="$6"
-    local rdir pdir tmp raw parsed bytes lines hash="" oldhash="" pc=0 rc=0 error="" remaining connect_timeout
+    local rdir pdir tmp raw parsed bytes lines hash="" oldhash="" pc=0 rc=0 error="" remaining connect_timeout fetch_rc=0
     rdir="$CFIP_SOURCE_RUNTIME_DIR/$id"; pdir="$CFIP_SOURCE_CACHE_DIR/$id"
     mkdir -p "$rdir" "$pdir"
     tmp="$(mktemp "$rdir/fetch.XXXXXX")" || return 1
@@ -224,11 +247,8 @@ cfip_source_fetch_remote() {
     connect_timeout="${CFIP_SOURCE_CONNECT_TIMEOUT:-5}"
     [[ "$connect_timeout" =~ ^[0-9]+$ ]] || connect_timeout=5
     ((connect_timeout > remaining)) && connect_timeout="$remaining"
-    if if cfip_source_curl_max_filesize_supported; then
-        curl -fsSL --proto '=https' --proto-redir '=https' --connect-timeout "$connect_timeout" --max-time "$remaining" --max-redirs 3 --max-filesize "$CFIP_SOURCE_MAX_BYTES" "$url" -o "$tmp" 2>/dev/null
-    else
-        curl -fsSL --proto '=https' --proto-redir '=https' --connect-timeout "$connect_timeout" --max-time "$remaining" --max-redirs 3 "$url" -o "$tmp" 2>/dev/null
-    fi; then
+    cfip_source_download "$url" "$tmp" "$connect_timeout" "$remaining" || fetch_rc=$?
+    if ((fetch_rc == 0)); then
         bytes="$(wc -c <"$tmp" 2>/dev/null || printf 999999999)"; lines="$(wc -l <"$tmp" 2>/dev/null || printf 999999999)"
         if ((bytes <= CFIP_SOURCE_MAX_BYTES && lines <= CFIP_SOURCE_MAX_LINES)); then
             cfip_parse_source_file "$tmp" "$parser" "$id" "$source_class" "$family" false "$parsed" || error=parse_failed
@@ -250,7 +270,7 @@ cfip_source_fetch_remote() {
             error=source_too_large
         fi
     else
-        error=fetch_failed
+        if ((fetch_rc == 63)); then error=source_too_large; else error=fetch_failed; fi
     fi
     rm -f "$tmp"
 

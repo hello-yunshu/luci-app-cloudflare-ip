@@ -1,5 +1,11 @@
 # G4、G5 执行记录
 
+## G5c real HTTPS streaming source cap checkpoint
+
+With max-filesize feature support disabled, actual curl previously wrote 1,126,400 bytes from a local TLS chunked response despite a 2,048-byte source cap. The same regression fails against pre-fix source. A bounded head sink now accepts at most cap+1 bytes, checks both pipeline statuses and rejects overflow before parsing/cache publication; curl still enforces total/connect deadlines and HTTPS-only redirects. Existing max-filesize support remains an additional guard.
+
+Actual trusted-local TLS covers valid, exact-cap, one-byte-over, large chunked, slow response, HTTPS redirect and blocked HTTP downgrade. Post-fix observed temporary bytes never exceed 2,049; slow response finishes near its one-second transport deadline, and rejected responses preserve prior cached bytes. OpenWrt ARM64 BusyBox sink separately passes with a mocked producer; it is not a TLS/device claim. Host source engine, size-cap/deadline, ShellCheck error, syntax, actionlint and diff checks pass. Curl mocks now stream bytes with cat rather than filesystem cp metadata operations on a pipe. New real-TLS test is in Host CI. Evidence: source-streaming-cap.json. Cache trust/age/publication-failure cases and remaining G5c/G4/G5 DoDs stay OPEN; no production device or Release action.
+
 ## Actual View save/apply integration checkpoint
 
 Real native View.addFooter calls View.handleSaveApply, but all four plugin forms had installed the shared handlers on form.Map. Actual Settings Save & Apply bypassed backend validation and persisted the unsupported no-proxy sentinel none. The four forms now pass their View owner to shared save/apply hooks; Map.root remains the connectivity boundary. The no-proxy choice is readonly and retains a valid stored target instead of writing none. Backend validation remains strict.
