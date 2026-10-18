@@ -1,0 +1,24 @@
+{
+  "runtimeBaseCommit": "48af71d4e4fe2bfc9278fcd8cceeabaacfa0fdae",
+  "sourceBaseCommit": "a3d8bc094be355d75747fd97de461134043c88d0",
+  "overviewSha256": "d19771fdd656a4ae14134e612d8db7a106658709526a394a9664e4a26b768c9f",
+  "container": "cfip-luci-qualification",
+  "checks": [
+    "fresh page TAR/JQ Installed without refresh click",
+    "footer v2.6.0-r5",
+    "deployed overview hash equals working source"
+  ],
+  "evidence": {
+    "overview-initial.png": "3438d67433276fd075fda8c01bd4d17941a8d7af542cb18661937d055c7c21b7",
+    "overview-refreshed.png": "e87d6a89d5e522ecc5cc50f651baa23f0427574e8a99a3144598ab89e439c09b",
+    "overview-fixed.png": "6271ad1f392e2ddd30b9969d46efddb1914109aa2ff6fff745cb5401cc7f5719",
+    "version.json": "f73f0d1f136bb312b006dff98aa06ae90cb0fa8d0830437c7d69918be3627f1f",
+    "status.json": "b96f1cc1ecfa574c03b32bd0ae20f7631512b6daecdcd4ec098ef0957b6251a7"
+  },
+  "scope": "real LuCI source-payload runtime; not SDK package or hardware acceptance",
+  "remaining": [
+    "dark-theme text contrast review",
+    "eight-view viewport/keyboard/actions",
+    "latest exact-SHA qualification"
+  ]
+}
