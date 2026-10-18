@@ -3,6 +3,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"; TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
 CFIP_RUNTIME_DIR="$TMP/runtime"; CFIP_STATUS_DIR="$TMP/status"; CFIP_LOG_FILE="$TMP/log"; mkdir -p "$CFIP_RUNTIME_DIR"
 source "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/common.sh"
+source "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/source.sh"
 source "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/publisher.sh"
 cat >"$TMP/fake-init" <<'INIT'
 #!/bin/sh
@@ -14,7 +15,7 @@ cat >"$TMP/selected.json" <<'JSON'
 [{"ip":"104.16.1.1","family":"ipv4"},{"ip":"2606:4700::1","family":"ipv6"}]
 JSON
 # Module fixture only: HTTP bytes are mocked here. Separate real HTTP test exists.
-curl(){ cat "$CFIP_PUBLISH_DIR/result.json"; }
+curl(){ local arg path; for arg in "$@"; do case "$arg" in http://*) path="${arg#http://}"; path="${path#*/}"; cat "$CFIP_PUBLISH_DIR/$path"; return ;; esac; done; return 1; }
 cfip_publish_result "$TMP/selected.json"
 grep -qx '104.16.1.1' "$TMP/publish/best-ipv4.txt"
 grep -qx '2606:4700::1' "$TMP/publish/best-ipv6.txt"

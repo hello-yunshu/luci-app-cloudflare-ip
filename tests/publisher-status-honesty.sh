@@ -6,7 +6,7 @@ mkdir -p "$CFIP_RUNTIME_DIR" "$CFIP_PUBLISH_DIR"
 source "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/common.sh"
 source "${CFIP_TEST_PUBLISHER:-$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/publisher.sh}"
 printf '{"success":true,"bind":"127.0.0.1","port":34567,"count":1,"paths":["/result.json"]}' >"$CFIP_PUBLISH_STATUS_FILE"
-printf '{"runId":"test"}' >"$CFIP_PUBLISH_DIR/result.json"
+printf '{"schemaVersion":1,"runId":"test","ips":["104.18.1.1"],"selected":[{"ip":"104.18.1.1","family":"ipv4"}]}' >"$CFIP_PUBLISH_DIR/result.json"
 CFIP_PUBLISH_ENABLED=true
 curl(){ return 7; }
 cfip_publisher_status_json >"$TMP/observed"
