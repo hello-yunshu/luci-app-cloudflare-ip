@@ -1,5 +1,13 @@
 # G4、G5 执行记录
 
+## Real Bootstrap light/dark contrast checkpoint
+
+Actual computed styles reproduced navy body text rgb(36,52,71) on rgb(34,34,34), dim footer text and an inline GitHub link override. Plugin-only tokens now inherit normal theme text, provide readable dark surfaces/muted/link/semantic foregrounds, and use darker light-mode foregrounds for badges and auxiliary text. Overview status/statistic copy uses those same tokens; the GitHub link no longer overrides them and is underlined. Native LuCI global theme variables and layout were not changed.
+
+Twelve actual overview text samples were measured with alpha-composited ancestor backgrounds in real Bootstrap dark and Bootstrap-light: minima 7.19:1 dark and 4.87:1 light. Both screenshots were visually reviewed. The isolated container's theme was restored to its original /luci-static/bootstrap setting. Source/deployed hashes, all sampled colors and screenshots are indexed in overview-contrast-fix.json. These samples do not constitute all-view, responsive, keyboard or complete accessibility acceptance; those remain OPEN.
+
+At observation, preceding-source PR run 39120847735 Host and real-CFST jobs completed SUCCESS; remaining workflow jobs were still running. Same-SHA duplicate push run 39120843880 was requested cancelled. The contrast change requires its own later exact-SHA qualification.
+
 ## G5c authenticated CFST smoke byte qualification
 
 The previous hosted real-CFST job failed on unauthenticated release-metadata curl HTTP 403 and executed an archive without prior digest binding. CI now reads metadata through authenticated gh, requires one official amd64 asset with published SHA256/size/URL identity, bounds its HTTPS download, verifies archive bytes before parsing, and prepares only one regular-file amd64 ELF binary. Archive traversal/link/device/duplicate-binary cases reject; output must be new, preserving existing qualified bytes. GH tokens are removed from the smoke child environment. Metadata/qualification receipts plus raw input/CSV/parsed JSON are uploaded with exact run/attempt artifact names after successful smoke.
