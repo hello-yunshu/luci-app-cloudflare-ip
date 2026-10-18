@@ -14,6 +14,7 @@ cat >"$fixture" <<INIT
 . '$init_source'
 if [ '${CFIP_PROCD_TRACE_LOG:-}' != '' ]; then exec 2>>'$TMP/init-trace'; set -x; fi
 ubus(){
+ [ "\$1" != -t ] || shift 2
  if [ "\$1 \${2:-}" = 'call network.interface.lan' ]; then
   cat '$TMP/network.json'
  elif [ "\$1 \${2:-} \${3:-}" = 'call service set' ]; then

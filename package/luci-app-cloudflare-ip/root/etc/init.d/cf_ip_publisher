@@ -5,7 +5,7 @@ USE_PROCD=1
 
 get_lan_ipv4() {
 	local status
-	status="$(ubus call network.interface.lan status 2>/dev/null)" || return 1
+	status="$(ubus -t 1 call network.interface.lan status 2>/dev/null)" || return 1
 	[ "$(printf '%s' "$status" | jsonfilter -e '@.up' 2>/dev/null)" = true ] || return 1
 	printf '%s' "$status" | jsonfilter -e '@["ipv4-address"][*].address' 2>/dev/null
 }

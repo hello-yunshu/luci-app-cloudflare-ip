@@ -1,5 +1,11 @@
 # G4、G5 执行记录
 
+## G5d live status and disable acknowledgement checkpoint
+
+The regression reproduced cached success after listener loss and retained ready state after disabling. Status now loads committed configuration through its independent CLI, bounds persisted JSON, follows the current configured endpoint and rechecks matching HTTP bytes without rewriting the last-publication observation. Effective bind/port and query check time are returned. Disabled state is explicitly non-ready; failed stop or an endpoint still responding after a bounded grace interval remains an error. Stop checks both previous and current endpoints. Ubus network lookups have a client timeout. Status semantics are documented in docs/LAN_PUBLISHER_STATUS.md.
+
+Host cases cover stale/missing listeners, stop failure, malformed/oversized metadata, automatic LAN selection and current/previous endpoint checks. Actual local HTTP covers ready/stale/ready queries with unchanged stored bytes, configured-port migration and a no-op stop that leaves the server alive. Native isolated uhttpd disable, independent backend CLI with actual sandbox UCI config and the real-procd rebind regression pass, along with publisher/root-status regressions and syntax/ShellCheck error/actionlint/diff. Evidence: publisher-status-honesty.json. HTTP absence is not process-ownership/physical-isolation proof. Generation publication, full disabled/procd configuration propagation, remaining G4/G5 and final exact-SHA qualification remain OPEN; preceding-source run 39145150770 was still live.
+
 ## G5d LAN ownership and interface-event checkpoint
 
 Preceding-source 90a13fe PR run 39143422601 completed SUCCESS; exact source SHA/run attempt/API identity is retained in the receipt. The current init change still requires its own final qualification.
