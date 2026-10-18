@@ -261,8 +261,9 @@ return view.extend({
 		if (scriptVersion.charAt(0) === '@') scriptVersion = '-';
 		var error = data.error || '';
 
-		/* Env info from status (merged by backend) */
-		var envUpdatedAt = data.updated_at || '';
+		/* v2 idle status nests environment; legacy status exposes root fields. */
+		var environment = Object.assign({}, data, data.env || {});
+		var envUpdatedAt = environment.updated_at || '';
 
 		var container = E('div', { 'class': 'cbi-map cfi-dashboard' });
 		container.appendChild(E('style', {}, css));
@@ -544,11 +545,11 @@ return view.extend({
 		var envTds = [];
 		for (var i = 0; i < envItems.length; i++) {
 			var item = envItems[i];
-			var val = data[item.key];
+			var val = environment[item.key];
 			var badge;
 
 			if (item.plugin) {
-				var isRunning = data[item.runningKey] || false;
+				var isRunning = environment[item.runningKey] || false;
 				badge = makePluginBadge(val, isRunning);
 			} else if (item.cfst) {
 				if (val) {
@@ -635,6 +636,6 @@ return view.extend({
 			container.appendChild(depSection);
 
 
-		return utils.appendFooter(container, Object.assign({}, utils.FOOTER_OPTIONS, { version: scriptVersion }));
+		return utils.appendFooter(container, utils.FOOTER_OPTIONS);
 	}
 });

@@ -1,5 +1,9 @@
 # G4、G5 执行记录
 
+## Real overview display repair
+
+The actual initial page showed TAR/JQ Missing despite status.env and check-env reporting true, and its footer displayed v2.6.0 despite the compiled full identity 2.6.0-r5. Overview now combines legacy root environment fields with canonical nested env (nested values take precedence), and lets the compiled footer identity supply the package version instead of overriding it with script_version. After deploying the identical-hash overview component, a fresh browser reload (no environment-refresh click) shows both tools Installed and footer v2.6.0-r5. Actual screenshot/AX state, RPC version and source/runtime hashes are indexed in overview-display-fix.json. Node syntax, installed-routing and package-authority checks passed. Dark-theme contrast and the rest of the eight-view/action/viewport matrix remain OPEN; this is source-payload runtime evidence, not current SDK package/device qualification.
+
 ## Real LuCI runtime established
 
 Official OpenWrt 24.10.8 ARM64 rootfs SHA256 was checked before import. A separate non-privileged cfip-luci-qualification container runs real procd/ubus/rpcd/LuCI, bound only to 127.0.0.1:32768. Existing business containers were not changed. The actual current Makefile prepare/compile/install macros generated a 38-file source payload for 48af71d, then rpcd registered cf_ip and its status/check-env/version methods. This is development runtime evidence, not SDK package/installed DB qualification.
