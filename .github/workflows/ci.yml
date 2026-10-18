@@ -75,6 +75,7 @@ jobs:
           python3 tests/source-streaming-https.py
           bash tests/v2-single-cfst.sh
           bash tests/v2-lan-publisher.sh
+          python3 tests/publisher-http-readback.py
           bash tests/v2-status.sh
           bash tests/v2-transaction.sh
           bash tests/openclash-rollback-external-conflict.sh

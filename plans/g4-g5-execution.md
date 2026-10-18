@@ -1,5 +1,13 @@
 # G4、G5 执行记录
 
+## G5d publisher HTTP readiness checkpoint
+
+The actual HTTP regression proves init exit 0 produced success despite stale response bytes. Publisher now performs bounded direct, proxy-free HTTP readback and compares the response to newly published result.json before success. Default readiness has three one-second transport attempts with one-second gaps and a sink bounded to expected size plus one byte. Failed readback records publisher_http_readback_failed and returns failure.
+
+Actual loopback HTTP/curl accepts matching bytes (even with a deliberately invalid proxy environment) and rejects stale/oversized/HTTP-500/slow responses without leftover readback temporaries. Actual uhttpd in isolated OpenWrt rootfs accepts exact published bytes and fails readiness after stopping its own fixture listener. Fixture init/loopback tests do not qualify production LAN membership, procd ownership or rebind policy. Module publisher/status, syntax/ShellCheck error/actionlint/diff checks pass. Evidence: publisher-http-readback.json. Multi-file generation publication, LAN address changes, disabled cleanup, port conflicts and remaining G4/G5/final hosted requirements stay OPEN.
+
+Preceding-source b18db38 PR run 39142760572 Host, Legacy, real-CFST, RPC, identity, workflow and Docker jobs succeeded at observation; four SDK jobs remained live. These are preceding-source checkpoint results, not this publisher change's qualification.
+
 ## Shared atomic-write failed-rename cleanup checkpoint
 
 The new regression proves a failed publication rename leaves its private tmp file. cfip_atomic_write now attempts to unlink exactly that candidate and returns failure. Eight repeated rename/stream/allocation failures preserve old destination bytes and an unrelated preexisting temporary-name file, remove private candidates when unlink is possible, and permit successful retry. Host and actual isolated OpenWrt rootfs pass; source runtime/publication, transaction, LAN publisher and status regressions plus syntax/ShellCheck error/actionlint/diff checks pass. Evidence: atomic-write-cleanup.json. This does not cover KILL orphans, read-only filesystem transitions or physical ENOSPC, and does not close G4/G5.
