@@ -1,5 +1,11 @@
 # G4、G5 执行记录
 
+## G4 SDK writer gate host environment correction
+
+The first actual SDK gate fails on both APK jobs after successful package compilation. Completed job 118005420386 in run 39236083235 identifies `jq: command not found` at sdk-writer-lock.sh line 28. The SDK host did not promise jq; the gate now uses its existing Python standard library to inspect metadata and emit the final receipt. It also uploads separate diagnostics after an attempted execution fails, so cases/binary/loader details are retained without entering the public package artifact. This corrects the test runtime requirement; it does not convert the failed execution into native PASS.
+
+The actual 15-case writer matrix passes with jq invocation explicitly denied on the Darwin host kernel adapter. Both embedded Python blocks compile, and Bash syntax, ShellCheck error, actionlint and diff checks pass. Receipt: sdk-writer-host-runtime.json. Corrected-source target utility execution, all current-SHA SDK/migration/artifact/offline qualification and full G4/G5 remain OPEN. Superseded runs containing the known missing-host-tool defect may be cancelled rather than used as qualification.
+
 ## G5c cache-publication workspace recovery checkpoint
 
 Three KILLs before the cache switch reproduce three abandoned candidate files even after a later successful publication. New candidates now use an owned, marked per-source private namespace and actual caller-PID directories. The next allocation quarantines recognized dead-owner directories atomically before deletion, preserves live/reused owners and unknown data, and refuses failed quarantine or unsafe/unowned namespaces. Empty-directory reservation precedes a sampled sixteen-directory admission check; overload preserves the prior bundle and the full fetch path can use qualified stale fallback. No stat dependency is added; actual Bash 3 caller-PPID capture is exercised.

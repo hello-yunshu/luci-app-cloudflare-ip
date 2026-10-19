@@ -25,7 +25,8 @@ dynamic=any(struct.unpack_from('<I',raw,offset+i*entry_size)[0]==3 for i in rang
 Path(sys.argv[2]).write_text(json.dumps(dict(path=str(p),sha256=hashlib.sha256(raw).hexdigest(),size=size,dynamic=dynamic,architecture='x86_64'))+'\n')
 PY
 export CFIP_SDK_FLOCK_BIN="$binary" CFIP_SDK_FLOCK_LOADER='' CFIP_SDK_FLOCK_LIBDIRS=''
-if jq -e '.dynamic==true' "$OUT/binary.json" >/dev/null; then
+dynamic="$(python3 -c 'import json,sys; print(int(json.load(open(sys.argv[1]))["dynamic"]))' "$OUT/binary.json")"
+if [[ "$dynamic" == 1 ]]; then
     for candidate in "$SDK"/staging_dir/toolchain-*/lib/ld-musl-x86_64.so.1 "$SDK"/staging_dir/target-*/lib/ld-musl-x86_64.so.1 "$SDK"/staging_dir/toolchain-*/lib/libc.so; do
         if [[ -f "$candidate" ]]; then CFIP_SDK_FLOCK_LOADER="$candidate"; break; fi
     done
@@ -45,8 +46,15 @@ exec "$CFIP_SDK_FLOCK_BIN" "$@"
 WRAPPER
 chmod +x "$OUT/flock-target"
 CFIP_FLOCK="$OUT/flock-target" python3 "$ROOT/tests/writer-lock-recovery.py" >"$OUT/cases.json"
-jq -e '.status=="PASS" and (.failures|length)==0' "$OUT/cases.json" >/dev/null
-jq -n --slurpfile binary "$OUT/binary.json" --slurpfile cases "$OUT/cases.json" \
-    --arg commit "${QUALIFICATION_HEAD_SHA:-${GITHUB_SHA:-unknown}}" --arg runId "${GITHUB_RUN_ID:-unknown}" --arg attempt "${GITHUB_RUN_ATTEMPT:-unknown}" \
-    '{schemaVersion:1,status:"PASS",scope:"SDK-produced OpenWrt target flock on CI Linux kernel",commit:$commit,runId:$runId,runAttempt:$attempt,binary:$binary[0],cases:$cases[0],installedPackage:"NOT EVALUATED",nativeProcdRpcdLuci:"NOT EVALUATED"}' >"$OUT/receipt.json"
+python3 - "$OUT" <<'PYRECEIPT'
+import json,os,sys
+from pathlib import Path
+out=Path(sys.argv[1]);binary=json.loads((out/'binary.json').read_text());cases=json.loads((out/'cases.json').read_text())
+assert cases.get('status')=='PASS' and cases.get('failures')==[],'target utility lock matrix failed'
+receipt=dict(schemaVersion=1,status='PASS',scope='SDK-produced OpenWrt target flock on CI Linux kernel',
+    commit=os.environ.get('QUALIFICATION_HEAD_SHA') or os.environ.get('GITHUB_SHA','unknown'),
+    runId=os.environ.get('GITHUB_RUN_ID','unknown'),runAttempt=os.environ.get('GITHUB_RUN_ATTEMPT','unknown'),
+    binary=binary,cases=cases,installedPackage='NOT EVALUATED',nativeProcdRpcdLuci='NOT EVALUATED')
+(out/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+PYRECEIPT
 echo 'PASS SDK target flock executes writer-lock recovery and fault matrix'
