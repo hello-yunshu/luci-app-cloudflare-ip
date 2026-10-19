@@ -1,0 +1,25 @@
+{
+  "scope": "G5d disabled publisher status with missing volatile metadata",
+  "baselineSha": "c8b0c6d4b0de714ef1c3398447ea7b09a57ca3c5",
+  "before": "Actual live HTTP endpoint with disabled config and deleted status returned disabled_or_not_started instead of publisher_still_responding",
+  "after": "PASS actual HTTP detects responding configured endpoint without recreating status; all existing HTTP failure/configured-port/readback cases pass",
+  "hostModules": "publisher-status-honesty, v2-lan-publisher, v2-status PASS",
+  "native": "NOT EVALUATED for this change: Docker daemon socket disappeared; did not restart shared Docker or business containers",
+  "preparedNativeRegression": "publisher-procd-rebind adds disabled reload/restart/re-enable checks; syntax/ShellCheck error only, NOT RUN",
+  "precedingSourceCI": {
+    "sha": "c8b0c6d4b0de714ef1c3398447ea7b09a57ca3c5",
+    "run": 39151181681,
+    "conclusion": "success"
+  },
+  "remainingOpen": [
+    "actual new procd disabled reload/restart/re-enable runtime",
+    "real UCI config-event propagation",
+    "remaining G4/G5 and new exact-SHA hosted/artifact qualification"
+  ],
+  "evidenceDirectory": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-missing-metadata",
+  "logs": {
+    "status.log": "a12672f4353ad68cc27031acc99145be20c96e484916aa8774b6ad407ae4533c",
+    "before.log": "c3c95707e48c2e9bc545595f2a57372749329e5fea31ecd29a890b7986495e15",
+    "after.log": "36d24b66d3a58a2787750e38224e5c7cfd92abe385cc6daf8f57e79c038c38dc"
+  }
+}

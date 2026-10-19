@@ -26,7 +26,7 @@ ubus(){
 # The production private-address policy is separately tested unchanged.
 is_private_ipv4(){ case "\$1" in 127.0.0.1|127.0.0.2) return 0 ;; *) return 1 ;; esac; }
 config_load(){ :; }
-config_get_bool(){ eval "\$1=1"; }
+config_get_bool(){ eval "\$1=\$(cat '$TMP/enabled')"; }
 config_get(){ case "\$3" in bind_address) eval "\$1=''" ;; port) eval "\$1=$port" ;; esac; }
 INIT
 chmod +x "$fixture"
@@ -34,6 +34,7 @@ status(){ printf '{"up":%s,"ipv4-address":[{"address":"%s"}]}' "$1" "$2" >"$TMP/
 reachable(){ curl --noproxy '*' -sS --connect-timeout 1 --max-time 1 -o /dev/null "http://$1:$port/" 2>/dev/null; }
 wait_up(){ for _ in {1..8}; do if reachable "$1"; then return 0; fi; sleep 1; done; echo "FAIL listener not reachable at $1"; return 1; }
 wait_down(){ for _ in {1..8}; do if ! reachable "$1"; then return 0; fi; sleep 1; done; echo "FAIL listener remained reachable at $1"; return 1; }
+printf 1 >"$TMP/enabled"
 status true 127.0.0.1
 "$fixture" start
 wait_up 127.0.0.1 || exit 1
@@ -52,3 +53,18 @@ status true 127.0.0.1
 ubus call service event "{\"type\":\"interface.update\",\"data\":{\"interface\":\"$name\"}}"
 wait_up 127.0.0.1 || exit 1
 echo 'PASS interface restoration restarts actual listener through retained trigger'
+
+# Exercise the native procd reload path with disabled configuration. Config
+# reads remain isolated fixtures; this does not prove real-UCI event delivery.
+printf 0 >"$TMP/enabled"
+"$fixture" reload
+wait_down 127.0.0.1 || exit 1
+ubus call service list "{\"name\":\"$name\"}" | jq -e --arg name "$name" '[.[$name].instances[]? | select(.running==true)] | length==0' >/dev/null
+echo 'PASS disabled reload removes real owned procd listener'
+"$fixture" restart
+wait_down 127.0.0.1 || exit 1
+echo 'PASS disabled restart does not create a listener'
+printf 1 >"$TMP/enabled"
+"$fixture" reload
+wait_up 127.0.0.1 || exit 1
+echo 'PASS re-enabled reload restores actual listener'

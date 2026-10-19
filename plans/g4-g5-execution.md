@@ -1,5 +1,9 @@
 # G4、G5 执行记录
 
+## G5d missing volatile publisher metadata checkpoint
+
+Actual loopback HTTP reproduced disabled_or_not_started from a disabled configuration after deleting status metadata while the endpoint remained live. Missing/empty metadata now supplies a non-ready observation and continues through the disabled endpoint checks. The read-only query reports publisher_still_responding without recreating status. Existing actual HTTP valid/stale/oversized/500/slow/config-port/stop tests and host status/publisher modules pass; ShellCheck error/syntax/actionlint/diff pass. Native disabled reload/restart/re-enable cases are prepared in publisher-procd-rebind.sh but NOT RUN: the Docker socket disappeared, and shared Docker/business containers were not restarted. Real-UCI event delivery and native proof remain OPEN. Receipt: publisher-missing-metadata.json. Preceding-source c8b0c6d PR run 39151181681 succeeded; this changed SHA needs its own qualification. Full G4/G5 remains OPEN.
+
 ## G5d interrupted bootstrap generation retention checkpoint
 
 Six KILLs immediately before the first current-pointer switch reproduced six accumulated owned legacy snapshots. Layout now validates any existing cursor, then prunes owned generations before adding the next bootstrap snapshot; the no-current retention count starts at zero. The same six-KILL regression leaves four owned snapshots with default retention, preserves the legacy bytes and an unknown user directory, and successfully completes migration. An invalid current pointer refuses layout before pruning any generation. Host and isolated OpenWrt pass; generation failure/KILL, workspace, native uhttpd and actual two-reader HTTP regressions pass. Receipt: publisher-bootstrap-retention.json. This bounds the listed software interruption case, not power-loss durability, unmarked or source-cache orphans, full G4/G5 resource/lifecycle matrix or final exact-SHA hosted/artifact qualification.
