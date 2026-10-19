@@ -53,7 +53,7 @@ run_v2
             def user_files():return {str(p.relative_to(root)):hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
             user_before=user_files()
             user_hash=hashlib.sha256(user.read_bytes()).hexdigest()
-            env=dict({k:v for k,v in os.environ.items() if not k.startswith(('CFIP_','CF_IP_'))},CF_IP_AUTO_BIN=str(backend),CFIP_TEST_CLI=CLI,CFIP_TEST_PROXY=proxy,CFIP_TEST_CASE=scenario,CFIP_TEST_ROOT=str(root),CFIP_TEST_FOREIGN_PID=str(os.getpid()),CFIP_STATUS_DIR=str(root/'state'),CFIP_RUNTIME_DIR=str(root/'runtime'),CF_IP_RUNTIME_DIR=str(root/'runtime'),CFIP_INIT_DIR=str(root/'init'),CFIP_LOG_FILE=str(root/'log'),CFIP_LIB_DIR=str(ROOT/'package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip'))
+            env=dict({k:v for k,v in os.environ.items() if not k.startswith(('CFIP_','CF_IP_'))},CF_IP_AUTO_BIN=str(backend),CFIP_FLOCK=os.environ.get('CFIP_FLOCK','flock'),CFIP_TEST_CLI=CLI,CFIP_TEST_PROXY=proxy,CFIP_TEST_CASE=scenario,CFIP_TEST_ROOT=str(root),CFIP_TEST_FOREIGN_PID=str(os.getpid()),CFIP_STATUS_DIR=str(root/'state'),CFIP_RUNTIME_DIR=str(root/'runtime'),CF_IP_RUNTIME_DIR=str(root/'runtime'),CFIP_INIT_DIR=str(root/'init'),CFIP_LOG_FILE=str(root/'log'),CFIP_LIB_DIR=str(ROOT/'package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip'))
             precondition=scenario in ('initial-symlink','snapshot-failed')
             if scenario=='initial-symlink':status.unlink();status.symlink_to(user)
             if scenario=='snapshot-failed':

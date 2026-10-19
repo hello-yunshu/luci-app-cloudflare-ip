@@ -14,20 +14,19 @@ cron_ensure_newline() {
 }
 
 cf_ip_shared_lock_acquire() {
-	mkdir -p "$CF_IP_RUNTIME_DIR" || return 1
-	mkdir "$CF_IP_RUNTIME_DIR/cf-ip-auto-v2.lock" 2>/dev/null || return 1
-	printf '%s\n' "$$" >"$CF_IP_RUNTIME_DIR/cf-ip-auto-v2.lock/pid"
+	local lib="${CFIP_LIB_DIR:-/usr/libexec/cf-ip}/writer-lock.sh"
+	[ -r "$lib" ] || { CF_IP_WRITER_LOCK_ERROR=helper_unavailable; return 1; }
+	. "$lib"
+	cf_ip_writer_lock_acquire "$CF_IP_RUNTIME_DIR"
 }
 
 cf_ip_shared_lock_release() {
-	[ "$(cat "$CF_IP_RUNTIME_DIR/cf-ip-auto-v2.lock/pid" 2>/dev/null)" = "$$" ] || return 0
-	rm -f "$CF_IP_RUNTIME_DIR/cf-ip-auto-v2.lock/pid"
-	rmdir "$CF_IP_RUNTIME_DIR/cf-ip-auto-v2.lock" 2>/dev/null || true
+	cf_ip_writer_lock_release "$CF_IP_RUNTIME_DIR" || true
 }
 
 cf_ip_with_shared_lock() {
 	[ "${CF_IP_LOCK_HELD:-0}" = 1 ] && { "$@"; return $?; }
-	cf_ip_shared_lock_acquire || { logger -t cf_ip -p daemon.err "another state-changing operation is running"; return 1; }
+	cf_ip_shared_lock_acquire || { logger -t cf_ip -p daemon.err "writer lock refused: ${CF_IP_WRITER_LOCK_ERROR:-lock_busy}"; return 1; }
 	trap 'cf_ip_shared_lock_release' EXIT INT TERM
 	"$@"; local rc=$?
 	trap - EXIT INT TERM

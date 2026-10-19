@@ -33,7 +33,7 @@ CFIP_MEASUREMENT_STARTED_MS=0; CFIP_MEASUREMENT_DURATION_MS=0; CFIP_ADAPTIVE_SCH
 CFIP_CANDIDATES_FILE=""; CFIP_PROBED_FILE=""; CFIP_NATIVE_FILE=""; CFIP_SELECTED_FILE=""; CFIP_RILL_FILE=""; CFIP_DECISION_FILE=""; CFIP_OUTCOME_FILE=""; CFIP_TXN_RESULT_FILE=""; CFIP_REUSE_DECISION_FILE=""; CFIP_ADAPTIVE_PLAN_FILE=""; CFIP_ADAPTIVE_PROBE_INPUT_FILE=""; CFIP_ADAPTIVE_AUDIT_FILE=""
 CFIP_INPUT_POOL_FILE=""; CFIP_CANDIDATE_INPUT_FILE=""; CFIP_PROBE_INPUT_FILE=""; CFIP_SOURCE_STATUS_FILE=""; CFIP_MEASUREMENT_DEADLINE=0; CFIP_MEASUREMENT_STARTED_AT=0; CFIP_RECOVERY_DEADLINE=0; CFIP_RECOVERY_STARTED_AT=0; CFIP_RECOVERY_ACTIVE=false; CFIP_RECOVERY_ERROR=""
 
-for lib in common.sh config.sh status.sh source.sh scheduler.sh cfst.sh observe.sh adaptive-measurement.sh context-policy.sh transaction.sh openclash-transform.sh openclash-readback.sh publisher.sh rill-disabled.sh reuse.sh operational-health.sh; do
+for lib in writer-lock.sh common.sh config.sh status.sh source.sh scheduler.sh cfst.sh observe.sh adaptive-measurement.sh context-policy.sh transaction.sh openclash-transform.sh openclash-readback.sh publisher.sh rill-disabled.sh reuse.sh operational-health.sh; do
     if [[ -r "$CFIP_LIB_DIR/$lib" ]]; then source "$CFIP_LIB_DIR/$lib"; else printf '[cloudflare-ip] ERROR: missing library %s\n' "$CFIP_LIB_DIR/$lib" >&2; exit 1; fi
 done
 if [[ -r "$CFIP_LIB_DIR/candidate-rill.sh" ]]; then source "$CFIP_LIB_DIR/candidate-rill.sh"; fi
@@ -121,14 +121,8 @@ validate_config() {
     esac
 }
 
-acquire_lock() {
-    mkdir -p "$CFIP_RUNTIME_DIR"
-    if mkdir "$CFIP_LOCK_DIR" 2>/dev/null; then printf '%s\n' "$$" >"$CFIP_LOCK_DIR/pid"; return 0; fi
-    local pid=""; [[ -f "$CFIP_LOCK_DIR/pid" ]] && pid="$(cat "$CFIP_LOCK_DIR/pid" 2>/dev/null || true)"
-    if [[ -n "$pid" ]] && ! kill -0 "$pid" 2>/dev/null; then rm -rf "$CFIP_LOCK_DIR"; mkdir "$CFIP_LOCK_DIR" && printf '%s\n' "$$" >"$CFIP_LOCK_DIR/pid"; return 0; fi
-    return 1
-}
-release_lock(){ local pid=""; [[ -f "$CFIP_LOCK_DIR/pid" ]] && pid="$(cat "$CFIP_LOCK_DIR/pid" 2>/dev/null || true)"; [[ "$pid" == "$$" ]] || return 0; rm -rf "$CFIP_LOCK_DIR" 2>/dev/null || true; }
+acquire_lock() { cf_ip_writer_lock_acquire "$CFIP_RUNTIME_DIR"; }
+release_lock(){ cf_ip_writer_lock_release "$CFIP_RUNTIME_DIR" || cfip_log "writer lock release deferred: ${CF_IP_WRITER_LOCK_ERROR:-metadata cleanup failed}"; }
 
 init_run_paths(){ CFIP_RUN_ID="${1:-$(cfip_generate_run_id)}" || return 1; local d="$CFIP_RUNTIME_DIR/run-$CFIP_RUN_ID"; mkdir -p "$d" || return 1; CFIP_INPUT_POOL_FILE="$d/input-pool.json"; CFIP_CANDIDATE_INPUT_FILE="$d/cfst-input.txt"; CFIP_PROBE_INPUT_FILE="$d/probe-input.json"; CFIP_SOURCE_STATUS_FILE="$CFIP_RUNTIME_DIR/source-status.json"; CFIP_CANDIDATES_FILE="$d/candidates.json"; CFIP_PROBED_FILE="$d/probed.json"; CFIP_NATIVE_FILE="$d/native.json"; CFIP_SELECTED_FILE="$d/selected.json"; CFIP_RILL_FILE="$d/rill.json"; CFIP_DECISION_FILE="$d/decision.json"; CFIP_OUTCOME_FILE="$d/outcome.json"; CFIP_TXN_RESULT_FILE="$d/transaction.json"; CFIP_PROBE_METRICS_FILE="$d/probe-metrics.json"; CFIP_REUSE_DECISION_FILE="$d/reuse-decision.json"; CFIP_ADAPTIVE_PLAN_FILE="$d/adaptive-plan.json"; CFIP_ADAPTIVE_PROBE_INPUT_FILE="$d/adaptive-probe-input.json"; CFIP_ADAPTIVE_AUDIT_FILE="$d/adaptive-audit.json"; }
 cleanup_run_files(){ find "$CFIP_RUNTIME_DIR" -maxdepth 1 -type d -name 'run-*' -mmin +120 -exec rm -rf {} + 2>/dev/null || true; }
@@ -452,7 +446,7 @@ run_signal_cleanup(){ cfip_cancel_active_operation; run_cleanup 143; }
 
 run_locked_entry(){
     local needs_config="$1"; shift
-    acquire_lock || { cfip_json_error "another v2 instance is running"; return 1; }
+    acquire_lock || { cfip_json_error "$(cf_ip_writer_lock_message)"; return 1; }
     CFIP_CLEANUP_DONE=false
     trap 'run_cleanup "$?"' EXIT
     trap run_signal_cleanup INT TERM
@@ -505,7 +499,7 @@ run_v2() {
     CFIP_SPEEDTEST_COMPLETED=false
     CFIP_OPENCLASH_EXPECTED_ENABLED=""; CFIP_OPENCLASH_INITIAL_RUNNING=false; CFIP_OPENCLASH_INITIAL_HEALTHY=false; CFIP_OPENCLASH_DEFERRED=false; CFIP_OPENCLASH_CF_STOPPED=false; CFIP_OPENCLASH_RECOVERY_ATTEMPTED=false; CFIP_OPENCLASH_RECOVERY_VERIFIED=false; CFIP_OPENCLASH_RESTART_ATTEMPTS=0; CFIP_OPENCLASH_FILE_WRITTEN=false; CFIP_OPENCLASH_SERVICE_APPLIED=false; CFIP_OPENCLASH_SERVICE_ERROR=""; CFIP_RECOVERY_ERROR=""
     load_config || return 1
-    acquire_lock || { cfip_json_error "another v2 instance is running"; return 1; }
+    acquire_lock || { cfip_json_error "$(cf_ip_writer_lock_message)"; return 1; }
     CFIP_CLEANUP_DONE=false
     trap 'run_cleanup "$?"' EXIT
     trap run_signal_cleanup INT TERM

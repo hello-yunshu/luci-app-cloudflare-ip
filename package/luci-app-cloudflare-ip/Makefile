@@ -13,7 +13,7 @@ define Package/luci-app-cloudflare-ip
   SECTION:=luci
   CATEGORY:=LuCI
   TITLE:=Cloudflare IP - Safe endpoint orchestration for PassWall/OpenClash on OpenWrt
-  DEPENDS:=+luci-base +bash +curl +tar +jq +ca-bundle +ca-certificates +uhttpd
+  DEPENDS:=+luci-base +bash +flock +curl +tar +jq +ca-bundle +ca-certificates +uhttpd
   PKGARCH:=all
 endef
 
@@ -64,7 +64,7 @@ define Package/luci-app-cloudflare-ip/install
 	$(INSTALL_DIR) $(1)/usr/libexec/rpcd
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/root/usr/libexec/rpcd/cf_ip $(1)/usr/libexec/rpcd/
 	$(INSTALL_DIR) $(1)/usr/libexec/cf-ip
-	for script in common.sh config.sh status.sh source.sh scheduler.sh cfst.sh observe.sh adaptive-measurement.sh context-policy.sh transaction.sh openclash-transform.sh openclash-readback.sh publisher.sh rill-disabled.sh candidate-rill.sh reuse.sh operational-health.sh; do \
+	for script in writer-lock.sh common.sh config.sh status.sh source.sh scheduler.sh cfst.sh observe.sh adaptive-measurement.sh context-policy.sh transaction.sh openclash-transform.sh openclash-readback.sh publisher.sh rill-disabled.sh candidate-rill.sh reuse.sh operational-health.sh; do \
 		$(INSTALL_BIN) $(PKG_BUILD_DIR)/root/usr/libexec/cf-ip/$$$$script $(1)/usr/libexec/cf-ip/; \
 	done
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/root/usr/libexec/cf-ip/migrate-self-update-url.sh $(1)/usr/libexec/cf-ip/
