@@ -80,12 +80,12 @@ printf '%s\n' '{"success":true}'
     def malformed_protocol():
         malformed=tmp/'malformed-backend'
         malformed.write_text('''#!/usr/bin/env bash
-reply="$(jq -cn --arg requestId "$CFIP_RUN_REQUEST_ID" --argjson pid "$$" '{success:true,action:"run",running:true,acknowledged:true,accepted:true,requestId:$requestId,pid:$pid}')"
+reply="$(jq -cn --arg requestId "$CFIP_RUN_REQUEST_ID" --argjson pid "$$" '{success:true,action:"run",running:true,runId:"fixture-run",acknowledged:true,accepted:true,requestId:$requestId,pid:$pid}')"
 case "$RPC_BAD_ACK" in
  incomplete) printf '%s\\n' "$reply" | jq -c 'del(.action,.running)' >&3 ;;
  multi) printf '%s%s\\n' "$reply" "$reply" >&3 ;;
  oversized) { printf '%s' "$reply"; head -c 20000 /dev/zero | tr '\\000' ' '; printf '\\n'; } >&3 ;;
- wrong-id) printf '%s\\n' '{"success":true,"action":"run","running":true,"accepted":true,"acknowledged":true,"pid":123,"requestId":"wrong"}' >&3 ;;
+ wrong-id) printf '%s\\n' '{"success":true,"action":"run","running":true,"runId":"fixture-run","accepted":true,"acknowledged":true,"pid":123,"requestId":"wrong"}' >&3 ;;
 esac
 ''')
         malformed.chmod(0o755)
@@ -111,6 +111,7 @@ esac
         while time.monotonic()-started<7:time.sleep(.1)
         assert not (tmp/'slow-marker').exists(),'timed-out startup reached context mutation'
         assert not (slow/'cf-ip-auto-v2.lock').exists(),'timed-out startup leaked the run lock'
+        assert not list(slow.glob('run-*')),'timed-out startup allocated run payload directories'
         assert not list(slow.glob('rpc-run.*')),'timed-out startup leaked IPC directory'
     try:
         check('invalid configuration is reported before running success',rejected_config)
