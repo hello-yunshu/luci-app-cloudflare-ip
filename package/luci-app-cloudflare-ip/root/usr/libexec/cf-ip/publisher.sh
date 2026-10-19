@@ -318,12 +318,17 @@ cfip_publish_result() {
 
 cfip_publisher_status_json() {
     local snapshot bind port LC_ALL=C
-    if [[ ! -s "$CFIP_PUBLISH_STATUS_FILE" ]]; then printf '{"success":false,"state":"disabled_or_not_started","listenerReady":false}'; return 0; fi
-    snapshot="$(head -c 16385 "$CFIP_PUBLISH_STATUS_FILE" && printf '.')" || return 1
-    snapshot="${snapshot%.}"
-    if ((${#snapshot} > 16384)) || ! jq -e 'type=="object" and (.success|type)=="boolean"' <<<"$snapshot" >/dev/null 2>&1; then
-        printf '{"success":false,"state":"error","error":"publisher_status_invalid","listenerReady":false}'
-        return 0
+    if [[ ! -s "$CFIP_PUBLISH_STATUS_FILE" ]]; then
+        # Volatile metadata loss is not evidence that a configured endpoint
+        # stopped. Keep disabled-state endpoint checks on this path as well.
+        snapshot='{"success":false,"state":"disabled_or_not_started","listenerReady":false}'
+    else
+        snapshot="$(head -c 16385 "$CFIP_PUBLISH_STATUS_FILE" && printf '.')" || return 1
+        snapshot="${snapshot%.}"
+        if ((${#snapshot} > 16384)) || ! jq -e 'type=="object" and (.success|type)=="boolean"' <<<"$snapshot" >/dev/null 2>&1; then
+            printf '{"success":false,"state":"error","error":"publisher_status_invalid","listenerReady":false}'
+            return 0
+        fi
     fi
     if [[ "${CFIP_PUBLISH_ENABLED:-unknown}" == false ]]; then
         bind="$(jq -r '.bind // empty' <<<"$snapshot")"; port="$(jq -r '.port // 12345' <<<"$snapshot")"

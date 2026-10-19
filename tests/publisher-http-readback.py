@@ -53,6 +53,15 @@ cfip_publish_result "$CFIP_SELECTED"
                     queried=json.loads(query.stdout)
                     assert queried['success']==(check_mode=='valid'),queried
                     assert (tmp/'status.json').read_bytes()==saved,'status query rewrote stored observation'
+                # Losing volatile publication metadata cannot hide a listener
+                # after the configured LAN publisher has been disabled.
+                (tmp/'status.json').unlink()
+                query=subprocess.run(['bash','-c',query_script],env=dict(env,CFIP_PUBLISH_ENABLED='false'),capture_output=True,text=True,timeout=5)
+                queried=json.loads(query.stdout)
+                assert queried.get('error')=='publisher_still_responding',queried
+                assert not (tmp/'status.json').exists(),'read-only missing-metadata query created status'
+                results.append({'mode':'disabled-missing-metadata-live-listener','status':queried})
+                (tmp/'status.json').write_bytes(saved)
                 other=http.server.ThreadingHTTPServer(('127.0.0.1',0),Handler);other.daemon_threads=True
                 other.directory=tmp/'publish';other.mode='valid'
                 threading.Thread(target=other.serve_forever,daemon=True).start()
