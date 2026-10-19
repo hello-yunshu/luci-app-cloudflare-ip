@@ -353,12 +353,14 @@ jobs:
             bash "$build_helper" package/luci-app-cloudflare-ip/compile
           fi
       - name: Execute SDK target writer-lock utility
+        id: writer_lock
         shell: bash
         env:
           QUALIFICATION_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           bash "$GITHUB_WORKSPACE/luci-app-cloudflare-ip/tests/sdk-writer-lock.sh" /builder "$GITHUB_WORKSPACE/writer-lock-qualification"
       - uses: actions/upload-artifact@v7
+        if: ${{ always() && steps.writer_lock.outcome != 'skipped' }}
         with:
           name: writer-lock-${{ matrix.branch }}-${{ matrix.pkgtype }}-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
           path: writer-lock-qualification/
