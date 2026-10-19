@@ -130,7 +130,51 @@ service_action() {
 	return "$rc"
 }
 
+# A private anonymous pipe carries startup confirmation separately from task
+# stdout. Bash is already a package dependency and used by the backend.
+run_start() {
+	local reply wait_seconds="${CFIP_RPC_RUN_WAIT_SECONDS:-8}"
+	case "$wait_seconds" in [1-8]) ;; *) echo '{"success":false,"error":"invalid_start_wait","accepted":false,"running":false}'; return 0 ;; esac
+	[ -x "$CF_IP_AUTO_BIN" ] || { echo '{"success":false,"error":"backend_unavailable","accepted":false,"running":false}'; return 0; }
+	if ! reply="$(bash -s -- "$0" "$CF_IP_AUTO_BIN" "$CF_IP_RUNTIME_DIR" "$wait_seconds" <<'STARTUP'
+rpc_file="$1"; backend="$2"; runtime="$3"; wait_seconds="$4"
+set -- __source_only__
+# Reuse the same result normalizer; do not execute a second RPC method.
+source "$rpc_file" >/dev/null || exit 1
+CF_IP_AUTO_BIN="$backend"
+request="rpc-run.$$.${RANDOM}.${RANDOM}"
+if ! exec 3< <(
+    # The worker inherits only the pipe write endpoint. Closing the reader
+    # therefore makes a late acknowledgement fail before context mutation.
+    exec 3>&1
+    exec </dev/null 2>/dev/null
+    CFIP_RUN_ACK_FD=3 CFIP_RUN_REQUEST_ID="$request" CFIP_RUNTIME_DIR="$runtime" command_result --run --no-delay </dev/null
+); then exit 1; fi
+if LC_ALL=C IFS= read -r -n 16385 -t "$wait_seconds" reply <&3; then
+    exec 3<&-
+    if (( ${#reply} > 16384 )) || ! reply="$(printf '%s\n' "$reply" | jq -ces 'if length==1 and (.[0]|type)=="object" then .[0] else error("one result object required") end' 2>/dev/null)"; then
+        echo '{"success":false,"action":"run","error":"run_start_not_acknowledged","accepted":null,"running":null,"unconfirmed":true}'
+    elif printf '%s\n' "$reply" | jq -e --arg request "$request" '.success==true and .action=="run" and .running==true and .acknowledged==true and .accepted==true and .requestId==$request and (.pid|type)=="number" and .pid>1 and (.pid|floor)==.pid' >/dev/null 2>&1; then
+        printf '%s\n' "$reply"
+    elif printf '%s\n' "$reply" | jq -e '.success==false' >/dev/null 2>&1; then
+        printf '%s\n' "$reply" | jq -c '. + {action:"run",accepted:false,running:false}'
+    else
+        echo '{"success":false,"action":"run","error":"run_start_not_acknowledged","accepted":null,"running":null,"unconfirmed":true}'
+    fi
+else
+    exec 3<&-
+    echo '{"success":false,"action":"run","error":"run_start_unconfirmed","accepted":null,"running":null,"unconfirmed":true}'
+fi
+STARTUP
+)"; then
+		echo '{"success":false,"error":"startup_channel_failed","accepted":false,"running":false}'
+		return 0
+	fi
+	printf '%s\n' "$reply"
+}
+
 case "$1" in
+	__source_only__) : ;;
 	list)
 		cat <<'EOF'
 {
@@ -176,14 +220,7 @@ EOF
 				command_result --validate-config "$_candidate"
 				;;
 			run)
-				# Check lock before starting background speedtest
-				if [ -d /tmp/cf_ip/cf-ip-auto-v2.lock ]; then
-					echo '{"success":false,"error":"another instance is running"}'
-				else
-					# Start speedtest in background to avoid rpcd timeout
-					( "$CF_IP_AUTO_BIN" --run --no-delay >/dev/null 2>&1 ) &
-					echo '{"success":true,"action":"run","running":true}'
-				fi
+				run_start
 				;;
 			speedtest-status)
 				_status="$(command_result --status)"
