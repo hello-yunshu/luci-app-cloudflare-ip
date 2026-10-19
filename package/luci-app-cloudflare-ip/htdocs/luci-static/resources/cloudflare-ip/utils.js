@@ -107,6 +107,27 @@ function waitForServiceReady(callStatus, options) {
 	});
 }
 
+function waitForRunStatus(fetchStatus, acknowledgement, options) {
+	options = options || {};
+	if (!acknowledgement || acknowledgement.success !== true || acknowledgement.accepted !== true ||
+		acknowledgement.acknowledged !== true || typeof acknowledgement.runId !== 'string' || !acknowledgement.runId ||
+		typeof acknowledgement.requestId !== 'string' || !acknowledgement.requestId)
+		return Promise.reject(new Error((acknowledgement && acknowledgement.error) || _('Task startup was not confirmed. Check status and logs before retrying.')));
+	return waitForServiceReady(fetchStatus, Object.assign({}, options, {
+		isReady: function(status) {
+			return status.runId === acknowledgement.runId && status.requestId === acknowledgement.requestId &&
+				(status.active_run === true || status.jobRunning === true ||
+					(typeof status.last_result === 'string' && status.last_result !== '' && status.last_result !== '-'));
+		}
+	})).catch(function(error) {
+		if (error.code === 'ServiceReadyTimeout') {
+			error.code = 'RunStatusTimeout';
+			error.message = _('The started task has not published its status. Check status and logs before retrying.');
+		}
+		throw error;
+	});
+}
+
 function requireSuccess(result) {
 	if (!result || result.success !== true)
 		throw new Error(result.error || _('service action failed'));
@@ -374,6 +395,7 @@ return baseclass.extend({
 	resetBusy: resetBusy,
 	reloadSoon: reloadSoon,
 	waitForServiceReady: waitForServiceReady,
+	waitForRunStatus: waitForRunStatus,
 	requireSuccess: requireSuccess,
 	loadSharedCSS: loadSharedCSS,
 	renderFooter: renderFooter,
