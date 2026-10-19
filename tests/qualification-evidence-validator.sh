@@ -52,6 +52,12 @@ cases=[]
 for value in (None, [], {}, [valid["packageMigration"]["currentMatrices"][0]]):
  d=copy.deepcopy(valid); d["packageMigration"]["currentMatrices"]=value; cases.append(("missing/incomplete current matrices",d,commit))
 for index in (0,1):
+ for value in (None, [], {}, [valid["packageMigration"]["currentMatrices"][index]["negativeInstalls"][0]]):
+  d=copy.deepcopy(valid); d["packageMigration"]["currentMatrices"][index]["negativeInstalls"]=value; cases.append(("missing/incomplete negative install matrix",d,commit))
+ for row_index in (0,1):
+  for field,value in (("exitCode",0),("exitCode",True),("exitCode","1"),("exitCode",-1),("exitCode",256),("status","FAIL"),("rejected",False),("installedStatePreserved",False),("payloadPreserved",False),("userDataPreserved",False),("evidenceDirectory","../outside"),("id",[])):
+   d=copy.deepcopy(valid); d["packageMigration"]["currentMatrices"][index]["negativeInstalls"][row_index][field]=value; cases.append(("invalid negative install "+field,d,commit))
+for index in (0,1):
  for field,value in (("sha256","broken"),("size",True),("size",0)):
   d=copy.deepcopy(valid); d["packageMigration"]["currentMatrices"][index]["inputs"]["currentBase"][field]=value; cases.append(("invalid matrix input "+field,d,commit))
  for field,value in (("name","wrong"),("format","unknown"),("architecture","mips"),("release",True),("packageVersion","bad")):

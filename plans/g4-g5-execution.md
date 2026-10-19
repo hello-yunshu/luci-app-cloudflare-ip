@@ -1,5 +1,11 @@
 # G4、G5 执行记录
 
+## G4 invalid package input preservation gate checkpoint
+
+The strict validator previously accepts missing negative-install evidence. Each real opkg/apk migration invocation now installs the candidate in a fresh isolated root, attempts both a missing package and a 32-byte truncation of the actual candidate, requires a nonzero manager exit, and compares installed package info, base ownership lists, payload hashes/modes/symlink targets and user data. Manager DB copies, snapshots, logs and exit codes are retained. Only after both execute successfully are their PASS records included in current-matrix.json. Release eligibility now requires both records per manager, exact evidence-directory names, all preservation checks and an integer exitCode in 1..255; missing/partial/false/invalid records are refused.
+
+Host strict qualification mutation and synthetic byte-binding regressions pass, plus artifact-download API fixtures, seven package-identity tests and shell syntax/ShellCheck/diff. Receipt: migration-negative-inputs.json. The native manager cases are NOT RUN locally because opkg/apk and Docker are unavailable; hosted current-SHA migration must supply the actual evidence. These cases prove only early invalid-input refusal, not mid-install rollback, owner conflicts, uninstall/lifecycle or genuine dependency/Runtime installation. Those remaining G4 requirements and full G5 remain OPEN. Earlier SHA CI results cannot qualify this changed source or satisfy the new evidence contract.
+
 ## G5b/G5e Overview acknowledged task status checkpoint
 
 The actual pre-change Overview click handler reloads after a fixed delay without observing any status for the acknowledged task. It now waits for both runId and requestId to match the startup acknowledgement, accepting either active or already-terminal status. Missing/incomplete/unconfirmed startup, stale or foreign status, hanging/network-failed RPC and navigation cancel cannot trigger a success-path reload. Polling is bounded, stops on settlement/navigation, and failure restores the button. Status-observation failure does not claim the backend task failed; the message asks the user to check status/logs before retrying. English/Chinese catalogs are included.
