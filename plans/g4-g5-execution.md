@@ -1,5 +1,11 @@
 # G4、G5 执行记录
 
+## G5b/G5e Overview acknowledged task status checkpoint
+
+The actual pre-change Overview click handler reloads after a fixed delay without observing any status for the acknowledged task. It now waits for both runId and requestId to match the startup acknowledgement, accepting either active or already-terminal status. Missing/incomplete/unconfirmed startup, stale or foreign status, hanging/network-failed RPC and navigation cancel cannot trigger a success-path reload. Polling is bounded, stops on settlement/navigation, and failure restores the button. Status-observation failure does not claim the backend task failed; the message asks the user to check status/logs before retrying. English/Chinese catalogs are included.
+
+Ten actual-handler/utils module cases pass, plus readiness, refresh-error, fresh save readback and save singleflight regressions, JS/catalog/actionlint/diff checks. Receipt: luci-run-status.json. DOM/RPC are controlled fixtures; native LuCI/browser eight-view responsive/keyboard/actions acceptance remains OPEN. Current exact-SHA CI/package/offline and full G4/G5 remain OPEN. The preceding writer-lock candidate CI 39236083235 is separately in progress and cannot qualify this new source.
+
 ## G5e shared writer-lock recovery checkpoint
 
 Baseline 3477494 admits two writers after simultaneous stale-PID recovery and falsely accepts a failed owner-PID write. CLI, init and RPC now share a persistent-inode kernel flock gate around PID metadata operations. The whole-task PID directory remains compatible; live/reused owners and unknown payloads are preserved. PID creation is checked, partial writes are cleaned for retry, symlink/unsafe metadata is refused, and kernel-tool failures retain their exit code. The gate is not held across task execution. The package explicitly depends on OpenWrt flock and installs the shared helper.

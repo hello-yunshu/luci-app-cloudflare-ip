@@ -129,6 +129,7 @@ jobs:
           node tests/luci-save-singleflight.cjs
           node tests/luci-save-readback.cjs
           node tests/luci-ready-state.cjs
+          node tests/luci-run-status.cjs
           bash tests/luci-validation-contract.sh
           bash tests/luci-staged-validation.sh
           bash tests/openclash-empty-fields.sh

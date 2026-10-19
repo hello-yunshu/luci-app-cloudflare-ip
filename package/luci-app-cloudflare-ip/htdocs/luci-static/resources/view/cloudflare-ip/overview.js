@@ -402,18 +402,15 @@ return view.extend({
 					utils.setBusy(btn, '\u23F3 ' + _('Running...'));
 					isRunningTest = true;
 					// Trigger speedtest in background (non-blocking RPC)
-					callRun().then(function(result) {
-						result = result || {};
-						if (result.success !== true) {
-							ui.addNotification(null, E('p', _('Unable to start speed test: %s').format(result.error || _('Unknown'))), 'error');
-							isRunningTest = false;
-							utils.resetBusy(btn);
-							return;
-						}
-						// Reload page after short delay; backend writes "running" status almost instantly
-						utils.reloadSoon(1000);
+					return callRun().then(function(result) {
+						return utils.waitForRunStatus(utils.callStatus, result, {
+							isActive: function() { return container.isConnected; }
+						});
+					}).then(function() {
+						if (container.isConnected) utils.reloadSoon(300, function() { return container.isConnected; });
 					}).catch(function(e) {
-						ui.addNotification(null, E('p', _('Speed test failed: %s').format(e.message)), 'error');
+						if (container.isConnected && e.code !== 'ServiceReadyCancelled')
+							ui.addNotification(null, E('p', _('Unable to confirm speed test status: %s').format(e.message)), 'error');
 						isRunningTest = false;
 						utils.resetBusy(btn);
 					});
