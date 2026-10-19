@@ -441,6 +441,17 @@ finalize_adaptive_audit() {
     cfip_adaptive_record_audit "$CFIP_ADAPTIVE_AUDIT_FILE" || cfip_log "adaptive audit qualification update deferred"
 }
 
+# RPC receives this only after both committed config reads and lock acquisition.
+# A missing reader must fail before context/transaction/user state changes.
+acknowledge_run_start() {
+    [[ -n "${CFIP_RUN_ACK_FD:-}" ]] || return 0
+    [[ "$CFIP_RUN_ACK_FD" == 3 && -n "${CFIP_RUN_REQUEST_ID:-}" ]] || return 1
+    jq -cn --arg requestId "$CFIP_RUN_REQUEST_ID" --argjson pid "$$" \
+        '{success:true,action:"run",accepted:true,acknowledged:true,running:true,requestId:$requestId,pid:$pid,observedAt:now}' >&3 || return 1
+    exec 3>&-
+    unset CFIP_RUN_ACK_FD
+}
+
 run_v2() {
     local reuse_allowed=true
     CFIP_SPEEDTEST_COMPLETED=false
@@ -451,6 +462,7 @@ run_v2() {
     trap 'run_cleanup "$?"' EXIT
     trap run_signal_cleanup INT TERM
     load_config || { cfip_json_error "failed to reload committed configuration"; return 1; }
+    acknowledge_run_start || { cfip_json_error "run startup acknowledgement failed"; return 1; }
     reconcile_committed_context || { cfip_json_error "failed to establish Rill learning context"; return 1; }
     init_run_paths
     cleanup_run_files
