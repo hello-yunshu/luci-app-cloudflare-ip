@@ -154,7 +154,7 @@ if LC_ALL=C IFS= read -r -n 16385 -t "$wait_seconds" reply <&3; then
     exec 3<&-
     if (( ${#reply} > 16384 )) || ! reply="$(printf '%s\n' "$reply" | jq -ces 'if length==1 and (.[0]|type)=="object" then .[0] else error("one result object required") end' 2>/dev/null)"; then
         echo '{"success":false,"action":"run","error":"run_start_not_acknowledged","accepted":null,"running":null,"unconfirmed":true}'
-    elif printf '%s\n' "$reply" | jq -e --arg request "$request" '.success==true and .action=="run" and .running==true and .acknowledged==true and .accepted==true and .requestId==$request and (.pid|type)=="number" and .pid>1 and (.pid|floor)==.pid' >/dev/null 2>&1; then
+    elif printf '%s\n' "$reply" | jq -e --arg request "$request" '.success==true and .action=="run" and .running==true and .acknowledged==true and .accepted==true and .requestId==$request and (.runId|type)=="string" and (.runId|length)>0 and (.pid|type)=="number" and .pid>1 and (.pid|floor)==.pid' >/dev/null 2>&1; then
         printf '%s\n' "$reply"
     elif printf '%s\n' "$reply" | jq -e '.success==false' >/dev/null 2>&1; then
         printf '%s\n' "$reply" | jq -c '. + {action:"run",accepted:false,running:false}'
