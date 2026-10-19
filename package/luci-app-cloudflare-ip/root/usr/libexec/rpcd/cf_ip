@@ -11,7 +11,7 @@ CF_IP_RUNTIME_DIR="${CF_IP_RUNTIME_DIR:-/tmp/cf_ip}"
 command_result() {
 	_result_rc=0
 	_result_json="$("$CF_IP_AUTO_BIN" "$@" 2>/dev/null)" || _result_rc=$?
-	if printf '%s\n' "$_result_json" | jq -e 'type == "object"' >/dev/null 2>&1; then
+	if _result_json="$(printf '%s\n' "$_result_json" | jq -ces 'if length==1 and (.[0]|type)=="object" then .[0] else error("one result object required") end' 2>/dev/null)"; then
 		if [ "$_result_rc" -ne 0 ]; then
 			printf '%s\n' "$_result_json" | jq -c --argjson rc "$_result_rc" '.success=false | . + {error:(.error // "cf-ip-auto command failed"),rc:$rc}'
 		else
@@ -50,14 +50,27 @@ service_action_unlocked() {
 	action="$1"
 
 	case "$action" in
+		start|restart) _enabled=1 ;;
+		stop) _enabled=0 ;;
+		*) echo '{"success":false,"error":"unknown_action"}'; return 0 ;;
+	esac
+	uci set "cf_ip.main.enabled=$_enabled" 2>/dev/null; _rc=$?
+	if [ "$_rc" -ne 0 ]; then
+		printf '{"success":false,"action":"%s","error":"uci_set_failed","rc":%d}\n' "$action" "$_rc"
+		return 0
+	fi
+	uci commit cf_ip 2>/dev/null; _rc=$?
+	if [ "$_rc" -ne 0 ]; then
+		printf '{"success":false,"action":"%s","error":"uci_commit_failed","rc":%d}\n' "$action" "$_rc"
+		return 0
+	fi
+	case "$action" in
 		start|restart)
-			uci set cf_ip.main.enabled='1' 2>/dev/null
-			uci commit cf_ip 2>/dev/null
-			"$INIT_SCRIPT" enable >/dev/null 2>&1
-			;;
-		stop)
-			uci set cf_ip.main.enabled='0' 2>/dev/null
-			uci commit cf_ip 2>/dev/null
+			"$INIT_SCRIPT" enable >/dev/null 2>&1; _rc=$?
+			if [ "$_rc" -ne 0 ]; then
+				printf '{"success":false,"action":"%s","error":"init_enable_failed","rc":%d}\n' "$action" "$_rc"
+				return 0
+			fi
 			;;
 	esac
 
@@ -154,20 +167,13 @@ EOF
 	call)
 		method="$2"
 		case "$method" in
-			status)
-				command_result --status
+			status|check-env|refresh-env|read-log|clear-log|ip-history|download-cfst|source-status|source-registry|source-refresh|publisher-status|adaptive-status|rill-self-check|rill-diagnostics|self-update|oc-list-backups)
+				command_result "--$method"
 				;;
 			validate-config)
 				read _input
 				_candidate="$(printf '%s\n' "$_input" | jq -c '.candidate // {}' 2>/dev/null)" || _candidate='{}'
-				_out="$($CF_IP_AUTO_BIN --validate-config "$_candidate" 2>/dev/null)" || true
-				[ -n "$_out" ] && printf '%s\n' "$_out" || printf '%s\n' '{"success":false,"error":"configuration validation failed"}'
-				;;
-			check-env)
-				"$CF_IP_AUTO_BIN" --check-env 2>/dev/null || true
-				;;
-			refresh-env)
-				"$CF_IP_AUTO_BIN" --refresh-env 2>/dev/null || true
+				command_result --validate-config "$_candidate"
 				;;
 			run)
 				# Check lock before starting background speedtest
@@ -181,54 +187,18 @@ EOF
 				;;
 			speedtest-status)
 				_status="$(command_result --status)"
-				_log="$("$CF_IP_AUTO_BIN" --read-log 2>/dev/null)" || true
-				# Merge status + log into single response
-				if command -v jq >/dev/null 2>&1 && [ -n "$_status" ]; then
-					_log_json="$(printf '%s' "$_log" | jq -c '.' 2>/dev/null)" || _log_json='{"logs":""}'
-					printf '%s\n' "$_status" | jq -c --argjson log "$_log_json" '. + {log_data: $log}' 2>/dev/null && return 0
-				fi
-				# Fallback: just return status
-				printf '%s\n' "${_status:-{\}}"
+				_log="$(command_result --read-log)"
+				# Both branches are normalized to one object, preserving their own
+				# backend failures without emitting a second top-level JSON value.
+				printf '%s\n' "$_status" | jq -c --argjson log "$_log" '. + {log_data: $log}'
 				;;
 			version)
 				printf '{"version":"%s","package_version":"%s","package_release":"%s"}\n' "$RPCD_VERSION" "$RPCD_PACKAGE_VERSION" "$RPCD_PACKAGE_RELEASE"
 				;;
-			read-log)
-				"$CF_IP_AUTO_BIN" --read-log 2>/dev/null || true
-				;;
-			clear-log)
-				"$CF_IP_AUTO_BIN" --clear-log 2>/dev/null || true
-				;;
-			ip-history)
-				"$CF_IP_AUTO_BIN" --ip-history 2>/dev/null || true
-				;;
-			download-cfst)
-				_out="$("$CF_IP_AUTO_BIN" --download-cfst 2>/dev/null)" || true
-				[ -n "$_out" ] && printf '%s\n' "$_out" || printf '%s\n' '{"success":false,"error":"no output from cf-ip-auto"}'
-				;;
-			source-status|source-registry|source-refresh|publisher-status)
-				_flag="--$method"
-				_out="$($CF_IP_AUTO_BIN "$_flag" 2>/dev/null)" || true
-				[ -n "$_out" ] && printf '%s\n' "$_out" || printf '%s\n' '{"success":false,"error":"no output from cf-ip-auto"}'
-				;;
-			adaptive-status)
-				_out="$("$CF_IP_AUTO_BIN" --adaptive-status 2>/dev/null)" || true
-				[ -n "$_out" ] && printf '%s\n' "$_out" || printf '%s\n' '{"success":false,"error":"no output from cf-ip-auto"}'
-				;;
-			rill-self-check|rill-diagnostics)
-				_flag="--$method"
-				_out="$($CF_IP_AUTO_BIN "$_flag" 2>/dev/null)" || true
-				[ -n "$_out" ] && printf '%s\n' "$_out" || printf '%s\n' '{"success":false,"error":"no output from cf-ip-auto"}'
-				;;
 			rill-reset)
 				read _input
 				_generation="$(jsonfilter -s "$_input" -e '$.expectedGeneration' 2>/dev/null)" || true
-				_out="$($CF_IP_AUTO_BIN --rill-reset "$_generation" 2>/dev/null)" || true
-				[ -n "$_out" ] && printf '%s\n' "$_out" || printf '%s\n' '{"success":false,"error":"no output from cf-ip-auto"}'
-				;;
-			self-update)
-				_out="$("$CF_IP_AUTO_BIN" --self-update 2>/dev/null)" || true
-				[ -n "$_out" ] && printf '%s\n' "$_out" || printf '%s\n' '{"success":false,"error":"no output from cf-ip-auto"}'
+				command_result --rill-reset "$_generation"
 				;;
 			start)
 				service_action start
@@ -248,9 +218,6 @@ EOF
 					command_result --sync "$_plugin"
 				fi
 				;;
-			oc-list-backups)
-				"$CF_IP_AUTO_BIN" --oc-list-backups 2>/dev/null || echo '{"success":false,"error":"failed to list backups"}'
-				;;
 			oc-restore-backup)
 				read _input
 				_backup_id="$(jsonfilter -s "$_input" -e '$.id' 2>/dev/null)" || true
@@ -266,8 +233,7 @@ EOF
 				if [ -z "$_backup_id" ]; then
 					echo '{"success":false,"error":"missing backup id"}'
 				else
-					_out="$("$CF_IP_AUTO_BIN" --oc-delete-backup "$_backup_id" 2>/dev/null)" || true
-					[ -n "$_out" ] && printf '%s\n' "$_out" || printf '%s\n' '{"success":false,"error":"no output from cf-ip-auto"}'
+					command_result --oc-delete-backup "$_backup_id"
 				fi
 				;;
 			*)

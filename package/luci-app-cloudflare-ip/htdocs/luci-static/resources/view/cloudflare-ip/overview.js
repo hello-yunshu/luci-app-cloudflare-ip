@@ -581,7 +581,8 @@ return view.extend({
 				var btn = this;
 				utils.setBusy(btn, _('Checking...'));
 				return callRefreshEnv().then(function(result) {
-					result = result || {};
+					if (!result || result.success !== true)
+						throw new Error(result && result.error || _('Error'));
 					for (var j = 0; j < envTds.length; j++) {
 						var entry = envTds[j];
 						var it = entry.item;
