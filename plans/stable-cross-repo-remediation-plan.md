@@ -318,6 +318,8 @@ Runtime Stable/Preview各自受控升级；自动发现“最新已资格版本�
 - 不将Stable与Preview必须不同SHA当永久规则，按渠道能力合同判断；不删除历史r3ToR4，新增current通用矩阵并注明旧字段语义。
 - DoD：全部Host/Legacy/SDK/真实migration最新exactSHA终态通过，release preflight用相同bytes；线上发布仍NOT RUN。证据metadata/installed DB/owner/配置before-after/manifest与日志；Release/迁移视角复核。失败保持旧公开资产。
 
+G4 最新检查点：缺失/截断安装包的真实 opkg、apk 拒绝与已安装状态保留检查已加入迁移；资格门禁强制要求对应非零退出和保留证据。Host 负向校验通过，真实包管理器执行待当前 SHA CI，仍 NOT EVALUATED。覆盖写入冲突、安装中途失败和完整卸载生命周期仍 OPEN。
+
 ### G5 可靠性与LuCI体验（各子阶段唯一责任CF，L）
 
 关联Rill/RP只读；Runtime真实集成等G3，多数可G0后独立复现。事务优先，其次状态诚实性、来源与LAN；共享主入口/公共库修改串行整合。

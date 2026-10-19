@@ -290,6 +290,60 @@ scenario_e() {
     runtime_present "$root"
 }
 
+# A rejected input must leave the already installed candidate and user data intact.
+# These are input-rejection cases, not mid-install rollback or owner-conflict proof.
+payload_snapshot() {
+    python3 - "$1" "$2" <<'PYSNAPSHOT'
+import hashlib,json,os,stat,sys
+from pathlib import Path
+root=Path(sys.argv[1]); records={}
+exclude={'tmp','usr/lib/opkg','lib/apk'}
+for directory,dirs,files in os.walk(root,followlinks=False):
+    relative=Path(directory).relative_to(root)
+    dirs[:]=sorted(d for d in dirs if (relative/d).as_posix() not in exclude)
+    for name in sorted(dirs+files):
+        p=Path(directory)/name; key=p.relative_to(root).as_posix(); meta=p.lstat()
+        if stat.S_ISLNK(meta.st_mode): records[key]={'link':os.readlink(p)}
+        elif stat.S_ISREG(meta.st_mode): records[key]={'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'size':meta.st_size,'mode':stat.S_IMODE(meta.st_mode)}
+Path(sys.argv[2]).write_text(json.dumps(records,sort_keys=True,indent=2)+'\n')
+PYSNAPSHOT
+}
+
+negative_install() {
+    local case_name="$1" root out input install_rc=0
+    SCENARIO="$KIND-negative-$case_name"; STAGE=0
+    out="$EVIDENCE_DIR/$SCENARIO"; mkdir -p "$out"
+    root="$(fresh_root "$SCENARIO")"
+    install_package "$root" "$CURRENT_BASE"
+    assert_installed "$root" "$BASE_PACKAGE"
+    package_files "$root" "$BASE_PACKAGE" >"$out/owner-before.txt"
+    manager "$root" info >"$out/installed-before.txt"
+    payload_snapshot "$root" "$out/payload-before.json"
+    input="$WORK/$case_name.$KIND"
+    case "$case_name" in
+        missing) test ! -e "$input" ;;
+        truncated) head -c 32 "$CURRENT_BASE" >"$input"; sha256sum "$input" >"$out/rejected-input.sha256" ;;
+        *) return 2 ;;
+    esac
+    case "$KIND" in
+        ipk) manager "$root" install "$input" >"$out/install.log" 2>&1 || install_rc=$? ;;
+        apk) manager "$root" add --no-scripts "$input" >"$out/install.log" 2>&1 || install_rc=$? ;;
+    esac
+    test "$install_rc" -ne 0 || { echo "invalid $case_name package was accepted by $KIND" >&2; return 1; }
+    assert_installed "$root" "$BASE_PACKAGE"
+    package_files "$root" "$BASE_PACKAGE" >"$out/owner-after.txt"
+    manager "$root" info >"$out/installed-after.txt"
+    payload_snapshot "$root" "$out/payload-after.json"
+    cmp "$out/owner-before.txt" "$out/owner-after.txt"
+    cmp "$out/installed-before.txt" "$out/installed-after.txt"
+    cmp "$out/payload-before.json" "$out/payload-after.json"
+    assert_user_data "$root"
+    snapshot_root "$root" rejected-preserved
+    jq -n --arg id "$case_name" --arg directory "$SCENARIO" --argjson rc "$install_rc" \
+      '{id:$id,status:"PASS",rejected:true,exitCode:$rc,installedStatePreserved:true,payloadPreserved:true,userDataPreserved:true,evidenceDirectory:$directory}' >"$out/result.json"
+    echo "PASS real $KIND rejects $case_name package and preserves installed payload/ownership/user data"
+}
+
 if [[ "$KIND" == apk ]]; then
     apk_repository="$WORK/apk-repository"
     mkdir -p "$apk_repository"
@@ -324,12 +378,15 @@ run_scenario "${KIND}-b" scenario_b
 run_scenario "${KIND}-c" scenario_c
 run_scenario "${KIND}-d" scenario_d
 run_scenario "${KIND}-e" scenario_e
+negative_install missing
+negative_install truncated
 
 jq -n --arg kind "$KIND" \
+    --slurpfile missing "$EVIDENCE_DIR/$KIND-negative-missing/result.json" --slurpfile truncated "$EVIDENCE_DIR/$KIND-negative-truncated/result.json" \
     --slurpfile old "$EVIDENCE_DIR/legacyBase.json" --slurpfile addon "$EVIDENCE_DIR/legacyAddon.json" \
     --slurpfile current "$EVIDENCE_DIR/currentBase.json" --slurpfile compat "$EVIDENCE_DIR/currentAddon.json" \
     --slurpfile recent "$EVIDENCE_DIR/recentBase.json" \
-    '{schemaVersion:1,packageManager:$kind,inputs:{legacyBase:$old[0],legacyAddon:$addon[0],currentBase:$current[0],currentAddon:$compat[0],recentBase:$recent[0]},
+    '{schemaVersion:1,packageManager:$kind,negativeInstalls:[$missing[0],$truncated[0]],inputs:{legacyBase:$old[0],legacyAddon:$addon[0],currentBase:$current[0],currentAddon:$compat[0],recentBase:$recent[0]},
       scenarios:[
        {id:"a",from:["legacyBase"],to:["currentBase"],addon:"absent"},
        {id:"b",from:["legacyBase","legacyAddon"],to:["currentBase"],addon:"retained"},

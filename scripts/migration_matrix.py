@@ -43,6 +43,17 @@ def validate(matrices, assets):
         public=[a for a in assets if a.get('package',{}).get('format')==kind]
         need(len(public)==1,'public package identity missing')
         need(all(current[k]==public[0]['package'].get(k) for k in ('version','release','packageVersion')),'migration candidate differs from release identity')
+        negative=matrix.get('negativeInstalls')
+        need(isinstance(negative,list) and len(negative)==2,'missing negative install matrix')
+        negative_ids=set()
+        for row in negative:
+            need(isinstance(row,dict),'invalid negative install record')
+            key=row.get('id')
+            need(isinstance(key,str) and key in ('missing','truncated') and key not in negative_ids,'unknown/duplicate negative install')
+            negative_ids.add(key)
+            need(type(row.get('exitCode')) is int and 1<=row['exitCode']<=255,'negative install missing nonzero manager exit')
+            need(row.get('status')=='PASS' and all(row.get(k) is True for k in ('rejected','installedStatePreserved','payloadPreserved','userDataPreserved')),'negative install did not pass preservation checks')
+            need(row.get('evidenceDirectory')==kind+'-negative-'+key,'unsafe negative install evidence directory')
         scenarios=matrix.get('scenarios')
         need(isinstance(scenarios,list) and len(scenarios)==len(SCENARIOS),'incomplete scenario set')
         ids=set()
