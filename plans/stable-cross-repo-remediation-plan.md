@@ -330,6 +330,9 @@ Runtime Stable/Preview各自受控升级；自动发现“最新已资格版本�
 |G5d LAN：publisher.sh、cf_ip_publisher、status/UI、v2-lan-publisher tests|L01 generation目录+原子current切换、成功才更新；跨独立HTTP请求仍需generation标识/读协议，不能声称目录原子切换保证永不跨代；L02网络接口事件重绑|并发HTTP/每文件失败/切换失败/进程退出、LAN IP变更/丢失/恢复、bind不属LAN/0.0.0.0/IPv6/端口占用、停用无监听入口；真实socket/HTTP readback，不以init0报success|
 |G5e生命周期/RPC：cf_ip init、rpcd/cf_ip、ACL/menu/config.sh、Makefile hooks与迁移脚本|启动/停止/reload/boot/升级卸载/cron一致，最小读写方法和参数/路径白名单，诊断脱敏；C03证明等价后可删|只读会话不能写、注入/坏backup ID/并发run-sync-start、信号清理；cron重复/禁用/掉电恢复；保旧UCI/backup/history/custom URL，RPC保错误，不擅自操作用户代理|
 
+G5e 最新检查点：共享 writer-lock 的 stale-PID 双写及 PID 写失败误接受已复现并修复；Host 15 个实际函数故障用例及相关回归通过。新增 OpenWrt flock 依赖、安装必需 helper 和四 SDK 目标工具执行门禁。当前 SHA 的 hosted/包资格、原生 procd/rpcd/LuCI、完整生命周期仍 OPEN；详见 `g4-g5-execution.md` 与 `writer-lock-recovery.json`。
+
+
 - 可能破坏：不支持YAML形态的旧行为、并发编辑、旧缓存兼容、LuCI保存链；默认保守拒绝并给具体原因，不部分解析宣称完整验证。
 - 每子阶段工作量M或L，以原失败与反例是否闭合为准。没有证明的风险先复现，有缺陷才最小修复。
 - DoD：P1确认关闭，原guard/Native/回退不变量保留，相关测试+跨库兼容通过；UI与HTTP真实证据单列。设备写入只G6另授权。

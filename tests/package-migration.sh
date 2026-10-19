@@ -40,7 +40,7 @@ init_root() {
         ipk)
             mkdir -p "$root/etc/opkg" "$root/usr/lib/opkg/info"
             printf 'arch all 1\narch x86_64 10\n' >"$root/etc/opkg.conf"
-            for package in libc luci-base bash curl tar jq ca-bundle ca-certificates uhttpd rill-runtime-preview; do
+            for package in libc luci-base bash flock curl tar jq ca-bundle ca-certificates uhttpd rill-runtime-preview; do
                 printf 'Package: %s\nVersion: 1\nArchitecture: x86_64\nStatus: install ok installed\n\n' "$package"
                 : >"$root/usr/lib/opkg/info/$package.list"
             done >"$root/usr/lib/opkg/status"
@@ -48,7 +48,7 @@ init_root() {
         apk)
             manager "$root" add --initdb --no-scripts
             manager "$root" add --no-scripts \
-                libc=1-r0 luci-base=1-r0 bash=1-r0 curl=1-r0 tar=1-r0 jq=1-r0 \
+                libc=1-r0 luci-base=1-r0 bash=1-r0 flock=1-r0 curl=1-r0 tar=1-r0 jq=1-r0 \
                 ca-bundle=1-r0 ca-certificates=1-r0 uhttpd=1-r0 rill-runtime-preview=1-r0
             ;;
     esac
@@ -293,7 +293,7 @@ scenario_e() {
 if [[ "$KIND" == apk ]]; then
     apk_repository="$WORK/apk-repository"
     mkdir -p "$apk_repository"
-    for package in libc luci-base bash curl tar jq ca-bundle ca-certificates uhttpd rill-runtime-preview; do
+    for package in libc luci-base bash flock curl tar jq ca-bundle ca-certificates uhttpd rill-runtime-preview; do
         "$APK" mkpkg --output "$apk_repository/$package.apk" \
             --info "name:$package" --info 'version:1-r0' --info 'arch:x86_64' \
             --info 'description:package migration test fixture'

@@ -35,15 +35,14 @@ service_running_state() {
 }
 
 cf_ip_rpc_lock_acquire() {
-	mkdir -p "$CF_IP_RUNTIME_DIR" || return 1
-	mkdir "$CF_IP_RUNTIME_DIR/cf-ip-auto-v2.lock" 2>/dev/null || return 1
-	printf '%s\n' "$$" >"$CF_IP_RUNTIME_DIR/cf-ip-auto-v2.lock/pid"
+	local lib="${CFIP_LIB_DIR:-/usr/libexec/cf-ip}/writer-lock.sh"
+	[ -r "$lib" ] || { CF_IP_WRITER_LOCK_ERROR=helper_unavailable; CF_IP_WRITER_LOCK_RC=0; return 1; }
+	. "$lib"
+	cf_ip_writer_lock_acquire "$CF_IP_RUNTIME_DIR"
 }
 
 cf_ip_rpc_lock_release() {
-	[ "$(cat "$CF_IP_RUNTIME_DIR/cf-ip-auto-v2.lock/pid" 2>/dev/null)" = "$$" ] || return 0
-	rm -f "$CF_IP_RUNTIME_DIR/cf-ip-auto-v2.lock/pid"
-	rmdir "$CF_IP_RUNTIME_DIR/cf-ip-auto-v2.lock" 2>/dev/null || true
+	cf_ip_writer_lock_release "$CF_IP_RUNTIME_DIR" || true
 }
 
 service_action_unlocked() {
@@ -122,7 +121,7 @@ service_action_unlocked() {
 
 service_action() {
 	local action="$1" rc
-	cf_ip_rpc_lock_acquire || { printf '{"success":false,"action":"%s","error":"busy"}\n' "$action"; return 0; }
+	cf_ip_rpc_lock_acquire || { printf '{"success":false,"action":"%s","error":"busy","reason":"%s","lockRc":%s}\n' "$action" "${CF_IP_WRITER_LOCK_ERROR:-lock_busy}" "${CF_IP_WRITER_LOCK_RC:-0}"; return 0; }
 	trap 'cf_ip_rpc_lock_release' EXIT INT TERM
 	service_action_unlocked "$action"; rc=$?
 	trap - EXIT INT TERM

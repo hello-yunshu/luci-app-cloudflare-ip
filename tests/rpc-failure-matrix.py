@@ -24,7 +24,7 @@ done
 printf '%s' "$input" | jq -r "${expr#\\$} // empty"
 ''')
     parser.chmod(0o755)
-    env = dict(os.environ, PATH=str(tmp)+os.pathsep+os.environ['PATH'], CF_IP_AUTO_BIN=str(backend))
+    env = dict(os.environ, PATH=str(tmp)+os.pathsep+os.environ['PATH'], CF_IP_AUTO_BIN=str(backend),CFIP_LIB_DIR=str(ROOT/'package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip'))
     request = json.dumps(dict(candidate={},plugin='openclash',id='20260827120000',expectedGeneration='fixture'))+'\n'
     for response, rc, expected in [('{"success":true,"detail":"retained"}',7,False), ('{"success":false,"error":"specific failure","detail":"retained"}',9,False), ('not-json',0,False), ('[]',0,False), ('{}\n{}',0,False), ('{"success":true,"detail":"retained"}',0,True)]:
         for method in METHODS:

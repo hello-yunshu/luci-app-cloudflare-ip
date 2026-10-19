@@ -179,6 +179,7 @@ jobs:
           python3 tests/rpc-failure-matrix.py
           bash tests/rpc-readonly-policy.sh
           node tests/luci-refresh-error.cjs
+          python3 tests/writer-lock-recovery.py
           bash tests/shared-writer-lock.sh
           bash tests/status-stop-contract.sh
           bash tests/transaction-commit-failure.sh
@@ -297,7 +298,7 @@ jobs:
           rm -rf /builder/shared-workdir/build
           ln -sf /builder /builder/shared-workdir/build
           ./scripts/feeds update base packages luci
-          ./scripts/feeds install luci-base bash curl tar jq ca-bundle ca-certificates uhttpd rust
+          ./scripts/feeds install luci-base bash flock curl tar jq ca-bundle ca-certificates uhttpd rust
           for rust_makefile in feeds/packages/lang/rust/Makefile feeds/packages/lang/rust/rust-host-build.mk; do
             if [ -f "$rust_makefile" ]; then
               sed -i 's/--set=llvm.download-ci-llvm=true/--set=llvm.download-ci-llvm=false/g' "$rust_makefile"
@@ -317,6 +318,7 @@ jobs:
           cp -r "$GITHUB_WORKSPACE/rill-openwrt-packages/package/rill-runtime" ./package/
           cp -r "$GITHUB_WORKSPACE/rill-openwrt-packages/package/rill-runtime-preview" ./package/
           {
+            echo 'CONFIG_PACKAGE_flock=y'
             echo 'CONFIG_PACKAGE_rill-runtime=y'
             echo 'CONFIG_PACKAGE_rill-runtime-preview=y'
             echo 'CONFIG_PACKAGE_luci-app-cloudflare-ip=y'
@@ -330,6 +332,12 @@ jobs:
           set -euo pipefail
           unset CI
           build_helper="$GITHUB_WORKSPACE/luci-app-cloudflare-ip/scripts/openwrt-build-diagnostic.sh"
+          flock_target=''
+          for candidate in package/utils/util-linux package/feeds/base/util-linux package/feeds/packages/util-linux; do
+            if [ -f "$candidate/Makefile" ]; then flock_target="$candidate/compile"; break; fi
+          done
+          test -n "$flock_target"
+          bash "$build_helper" "$flock_target"
           bash "$build_helper" package/rill-runtime/compile
           bash "$build_helper" package/rill-runtime-preview/compile
           if [ "${{ matrix.pkgtype }}" = apk ]; then
@@ -342,6 +350,17 @@ jobs:
           else
             bash "$build_helper" package/luci-app-cloudflare-ip/compile
           fi
+      - name: Execute SDK target writer-lock utility
+        shell: bash
+        env:
+          QUALIFICATION_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          bash "$GITHUB_WORKSPACE/luci-app-cloudflare-ip/tests/sdk-writer-lock.sh" /builder "$GITHUB_WORKSPACE/writer-lock-qualification"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: writer-lock-${{ matrix.branch }}-${{ matrix.pkgtype }}-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
+          path: writer-lock-qualification/
+          if-no-files-found: error
       - name: Inspect package artifact
         shell: bash
         working-directory: /builder
@@ -515,7 +534,7 @@ jobs:
           build_historical() {
             local checkout_dir="$1" output_prefix="$2"
             cd /builder
-            ./scripts/feeds install luci-base bash curl tar jq ca-bundle ca-certificates uhttpd
+            ./scripts/feeds install luci-base bash flock curl tar jq ca-bundle ca-certificates uhttpd
             rm -rf /builder/package/luci-app-cloudflare-ip
             cp -r "$GITHUB_WORKSPACE/$checkout_dir/package/luci-app-cloudflare-ip" /builder/package/
             {
