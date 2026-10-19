@@ -247,12 +247,88 @@ cfip_source_cache_valid() {
     ' "$marker" >/dev/null 2>&1
 }
 
+cfip_source_cache_work_mode() {
+    local mode
+    mode="$(LC_ALL=C ls -ld "$1")" || return 1
+    mode="${mode%% *}"
+    [[ "$mode" =~ ^d[rwxstST-]{9} ]] || return 1
+    [[ "${mode:5:1}${mode:8:1}" != *w* ]]
+}
+
+cfip_source_cache_work_root() {
+    local parent="$1" root="$1/.cfip-cache-work" tag=cf-ip-source-cache-work-v1
+    [[ "$parent" == /* && "$parent" != / && -d "$parent" && ! -L "$parent" && -O "$parent" ]] || return 1
+    cfip_source_cache_work_mode "$parent" || return 1
+    [[ ! -L "$root" ]] || return 1
+    if [[ ! -e "$root" ]]; then mkdir -m 700 "$root" 2>/dev/null || [[ -d "$root" && ! -L "$root" ]] || return 1; fi
+    [[ -d "$root" && -O "$root" ]] && cfip_source_cache_work_mode "$root" || return 1
+    if [[ ! -L "$root/.owner" || "$(readlink "$root/.owner")" != "$tag" ]]; then
+        [[ ! -e "$root/.owner" && ! -L "$root/.owner" ]] || return 1
+        [[ -z "$(find "$root" -mindepth 1 -maxdepth 1 -print | head -n 1)" ]] || { [[ -L "$root/.owner" && "$(readlink "$root/.owner")" == "$tag" ]] || return 1; }
+        ln -s "$tag" "$root/.owner" 2>/dev/null || { [[ -L "$root/.owner" && "$(readlink "$root/.owner")" == "$tag" ]] || return 1; }
+    fi
+    chmod 700 "$root" || return 1
+    printf '%s' "$root"
+}
+
+cfip_source_cache_work_alive() {
+    kill -0 "$1" 2>/dev/null && return 0
+    [[ ! -d "/proc/$1" ]] || return 0
+    case "$(uname -s)" in
+        Darwin) ps -p "$1" -o pid= >/dev/null 2>&1 ;;
+        *) [[ -d /proc ]] || return 0; return 1 ;;
+    esac
+}
+
+cfip_source_cache_work_reap() {
+    local dir="$1" name="${1##*/}" plain pid quarantine
+    [[ -d "$dir" && ! -L "$dir" && -O "$dir" ]] || return 0
+    plain="${name#.reap.}"
+    [[ "$plain" =~ ^write\.([1-9][0-9]{0,9})\.[A-Za-z0-9]{6}$ ]] || return 0
+    pid="${BASH_REMATCH[1]}"
+    if [[ "$name" != .reap.* ]]; then
+        cfip_source_cache_work_alive "$pid" && return 0
+        quarantine="${dir%/*}/.reap.$name"
+        [[ ! -e "$quarantine" && ! -L "$quarantine" ]] || return 0
+        case "$(uname -s)" in
+            Darwin) mv -fh "$dir" "$quarantine" 2>/dev/null || { [[ ! -e "$dir" ]] && return 0; return 1; } ;;
+            *) mv -fT "$dir" "$quarantine" 2>/dev/null || { [[ ! -e "$dir" ]] && return 0; return 1; } ;;
+        esac
+        dir="$quarantine"
+    fi
+    rm -rf "$dir"
+}
+
+cfip_source_cache_work_create() {
+    local parent="$1" pid="$2" root dir count
+    [[ "$pid" =~ ^[1-9][0-9]{0,9}$ ]] && cfip_source_cache_work_alive "$pid" || return 1
+    root="$(cfip_source_cache_work_root "$parent")" || return 1
+    while IFS= read -r dir; do cfip_source_cache_work_reap "$dir" || return 1; done < <(find "$root" -mindepth 1 -maxdepth 1 -type d -print | head -n 64)
+    dir="$(mktemp -d "$root/write.$pid.XXXXXX")" || return 1
+    # Reserve before sampling; overload refuses payload, not unknown user data.
+    count="$(find "$root" -mindepth 1 -maxdepth 1 -type d -print | head -n 17 | wc -l)" || { rm -rf "$dir"; return 1; }
+    if ((count <= 16)); then printf '%s' "$dir"; return 0; fi
+    rm -rf "$dir"
+    return 1
+}
+
 # Publish bytes and qualification metadata as one rename, preserving the old
 # bundle until the replacement is fully written and its byte roundtrip checked.
 cfip_source_cache_publish() {
+    local work lease_pid="${BASHPID:-}" result=0
+    # On Bash 3, exec in the command substitution exposes the caller via PPID.
+    [[ -n "$lease_pid" ]] || lease_pid="$(exec sh -c 'printf "%s" "$PPID"')"
+    work="$(cfip_source_cache_work_create "$1" "$lease_pid")" || return 1
+    cfip_source_cache_publish_private "$work" "$@" || result=$?
+    rm -rf "$work" || return 1
+    return "$result"
+}
+
+cfip_source_cache_publish_private() {
+    local work="$1"; shift
     local pdir="$1" raw="$2" id="$3" url="$4" parser="$5" family="$6" source_class="$7" hash="$8" pc="$9" rc="${10}" candidate observed bytes
     [[ ! -d "$pdir/last-good.json" && ! -L "$pdir/last-good.json" ]] || return 1
-    candidate="$(mktemp "$pdir/.cache.XXXXXX")" || return 1
+    candidate="$(mktemp "$work/.cache.XXXXXX")" || return 1
     if ! jq -cn --rawfile content "$raw" --arg id "$id" --arg hash "$hash" --arg url "$url" --arg parser "$parser" --arg family "$family" --arg class "$source_class" --argjson parsed "$pc" --argjson rejected "$rc" \
         '{schemaVersion:2,id:$id,url:$url,parser:$parser,family:$family,sourceClass:$class,contentHash:$hash,parsedCount:$parsed,rejectedCount:$rejected,lastSuccessAt:now,content:$content}' >"$candidate"; then
         rm -f "$candidate"; return 1

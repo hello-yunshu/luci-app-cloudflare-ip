@@ -70,6 +70,7 @@ jobs:
           bash tests/source-size-cap.sh
           bash tests/source-cache-trust.sh
           bash tests/source-cache-publication.sh
+          bash tests/source-cache-workspaces.sh
           bash tests/source-runtime-write-failure.sh
           bash tests/atomic-write-failure.sh
           python3 tests/source-streaming-https.py
