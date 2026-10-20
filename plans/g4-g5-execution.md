@@ -1,5 +1,11 @@
 # G4、G5 执行记录
 
+## G4 native target utility results and APK diagnostic-log boundary
+
+Run 39239175319 attempt 1 at exact source 3d1139d completes all four SDK jobs. Strict attempt-scoped downloads retain four actual target utility receipts, each with fifteen passing lock cases and a distinct compiled binary digest. This proves SDK-produced OpenWrt flock execution on the CI Linux kernel with host shells; it is not installed-package/native procd/rpcd/LuCI or router proof. Actual opkg missing/truncated input cases both pass with exit 255 and preservation evidence.
+
+The actual APK matrix fails at its missing-input payload comparison. Exact-attempt artifact replay proves the only changed payload record is var/log/apk.log; owner listings, installed info and every other file record are identical. The test now excludes only this package-manager diagnostic log and retains before/after log copies separately. No user/product log subtree is broadly ignored, and installed DB/info/ownership/user hashes remain required. Receipt: sdk-and-migration-log-boundary.json. The APK truncated case was not reached and its automated matrix remains incomplete until a corrected-source rerun. The whole run failed; native component results cannot qualify the newer source, satisfy offline preflight, or close full G4/G5.
+
 ## G4 SDK writer gate host environment correction
 
 The first actual SDK gate fails on both APK jobs after successful package compilation. Completed job 118005420386 in run 39236083235 identifies `jq: command not found` at sdk-writer-lock.sh line 28. The SDK host did not promise jq; the gate now uses its existing Python standard library to inspect metadata and emit the final receipt. It also uploads separate diagnostics after an attempted execution fails, so cases/binary/loader details are retained without entering the public package artifact. This corrects the test runtime requirement; it does not convert the failed execution into native PASS.

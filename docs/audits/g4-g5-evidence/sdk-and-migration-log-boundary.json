@@ -1,0 +1,109 @@
+{
+  "scope": "G4 completed SDK target utility observations and migration manager-log boundary",
+  "sourceSha": "3d1139dae90b51d45548c8d14f6af295a311a39e",
+  "runId": 39239175319,
+  "runAttempt": 1,
+  "sdkTargetUtility": [
+    {
+      "branch": "v24.10.5",
+      "format": "ipk",
+      "status": "PASS",
+      "cases": 15,
+      "binary": {
+        "path": "/builder/build_dir/target-x86_64_musl/util-linux-2.40.2/.pkgdir/flock/usr/bin/util-linux-flock",
+        "sha256": "255971dab196bfc618584f63d6cd4f33a0fe5b2370f1a56c1461eb14fe233cb4",
+        "size": 39112,
+        "dynamic": true,
+        "architecture": "x86_64"
+      },
+      "receipt": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/run-39239175319/writer-lock-v24.10.5-ipk/receipt.json",
+      "receiptSha256": "d3a094c95ff98e0a34fbbab95704077fdc286891cf799fa118e5ed9946afb7d0"
+    },
+    {
+      "branch": "v24.10.8",
+      "format": "ipk",
+      "status": "PASS",
+      "cases": 15,
+      "binary": {
+        "path": "/builder/build_dir/target-x86_64_musl/util-linux-2.40.2/.pkgdir/flock/usr/bin/util-linux-flock",
+        "sha256": "3eae431537858e767d26ac36a4beaa858dcac2c7affbe1eb61c11925b7b10644",
+        "size": 39112,
+        "dynamic": true,
+        "architecture": "x86_64"
+      },
+      "receipt": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/run-39239175319/writer-lock-v24.10.8-ipk/receipt.json",
+      "receiptSha256": "e3a4b3e19fcf6407310ec38e9e7c1df2bb3f975f0f2d9fd1cbc90832f4f029e7"
+    },
+    {
+      "branch": "v25.12.0",
+      "format": "apk",
+      "status": "PASS",
+      "cases": 15,
+      "binary": {
+        "path": "/builder/build_dir/target-x86_64_musl/util-linux-2.41.3/.pkgdir/flock/usr/bin/util-linux-flock",
+        "sha256": "426ad508bdd0a8f1bba9c0b0a75e65a94e3804a7f565c244c5a5a8f7d9fc1e83",
+        "size": 39288,
+        "dynamic": true,
+        "architecture": "x86_64"
+      },
+      "receipt": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/run-39239175319/writer-lock-v25.12.0-apk/receipt.json",
+      "receiptSha256": "673ca55a9d8c7db44e64ba9ab505e7b443a9aa341d9445dc9d5eb51df22f4a71"
+    },
+    {
+      "branch": "v25.12.5",
+      "format": "apk",
+      "status": "PASS",
+      "cases": 15,
+      "binary": {
+        "path": "/builder/build_dir/target-x86_64_musl/util-linux-2.41.5/.pkgdir/flock/usr/bin/util-linux-flock",
+        "sha256": "1a539ba411c2fe59cfed13801e8058b2421e1a2bcb1f3410fc3df2340dfa1b70",
+        "size": 39288,
+        "dynamic": true,
+        "architecture": "x86_64"
+      },
+      "receipt": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/run-39239175319/writer-lock-v25.12.5-apk/receipt.json",
+      "receiptSha256": "e3ed73571657a7d327f1b700620f1b24c0ea4cc584bc7226f1572c7e393ac49d"
+    }
+  ],
+  "installedPackageNativeProcdRpcdLuci": "NOT EVALUATED by the target utility check",
+  "opkgRejectedInputs": [
+    {
+      "id": "missing",
+      "status": "PASS",
+      "rejected": true,
+      "exitCode": 255,
+      "installedStatePreserved": true,
+      "payloadPreserved": true,
+      "userDataPreserved": true,
+      "evidenceDirectory": "ipk-negative-missing"
+    },
+    {
+      "id": "truncated",
+      "status": "PASS",
+      "rejected": true,
+      "exitCode": 255,
+      "installedStatePreserved": true,
+      "payloadPreserved": true,
+      "userDataPreserved": true,
+      "evidenceDirectory": "ipk-negative-truncated"
+    }
+  ],
+  "apkObservedFailure": {
+    "jobId": 118024331036,
+    "stage": "negative missing input payload comparison",
+    "changedPaths": [
+      "var/log/apk.log"
+    ],
+    "ownerListingAndInstalledInfo": "identical",
+    "allOtherPayloadRecords": "identical",
+    "managerError": "missing local package rejected",
+    "fullNativeNegativeMatrix": "FAIL/INCOMPLETE; truncated case not reached"
+  },
+  "change": "exclude only var/log/apk.log from payload fingerprints; retain manager log before/after as separate diagnostics; all installed DB/info/ownership and other payload/user checks remain required",
+  "replayEvidenceDirectory": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/run-39239175319/apk-migration/package-migration-details/apk-negative-missing",
+  "ipkMatrixSha256": "6ad87de185d41d89757d8377a3b4dfce62aea18486370f3e92ba3860d64d812b",
+  "beforeSnapshotSha256": "c10e645864201d3d4a12273348b6584e8052be24e2505a9bbd188ed3d328a2ce",
+  "afterSnapshotSha256": "b7bd769385c626b6c14c5567a26034574263a2470ca284ebc0c0fdc27b3a5754",
+  "qualification": "whole run failed; component PASS does not provide release eligibility or qualify newer source",
+  "remaining": "corrected-source APK matrix, full current-SHA G4/G5 hosted/artifact/offline and native UI gates OPEN"
+}
