@@ -1,6 +1,8 @@
 # CFST installation and recovery
 
-The release download path checks its expected SHA-256 before parsing the downloaded archive. The installer also checks its supplied digest before listing or extracting the archive. A self-computed digest for a local legacy archive is a byte identity check, not independent publisher authentication; the existing legacy cache-bootstrap policy is unchanged.
+The release download path checks its expected SHA-256 before parsing the downloaded archive. The installer requires a supplied expected digest and checks it before listing or extracting the archive; it cannot qualify an archive by computing a digest from those same unqualified bytes.
+
+Cached/offline installation requires a regular archive and a regular, non-symlink metadata file no larger than 16 KiB. One bounded JSON snapshot supplies all fields: exactly one schema-1 object, a nonempty version token, an HTTPS source URL and a SHA-256 matching the archive. Hexadecimal digest case is immaterial. Version tags are not pinned to a release sequence; even an `unknown` tag can qualify with a proper HTTPS source and matching digest. A legacy bootstrap marker whose source is merely `cached archive`, a missing/malformed marker, an unsafe link or oversized metadata cannot authorize a new execution. An existing executable is preserved when metadata cannot qualify; without one, offline bootstrap is refused. Cached metadata binds provenance fields and bytes within the trusted cache filesystem namespace; it is not an independent publisher signature.
 
 The extracted candidate must pass an execution probe before installation. Version rendering and every preimage copy must succeed before the first live rename. Mutable binary, version, archive and metadata targets must be regular files or absent; an existing symlink or directory is refused. Preimages live in the private, uniquely allocated staging directory rather than fixed PID backup filenames.
 
