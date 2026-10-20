@@ -302,7 +302,9 @@ for directory,dirs,files in os.walk(root,followlinks=False):
     relative=Path(directory).relative_to(root)
     dirs[:]=sorted(d for d in dirs if (relative/d).as_posix() not in exclude)
     for name in sorted(dirs+files):
-        p=Path(directory)/name; key=p.relative_to(root).as_posix(); meta=p.lstat()
+        p=Path(directory)/name; key=p.relative_to(root).as_posix()
+        if key=='var/log/apk.log': continue  # Package-manager diagnostics, retained separately.
+        meta=p.lstat()
         if stat.S_ISLNK(meta.st_mode): records[key]={'link':os.readlink(p)}
         elif stat.S_ISREG(meta.st_mode): records[key]={'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'size':meta.st_size,'mode':stat.S_IMODE(meta.st_mode)}
 Path(sys.argv[2]).write_text(json.dumps(records,sort_keys=True,indent=2)+'\n')
@@ -319,6 +321,7 @@ negative_install() {
     package_files "$root" "$BASE_PACKAGE" >"$out/owner-before.txt"
     manager "$root" info >"$out/installed-before.txt"
     payload_snapshot "$root" "$out/payload-before.json"
+    if [[ -f "$root/var/log/apk.log" ]]; then cp "$root/var/log/apk.log" "$out/manager-log-before.txt"; fi
     input="$WORK/$case_name.$KIND"
     case "$case_name" in
         missing) test ! -e "$input" ;;
@@ -334,6 +337,7 @@ negative_install() {
     package_files "$root" "$BASE_PACKAGE" >"$out/owner-after.txt"
     manager "$root" info >"$out/installed-after.txt"
     payload_snapshot "$root" "$out/payload-after.json"
+    if [[ -f "$root/var/log/apk.log" ]]; then cp "$root/var/log/apk.log" "$out/manager-log-after.txt"; fi
     cmp "$out/owner-before.txt" "$out/owner-after.txt"
     cmp "$out/installed-before.txt" "$out/installed-after.txt"
     cmp "$out/payload-before.json" "$out/payload-after.json"
