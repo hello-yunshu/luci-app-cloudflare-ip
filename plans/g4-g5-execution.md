@@ -1,5 +1,11 @@
 # G4、G5 执行记录
 
+## G5c CFST installation preimage and recovery checkpoint
+
+Actual installer/downloader tests at baseline 3d1139d fail ten of twenty-two cases: four failed preimage copies followed by commit failure lose old artifacts; version write failure reports success; failed restoration discards the binary preimage; installer and download paths parse before digest verification; symlink/directory targets are accepted. The update now checks version writes and every private preimage before any live rename, refuses nonregular mutable targets, and verifies digests before parsing. Commit recovery restores via fresh copies, retaining all originals until every restore succeeds. Failed recovery explicitly retains named preimages and reports their path instead of deleting the only old bytes. Fixed-PID backup paths are no longer used.
+
+All twenty-two cases pass on private host Bash 5.3, including cached/same-archive and new bootstrap installation, each snapshot/commit failure, recovery failure with all four preimage hashes/modes retained, unsafe targets, execution rejection and both digest-order paths. Cached version/retry, version observation, security and synthetic byte/archive/architecture negatives pass, plus Bash/ShellCheck/actionlint/diff checks. Receipt: cfst-install-recovery.json; the raw before/after results include target fingerprints. Payloads are harmless shell fixtures, not real CFST or native OpenWrt acceptance. Sequential per-file replacement is not a durable generation/journal. KILL/reboot, resource/retention/concurrent-installer and full G4/G5/latest-SHA hosted/package/offline gates remain OPEN. The private test shell does not change the system shell or package dependencies.
+
 ## G4 native target utility results and APK diagnostic-log boundary
 
 Run 39239175319 attempt 1 at exact source 3d1139d completes all four SDK jobs. Strict attempt-scoped downloads retain four actual target utility receipts, each with fifteen passing lock cases and a distinct compiled binary digest. This proves SDK-produced OpenWrt flock execution on the CI Linux kernel with host shells; it is not installed-package/native procd/rpcd/LuCI or router proof. Actual opkg missing/truncated input cases both pass with exit 255 and preservation evidence.
