@@ -565,8 +565,8 @@ install_speedtest_archive() {
 	local index snapshot_rc recovery_failed=false
 	local -a targets backups present
 	stage="$(mktemp -d "${CFST_DIR}/.cfst-install.XXXXXX")" || die "failed to create CFST staging directory"
+	[[ "$digest" =~ ^[0-9a-fA-F]{64}$ ]] || { rm -rf "$stage"; die "CFST archive has no valid expected SHA256 digest"; }
 	actual_digest="$(sha256sum "$archive" | awk '{print $1}')" || { rm -rf "$stage"; die "failed to hash CFST archive"; }
-	[[ -n "$digest" ]] || digest="$actual_digest"
 	[[ "$actual_digest" =~ ^[0-9a-fA-F]{64}$ && "$digest" =~ ^[0-9a-fA-F]{64}$ && "${actual_digest,,}" == "${digest,,}" ]] || { rm -rf "$stage"; die "CFST archive SHA256 digest mismatch"; }
 	if ! tar -tzf "$archive" >"$stage/list" 2>/dev/null; then rm -rf "$stage"; die "CFST archive is not a valid tar.gz: $archive"; fi
 	while IFS= read -r member; do
@@ -613,18 +613,32 @@ install_speedtest_archive() {
 }
 
 install_cached_speedtest_archive() {
-	local archive="$1" metadata="${1}.meta" version="unknown" source="cached archive" digest="" old_version="unknown"
+	local archive="$1" metadata="${1}.meta" version="unknown" source="cached archive" digest="" old_version="unknown" metadata_bytes=0 qualified="" actual_digest
 	[[ -f "${CFST_DIR}/${BINARY_NAME}_version.txt" ]] && old_version="$(<"${CFST_DIR}/${BINARY_NAME}_version.txt")"
-	[[ -f "$archive" ]] || return 1
-	if [[ -s "$metadata" ]] && jq -e 'type=="object" and .schemaVersion==1 and (.version|type)=="string" and (.sha256|test("^[0-9a-fA-F]{64}$"))' "$metadata" >/dev/null 2>&1; then
-		version="$(jq -r '.version' "$metadata")"; source="$(jq -r '.source // "cached archive"' "$metadata")"; digest="$(jq -r '.sha256' "$metadata")"
-		[[ "$(sha256sum "$archive" | awk '{print $1}')" == "$digest" ]] || { log "cached CFST archive digest does not match its metadata"; return 1; }
+	[[ -f "$archive" && ! -L "$archive" ]] || return 1
+	if [[ -f "$metadata" && ! -L "$metadata" ]]; then
+		metadata_bytes="$(wc -c <"$metadata" 2>/dev/null)" || metadata_bytes=0
+		metadata_bytes="${metadata_bytes//[[:space:]]/}"
+	fi
+	# Read one bounded JSON snapshot. Fields must not come from separate live
+	# metadata generations, and a bare archive cannot qualify its own digest.
+	if [[ "$metadata_bytes" =~ ^[0-9]{1,5}$ ]] && ((10#$metadata_bytes > 0 && 10#$metadata_bytes <= 16384)) &&
+		qualified="$(head -c 16385 "$metadata" 2>/dev/null | jq -ces '
+		  if length==1 and (.[0] | type=="object" and .schemaVersion==1 and
+		    (.version|type=="string" and test("^[^[:space:][:cntrl:]]+$")) and
+		    (.source|type=="string" and test("^https://[^[:space:][:cntrl:]]+$";"i")) and
+		    (.sha256|type=="string" and test("^[0-9a-fA-F]{64}$")))
+		  then .[0] else empty end' 2>/dev/null)"; then
+		version="$(jq -r '.version' <<<"$qualified")"; source="$(jq -r '.source' <<<"$qualified")"; digest="$(jq -r '.sha256' <<<"$qualified")"
+		actual_digest="$(sha256sum "$archive" | awk '{print $1}')" || { log "failed to hash cached CFST archive"; return 1; }
+		[[ "${actual_digest,,}" == "${digest,,}" ]] || { log "cached CFST archive digest does not match its metadata"; return 1; }
 	else
 		if [[ -x "${CFST_DIR}/${BINARY_NAME}" ]]; then
-			log "cached archive has no trustworthy version metadata; preserving existing binary ${old_version:-unknown}"
+			log "cached archive has no qualified metadata; preserving existing binary ${old_version:-unknown}"
 			return 0
 		fi
-		version=unknown
+		log "cached CFST archive has no qualified digest metadata; refusing installation"
+		return 1
 	fi
 	install_speedtest_archive "$archive" "$version" "$source" "$digest" "$archive"
 }

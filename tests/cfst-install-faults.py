@@ -82,7 +82,7 @@ if install_speedtest_archive "$input" v2 https://one.example/cfst "$CFIP_TEST_DI
 else builtin printf rejected; exit 1; fi
 ''')
  scenarios=['success','bootstrap-success','cached-success','cached-metadata','snapshot-binary','snapshot-version','snapshot-archive','snapshot-metadata','version-write',
-            'commit-binary','commit-version','commit-archive','commit-metadata','rollback-failure','bootstrap','bad-digest','execution-check','unsafe-path','symlink','target-symlink','target-directory','bad-release-digest']
+            'commit-binary','commit-version','commit-archive','commit-metadata','rollback-failure','bootstrap','bad-digest','execution-check','unsafe-path','symlink','target-symlink','target-directory','bad-release-digest','missing-digest']
  for name in scenarios:
   root=base/name;target=root/'cfst';target.mkdir(parents=True)
   old={'cfst':b'#!/bin/sh\necho old-binary\n','cfst_version.txt':b'v1\n','cfst.tar.gz':b'retained archive bytes\n','cfst.tar.gz.meta':b'{"retained":"metadata"}\n'}
@@ -100,7 +100,7 @@ else builtin printf rejected; exit 1; fi
   if name=='target-directory':(target/'cfst').unlink();(target/'cfst').mkdir();(target/'cfst'/'user-data').write_text('retained directory')
   digest=hashlib.sha256(archive.read_bytes()).hexdigest();new_archive=archive.read_bytes()
   if name.startswith('cached-'):(target/'cfst.tar.gz').write_bytes(new_archive);old['cfst.tar.gz']=new_archive
-  env=dict(os.environ,CFIP_TEST_LEGACY=LEGACY,CFIP_TEST_ROOT=str(root),CFIP_TEST_CASE=name,CFIP_TEST_DIGEST='0'*64 if name=='bad-digest' else digest,CFIP_TEST_RELEASE_DIGEST='0'*64)
+  env=dict(os.environ,CFIP_TEST_LEGACY=LEGACY,CFIP_TEST_ROOT=str(root),CFIP_TEST_CASE=name,CFIP_TEST_DIGEST='' if name=='missing-digest' else ('0'*64 if name=='bad-digest' else digest),CFIP_TEST_RELEASE_DIGEST='0'*64)
   before=installed_state(target,old)
   run=subprocess.run([BASH,str(worker)],env=env,capture_output=True,text=True,timeout=12)
   after=installed_state(target,old)
@@ -133,7 +133,7 @@ else builtin printf rejected; exit 1; fi
      assert all((target/f).is_file() and (target/f).read_bytes()==data for f,data in old.items()),'failure changed or deleted old installed artifacts'
      assert after==before,'failure changed preimage file modes or identity'
      if name.startswith('snapshot-'):assert not (root/'mutations').exists(),'snapshot failure reached live mutation'
-     if name=='bad-digest':assert not (root/'tar-called').exists(),'archive was parsed before digest verification'
+     if name in ('bad-digest','missing-digest'):assert not (root/'tar-called').exists(),'archive was parsed before digest verification'
    assert (root/'outside').read_text()=='outside retained','unsafe archive changed outside bytes'
    results.append(dict(case=name,status='PASS',before=before,after=after,returncode=run.returncode,stderr=run.stderr[-1200:],recoveryPreimages=retained))
   except AssertionError as error:failures.append(dict(case=name,error=str(error),before=before,after=after,recoveryPreimages=retained,returncode=run.returncode,stdout=run.stdout,stderr=run.stderr[-1200:]))
