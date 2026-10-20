@@ -116,6 +116,7 @@ jobs:
           bash tests/rill-single-learner-contract.sh
           bash tests/cfst-version-contract.sh
           bash tests/cfst-download-fallback-version.sh
+          python3 tests/cfst-install-faults.py
           bash tests/source-refresh-deadline.sh
           bash tests/resource-pressure-contract.sh
           bash tests/multi-ip-diversity-contract.sh
