@@ -11,9 +11,12 @@ cfip_csv_num() {
 # Backward compatible specs: /path/result.csv:ipv4|ipv6|auto. A bare path uses auto family detection.
 cfip_parse_cfst() {
     local output="$1" protocol="$2" limit="$3"; shift 3
-    local tmp spec file family rank=0 line ip sent received loss latency download colo actual_family meta='{}' prefix_key
-    tmp="$(mktemp "${TMPDIR:-/tmp}/cfip-candidates.XXXXXX")" || return 1
-    printf '[]' >"$tmp"
+    local tmp spec file family rank=0 line ip sent received loss latency download colo actual_family meta='{}' prefix_key trim_filter stage rc
+    trim_filter="$(cfip_jq_trim_filter)" || return 1
+    [[ ! -e "$output" && ! -L "$output" || -f "$output" && ! -L "$output" ]] || return 1
+    stage="$(mktemp -d "${TMPDIR:-/tmp}/cfip-candidates.XXXXXX")" || return 1
+    tmp="$stage/current.json"
+    printf '[]' >"$tmp" || { rc=$?; rm -rf "$stage"; return "$rc"; }
     for spec in "$@"; do
         case "$spec" in *:ipv4|*:ipv6|*:auto) family="${spec##*:}"; file="${spec%:*}" ;; *) family=auto; file="$spec" ;; esac
         [[ -s "$file" ]] || continue
@@ -39,14 +42,15 @@ cfip_parse_cfst() {
             jq -c --arg ip "$ip" --arg family "$actual_family" --arg protocol "$protocol" --arg colo "${colo%$'\r'}" \
                 --arg prefixKey "$prefix_key" --argjson rank "$rank" --argjson sent "$sent_json" --argjson received "$received_json" \
                 --argjson loss "$loss_json" --argjson latency "$latency_json" --argjson download "$download_json" --argjson meta "$meta" \
-                '. + [{schemaVersion:1,candidateId:("cfst:"+$ip),ip:$ip,family:$family,cfstRank:$rank,
+                "$trim_filter"'. + [{schemaVersion:1,candidateId:("cfst:"+$ip),ip:$ip,family:$family,cfstRank:$rank,
                        sent:$sent,received:$received,lossRate:$loss,avgLatencyMs:$latency,downloadMBps:$download,
-                       colo:(if ($colo|gsub("^[[:space:]]+|[[:space:]]+$";""))=="" then null else ($colo|gsub("^[[:space:]]+|[[:space:]]+$";"")) end),prefixKey:(if $prefixKey=="" then null else $prefixKey end),testProtocol:$protocol,
-                       origin:($meta.origin//"unknown"),sources:($meta.sources//[]),sourceCount:($meta.sourceCount//0),sourceStale:($meta.stale//false)}]' "$tmp" >"$tmp.next" && mv "$tmp.next" "$tmp"
+                       colo:(if ($colo|cfip_trim)=="" then null else ($colo|cfip_trim) end),prefixKey:(if $prefixKey=="" then null else $prefixKey end),testProtocol:$protocol,
+                       origin:($meta.origin//"unknown"),sources:($meta.sources//[]),sourceCount:($meta.sourceCount//0),sourceStale:($meta.stale//false)}]' "$tmp" >"$stage/next.json" || { rc=$?; rm -rf "$stage"; return "$rc"; }
+            mv "$stage/next.json" "$tmp" || { rc=$?; rm -rf "$stage"; return "$rc"; }
         done <"$file"
     done
-    cat "$tmp" | cfip_atomic_write "$output"
-    rm -f "$tmp"
+    cfip_atomic_write "$output" <"$tmp" || { rc=$?; rm -rf "$stage"; return "$rc"; }
+    rm -rf "$stage"
 }
 
 cfip_probe_one() {

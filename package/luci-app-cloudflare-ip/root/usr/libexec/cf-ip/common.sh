@@ -15,6 +15,19 @@ cfip_json_error() {
     jq -cn --arg error "$1" '{success:false,error:$error}'
 }
 
+# jq on OpenWrt may omit ONIGURUMA. Keep whitespace normalization independent
+# of regex support; indices make trimming linear even for long whitespace runs.
+cfip_jq_trim_filter() {
+    cat <<'JQ_TRIM'
+def cfip_space: (.>=9 and .<=13) or .==32 or .==133 or .==160 or .==5760 or
+  (.>=8192 and .<=8202) or .==8232 or .==8233 or .==8239 or .==8287 or .==12288;
+def cfip_trim:
+  explode as $chars |
+  [range(0;($chars|length)) | select($chars[.] | cfip_space | not)] as $kept |
+  if ($kept|length)==0 then "" else $chars[$kept[0]:($kept[-1]+1)]|implode end;
+JQ_TRIM
+}
+
 cfip_bool() {
     case "${1:-}" in 1|on|true|yes|enabled) printf true ;; *) printf false ;; esac
 }
