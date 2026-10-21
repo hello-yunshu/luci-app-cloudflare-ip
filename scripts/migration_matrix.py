@@ -57,6 +57,7 @@ def validate(matrices, assets):
         need(conflict.get('guardedAdmission') is (kind=='apk'),'ownership admission scope mismatch')
         need(type(conflict.get('admissionExitCode')) is int and conflict['admissionExitCode']==(65 if kind=='apk' else 0),'missing ownership admission rejection')
         need(type(conflict.get('rawManagerStateMutated')) is bool,'missing raw package manager observation')
+        need(conflict.get('rawInitialInstallRecoveryVerified') is (kind=='apk'),'missing scoped initial-install recovery evidence')
         negative=matrix.get('negativeInstalls')
         need(isinstance(negative,list) and len(negative)==2,'missing negative install matrix')
         negative_ids=set()

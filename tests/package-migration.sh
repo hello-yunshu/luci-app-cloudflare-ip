@@ -403,7 +403,7 @@ PYREMOVED
 # Install a distinct real package first, then refuse candidate ownership takeover.
 # Dependency fixtures scope this to package ownership, never proxy integration.
 owner_conflict() {
-    local root out fixture payload raw_root install_rc=0 admission_rc=0 raw_mutated=false
+    local root out fixture payload raw_root install_rc=0 admission_rc=0 raw_mutated=false recovery_verified=false
     SCENARIO="$KIND-negative-owner-conflict"; STAGE=0
     out="$EVIDENCE_DIR/$SCENARIO"; mkdir -p "$out"
     root="$(fresh_root "$SCENARIO")"
@@ -446,6 +446,17 @@ owner_conflict() {
             payload_snapshot "$raw_root" "$out/raw-payload-after.json"
             snapshot_root "$raw_root" raw-manager-rejection
             cmp -s "$out/installed-before.txt" "$out/raw-installed-after.txt" || raw_mutated=true
+            # Controlled initial-install recovery only; never restore a full old root.
+            manager "$raw_root" del --no-scripts "$BASE_PACKAGE" >"$out/raw-recovery.log" 2>&1
+            manager "$raw_root" info >"$out/recovered-installed.txt"
+            cmp "$out/installed-before.txt" "$out/recovered-installed.txt"
+            assert_owner "$raw_root" cfip-owner-fixture /usr/bin/cf-ip-auto
+            assert_not_owner "$raw_root" "$BASE_PACKAGE" /usr/bin/cf-ip-auto
+            assert_user_data "$raw_root"
+            payload_snapshot "$raw_root" "$out/recovered-payload.json"
+            cmp "$out/payload-before.json" "$out/recovered-payload.json"
+            snapshot_root "$raw_root" raw-initial-install-recovered
+            recovery_verified=true
             ;;
     esac
     test "$install_rc" -ne 0 || { echo 'candidate accepted conflicting foreign package owner' >&2; return 1; }
@@ -494,8 +505,8 @@ assert before==after, 'conflict changed original payload or created unexpected f
 PYOWNERPAYLOAD
     assert_user_data "$root"
     snapshot_root "$root" conflict-rejected
-    jq -n --arg directory "$SCENARIO" --arg kind "$KIND" --argjson rc "$install_rc" --argjson admission "$admission_rc" --argjson rawMutation "$raw_mutated" \
-        '{guardedAdmission:($kind=="apk"),admissionExitCode:$admission,rawManagerStateMutated:$rawMutation,id:"owner-conflict",status:"PASS",exitCode:$rc,rejected:true,foreignOwnerPreserved:true,preexistingPayloadPreserved:true,installedStatePreserved:true,userDataPreserved:true,evidenceDirectory:$directory}' >"$out/result.json"
+    jq -n --arg directory "$SCENARIO" --arg kind "$KIND" --argjson rc "$install_rc" --argjson admission "$admission_rc" --argjson rawMutation "$raw_mutated" --argjson recovery "$recovery_verified" \
+        '{rawInitialInstallRecoveryVerified:$recovery,guardedAdmission:($kind=="apk"),admissionExitCode:$admission,rawManagerStateMutated:$rawMutation,id:"owner-conflict",status:"PASS",exitCode:$rc,rejected:true,foreignOwnerPreserved:true,preexistingPayloadPreserved:true,installedStatePreserved:true,userDataPreserved:true,evidenceDirectory:$directory}' >"$out/result.json"
     echo "PASS real $KIND candidate rejects foreign ownership conflict and preserves installed state"
 }
 
