@@ -152,6 +152,8 @@ function waitReadyAndReload() {
 }
 
 function makeEnvBadge(installed, label) {
+	if (typeof installed !== 'boolean')
+		return E('span', { 'class': 'cfi-badge gray' }, '? ' + _('Unknown'));
 	if (installed) {
 		return E('span', { 'class': 'cfi-badge green' }, '\u2714 ' + (label || _('Installed')));
 	}
@@ -159,7 +161,11 @@ function makeEnvBadge(installed, label) {
 }
 
 function makePluginBadge(installed, running) {
-	if (running) {
+	if (typeof installed !== 'boolean')
+		return makeEnvBadge(null);
+	if (installed && typeof running !== 'boolean')
+		return E('span', { 'class': 'cfi-badge gray' }, _('Installed (Status Unknown)'));
+	if (installed && running) {
 		return E('span', { 'class': 'cfi-badge green' }, '\u2714 ' + _('Running'));
 	} else if (installed) {
 		return E('span', { 'class': 'cfi-badge orange' }, '\u26A0 ' + _('Installed (Stopped)'));
@@ -245,7 +251,10 @@ return view.extend({
 			utils.callStatus(),
 			uci.load('cf_ip')
 		]).then(function(results) {
-			return results[0] || {};
+			var status = results[0];
+			if (!status || typeof status !== 'object' || Array.isArray(status) || status.success === false || typeof status.running !== 'boolean')
+				throw new Error(_('Unable to load status: %s').format(status && status.error || _('Unknown')));
+			return status;
 		});
 	},
 
@@ -551,10 +560,12 @@ return view.extend({
 			var badge;
 
 			if (item.plugin) {
-				var isRunning = environment[item.runningKey] || false;
+				var isRunning = environment[item.runningKey];
 				badge = makePluginBadge(val, isRunning);
 			} else if (item.cfst) {
-				if (val) {
+				if (typeof val !== 'boolean') {
+					badge = makeEnvBadge(null);
+				} else if (val) {
 					var cfstVer = data.cfst_version || '';
 					badge = E('span', { 'class': 'cfi-badge green' }, '\u2714 ' + (cfstVer ? cfstVer : _('Installed')));
 				} else {
@@ -592,10 +603,12 @@ return view.extend({
 						var newBadge;
 
 						if (it.plugin) {
-							var newRunning = result[it.runningKey] || false;
+							var newRunning = result[it.runningKey];
 							newBadge = makePluginBadge(newVal, newRunning);
 						} else if (it.cfst) {
-							if (newVal) {
+							if (typeof newVal !== 'boolean') {
+								newBadge = makeEnvBadge(null);
+							} else if (newVal) {
 								var ver = result.cfst_version || '';
 								newBadge = E('span', { 'class': 'cfi-badge green' }, '\u2714 ' + (ver ? ver : _('Installed')));
 							} else {

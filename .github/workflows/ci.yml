@@ -86,6 +86,7 @@ jobs:
           python3 tests/publisher-generation-http.py
           python3 tests/publisher-http-readback.py
           bash tests/v2-status.sh
+          python3 tests/status-observation-metadata.py
           bash tests/v2-transaction.sh
           bash tests/openclash-rollback-external-conflict.sh
           bash tests/openclash-transaction-write-failure.sh
@@ -185,6 +186,7 @@ jobs:
           python3 tests/rpc-failure-matrix.py
           bash tests/rpc-readonly-policy.sh
           node tests/luci-refresh-error.cjs
+          node tests/luci-status-observation.cjs
           node tests/luci-view-bindings.cjs
           python3 tests/writer-lock-recovery.py
           bash tests/shared-writer-lock.sh

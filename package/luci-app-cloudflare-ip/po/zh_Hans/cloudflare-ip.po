@@ -1687,3 +1687,6 @@ msgstr "已启动的任务尚未更新状态。请先查看状态和日志，再
 
 msgid "Unable to confirm speed test status: %s"
 msgstr "无法确认测速任务状态：%s"
+
+msgid "Installed (Status Unknown)"
+msgstr "已安装（状态未知）"

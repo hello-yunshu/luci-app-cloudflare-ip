@@ -671,15 +671,29 @@ run_v2() {
 }
 
 cmd_status(){
+    local version="" metadata work_dir cfst_installed=false
+    # Status must stay readable even when unrelated run configuration is invalid.
+    work_dir="$(uci_get cf_ip.main.work_dir "$CFIP_WORK_DIR")"; [[ -n "$work_dir" ]] || work_dir=/usr/bin
+    if [[ -x "$work_dir/cfst/cfst" ]]; then
+        cfst_installed=true
+        version="$(cfip_cfst_version "$work_dir/cfst/cfst" 2>/dev/null || true)"
+    fi
+    metadata="$(jq -cn --arg script "$SCRIPT_VERSION" --arg packageVersion "$SCRIPT_VERSION-r$PACKAGE_RELEASE" \
+      --argjson tar "$(command -v tar >/dev/null 2>&1 && printf true || printf false)" \
+      --argjson jq "$(command -v jq >/dev/null 2>&1 && printf true || printf false)" \
+      --argjson cfst "$cfst_installed" \
+      --argjson passwall "$(test -x "$CFIP_INIT_DIR/passwall" && printf true || printf false)" \
+      --argjson openclash "$(test -x "$CFIP_INIT_DIR/openclash" && printf true || printf false)" \
+      '{script_version:$script,package_version:$packageVersion,env:{tar:$tar,jq:$jq,cfst_installed:$cfst,passwall_installed:$passwall,openclash_installed:$openclash,passwall_running:null,openclash_running:null}}')" || return 1
     if [[ -f "$CFIP_STATUS_FILE" ]]; then
-        local version=""
-        version="$(cfip_cfst_version "$CFIP_WORK_DIR/cfst/cfst" 2>/dev/null || true)"
-        jq --arg version "$version" '. + {cfst_version:(if $version=="" then (.cfst_version // null) else $version end)}' "$CFIP_STATUS_FILE"
+        jq --argjson current "$metadata" --arg version "$version" '
+          . + ($current|del(.env)) + {
+            env:((if (.env|type)=="object" then .env else {} end) + $current.env),
+            cfst_version:(if $version=="" then null else $version end)
+          }' "$CFIP_STATUS_FILE"
         return
     fi
-    local version=""
-    version="$(cfip_cfst_version "$CFIP_WORK_DIR/cfst/cfst" 2>/dev/null || true)"
-    jq -cn --arg script "$SCRIPT_VERSION" --arg packageVersion "$SCRIPT_VERSION-r$PACKAGE_RELEASE" --arg cfstVersion "$version" --argjson tar "$(command -v tar >/dev/null 2>&1 && printf true || printf false)" --argjson jq "$(command -v jq >/dev/null 2>&1 && printf true || printf false)" --argjson cfst "$(test -x "$CFIP_WORK_DIR/cfst/cfst" && printf true || printf false)" '{schemaVersion:2,running:false,enabled:false,active_run:false,phase:"idle",last_result:"unknown",best_ips:[],script_version:$script,package_version:$packageVersion,cfst_version:(if $cfstVersion=="" then null else $cfstVersion end),intelligence:{available:false},env:{tar:$tar,jq:$jq,cfst_installed:$cfst}}'
+    jq -cn --argjson current "$metadata" --arg cfstVersion "$version" '$current + {schemaVersion:2,running:false,enabled:false,active_run:false,phase:"idle",last_result:"unknown",best_ips:[],cfst_version:(if $cfstVersion=="" then null else $cfstVersion end),intelligence:{available:false}}'
 }
 cmd_check_env(){ [[ -x "$CFIP_LEGACY_BIN" ]] && "$CFIP_LEGACY_BIN" --check-env || jq -cn '{success:false,error:"legacy environment probe unavailable"}'; }
 cmd_version(){ jq -cn --arg script "$SCRIPT_VERSION" --arg release "$PACKAGE_RELEASE" '{success:true,version:$script,script_version:$script,package_release:$release,package_version:($script+"-r"+$release),engine_schema:2,runtime_api_version:3}'; }
