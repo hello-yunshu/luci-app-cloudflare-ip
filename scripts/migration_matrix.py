@@ -43,6 +43,12 @@ def validate(matrices, assets):
         public=[a for a in assets if a.get('package',{}).get('format')==kind]
         need(len(public)==1,'public package identity missing')
         need(all(current[k]==public[0]['package'].get(k) for k in ('version','release','packageVersion')),'migration candidate differs from release identity')
+        conflict=matrix.get('ownershipConflict')
+        need(isinstance(conflict,dict),'missing ownership conflict evidence')
+        need(conflict.get('id')=='owner-conflict' and conflict.get('status')=='PASS','ownership conflict did not pass')
+        need(type(conflict.get('exitCode')) is int and 1<=conflict['exitCode']<=255,'ownership conflict needs nonzero manager exit')
+        need(all(conflict.get(k) is True for k in ('rejected','foreignOwnerPreserved','preexistingPayloadPreserved','installedStatePreserved','userDataPreserved')),'ownership conflict lost installed state or user data')
+        need(conflict.get('evidenceDirectory')==kind+'-negative-owner-conflict','unsafe ownership conflict evidence directory')
         negative=matrix.get('negativeInstalls')
         need(isinstance(negative,list) and len(negative)==2,'missing negative install matrix')
         negative_ids=set()

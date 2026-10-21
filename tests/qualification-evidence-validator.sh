@@ -52,6 +52,11 @@ cases=[]
 for value in (None, [], {}, [valid["packageMigration"]["currentMatrices"][0]]):
  d=copy.deepcopy(valid); d["packageMigration"]["currentMatrices"]=value; cases.append(("missing/incomplete current matrices",d,commit))
 for index in (0,1):
+ for value in (None, [], {}):
+  d=copy.deepcopy(valid);d["packageMigration"]["currentMatrices"][index]["ownershipConflict"]=value;cases.append(("missing ownership conflict",d,commit))
+ for field,value in (("exitCode",0),("exitCode",True),("exitCode","1"),("status","FAIL"),("rejected",False),("foreignOwnerPreserved",False),("preexistingPayloadPreserved",False),("installedStatePreserved",False),("userDataPreserved",False),("evidenceDirectory","../outside"),("id","wrong")):
+  d=copy.deepcopy(valid);d["packageMigration"]["currentMatrices"][index]["ownershipConflict"][field]=value;cases.append(("invalid ownership conflict "+field,d,commit))
+for index in (0,1):
  for value in (None, [], {}, [valid["packageMigration"]["currentMatrices"][index]["negativeInstalls"][0]]):
   d=copy.deepcopy(valid); d["packageMigration"]["currentMatrices"][index]["negativeInstalls"]=value; cases.append(("missing/incomplete negative install matrix",d,commit))
  for row_index in (0,1):
