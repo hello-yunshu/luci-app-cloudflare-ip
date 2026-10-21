@@ -143,6 +143,7 @@ jobs:
           bash tests/openclash-empty-fields.sh
           bash tests/installed-routing-contract.sh
           bash tests/disabled-cron-contract.sh
+          bash tests/init-cron-preservation.sh
           bash tests/evidence-manifest-default.sh
           bash tests/qualification-evidence-validator.sh
           bash tests/openwrt-package-metadata.sh

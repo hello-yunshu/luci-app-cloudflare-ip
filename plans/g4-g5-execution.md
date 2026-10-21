@@ -1,5 +1,11 @@
 # G4、G5 执行记录
 
+## G5e cron ownership and publication checkpoint
+
+Actual init cron removal deletes user comments and custom commands containing cf-ip-auto --run; startup sync cleanup has the same broad substring pattern. A failing regression preserves the before evidence. New entries carry an explicit cf_ip managed marker; removal recognizes exact historical generated run/sync commands or the exact marked form, preserving comments, wrappers, additional arguments and user labels. Historical unmarked byte-identical user commands are inherently indistinguishable from generated ones; only this exact form is adopted for compatibility.
+
+Cron changes render in an adjacent private candidate, preserve existing file mode and check copy/render/append/rename before replacing the original. Failed publication returns nonzero; disabled/start/stop paths propagate that failure. Duplicate scheduling leaves one managed entry. Actual init function tests pass on host and native BusyBox ash with private crontabs and stubbed cron service callbacks, including comment positional lookalikes, custom labels, cp/awk/mv failures, temp cleanup, mode 0600 and newline. Existing cron/disabled/legacy lifecycle contracts and syntax/ShellCheck/actionlint/diff pass. Receipt: init-cron-preservation.json. This is not actual cron-daemon or online package-hook proof; noncooperating concurrent editors, KILL/powerloss/resources and complete G4/G5/latest-SHA package gates remain OPEN.
+
 ## G4b offline uninstall/reinstall checkpoint
 
 Native OpenWrt opkg installs the older canonical candidate in a private network-disabled root, removes it, and reinstalls it. All 40 package-owned regular files/symlinks apart from the intentionally preserved modified conffile are absent after removal; critical entry, RPC, lock helper, init and UI ownership is also absent. Modified UCI/custom URL, backup/history and user cron hashes survive both transitions. All dependency fixture records remain installed; reinstalled candidate owns its CLI and learner script again. Full installed DB/listings, owned-file list and hashes are retained. Existing differing conffiles cause opkg's expected retained-user/new-default diagnostic, not lost user data.
