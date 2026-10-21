@@ -1,5 +1,11 @@
 # G4、G5 执行记录
 
+## G4b real owner-conflict candidate checkpoint
+
+A distinct real cfip-owner-fixture package owns /usr/bin/cf-ip-auto before candidate installation. Native OpenWrt opkg rejects the historical canonical candidate with explicit file-clash diagnostics and nonzero status. The foreign owner/file, all active installed records and original payload/user UCI/custom URL/backup/history/cron are preserved; candidate remains not-installed. Full raw DB and listings are retained. opkg adds a rejected candidate not-installed record and may make etc/config/cf_ip-opkg.backup before detecting the clash; only that exact extra path is allowed, only if its mode/size/hash match the original user conffile. No global payload exclusion or force overwrite is added. Native opkg also needs var/lock in the private root.
+
+The shared migration runner now executes owner conflict for both formats, records a named result in currentMatrix and the strict qualification validator requires it. Missing evidence, zero/boolean/string exits, failed preservation fields and unsafe evidence paths are rejected by host tests. Native APK tooling cannot create fixtures (mkpkg omitted), so actual APK remains NOT EVALUATED pending SDK host tooling; current-source SDK and complete migration qualification are OPEN. Native input is the older canonical IPK, not a current rebuilt package. Receipt: package-owner-conflict.json. Mid-install/full uninstall lifecycle and full G4/G5 remain OPEN.
+
 ## G4 host status-fixture interpreter correction
 
 Exact source 858922c PR run 39625920234 has a terminal failed host-contract job: status-observation-metadata.py deliberately restricts PATH for its missing-tar case but launches the child using relative bash. The captured job log and default local invocation reproduce FileNotFoundError before the product assertion. Resolve the interpreter from the original PATH once, before constructing restricted child environments; the actual missing-tar assertion is retained. Default host and native OpenWrt invocations now pass all eight cases. Explicit interpreter override was why earlier component runs passed; those did not prove the default CI invocation. SDK jobs for that historical run were still live when observed; the failed host means no whole-run qualification regardless of their eventual result. Latest corrected exact-SHA CI remains OPEN.

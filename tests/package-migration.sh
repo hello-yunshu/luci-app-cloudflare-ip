@@ -35,7 +35,7 @@ manager() {
 
 init_root() {
     local root="$1"
-    mkdir -p "$root" "$root/tmp"
+    mkdir -p "$root" "$root/tmp" "$root/var/lock"
     case "$KIND" in
         ipk)
             mkdir -p "$root/etc/opkg" "$root/usr/lib/opkg/info"
@@ -348,6 +348,95 @@ negative_install() {
     echo "PASS real $KIND rejects $case_name package and preserves installed payload/ownership/user data"
 }
 
+
+# Install a distinct real package first, then refuse candidate ownership takeover.
+# Dependency fixtures scope this to package ownership, never proxy integration.
+owner_conflict() {
+    local root out fixture payload install_rc=0
+    SCENARIO="$KIND-negative-owner-conflict"; STAGE=0
+    out="$EVIDENCE_DIR/$SCENARIO"; mkdir -p "$out"
+    root="$(fresh_root "$SCENARIO")"
+    seed_user_data "$root"
+    fixture="$WORK/cfip-owner-fixture.$KIND"
+    payload="$WORK/owner-payload"; mkdir -p "$payload/usr/bin"
+    printf 'retained foreign package file\n' >"$payload/usr/bin/cf-ip-auto"
+    case "$KIND" in
+        ipk)
+            mkdir -p "$WORK/owner-control" "$WORK/owner-container"
+            printf 'Package: cfip-owner-fixture\nVersion: 1\nArchitecture: all\nDescription: isolated ownership fixture\n' >"$WORK/owner-control/control"
+            tar -czf "$WORK/owner-container/control.tar.gz" -C "$WORK/owner-control" .
+            tar -czf "$WORK/owner-container/data.tar.gz" -C "$payload" .
+            printf '2.0\n' >"$WORK/owner-container/debian-binary"
+            tar -czf "$fixture" -C "$WORK/owner-container" ./debian-binary ./control.tar.gz ./data.tar.gz
+            manager "$root" install "$fixture" >"$out/fixture-install.log" 2>&1
+            ;;
+        apk)
+            "$APK" mkpkg --output "$fixture" --files "$payload" \
+                --info name:cfip-owner-fixture --info version:1-r0 --info arch:noarch \
+                --info 'description:isolated ownership fixture'
+            manager "$root" add --no-scripts "$fixture" >"$out/fixture-install.log" 2>&1
+            ;;
+    esac
+    assert_installed "$root" cfip-owner-fixture
+    assert_owner "$root" cfip-owner-fixture /usr/bin/cf-ip-auto
+    snapshot_root "$root" foreign-owner-installed
+    manager "$root" info >"$out/installed-before.txt"
+    package_files "$root" cfip-owner-fixture >"$out/owner-before.txt"
+    payload_snapshot "$root" "$out/payload-before.json"
+    case "$KIND" in
+        ipk) manager "$root" install "$CURRENT_BASE" >"$out/install.log" 2>&1 || install_rc=$? ;;
+        apk) manager "$root" add --no-scripts "$CURRENT_BASE" >"$out/install.log" 2>&1 || install_rc=$? ;;
+    esac
+    test "$install_rc" -ne 0 || { echo 'candidate accepted conflicting foreign package owner' >&2; return 1; }
+    # A dependency or parse failure is not evidence of ownership rejection.
+    grep -Eqi 'clash|overwrite|owned by' "$out/install.log"
+    assert_installed "$root" cfip-owner-fixture
+    assert_owner "$root" cfip-owner-fixture /usr/bin/cf-ip-auto
+    assert_not_owner "$root" "$BASE_PACKAGE" /usr/bin/cf-ip-auto
+    manager "$root" info >"$out/installed-after.txt"
+    package_files "$root" cfip-owner-fixture >"$out/owner-after.txt"
+    payload_snapshot "$root" "$out/payload-after.json"
+    if [[ "$KIND" == ipk ]]; then
+        # opkg retains a rejected candidate's not-installed diagnostic record.
+        # Preserve full raw records, compare all actually installed records.
+        python3 - "$out" <<'PYOWNER'
+import json,re,sys
+from pathlib import Path
+out=Path(sys.argv[1])
+def installed(label):
+    rows={}
+    for block in (out/('installed-'+label+'.txt')).read_text().split('\n\n'):
+        fields=dict(line.split(': ',1) for line in block.splitlines() if ': ' in line)
+        if re.fullmatch(r'install .*installed',fields.get('Status','')) and not fields['Status'].endswith('not-installed'):
+            rows[fields['Package']]=fields
+    (out/('installed-active-'+label+'.json')).write_text(json.dumps(rows,sort_keys=True,indent=2)+'\n')
+    return rows
+before=installed('before');after=installed('after')
+assert before==after, 'installed package records changed after conflict'
+assert 'luci-app-cloudflare-ip' not in after, 'conflicting candidate became installed'
+PYOWNER
+    else
+        cmp "$out/installed-before.txt" "$out/installed-after.txt"
+    fi
+    cmp "$out/owner-before.txt" "$out/owner-after.txt"
+    python3 - "$out" "$KIND" <<'PYOWNERPAYLOAD'
+import json,sys
+from pathlib import Path
+out=Path(sys.argv[1]);before=json.loads((out/'payload-before.json').read_text());after=json.loads((out/'payload-after.json').read_text())
+# opkg may back up a pre-existing conffile before detecting an owner clash.
+# Permit only this exact extra path, only with the original content/mode/size.
+backup='etc/config/cf_ip-opkg.backup'
+if sys.argv[2]=='ipk' and backup not in before and backup in after:
+    assert after.pop(backup)==before['etc/config/cf_ip'], 'opkg conffile backup differs from user preimage'
+assert before==after, 'conflict changed original payload or created unexpected files'
+PYOWNERPAYLOAD
+    assert_user_data "$root"
+    snapshot_root "$root" conflict-rejected
+    jq -n --arg directory "$SCENARIO" --argjson rc "$install_rc" \
+        '{id:"owner-conflict",status:"PASS",exitCode:$rc,rejected:true,foreignOwnerPreserved:true,preexistingPayloadPreserved:true,installedStatePreserved:true,userDataPreserved:true,evidenceDirectory:$directory}' >"$out/result.json"
+    echo "PASS real $KIND candidate rejects foreign ownership conflict and preserves installed state"
+}
+
 if [[ "$KIND" == apk ]]; then
     apk_repository="$WORK/apk-repository"
     mkdir -p "$apk_repository"
@@ -384,13 +473,15 @@ run_scenario "${KIND}-d" scenario_d
 run_scenario "${KIND}-e" scenario_e
 negative_install missing
 negative_install truncated
+owner_conflict
 
 jq -n --arg kind "$KIND" \
+    --slurpfile ownership "$EVIDENCE_DIR/$KIND-negative-owner-conflict/result.json" \
     --slurpfile missing "$EVIDENCE_DIR/$KIND-negative-missing/result.json" --slurpfile truncated "$EVIDENCE_DIR/$KIND-negative-truncated/result.json" \
     --slurpfile old "$EVIDENCE_DIR/legacyBase.json" --slurpfile addon "$EVIDENCE_DIR/legacyAddon.json" \
     --slurpfile current "$EVIDENCE_DIR/currentBase.json" --slurpfile compat "$EVIDENCE_DIR/currentAddon.json" \
     --slurpfile recent "$EVIDENCE_DIR/recentBase.json" \
-    '{schemaVersion:1,packageManager:$kind,negativeInstalls:[$missing[0],$truncated[0]],inputs:{legacyBase:$old[0],legacyAddon:$addon[0],currentBase:$current[0],currentAddon:$compat[0],recentBase:$recent[0]},
+    '{schemaVersion:1,packageManager:$kind,ownershipConflict:$ownership[0],negativeInstalls:[$missing[0],$truncated[0]],inputs:{legacyBase:$old[0],legacyAddon:$addon[0],currentBase:$current[0],currentAddon:$compat[0],recentBase:$recent[0]},
       scenarios:[
        {id:"a",from:["legacyBase"],to:["currentBase"],addon:"absent"},
        {id:"b",from:["legacyBase","legacyAddon"],to:["currentBase"],addon:"retained"},
