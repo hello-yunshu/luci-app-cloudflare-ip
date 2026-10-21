@@ -39,22 +39,44 @@ cf_ip_cron_ensure() {
 	/etc/init.d/cron start 2>/dev/null || /etc/init.d/crond start 2>/dev/null || true
 }
 
-cf_ip_cron_add() {
-	local expr="$1"
-	cf_ip_cron_ensure
-	cf_ip_cron_remove
-	mkdir -p /etc/crontabs
-	cron_ensure_newline
-	printf '%s /usr/bin/cf-ip-auto --run >/dev/null 2>&1\n' \
-		"$expr" >> "$CRONTAB_FILE"
+cf_ip_cron_reload() {
 	/etc/init.d/cron reload 2>/dev/null || /etc/init.d/crond reload 2>/dev/null || true
-	logger -t cf_ip -p daemon.info "crontab: scheduled with expression '${expr}'"
+}
+
+cf_ip_cron_update() {
+	local expr="${1:-}" candidate
+	[ -f "$CRONTAB_FILE" ] || [ -n "$expr" ] || return 0
+	[ ! -L "$CRONTAB_FILE" ] || return 1
+	mkdir -p "$(dirname "$CRONTAB_FILE")" || return 1
+	candidate="$(mktemp "${CRONTAB_FILE}.cf_ip.XXXXXX")" || return 1
+	if [ -e "$CRONTAB_FILE" ]; then
+		[ -f "$CRONTAB_FILE" ] && cp -p "$CRONTAB_FILE" "$candidate" || { rm -f "$candidate"; return 1; }
+		# Recognize exact historical generated commands or our explicit marker.
+		# Comments, wrappers, extra arguments and user labels are not ours.
+		awk '
+		  /^[ \t]*#/ { print; next }
+		  $6=="/usr/bin/cf-ip-auto" && ($7=="--run" || $7=="--sync") &&
+		  $8==">/dev/null" && $9=="2>&1" &&
+		  (NF==9 || (NF==12 && $10=="#" && $11=="cf_ip" && $12=="managed")) { next }
+		  { print }
+		' "$CRONTAB_FILE" >"$candidate" || { rm -f "$candidate"; return 1; }
+	fi
+	if [ -n "$expr" ]; then
+		printf '%s /usr/bin/cf-ip-auto --run >/dev/null 2>&1 # cf_ip managed\n' "$expr" >>"$candidate" || { rm -f "$candidate"; return 1; }
+	fi
+	mv "$candidate" "$CRONTAB_FILE" || { rm -f "$candidate"; return 1; }
+	cf_ip_cron_reload
+}
+
+cf_ip_cron_add() {
+	cf_ip_cron_ensure
+	cf_ip_cron_update "$1" || return 1
+	logger -t cf_ip -p daemon.info "crontab: scheduled with expression '$1'"
 }
 
 cf_ip_cron_remove() {
-	sed -i '/cf-ip-auto --run/d' "$CRONTAB_FILE" 2>/dev/null || true
-	/etc/init.d/cron reload 2>/dev/null || /etc/init.d/crond reload 2>/dev/null || true
-	logger -t cf_ip -p daemon.info "crontab: removed scheduled entries"
+	cf_ip_cron_update || return 1
+	logger -t cf_ip -p daemon.info "crontab: removed managed scheduled entries"
 }
 
 _start_service_unlocked() {
@@ -64,7 +86,7 @@ _start_service_unlocked() {
 
 	if [ "$enabled" -eq 0 ]; then
 		# Disabled must remove entries left by older package versions.
-		cf_ip_cron_remove
+		cf_ip_cron_remove || return 1
 		return 0
 	fi
 
@@ -109,11 +131,8 @@ _start_service_unlocked() {
 	}
 
 	# Schedule via crontab
-	cf_ip_cron_add "$cron_expr"
+	cf_ip_cron_add "$cron_expr" || return 1
 
-	# Clean up any leftover plugin sync cron entries from older versions
-	sed -i '/cf-ip-auto --sync/d' "$CRONTAB_FILE" 2>/dev/null || true
-	/etc/init.d/cron reload 2>/dev/null || /etc/init.d/crond reload 2>/dev/null || true
 
 	# Let cf-ip-auto apply its own startup delay so numeric and random modes stay consistent.
 	case "$startup_delay" in
@@ -133,7 +152,7 @@ _start_service_unlocked() {
 }
 
 _stop_service_unlocked() {
-	cf_ip_cron_remove
+	cf_ip_cron_remove || return 1
 	/usr/bin/cf-ip-auto --mark-stopped-held
 }
 
