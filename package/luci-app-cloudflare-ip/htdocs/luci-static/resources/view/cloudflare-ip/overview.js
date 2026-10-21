@@ -235,6 +235,11 @@ var css = `
 	`;
 
 return view.extend({
+	/* Actions use their own RPC controls; this view has no editable UCI map. */
+	handleSave: null,
+	handleSaveApply: null,
+	handleReset: null,
+
 	load: function() {
 		return Promise.all([
 			utils.callStatus(),

@@ -92,6 +92,13 @@
 .cfi-form-map .cbi-value-field {
 		float: none;
 		width: auto;
+		min-width: 0;
+}
+
+/* MultiValue previews must fit their grid cell on narrow screens. */
+.cfi-form-map .cbi-dropdown:not(.btn):not(.cbi-button) {
+	max-width: 100%;
+	min-width: 0;
 }
 
 .cfi-form-map .cbi-value-title {

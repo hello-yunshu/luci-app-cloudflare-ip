@@ -1,0 +1,216 @@
+{
+  "scope": "G5 native LuCI route, form, responsive layout and confirmed apply repair",
+  "baselineSha": "3dfa006ee4bea4da232ff526882b8995f6da37c0",
+  "runtime": {
+    "os": "OpenWrt 24.10.8",
+    "arch": "aarch64",
+    "kernel": "6.6.144",
+    "pid1": "procd",
+    "isolation": "private QEMU HVF guest; loopback SSH/HTTP forwarding; no shared host filesystem",
+    "luci": "26.205.85413~cac97ed",
+    "installedIpkSha256": "e3749a7b71bd9000d16847e70d2eb1e3a94902f13a359c3b1f61df3d33fd8911",
+    "repairExecution": "developer source overlays on actual installed candidate; package version tokens substituted; guest-only CSS cache token"
+  },
+  "before": {
+    "optionalRoutes": "executable presence fixtures still resolve to Overview without Lua compatibility runtime",
+    "sourceWidths": {
+      "320": 440,
+      "375": 440
+    },
+    "intelligence": "four sections target nonexistent main type; packaged section is service named main",
+    "saveValidation": "Sources commits budget 129 despite backend rejecting empty target_domain",
+    "applyPersistence": "legacy uci.apply timer is cancelled by earlier reload; actual budget 129 at 0/3 seconds, reverted to 128 by 12 seconds",
+    "readOnlyViews": "Overview/Logs and plugin-unavailable views expose meaningless generic save controls"
+  },
+  "after": {
+    "responsiveCases": 32,
+    "routes": [
+      "advanced",
+      "intelligence",
+      "logs",
+      "openclash",
+      "overview",
+      "passwall",
+      "settings",
+      "sources"
+    ],
+    "widths": [
+      320,
+      375,
+      768,
+      1280
+    ],
+    "horizontalOverflowCases": 0,
+    "policyFields": "visible and bound to packaged main service section",
+    "confirmedPersistence": "budget 129 and probe_batch_size 5 survive 35 seconds, beyond 30-second rollback window",
+    "invalidCandidate": "committed config SHA unchanged; error visible; source status/refresh/footer retained",
+    "absentPlugins": "six core links after fresh login; controlled executable fixtures expose eight views",
+    "nonExecutablePlugin": "native check-env returns not installed; page has no save controls",
+    "testConfigRestoreSha256": "d4347c4f7c5f84e57b6deadb6d833b5ccbb86616c85eb8f3b78474e5d0eb7e6a"
+  },
+  "implementation": [
+    "JSON optional routes retain declared executable filesystem dependency; existing Lua fallback retained",
+    "readback before explicit UCI rollback confirmation; confirmation before success/reload/restart",
+    "no-data apply requires exact readback and confirm success or no active transaction; failed confirmation after a started transaction refuses success",
+    "Sources/Intelligence use shared candidate validation/readback handler on view owner",
+    "NamedSection main/service restores policies; absent health evidence is Unknown",
+    "grid children and MultiValue constrain width; Sources renderContents preserves appended controls"
+  ],
+  "boundary": [
+    "all evidence is isolated native OpenWrt, not physical router or real proxy/Runtime integration",
+    "proxy init files were inert presence fixtures and were removed; original UCI bytes restored",
+    "read-only ACL sessions, full action/keyboard/focus matrix, lifecycle, fault/resource recovery and broader G4/G5 remain OPEN",
+    "OpenWrt 24.10.8 dispatcher checks executable dependency using missing top-level user_exec instead of perm.user_exec; regular nonexecutable fixture can keep menu visible, while page refuses editable controls; strict executable menu semantics remain a disclosed upstream compatibility gap",
+    "client menu cache can retain old links until a fresh login; server index cache was invalidated inside guest",
+    "latest changed-source SDK/migration, rebuilt package/native acceptance and offline preflight NOT EVALUATED; previous run cannot qualify these edits"
+  ],
+  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/native-vm.EsMjO7/ui",
+  "sourceSha256": {
+    "package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/cloudflare-ip.css": "6acb2a0674f6cafddf18018b0372d552fb66f634ee1c288dcbb22bb797a7b18c",
+    "package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js": "b86c81253f400ccda8fd5f131507a1d302a2e585780077fa7345a39f5fb4a99f",
+    "package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/diagnostics.js": "3b2c587de1ccf2763f61fd4fcab5eb696bac69e406f864d181d592a017c5bbe6",
+    "package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js": "44bdfe629c4afb2f0b7a51b381ccbbfcc9d4eb46c883e0f713ed53bf2e6f5f2a",
+    "package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js": "c433f51b78862c396ae9bc1c09f2a6b5d0f39b4990a5a543ba007a3a6221adc1",
+    "package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js": "91bba18fa275277316b300f876537bdb340437a5cee59a2485cc2d40d1cea7bd",
+    "package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/passwall.js": "44cd4cbd3b439f8aa69b1949caeed63ee1126d2ed8a4875e723def8a4aa2963f",
+    "package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/sources.js": "7b32e515f4eead6e7ef5608f4823d645b16a9fddc0fbf6c982f436fc0624ae29",
+    "package/luci-app-cloudflare-ip/root/usr/share/luci/menu.d/luci-app-cloudflare-ip.json": "edf951bbf02f346bc5c969976345b4170d17207f0f5324cb5b41ef62df819995"
+  },
+  "rawSha256": {
+    "responsive-before.json": "c2a47c4feb59908db41fba5d73b4aaf4ade993fe4b62a53c11f544f855e031a2",
+    "responsive-final.json": "a115220d8923fe4d4f9ccc4b916b119bcabfc7b65a18971e6f8487f1e828ca80",
+    "apply-confirm-native-before.json": "81e21f3151fd3c24fafb92e993180b8a23cd0a430c05fa3cbbf11c7543302cba",
+    "apply-confirm-native-after.json": "8e98fec7bc61ec259c8bf3be15c41a96b918d013d3ff7ef0489606d274128105",
+    "unguarded-save-before.log": "d4fd7829f7f00f78eef81fbb5e7d4becff28c9da0f544a1ff17f47d964559e9a",
+    "guarded-save-after.log": "159653f7b57e689b48146fc689dcfe4b809cec3c167eeb7b19b896a58f7be72e",
+    "guarded-save-final.log": "6cd6fcca6d1a45d4dbe66ad13b8890b594c1881a34917771bc5d396f13b6bee7",
+    "absent-menu-final-fresh-session.json": "e5357b1c6aaa896dbd497bda2fa2cb89dfa309c758934f755facb0c8b3351209",
+    "native-fs-dependency-note.log": "9febdca42664fbc58c01b8f0b8ef2ee8acd2cda4e8365426123effcf2193b45e",
+    "view-bindings-baseline.log": "768828168baedb369e987d68fc92558d74f2844eee098cb005e9de5e1832c0dd",
+    "apply-confirm-baseline-test.log": "8f18eac59d5023a60836baf5cbcdd78ab9c337a3ff1e665751f569c05e06620d",
+    "local-checks.json": "5afc049e1d32ddb71f342f6c11fc118439e9beeb9b7287c358c79665030fe99c",
+    "runtime-final-baseline.log": "f9f40106221b1619770bb801dcee05443e30f885a3f5e9ba8fa3629346ec282a"
+  },
+  "localChecks": [
+    {
+      "command": [
+        "node",
+        "tests/luci-ready-state.cjs"
+      ],
+      "exitCode": 0,
+      "seconds": 0.4
+    },
+    {
+      "command": [
+        "node",
+        "tests/luci-save-readback.cjs"
+      ],
+      "exitCode": 0,
+      "seconds": 0.05
+    },
+    {
+      "command": [
+        "node",
+        "tests/luci-save-singleflight.cjs"
+      ],
+      "exitCode": 0,
+      "seconds": 0.03
+    },
+    {
+      "command": [
+        "node",
+        "tests/luci-refresh-error.cjs"
+      ],
+      "exitCode": 0,
+      "seconds": 0.03
+    },
+    {
+      "command": [
+        "node",
+        "tests/luci-run-status.cjs"
+      ],
+      "exitCode": 0,
+      "seconds": 0.68
+    },
+    {
+      "command": [
+        "node",
+        "tests/luci-view-bindings.cjs"
+      ],
+      "exitCode": 0,
+      "seconds": 0.04
+    },
+    {
+      "command": [
+        "bash",
+        "tests/installed-routing-contract.sh"
+      ],
+      "exitCode": 0,
+      "seconds": 0.03
+    },
+    {
+      "command": [
+        "bash",
+        "tests/rill-intelligence-luci-contract.sh"
+      ],
+      "exitCode": 0,
+      "seconds": 0.04
+    },
+    {
+      "command": [
+        "bash",
+        "tests/luci-validation-contract.sh"
+      ],
+      "exitCode": 0,
+      "seconds": 0.02
+    },
+    {
+      "command": [
+        "bash",
+        "tests/luci-staged-validation.sh"
+      ],
+      "exitCode": 0,
+      "seconds": 1.98
+    },
+    {
+      "command": [
+        "bash",
+        "tests/legacy/luci-static-contract.sh"
+      ],
+      "exitCode": 0,
+      "seconds": 0.23
+    },
+    {
+      "command": [
+        "bash",
+        "tests/legacy/overview-rpc.sh"
+      ],
+      "exitCode": 0,
+      "seconds": 0.03
+    },
+    {
+      "command": [
+        "bash",
+        "tests/rpc-readonly-policy.sh"
+      ],
+      "exitCode": 0,
+      "seconds": 0.05
+    },
+    {
+      "command": [
+        "actionlint"
+      ],
+      "exitCode": 0,
+      "seconds": 0.2
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exitCode": 0,
+      "seconds": 0.01
+    }
+  ]
+}
