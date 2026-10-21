@@ -11,7 +11,9 @@ import tempfile
 ROOT=Path(__file__).resolve().parents[1]
 CLI=os.environ.get('CFIP_TEST_CLI',str(ROOT/'package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto-v2'))
 LIB=os.environ.get('CFIP_TEST_LIB_DIR',str(ROOT/'package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip'))
-BASH=os.environ.get('CFIP_TEST_BASH','bash')
+# Resolve before a case deliberately removes Bash and tar from child PATH.
+BASH=shutil.which(os.environ.get('CFIP_TEST_BASH','bash'))
+if not BASH: raise SystemExit('status metadata test requires an available Bash interpreter')
 results=[];failures=[]
 def snapshot(root):
     return {str(p.relative_to(root)):hashlib.sha256(p.read_bytes()).hexdigest() for p in root.rglob('*') if p.is_file()}

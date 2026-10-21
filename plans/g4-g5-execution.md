@@ -1,5 +1,9 @@
 # G4、G5 执行记录
 
+## G4 host status-fixture interpreter correction
+
+Exact source 858922c PR run 39625920234 has a terminal failed host-contract job: status-observation-metadata.py deliberately restricts PATH for its missing-tar case but launches the child using relative bash. The captured job log and default local invocation reproduce FileNotFoundError before the product assertion. Resolve the interpreter from the original PATH once, before constructing restricted child environments; the actual missing-tar assertion is retained. Default host and native OpenWrt invocations now pass all eight cases. Explicit interpreter override was why earlier component runs passed; those did not prove the default CI invocation. SDK jobs for that historical run were still live when observed; the failed host means no whole-run qualification regardless of their eventual result. Latest corrected exact-SHA CI remains OPEN.
+
 ## G5c standalone CFST parity checkpoint
 
 The historical standalone script retains the old installer/download path. Running the same cache matrix proves offline missing-metadata bootstrap returns success and creates a binary, while wrong-digest fallback changes existing artifacts. Its baseline matrix has 23 passes/11 failures, but direct-entry failures include the absent dedicated cache function; these are not eleven independent security defects. The old installer matrix aborts at the bootstrap archive-publication assertion; its raw traceback is retained rather than claiming a complete failure count.
