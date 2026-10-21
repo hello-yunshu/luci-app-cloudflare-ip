@@ -38,7 +38,7 @@ resolve_lan_bind() {
 	return 1
 }
 
-start_service() {
+_publisher_start_service() {
 	local enabled bind port docroot
 	config_load cf_ip
 	config_get_bool enabled lan enabled 0
@@ -58,6 +58,13 @@ start_service() {
 	procd_set_param stderr 1
 	procd_close_instance
 }
+
+# rc.common otherwise overwrites a rejected bind/port result when closing procd.
+start_service() {
+	if _publisher_start_service; then CF_IP_PUBLISHER_START_RC=0; else CF_IP_PUBLISHER_START_RC=$?; fi
+	return "$CF_IP_PUBLISHER_START_RC"
+}
+service_started() { return "${CF_IP_PUBLISHER_START_RC:-1}"; }
 
 service_triggers() {
 	procd_add_reload_trigger cf_ip

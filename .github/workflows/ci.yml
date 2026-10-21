@@ -79,6 +79,7 @@ jobs:
           bash tests/v2-single-cfst.sh
           bash tests/v2-lan-publisher.sh
           sh tests/publisher-lan-policy.sh
+          bash tests/publisher-init-errors.sh
           bash tests/publisher-status-honesty.sh
           bash tests/publisher-bootstrap-retention.sh
           bash tests/publisher-workspace-leases.sh
