@@ -53,6 +53,11 @@ for value in (None, [], {}, [valid["packageMigration"]["currentMatrices"][0]]):
  d=copy.deepcopy(valid); d["packageMigration"]["currentMatrices"]=value; cases.append(("missing/incomplete current matrices",d,commit))
 for index in (0,1):
  for value in (None, [], {}):
+  d=copy.deepcopy(valid);d["packageMigration"]["currentMatrices"][index]["offlineLifecycle"]=value;cases.append(("missing offline lifecycle",d,commit))
+ for field,value in (("status","FAIL"),("packagePayloadRemoved",False),("dependenciesPreserved",False),("userDataPreserved",False),("reinstalled",False),("evidenceDirectory","../outside"),("scope","online hooks passed")):
+  d=copy.deepcopy(valid);d["packageMigration"]["currentMatrices"][index]["offlineLifecycle"][field]=value;cases.append(("invalid offline lifecycle "+field,d,commit))
+for index in (0,1):
+ for value in (None, [], {}):
   d=copy.deepcopy(valid);d["packageMigration"]["currentMatrices"][index]["ownershipConflict"]=value;cases.append(("missing ownership conflict",d,commit))
  for field,value in (("exitCode",0),("exitCode",True),("exitCode","1"),("status","FAIL"),("rejected",False),("foreignOwnerPreserved",False),("preexistingPayloadPreserved",False),("installedStatePreserved",False),("userDataPreserved",False),("evidenceDirectory","../outside"),("id","wrong")):
   d=copy.deepcopy(valid);d["packageMigration"]["currentMatrices"][index]["ownershipConflict"][field]=value;cases.append(("invalid ownership conflict "+field,d,commit))
