@@ -103,6 +103,9 @@ install_package() {
             metadata=$("$APK" adbdump --format json "$package")
             name=$(jq -r '.info.name' <<<"$metadata")
             version=$(jq -r '.info.version' <<<"$metadata")
+            if [[ "$package" == "$CURRENT_BASE" ]]; then
+                python3 "$ROOT/scripts/apk-ownership-preflight.py" "$package" --root "$root" --apk-bin "$APK" || return 1
+            fi
             manager "$root" add --no-scripts "$name=$version"
             ;;
     esac
@@ -400,7 +403,7 @@ PYREMOVED
 # Install a distinct real package first, then refuse candidate ownership takeover.
 # Dependency fixtures scope this to package ownership, never proxy integration.
 owner_conflict() {
-    local root out fixture payload install_rc=0
+    local root out fixture payload raw_root install_rc=0 admission_rc=0 raw_mutated=false
     SCENARIO="$KIND-negative-owner-conflict"; STAGE=0
     out="$EVIDENCE_DIR/$SCENARIO"; mkdir -p "$out"
     root="$(fresh_root "$SCENARIO")"
@@ -433,7 +436,17 @@ owner_conflict() {
     payload_snapshot "$root" "$out/payload-before.json"
     case "$KIND" in
         ipk) manager "$root" install "$CURRENT_BASE" >"$out/install.log" 2>&1 || install_rc=$? ;;
-        apk) manager "$root" add --no-scripts "$CURRENT_BASE" >"$out/install.log" 2>&1 || install_rc=$? ;;
+        apk)
+            # Admission proof uses the original root, raw-manager behavior a copy.
+            python3 "$ROOT/scripts/apk-ownership-preflight.py" "$CURRENT_BASE" --root "$root" --apk-bin "$APK" >"$out/admission.json" || admission_rc=$?
+            test "$admission_rc" -eq 65 || { echo 'ownership admission failed to refuse conflict' >&2; return 1; }
+            raw_root="$WORK/raw-apk-conflict"; cp -a "$root" "$raw_root"
+            manager "$raw_root" add --no-scripts "$CURRENT_BASE" >"$out/install.log" 2>&1 || install_rc=$?
+            manager "$raw_root" info >"$out/raw-installed-after.txt"
+            payload_snapshot "$raw_root" "$out/raw-payload-after.json"
+            snapshot_root "$raw_root" raw-manager-rejection
+            cmp -s "$out/installed-before.txt" "$out/raw-installed-after.txt" || raw_mutated=true
+            ;;
     esac
     test "$install_rc" -ne 0 || { echo 'candidate accepted conflicting foreign package owner' >&2; return 1; }
     # A dependency or parse failure is not evidence of ownership rejection.
@@ -442,6 +455,7 @@ owner_conflict() {
     assert_owner "$root" cfip-owner-fixture /usr/bin/cf-ip-auto
     assert_not_owner "$root" "$BASE_PACKAGE" /usr/bin/cf-ip-auto
     manager "$root" info >"$out/installed-after.txt"
+    cmp -s "$out/installed-before.txt" "$out/installed-after.txt" || raw_mutated=true
     package_files "$root" cfip-owner-fixture >"$out/owner-after.txt"
     payload_snapshot "$root" "$out/payload-after.json"
     if [[ "$KIND" == ipk ]]; then
@@ -480,8 +494,8 @@ assert before==after, 'conflict changed original payload or created unexpected f
 PYOWNERPAYLOAD
     assert_user_data "$root"
     snapshot_root "$root" conflict-rejected
-    jq -n --arg directory "$SCENARIO" --argjson rc "$install_rc" \
-        '{id:"owner-conflict",status:"PASS",exitCode:$rc,rejected:true,foreignOwnerPreserved:true,preexistingPayloadPreserved:true,installedStatePreserved:true,userDataPreserved:true,evidenceDirectory:$directory}' >"$out/result.json"
+    jq -n --arg directory "$SCENARIO" --arg kind "$KIND" --argjson rc "$install_rc" --argjson admission "$admission_rc" --argjson rawMutation "$raw_mutated" \
+        '{guardedAdmission:($kind=="apk"),admissionExitCode:$admission,rawManagerStateMutated:$rawMutation,id:"owner-conflict",status:"PASS",exitCode:$rc,rejected:true,foreignOwnerPreserved:true,preexistingPayloadPreserved:true,installedStatePreserved:true,userDataPreserved:true,evidenceDirectory:$directory}' >"$out/result.json"
     echo "PASS real $KIND candidate rejects foreign ownership conflict and preserves installed state"
 }
 

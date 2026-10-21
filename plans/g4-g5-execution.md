@@ -1,5 +1,11 @@
 # G4、G5 执行记录
 
+## G4b actual APK conflict behavior and read-only admission
+
+Run 39628261369 attempt 1 at 6f9415b terminates with all four SDKs, Host/Legacy/RPC, real CFST, Docker, asset and same-release Runtime tests passing; IPK migration passes and APK migration fails. Actual APK reports overwrite conflict and nonzero exit but registers the candidate and extracts its other paths. Downloaded exact-attempt raw DB/payload evidence proves partial installation; it is not an output-order issue and is not waived. Whole-run qualification is FAIL.
+
+A separate read-only ownership admission tool reads the actual candidate payload via apk adbdump plus the target installed DB, rejecting foreign ownership, ambiguous/unsafe metadata, missing DB and symlinked parent paths before install. Actual native reader cases reject the hosted foreign-owner DB without writes and admit empty/same-owner roots; thirteen controlled parser cases pass. Current-base APK installs in the migration runner use admission. The conflict matrix checks refusal/preservation on the original root and separately runs raw APK in a root copy, retaining partial-manager state and a distinct scope/exit observation. The strict validator requires that distinction. This does not turn raw APK into an atomic transaction or close interrupted-install/recovery/concurrent-writer/online-hook gates; latest exact-SHA real migration and full G4/G5 remain OPEN. Receipt: apk-ownership-admission.json; operational boundary: APK_OWNERSHIP_ADMISSION.md.
+
 ## G5e cron ownership and publication checkpoint
 
 Actual init cron removal deletes user comments and custom commands containing cf-ip-auto --run; startup sync cleanup has the same broad substring pattern. A failing regression preserves the before evidence. New entries carry an explicit cf_ip managed marker; removal recognizes exact historical generated run/sync commands or the exact marked form, preserving comments, wrappers, additional arguments and user labels. Historical unmarked byte-identical user commands are inherently indistinguishable from generated ones; only this exact form is adopted for compatibility.
