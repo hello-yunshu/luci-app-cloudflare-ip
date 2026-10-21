@@ -45,5 +45,5 @@ test "$(jq -r '.records[]|select(.runId=="reuse-run")|.reuseResult' "$CFIP_OPERA
 
 printf '%s\n' '{broken' >"$CFIP_OPERATIONAL_HISTORY_FILE"
 cfip_operational_history_json >/dev/null
-test -n "$(find "$CFIP_STATUS_DIR" -name 'operational-history.json.quarantine.*' -print -quit)"
+test -n "$(find "$CFIP_STATUS_DIR" -name 'operational-history.json.quarantine.*' -print)"
 echo 'Operational history bounded/quarantine/rolling/reuse-failure contracts passed'

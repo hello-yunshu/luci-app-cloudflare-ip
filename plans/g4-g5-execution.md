@@ -1,5 +1,13 @@
 # G4、G5 执行记录
 
+## G5 native context, health and observation portability checkpoint
+
+Native OpenWrt reproduces failed context generation and operational history from jq's missing optional regex library. The fingerprint helper nevertheless reports the SHA-256 of empty text with exit 0. A valid CSV row also fails jq, but the observation parser returns 0 and replaces an existing result with an empty array. The host fault matrix exposes six failures among eight cases: row rendering/rename, initial/final write, directory and symlink output.
+
+Runtime paths now use shared codepoint whitespace trimming and basic case-normalized substring checks for canonical ASCII source/state markers. Sorted context JSON is generated in one jq call; failed/empty contexts cannot produce a fingerprint. Fourteen whitespace/context cases retain exact old/new JSON bytes and hashes. The parser uses a private workspace and checks every write/rename/publication under a conditional caller, preserving old outputs on the tested failures. Eight parser cases pass on host and native OpenWrt; native context, health, observation/eligibility, Prefix/Colo and regex-denied combined tests pass. The feature count/source-kind flags and thirteen focused host context/fallback/health regressions pass. Runtime/proxy/probe callbacks remain fixtures.
+
+The native history test's find -quit is unavailable in BusyBox; find -print preserves the same nonempty quarantine assertion. The Darwin lifecycle fixture uses the existing actual-kernel flock adapter; its initial missing-tool failure and the native harness failure are retained, not counted as source defects. Receipt: native-runtime-jq-portability.json; behavior and limits: OPENWRT_JQ_COMPATIBILITY.md. Changed-source package/latest-SHA SDK/migration/offline/native-package qualification, parser KILL/orphan/resource/input faults, standalone parity and full G4/G5 remain OPEN. No physical-router/proxy/publication actions or shared Docker restart.
+
 ## G5c native jq capability and cache qualification checkpoint
 
 Actual installed OpenWrt jq 1.8.1 is compiled without ONIGURUMA. The original cache matrix passes seventeen cases but refuses four qualified caches; the expanded matrix passes twenty-eight and refuses six qualified cases, including uppercase HTTPS and Unicode version tags. No unqualified execution was observed. Metadata qualification now uses jq codepoint/string operations rather than optional regex functions. The one bounded snapshot, schema, HTTPS provenance, version token and exact hexadecimal digest requirements remain. C0/C1, Unicode whitespace, trailing newline and NUL are rejected before Bash extraction.

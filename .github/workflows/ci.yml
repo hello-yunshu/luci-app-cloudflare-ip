@@ -65,6 +65,8 @@ jobs:
       - name: V2 host contract tests
         run: |
           bash tests/v2-observation.sh
+          python3 tests/observation-write-faults.py
+          bash tests/jq-portable-runtime.sh
           bash tests/v2-rill-shadow.sh
           bash tests/v2-source-engine.sh
           bash tests/source-size-cap.sh
