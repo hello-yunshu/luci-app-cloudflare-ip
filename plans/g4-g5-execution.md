@@ -1,5 +1,11 @@
 # G4、G5 执行记录
 
+## G5e actual online disabled/cron lifecycle checkpoint
+
+The private guest now runs the current init source as a developer overlay. Actual cron is enabled but initially has no running instance and no root crontab. Controlled never-due schedules plus harmless user tasks exercise real cron enable/start/reload and procd. Repeated scheduling leaves exactly one marked entry; user lines and comments survive. Actual rc.common init restart with existing disabled UCI removes the managed entry, leaves no cf_ip procd instance and the actual CLI reports running/scheduled/jobRunning false. Repeated actual init stop retains user tasks.
+
+Finally the exact original status bytes, absent crontab and inactive cron service are restored; UCI hash remains unchanged, independently rechecked over SSH. Original cron enable state remains enabled. No optimization/proxy/CFST job runs. Receipt: native-online-cron-lifecycle.json. These results strengthen the prior callback-fixture proof but do not prove actual scheduled firing, boot, package online upgrade/removal hooks or rebuilt-package acceptance. All broader G4/G5 and latest exact-SHA SDK/migration/offline gates remain OPEN.
+
 ## G4b raw APK partial initial-install recovery checkpoint
 
 A private native APK root reconstructs the exact hosted foreign-owner installed DB plus all seven pre-existing payload records, including the original checksum-pinned world (every content hash/mode/size checked before execution). Actual official aarch64 apk-tools 3.0.5 targets this offline x86_64 root inside an unshare -n process; no package payload or scripts execute. The canonical older APK reproduces collision exit 1 and partial candidate registration/extraction. Actual deletion of that partial candidate returns 0. Prior package names, foreign-owned file, user UCI/custom URL/backup/history/cron and every original regular payload match; no extra regular payload remains except the separately excluded manager diagnostic log.
