@@ -109,9 +109,9 @@ endef
 define Package/luci-app-cloudflare-ip/prerm
 #!/bin/sh
 [ -n "$${IPKG_INSTROOT}" ] || { \
-	/etc/init.d/cf_ip stop 2>/dev/null; \
-	/etc/init.d/cf_ip_publisher stop 2>/dev/null; \
-	/etc/init.d/cf_ip disable 2>/dev/null; \
+	/etc/init.d/cf_ip stop || { echo "cf_ip stop failed; refusing package removal" >&2; exit 1; }; \
+	/etc/init.d/cf_ip_publisher stop || { echo "cf_ip_publisher stop failed; refusing package removal" >&2; exit 1; }; \
+	/etc/init.d/cf_ip disable || { echo "cf_ip disable failed; refusing package removal" >&2; exit 1; }; \
 	rm -f /tmp/luci-indexcache.*; \
 	rm -rf /tmp/luci-modulecache/; \
 	exit 0; \

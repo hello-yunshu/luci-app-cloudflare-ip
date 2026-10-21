@@ -156,8 +156,18 @@ _stop_service_unlocked() {
 	/usr/bin/cf-ip-auto --mark-stopped-held
 }
 
-start_service() { cf_ip_with_shared_lock _start_service_unlocked; }
-stop_service() { cf_ip_with_shared_lock _stop_service_unlocked; }
+# rc.common closes/kills the procd service after these functions and otherwise
+# overwrites their return code. Its final callbacks must report our result.
+start_service() {
+	if cf_ip_with_shared_lock _start_service_unlocked; then CF_IP_START_RC=0; else CF_IP_START_RC=$?; fi
+	return "$CF_IP_START_RC"
+}
+service_started() { return "${CF_IP_START_RC:-1}"; }
+stop_service() {
+	if cf_ip_with_shared_lock _stop_service_unlocked; then CF_IP_STOP_RC=0; else CF_IP_STOP_RC=$?; fi
+	return "$CF_IP_STOP_RC"
+}
+service_stopped() { return "${CF_IP_STOP_RC:-1}"; }
 service_triggers() {
 	procd_add_reload_trigger "cf_ip"
 	procd_add_validation validate_cf_ip
