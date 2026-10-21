@@ -624,10 +624,16 @@ install_cached_speedtest_archive() {
 	# metadata generations, and a bare archive cannot qualify its own digest.
 	if [[ "$metadata_bytes" =~ ^[0-9]{1,5}$ ]] && ((10#$metadata_bytes > 0 && 10#$metadata_bytes <= 16384)) &&
 		qualified="$(head -c 16385 "$metadata" 2>/dev/null | jq -ces '
+		  # OpenWrt jq may omit regex support. Check C0/C1 controls and Unicode
+		  # White_Space numerically before raw extraction can trim newlines/NUL.
+		  def token: type=="string" and length>0 and all(explode[];
+		    .>32 and (.<127 or .>160) and .!=5760 and (.<8192 or .>8202) and
+		    .!=8232 and .!=8233 and .!=8239 and .!=8287 and .!=12288);
 		  if length==1 and (.[0] | type=="object" and .schemaVersion==1 and
-		    (.version|type=="string" and test("^[^[:space:][:cntrl:]]+$")) and
-		    (.source|type=="string" and test("^https://[^[:space:][:cntrl:]]+$";"i")) and
-		    (.sha256|type=="string" and test("^[0-9a-fA-F]{64}$")))
+		    (.version|token) and
+		    (.source|token and length>8 and (ascii_downcase|startswith("https://"))) and
+		    (.sha256|type=="string" and length==64 and all(explode[];
+		      (.>=48 and .<=57) or (.>=65 and .<=70) or (.>=97 and .<=102))))
 		  then .[0] else empty end' 2>/dev/null)"; then
 		version="$(jq -r '.version' <<<"$qualified")"; source="$(jq -r '.source' <<<"$qualified")"; digest="$(jq -r '.sha256' <<<"$qualified")"
 		actual_digest="$(sha256sum "$archive" | awk '{print $1}')" || { log "failed to hash cached CFST archive"; return 1; }
