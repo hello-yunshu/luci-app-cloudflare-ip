@@ -1,5 +1,11 @@
 # G4、G5 执行记录
 
+## G5c standalone CFST parity checkpoint
+
+The historical standalone script retains the old installer/download path. Running the same cache matrix proves offline missing-metadata bootstrap returns success and creates a binary, while wrong-digest fallback changes existing artifacts. Its baseline matrix has 23 passes/11 failures, but direct-entry failures include the absent dedicated cache function; these are not eleven independent security defects. The old installer matrix aborts at the bootstrap archive-publication assertion; its raw traceback is retained rather than claiming a complete failure count.
+
+Only the three installer/cache/download functions are aligned with the qualified Legacy implementation. Both actual entry sources retain their independent surrounding behavior. Standalone host and network-isolated native OpenWrt matrices now pass all 34 cache and 23 installation cases. CI runs both matrices against both sources. CFST version/fallback/retry/security, Bash syntax, ShellCheck error, actionlint and diff pass. Receipt: standalone-cfst-parity.json. Harmless payloads do not prove genuine CFST execution; remaining KILL/resource/concurrency/full G4/G5/latest-SHA package/offline gates remain OPEN.
+
 ## G5 native status observations and procd checkpoint
 
 Sparse persisted status on actual OpenWrt displayed missing TAR/JQ and no script version despite installed tools. Status now merges current source/package and executable-presence observations without rewriting cached job state or invoking proxy init scripts; unobserved proxy running state is null. Eight metadata cases pass on host and native tools (baseline two pass, six fail), including custom work directories, missing binary with stale version, corrupt/array caches and preserved run/request identifiers. Overview distinguishes unknown observations, rejects failed/malformed status loads, and readiness rejects explicit failures even with custom predicates; string running values cannot indicate readiness. Related save/readback/singleflight/run-status tests pass.
