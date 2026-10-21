@@ -1,5 +1,11 @@
 # G4、G5 执行记录
 
+## G5d actual UCI/netifd LAN changes and publisher failure result
+
+The production publisher now has actual UCI/netifd event evidence. A private auxiliary 10.0.2.16 LAN address is added while retaining management 10.0.2.15; real network reload/event delivery rebinds uhttpd to the requested new address and closes the old listener. Removing the requested address removes the owned instance; restoring the address restarts actual HTTP through retained triggers. No synthetic service event or mocked LAN/private-address policy is used. Exact network/product config hashes, original single LAN address and absent publisher listeners are restored. Independent guest timeout restore protects management; no host network or physical device changes occur.
+
+Actual invalid publisher binding also reproduces rc.common swallowing start_service failure: 0.0.0.0 yields init exit 0 with no instance. Publisher now captures its start result and returns through service_started. Eight native invalid bind/port cases return 1; disabled no-op and host policy/callback cases pass. The full real netifd HTTP sequence reruns successfully after the patch. Receipts: native-netifd-publisher.json and publisher-init-failure.json. Requested auxiliary-address loss is not full management-LAN-down acceptance. Socket readiness/occupied ports still require HTTP/status proof; init0 is not readiness. Current rebuilt package/exact-SHA qualification and full G4/G5 remaining gates stay OPEN.
+
 ## G5e prerm refusal and rc.common exit propagation checkpoint
 
 Expanded current prerm accepts controlled cf_ip stop failure and continues publisher stop/disable before returning 0; the baseline failure is retained. Native inspection finds a second layer: rc.common procd wrappers overwrite start_service/stop_service returns while closing/killing the service. The initial actual native opkg test therefore removes the private test package despite a live writer lock. The initial environment-flag hypothesis was disproven; writer helper does not export it, and logs show lock_busy. Canonical package was reinstalled, exact original UCI/status hashes verified, and current developer source overlays restored before continuing.
