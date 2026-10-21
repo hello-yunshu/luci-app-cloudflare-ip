@@ -1,5 +1,13 @@
 # G4、G5 执行记录
 
+## G5e prerm refusal and rc.common exit propagation checkpoint
+
+Expanded current prerm accepts controlled cf_ip stop failure and continues publisher stop/disable before returning 0; the baseline failure is retained. Native inspection finds a second layer: rc.common procd wrappers overwrite start_service/stop_service returns while closing/killing the service. The initial actual native opkg test therefore removes the private test package despite a live writer lock. The initial environment-flag hypothesis was disproven; writer helper does not export it, and logs show lock_busy. Canonical package was reinstalled, exact original UCI/status hashes verified, and current developer source overlays restored before continuing.
+
+Prerm now refuses at the first stop/publisher-stop/disable failure, preserving the root error. Init captures lifecycle result and returns it through rc.common's final service_started/service_stopped callbacks. Five expanded hook cases and callback success/failure tests pass. Actual native rc.common start under the real writer lock returns 1; actual opkg remove returns 255 with prerm status 1 and No packages removed. The installed status record, complete owned payload/config/status remain identical. Fixture releases only its own lock and restores original init enable states.
+
+The SDK default_prerm still disables init links after package-hook refusal; this platform behavior is explicitly retained in raw evidence and is not called atomic rollback. Online successful remove/upgrade, APK hooks, boot-state rollback, new exact-SHA rebuilt package/SDK/native qualification and full G4/G5 remain OPEN. Receipt: native-prerm-refusal.json. Related cron/disabled/legacy lifecycle/status, syntax/ShellCheck/actionlint/diff pass.
+
 ## G5e actual online disabled/cron lifecycle checkpoint
 
 The private guest now runs the current init source as a developer overlay. Actual cron is enabled but initially has no running instance and no root crontab. Controlled never-due schedules plus harmless user tasks exercise real cron enable/start/reload and procd. Repeated scheduling leaves exactly one marked entry; user lines and comments survive. Actual rc.common init restart with existing disabled UCI removes the managed entry, leaves no cf_ip procd instance and the actual CLI reports running/scheduled/jobRunning false. Repeated actual init stop retains user tasks.

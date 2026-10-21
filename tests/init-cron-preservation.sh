@@ -53,3 +53,11 @@ p=Path(sys.argv[1]);assert stat.S_IMODE(p.stat().st_mode)==0o600
 assert p.read_bytes().endswith(b'\n') and b'\\n' not in p.read_bytes()
 PYMODE
 echo 'PASS cron publication preserves private file mode and terminates the command line'
+cf_ip_with_shared_lock(){ return 23; }
+rc=0; start_service || rc=$?; test "$rc" -eq 23
+rc=0; service_started || rc=$?; test "$rc" -eq 23
+rc=0; stop_service || rc=$?; test "$rc" -eq 23
+rc=0; service_stopped || rc=$?; test "$rc" -eq 23
+cf_ip_with_shared_lock(){ return 0; }
+start_service; service_started; stop_service; service_stopped
+echo 'PASS rc.common final callbacks retain lifecycle failure or success'

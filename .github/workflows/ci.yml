@@ -88,6 +88,7 @@ jobs:
           bash tests/v2-status.sh
           python3 tests/status-observation-metadata.py
           python3 tests/apk-ownership-preflight.py
+          python3 tests/package-prerm-failures.py
           bash tests/v2-transaction.sh
           bash tests/openclash-rollback-external-conflict.sh
           bash tests/openclash-transaction-write-failure.sh
