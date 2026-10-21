@@ -33,6 +33,7 @@ return view.extend({
 		var backupData = data[2] || {};
 
 		if (!env.openclash_installed) {
+			this.handleSave = this.handleSaveApply = this.handleReset = null;
 			return E('div', { 'class': 'cbi-map cfi-form-map' }, [
 				E('div', { 'class': 'cbi-section cfi-empty-state' },
 					E('h3', {}, _('OpenClash Not Found')),

@@ -8,6 +8,8 @@
 var FOOTER_VERSION = '@PKG_FULL_VERSION@';
 var saveApplySequence = 0;
 
+var callApplyConfig = rpc.declare({ object: 'uci', method: 'apply', params: [ 'timeout', 'rollback' ], reject: true });
+var callConfirmConfig = rpc.declare({ object: 'uci', method: 'confirm', reject: true });
 var callReadConfig = rpc.declare({ object: 'uci', method: 'get', params: [ 'config' ], expect: { values: {} }, reject: true });
 
 var callStatus = rpc.declare({ object: 'cf_ip', method: 'status', expect: { '': {} } });
@@ -20,12 +22,31 @@ var FOOTER_OPTIONS = {
 	repoUrl: 'https://github.com/hello-yunshu/luci-app-cloudflare-ip'
 };
 
+function isUciNoData(error) {
+	return error === 5 || /\bubus code 5\b/.test(error && error.message ? error.message : String(error));
+}
+
 function safeApply() {
-	return uci.apply().catch(function(e) {
-		var message = e && e.message ? e.message : String(e);
-		if (e === 5 || /\bubus code 5\b/.test(message) || /No data|未收到数据/.test(message))
-			return;
-		throw e;
+	/* uci.apply() schedules confirmation later and resolves before that timer.
+	 * A page reload can cancel it, silently rolling the saved settings back. */
+	return callApplyConfig(30, true).then(function(code) {
+		if (code === 5) throw code;
+		if (code !== 0) throw new Error(_('Unable to verify the applied configuration. Reload and try again.'));
+		return true;
+	}).catch(function(error) {
+		if (isUciNoData(error)) return false;
+		throw error;
+	});
+}
+
+function confirmAppliedConfig(transactionStarted) {
+	return callConfirmConfig().then(function(code) {
+		if (code === 5) throw code;
+		if (code !== 0) throw new Error(_('Unable to verify the applied configuration. Reload and try again.'));
+	}).catch(function(error) {
+		/* No transaction is acceptable only after no-data apply AND exact readback. */
+		if (!transactionStarted && isUciNoData(error)) return;
+		throw new Error(error && error.message ? error.message : String(error));
 	});
 }
 
@@ -331,7 +352,7 @@ function createHandleSaveApply(m, view) {
 	view.__cfipApplyGeneration = generation;
 	view.handleSaveApply = function(ev, mode) {
 		if (pending) return pending;
-		var candidate, expected, owner = this;
+		var candidate, expected, transactionStarted, owner = this;
 		var button = ev && ev.currentTarget && ev.currentTarget.tagName === 'BUTTON' ? ev.currentTarget : null;
 		var root = m.root, buttonOwner = String(++saveApplySequence);
 		function isActive() {
@@ -350,9 +371,13 @@ function createHandleSaveApply(m, view) {
 		}).then(function() {
 			requireActive();
 			return safeApply();
-		}).then(function() {
+		}).then(function(started) {
 			requireActive();
+			transactionStarted = started;
 			return readAppliedConfig(expected);
+		}).then(function(applied) {
+			requireActive();
+			return confirmAppliedConfig(transactionStarted).then(function() { return applied; });
 		}).then(function(applied) {
 			requireActive();
 			if (!applied.main || applied.main.enabled !== '1') {

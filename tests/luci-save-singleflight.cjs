@@ -2,11 +2,13 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 if (!String.prototype.format) Object.defineProperty(String.prototype,'format',{value:function(value){return this.replace('%s',value);},configurable:true});
 const source=fs.readFileSync(process.env.CFIP_TEST_UTILS || path.join(__dirname,'../package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js'),'utf8');
-let release,saveCalls=0,applyCalls=0,reads=0,readGate=null,reloadSchedules=0;
+let release,saveCalls=0,applyCalls=0,reads=0,readGate=null,confirmGate=null,reloadSchedules=0;
 const saved=new Promise(resolve=>{release=resolve;});
 const main={'.name':'main','.type':'service',enabled:'0'};
 const uci={get:(c,s,k)=>s==='main'?main[k]:undefined,sections:()=>[main],apply:()=>{applyCalls++;return Promise.resolve();},changes:()=>Promise.resolve({})};
-const rpc={declare:def=>()=>{if(def.object==='uci'){reads++;return readGate || Promise.resolve({main});}return Promise.resolve({success:true});}};
+const rpc={declare:def=>()=>{if(def.object==='uci' && def.method==='apply'){applyCalls++;return Promise.resolve(0);}
+ if(def.object==='uci' && def.method==='confirm')return confirmGate || Promise.resolve(0);
+ if(def.object==='uci' && def.method==='get'){reads++;return readGate || Promise.resolve({main});}return Promise.resolve({success:true});}};
 const notices=[];
 const utils=new Function('uci','rpc','ui','dom','baseclass','_','window','E',source)(uci,rpc,{addNotification:(a,b,c)=>notices.push(c)},{},{extend:v=>v},v=>v,{setTimeout:()=>{reloadSchedules++;return 1;},clearTimeout:()=>{}},(a,b)=>b);
 const attrs={};const button={tagName:'BUTTON',textContent:'Save & Apply',disabled:false,setAttribute:(k,v)=>{attrs[k]=v;},getAttribute:k=>attrs[k],removeAttribute:k=>{delete attrs[k];}};
@@ -68,7 +70,17 @@ const view={root:{isConnected:true},handleSave:()=>{saveCalls++;return saved;}};
  const beforeBoundApply=applyCalls;
  await pageView.handleSaveApply({currentTarget:button});
  assert.equal(applyCalls,beforeBoundApply+1);
- for(const page of ['settings','advanced','passwall','openclash']) {
+ let finishConfirm;
+ confirmGate=new Promise(resolve=>{finishConfirm=resolve;});
+ const beforeConfirmNotices=notices.length,beforeConfirmReloads=reloadSchedules;
+ const confirming=pageView.handleSaveApply({currentTarget:button});
+ for(let i=0;i<40;i++)await Promise.resolve();
+ assert.equal(notices.length,beforeConfirmNotices,'success reported before confirmation');
+ assert.equal(reloadSchedules,beforeConfirmReloads,'reload cancelled the pending confirmation');
+ assert.equal(button.disabled,true);
+ finishConfirm(0);await confirming;confirmGate=null;
+ assert.equal(notices.length,beforeConfirmNotices+1);assert.equal(button.disabled,false);
+ for(const page of ['settings','advanced','passwall','openclash','sources','intelligence']) {
   const viewSource=fs.readFileSync(path.join(__dirname,'../package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip',page+'.js'),'utf8');
   assert.match(viewSource,/utils\.createHandleSave\(m, this\)/);
   assert.match(viewSource,/utils\.createHandleSaveApply\(m, this\)/);

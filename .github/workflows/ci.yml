@@ -183,6 +183,7 @@ jobs:
           python3 tests/rpc-failure-matrix.py
           bash tests/rpc-readonly-policy.sh
           node tests/luci-refresh-error.cjs
+          node tests/luci-view-bindings.cjs
           python3 tests/writer-lock-recovery.py
           bash tests/shared-writer-lock.sh
           bash tests/status-stop-contract.sh

@@ -72,6 +72,11 @@ return view.extend({
       E('div',{'class':'td','data-label':_('Last Error')},q.lastError||'—')
     ]));});
     box.appendChild(E('button',{'class':'btn cbi-button-action','click':function(){var btn=this;utils.setBusy(btn,_('Refreshing...'));return callRefresh().then(function(r){if(r.success){ui.addNotification(null,E('p',{},_('Sources refreshed; candidate pool prepared.')),'info');setTimeout(function(){location.reload();},500);}else{ui.addNotification(null,E('p',{},_('Unable to refresh sources: %s').format(r.error||_('Unknown'))),'error');}}).catch(function(e){ui.addNotification(null,E('p',{},_('Unable to refresh sources: %s').format(e.message||e)),'error');}).finally(function(){utils.resetBusy(btn);});}},_('Refresh Sources')));
-    return utils.renderWithFooter(m.render().then(function(node){ node.appendChild(box); return node; }), utils.FOOTER_OPTIONS);
+    utils.createHandleSave(m, this);
+    utils.createHandleSaveApply(m, this);
+    // Map.save() renders again before validation. Keep runtime controls on that render too.
+    var renderMap=m.renderContents.bind(m);
+    m.renderContents=function(){ return utils.renderWithFooter(renderMap().then(function(node){ node.appendChild(box); return node; }), utils.FOOTER_OPTIONS); };
+    return m.render();
   }
 });

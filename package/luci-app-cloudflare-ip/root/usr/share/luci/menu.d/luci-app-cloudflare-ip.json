@@ -7,8 +7,12 @@
 			"path": "admin/services/cf_ip/overview"
 		},
 		"depends": {
-			"acl": [ "luci-app-cloudflare-ip" ],
-			"uci": { "cf_ip": true }
+			"acl": [
+				"luci-app-cloudflare-ip"
+			],
+			"uci": {
+				"cf_ip": true
+			}
 		}
 	},
 	"admin/services/cf_ip/overview": {
@@ -38,12 +42,18 @@
 	"admin/services/cf_ip/sources": {
 		"title": "Candidate IP Sources",
 		"order": 35,
-		"action": { "type": "view", "path": "cloudflare-ip/sources" }
+		"action": {
+			"type": "view",
+			"path": "cloudflare-ip/sources"
+		}
 	},
 	"admin/services/cf_ip/intelligence": {
 		"title": "Intelligence",
 		"order": 45,
-		"action": { "type": "view", "path": "cloudflare-ip/intelligence" }
+		"action": {
+			"type": "view",
+			"path": "cloudflare-ip/intelligence"
+		}
 	},
 	"admin/services/cf_ip/logs": {
 		"title": "Logs & Records",
@@ -51,6 +61,32 @@
 		"action": {
 			"type": "view",
 			"path": "cloudflare-ip/diagnostics"
+		}
+	},
+	"admin/services/cf_ip/openclash": {
+		"title": "OpenClash",
+		"order": 30,
+		"action": {
+			"type": "view",
+			"path": "cloudflare-ip/openclash"
+		},
+		"depends": {
+			"fs": {
+				"/etc/init.d/openclash": "executable"
+			}
+		}
+	},
+	"admin/services/cf_ip/passwall": {
+		"title": "PassWall",
+		"order": 40,
+		"action": {
+			"type": "view",
+			"path": "cloudflare-ip/passwall"
+		},
+		"depends": {
+			"fs": {
+				"/etc/init.d/passwall": "executable"
+			}
 		}
 	}
 }
