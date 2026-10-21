@@ -81,7 +81,7 @@ function waitForServiceReady(callStatus, options) {
 	var interval = options.interval || 3000;
 	var timeout = options.timeout || 120000;
 	var isReady = options.isReady || function(s) {
-		return s && s.running && s.last_result !== 'running' && s.jobRunning !== true && s.active_run !== true;
+		return s && s.running === true && s.last_result !== 'running' && s.jobRunning !== true && s.active_run !== true;
 	};
 	return new Promise(function(resolve, reject) {
 		var settled = false, pollTimer = null, activeTimer = null, deadlineTimer = null;
@@ -116,6 +116,10 @@ function waitForServiceReady(callStatus, options) {
 			Promise.resolve().then(callStatus).then(function(status) {
 				if (!active()) return;
 				status = status || {};
+				if (status.success === false) {
+					failure('ServiceStatusError', status.error || _('Error'));
+					return;
+				}
 				if (isReady(status)) finish(null, status);
 				else pollTimer = window.setTimeout(poll, interval);
 			}).catch(function(error) { finish(error); });

@@ -1663,3 +1663,6 @@ msgstr ""
 
 msgid "Unable to confirm speed test status: %s"
 msgstr ""
+
+msgid "Installed (Status Unknown)"
+msgstr ""

@@ -1,5 +1,13 @@
 # G4、G5 执行记录
 
+## G5 native status observations and procd checkpoint
+
+Sparse persisted status on actual OpenWrt displayed missing TAR/JQ and no script version despite installed tools. Status now merges current source/package and executable-presence observations without rewriting cached job state or invoking proxy init scripts; unobserved proxy running state is null. Eight metadata cases pass on host and native tools (baseline two pass, six fail), including custom work directories, missing binary with stale version, corrupt/array caches and preserved run/request identifiers. Overview distinguishes unknown observations, rejects failed/malformed status loads, and readiness rejects explicit failures even with custom predicates; string running values cannot indicate readiness. Related save/readback/singleflight/run-status tests pass.
+
+Native before/after screenshots show installed tools correctly. An inert plugin presence fixture shows installed/status unknown without executing its script. Corrupt cache produces the actual LuCI error alert without false stopped controls. Cache and UCI bytes were restored and independently rechecked; fixture and execution marker are absent. New translation catalogs validate, but rebuilt LMO/native package acceptance remains OPEN. Host missing-shell harness attempts are not product failures; the private Bash runtime passes all eight cases.
+
+The production publisher init bytes were also tested with actual procd, ubus events and uhttpd: seven start/rebind/loss/restoration/disable/re-enable cases pass. Cleanup leaves no named procd instance. Config/interface/private-address policy are controlled fixtures; real UCI/netifd event delivery is OPEN. These are developer source overlays/component proofs, not new-package or production/router qualification. Full G4/G5 and new exact-SHA hosted/package/offline gates remain OPEN. Receipts: native-status-observation.json and native-publisher-procd.json.
+
 ## G5 native context, health and observation portability checkpoint
 
 Native OpenWrt reproduces failed context generation and operational history from jq's missing optional regex library. The fingerprint helper nevertheless reports the SHA-256 of empty text with exit 0. A valid CSV row also fails jq, but the observation parser returns 0 and replaces an existing result with an empty array. The host fault matrix exposes six failures among eight cases: row rendering/rename, initial/final write, directory and symlink output.

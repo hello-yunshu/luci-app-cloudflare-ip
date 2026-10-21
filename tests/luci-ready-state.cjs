@@ -11,6 +11,9 @@ const bounded = promise => Promise.race([promise,new Promise((_,reject)=>setTime
  let calls=0;
  const result=await bounded(utils.waitForServiceReady(()=>{calls++;return Promise.resolve({running:true,last_result:'success'});},{interval:2,timeout:25}));
  assert.equal(result.running,true);assert.equal(calls,1);
+ await assert.rejects(bounded(utils.waitForServiceReady(()=>Promise.resolve({success:false,running:true,last_result:'success',error:'controlled status failure'}),{interval:2,timeout:25})),e=>e.code==='ServiceStatusError' && e.message==='controlled status failure');
+ await assert.rejects(bounded(utils.waitForServiceReady(()=>Promise.resolve({success:false,running:true,error:'controlled status failure'}),{isReady:()=>true,interval:2,timeout:25})),e=>e.code==='ServiceStatusError');
+ await assert.rejects(bounded(utils.waitForServiceReady(()=>Promise.resolve({running:'true',last_result:'success'}),{interval:2,timeout:12})),e=>e.code==='ServiceReadyTimeout');
  await assert.rejects(bounded(utils.waitForServiceReady(()=>Promise.resolve({running:false}),{interval:2,timeout:12})),e=>e.code==='ServiceReadyTimeout');
  await assert.rejects(bounded(utils.waitForServiceReady(()=>new Promise(()=>{}),{interval:2,timeout:12})),e=>e.code==='ServiceReadyTimeout');
  for (const flag of ['jobRunning','active_run']) {
