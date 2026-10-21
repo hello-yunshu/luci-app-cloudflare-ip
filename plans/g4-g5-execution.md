@@ -1,5 +1,11 @@
 # G4、G5 执行记录
 
+## G4b offline uninstall/reinstall checkpoint
+
+Native OpenWrt opkg installs the older canonical candidate in a private network-disabled root, removes it, and reinstalls it. All 40 package-owned regular files/symlinks apart from the intentionally preserved modified conffile are absent after removal; critical entry, RPC, lock helper, init and UI ownership is also absent. Modified UCI/custom URL, backup/history and user cron hashes survive both transitions. All dependency fixture records remain installed; reinstalled candidate owns its CLI and learner script again. Full installed DB/listings, owned-file list and hashes are retained. Existing differing conffiles cause opkg's expected retained-user/new-default diagnostic, not lost user data.
+
+Both-format migration now requires a separately scoped offlineLifecycle receipt; strict qualification rejects missing/failed preservation/removal/reinstall evidence and cannot relabel it online hooks. Host validator/byte-binding/syntax/ShellCheck pass. Actual APK and current rebuilt candidate runs await SDK; this older-IPK component result does not qualify current source. Online postinst/prerm, procd/cron cleanup, interrupted installs and full G4/G5 remain OPEN. Receipt: package-uninstall-reinstall.json.
+
 ## G4b real owner-conflict candidate checkpoint
 
 A distinct real cfip-owner-fixture package owns /usr/bin/cf-ip-auto before candidate installation. Native OpenWrt opkg rejects the historical canonical candidate with explicit file-clash diagnostics and nonzero status. The foreign owner/file, all active installed records and original payload/user UCI/custom URL/backup/history/cron are preserved; candidate remains not-installed. Full raw DB and listings are retained. opkg adds a rejected candidate not-installed record and may make etc/config/cf_ip-opkg.backup before detecting the clash; only that exact extra path is allowed, only if its mode/size/hash match the original user conffile. No global payload exclusion or force overwrite is added. Native opkg also needs var/lock in the private root.

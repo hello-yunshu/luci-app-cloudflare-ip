@@ -43,6 +43,11 @@ def validate(matrices, assets):
         public=[a for a in assets if a.get('package',{}).get('format')==kind]
         need(len(public)==1,'public package identity missing')
         need(all(current[k]==public[0]['package'].get(k) for k in ('version','release','packageVersion')),'migration candidate differs from release identity')
+        lifecycle=matrix.get('offlineLifecycle')
+        need(isinstance(lifecycle,dict),'missing offline lifecycle evidence')
+        need(lifecycle.get('status')=='PASS' and all(lifecycle.get(k) is True for k in ('packagePayloadRemoved','dependenciesPreserved','userDataPreserved','reinstalled')),'offline lifecycle did not preserve user data/dependencies or remove/reinstall payload')
+        need(lifecycle.get('evidenceDirectory')==kind+'-uninstall-reinstall','unsafe offline lifecycle evidence directory')
+        need(lifecycle.get('scope')=='offline package manager; online hooks not evaluated','offline lifecycle scope mismatch')
         conflict=matrix.get('ownershipConflict')
         need(isinstance(conflict,dict),'missing ownership conflict evidence')
         need(conflict.get('id')=='owner-conflict' and conflict.get('status')=='PASS','ownership conflict did not pass')

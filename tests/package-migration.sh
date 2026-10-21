@@ -349,6 +349,54 @@ negative_install() {
 }
 
 
+
+# Offline package-manager lifecycle only: online postinst/prerm/procd are separate.
+uninstall_reinstall() {
+    local root out path
+    SCENARIO="$KIND-uninstall-reinstall"; STAGE=0
+    out="$EVIDENCE_DIR/$SCENARIO"; mkdir -p "$out"
+    root="$(fresh_root "$SCENARIO")"
+    install_package "$root" "$CURRENT_BASE"
+    assert_installed "$root" "$BASE_PACKAGE"
+    package_files "$root" "$BASE_PACKAGE" >"$out/installed-payload-list.txt"
+    python3 - "$root" "$out" <<'PYREMOVE'
+import json,sys
+from pathlib import Path
+root=Path(sys.argv[1]);out=Path(sys.argv[2]);paths=[]
+for line in (out/'installed-payload-list.txt').read_text().splitlines():
+    name=line.strip().lstrip('/')
+    p=root/name
+    if name!='etc/config/cf_ip' and (p.is_file() or p.is_symlink()): paths.append(name)
+assert 'usr/bin/cf-ip-auto' in paths and 'usr/libexec/rpcd/cf_ip' in paths
+(out/'owned-regular-before.json').write_text(json.dumps(sorted(paths),indent=2)+'\n')
+PYREMOVE
+    remove_package "$root" "$BASE_PACKAGE"
+    python3 - "$root" "$out" <<'PYREMOVED'
+import json,sys
+from pathlib import Path
+root=Path(sys.argv[1]);out=Path(sys.argv[2])
+remaining=[name for name in json.loads((out/'owned-regular-before.json').read_text()) if (root/name).exists() or (root/name).is_symlink()]
+assert not remaining, 'package-owned payload remains after uninstall: '+repr(remaining)
+PYREMOVED
+    for path in /usr/bin/cf-ip-auto /usr/bin/cf-ip-auto-legacy /usr/libexec/rpcd/cf_ip \
+        /usr/libexec/cf-ip/writer-lock.sh /etc/init.d/cf_ip /etc/init.d/cf_ip_publisher \
+        /www/luci-static/resources/view/cloudflare-ip/overview.js; do
+        assert_absent "$root" "$path"
+        assert_not_owner "$root" "$BASE_PACKAGE" "$path"
+    done
+    for path in libc luci-base bash flock curl tar jq ca-bundle ca-certificates uhttpd rill-runtime-preview; do assert_installed "$root" "$path"; done
+    install_package "$root" "$CURRENT_BASE"
+    assert_installed "$root" "$BASE_PACKAGE"
+    assert_owner "$root" "$BASE_PACKAGE" /usr/bin/cf-ip-auto
+    assert_owner "$root" "$BASE_PACKAGE" "$NEW_SCRIPT"
+    assert_file "$root" "$NEW_SCRIPT"
+    assert_user_data "$root"
+    snapshot_root "$root" reinstalled-preserved
+    jq -n --arg directory "$SCENARIO" \
+        '{status:"PASS",packagePayloadRemoved:true,dependenciesPreserved:true,userDataPreserved:true,reinstalled:true,evidenceDirectory:$directory,scope:"offline package manager; online hooks not evaluated"}' >"$out/result.json"
+    echo "PASS real $KIND offline uninstall removes package payload and reinstall preserves user data/dependencies"
+}
+
 # Install a distinct real package first, then refuse candidate ownership takeover.
 # Dependency fixtures scope this to package ownership, never proxy integration.
 owner_conflict() {
@@ -474,14 +522,16 @@ run_scenario "${KIND}-e" scenario_e
 negative_install missing
 negative_install truncated
 owner_conflict
+uninstall_reinstall
 
 jq -n --arg kind "$KIND" \
+    --slurpfile lifecycle "$EVIDENCE_DIR/$KIND-uninstall-reinstall/result.json" \
     --slurpfile ownership "$EVIDENCE_DIR/$KIND-negative-owner-conflict/result.json" \
     --slurpfile missing "$EVIDENCE_DIR/$KIND-negative-missing/result.json" --slurpfile truncated "$EVIDENCE_DIR/$KIND-negative-truncated/result.json" \
     --slurpfile old "$EVIDENCE_DIR/legacyBase.json" --slurpfile addon "$EVIDENCE_DIR/legacyAddon.json" \
     --slurpfile current "$EVIDENCE_DIR/currentBase.json" --slurpfile compat "$EVIDENCE_DIR/currentAddon.json" \
     --slurpfile recent "$EVIDENCE_DIR/recentBase.json" \
-    '{schemaVersion:1,packageManager:$kind,ownershipConflict:$ownership[0],negativeInstalls:[$missing[0],$truncated[0]],inputs:{legacyBase:$old[0],legacyAddon:$addon[0],currentBase:$current[0],currentAddon:$compat[0],recentBase:$recent[0]},
+    '{schemaVersion:1,packageManager:$kind,offlineLifecycle:$lifecycle[0],ownershipConflict:$ownership[0],negativeInstalls:[$missing[0],$truncated[0]],inputs:{legacyBase:$old[0],legacyAddon:$addon[0],currentBase:$current[0],currentAddon:$compat[0],recentBase:$recent[0]},
       scenarios:[
        {id:"a",from:["legacyBase"],to:["currentBase"],addon:"absent"},
        {id:"b",from:["legacyBase","legacyAddon"],to:["currentBase"],addon:"retained"},
