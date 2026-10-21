@@ -1,5 +1,11 @@
 # G4、G5 执行记录
 
+## G4b raw APK partial initial-install recovery checkpoint
+
+A private native APK root reconstructs the exact hosted foreign-owner installed DB plus all seven pre-existing payload records, including the original checksum-pinned world (every content hash/mode/size checked before execution). Actual official aarch64 apk-tools 3.0.5 targets this offline x86_64 root inside an unshare -n process; no package payload or scripts execute. The canonical older APK reproduces collision exit 1 and partial candidate registration/extraction. Actual deletion of that partial candidate returns 0. Prior package names, foreign-owned file, user UCI/custom URL/backup/history/cron and every original regular payload match; no extra regular payload remains except the separately excluded manager diagnostic log.
+
+The current migration runner now verifies the same raw-root recovery after retaining the failure DB/payload, without mutating the guarded original root. Strict qualification requires explicitly scoped initial-install recovery evidence for APK and rejects its omission. It is not failed-upgrade, concurrent-edit, ENOSPC, KILL, reboot or online-hook recovery. New exact-SHA SDK migration execution and all broader G4/G5 gates remain OPEN. Receipt: apk-partial-recovery.json; raw archive, commands and reproducible reconstruction retained. Host strict validator/syntax/ShellCheck/diff checks pass.
+
 ## G4b actual APK conflict behavior and read-only admission
 
 Run 39628261369 attempt 1 at 6f9415b terminates with all four SDKs, Host/Legacy/RPC, real CFST, Docker, asset and same-release Runtime tests passing; IPK migration passes and APK migration fails. Actual APK reports overwrite conflict and nonzero exit but registers the candidate and extracts its other paths. Downloaded exact-attempt raw DB/payload evidence proves partial installation; it is not an output-order issue and is not waived. Whole-run qualification is FAIL.
