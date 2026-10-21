@@ -22,7 +22,14 @@ scenarios=[
  ('multiple',False,'direct',False,False),('oversized',False,'direct',False,False),
  ('metadata-symlink',False,'direct',False,False),('archive-symlink',False,'direct',False,False),
  ('missing',False,'offline',False,False),('qualified',False,'offline',True,True),
- ('wrong-digest',True,'offline',True,False),('empty-version',False,'direct',False,False)]
+ ('wrong-digest',True,'offline',True,False),('empty-version',False,'direct',False,False),
+ ('version-newline',False,'direct',False,False),('source-newline',False,'direct',False,False),
+ ('version-nul',False,'direct',False,False),('source-nul',False,'direct',False,False),
+ ('version-c1',False,'direct',False,False),('source-c1',False,'direct',False,False),
+ ('version-nbsp',False,'direct',False,False),('source-unicode-space',False,'direct',False,False),
+ ('digest-nonhex',False,'direct',False,False),('digest-short',False,'direct',False,False),
+ ('uppercase-source',False,'direct',True,True),('unicode-version',False,'direct',True,True),
+ ('source-empty-host',False,'direct',False,False)]
 def state(paths):
  result={}
  for p in paths:
@@ -35,6 +42,17 @@ with tempfile.TemporaryDirectory(prefix='cfip-cfst-cache-') as directory:
  worker.write_text(r'''source "$CFIP_TEST_LEGACY"
 CFST_DIR="$CFIP_TEST_ROOT/cfst"; BINARY_NAME=cfst; LOG_FILE="$CFIP_TEST_ROOT/log"
 log(){ :; }; need_cmd(){ :; }; ensure_jq(){ :; }; detect_arch_tag(){ printf test; }
+# Model the optional jq capability absent in the real OpenWrt package.
+# All supported operations still execute the actual jq parser and filters.
+jq(){
+ local arg
+ for arg in "$@"; do
+  case "$arg" in *'test('*|*'match('*|*'capture('*|*'scan('*|*'sub('*|*'gsub('*)
+   printf 'fixture: jq regex support unavailable\n' >&2; return 5 ;;
+  esac
+ done
+ command jq "$@"
+}
 curl_fetch(){ return 22; }
 RELEASE_API=https://one.example/release
 if [[ "$CFIP_TEST_FLOW" == offline ]]; then
@@ -60,6 +78,19 @@ fi
   if shape=='wrong-digest':marker['sha256']='0'*64
   if shape=='uppercase-digest':marker['sha256']=digest.upper()
   if shape=='source-object':marker['source']={}
+  if shape=='version-newline':marker['version']='v1\n'
+  if shape=='source-newline':marker['source']+='\n'
+  if shape=='version-nul':marker['version']='v1\0'
+  if shape=='source-nul':marker['source']+='\0'
+  if shape=='version-c1':marker['version']='v1\u0085'
+  if shape=='source-c1':marker['source']+='\u0085'
+  if shape=='version-nbsp':marker['version']='v1\u00a0'
+  if shape=='source-unicode-space':marker['source']+='\u2003'
+  if shape=='digest-nonhex':marker['sha256']='G'*64
+  if shape=='digest-short':marker['sha256']=digest[:-1]
+  if shape=='uppercase-source':marker['source']='HTTPS://one.example/cfst.tar.gz'
+  if shape=='unicode-version':marker['version']='版本-v2'
+  if shape=='source-empty-host':marker['source']='https://'
   if shape=='oversized':marker['padding']='x'*20000
   if shape!='missing':metadata.write_text('{broken' if shape=='malformed' else json.dumps(marker)+('\n'+json.dumps(marker) if shape=='multiple' else ''))
   outside=root/'external';outside.write_bytes(b'outside retained')

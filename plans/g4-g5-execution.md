@@ -1,5 +1,13 @@
 # G4、G5 执行记录
 
+## G5c native jq capability and cache qualification checkpoint
+
+Actual installed OpenWrt jq 1.8.1 is compiled without ONIGURUMA. The original cache matrix passes seventeen cases but refuses four qualified caches; the expanded matrix passes twenty-eight and refuses six qualified cases, including uppercase HTTPS and Unicode version tags. No unqualified execution was observed. Metadata qualification now uses jq codepoint/string operations rather than optional regex functions. The one bounded snapshot, schema, HTTPS provenance, version token and exact hexadecimal digest requirements remain. C0/C1, Unicode whitespace, trailing newline and NUL are rejected before Bash extraction.
+
+All thirty-four cache cases pass on the actual native OpenWrt tools and private host Bash. The host fixture explicitly denies optional regex primitives while otherwise invoking real jq, so a regex-enabled CI host cannot mask this specific regression. Native candidate-source installer faults pass twenty-three cases. The actual installed writer helper/CLI/init/rpc source also passes fifteen real native-kernel lock cases with BusyBox ash; these are controlled component faults, not full procd lifecycle/real proxy acceptance. All parser test processes use network-disabled guest namespaces and harmless shell payloads. Receipt: native-jq-cache-portability.json.
+
+The broader scan still finds regex-dependent candidate-rill, operational-health and observation paths; these require independent native reproducers and repairs. Standalone-copy parity, full concurrency/KILL/resource/retention, G4/G5 and new exact-SHA rebuilt package/offline/native-package gates remain OPEN. The preceding UI source 68d071b has passing host/RPC/legacy checks and SDK jobs in progress; those cannot qualify this newer cache source. No real-router/proxy or publication actions.
+
 ## G5 native LuCI forms and confirmed apply checkpoint
 
 A private QEMU/HVF guest now runs actual OpenWrt 24.10.8/aarch64 kernel 6.6.144, procd, ubus/rpcd, UCI, uhttpd and Bootstrap LuCI 26.205.85413~cac97ed. The canonical IPK from run 39410052481 installed with actual opkg/dependencies. That preceding source passed same-byte offline IPK/APK preflight using real apk-tools 3.0.5 inside a network-isolated guest process; wrong attempt, actual byte mutation and advisory-lane substitution were rejected without success receipts. This does not qualify the new source overlays.
