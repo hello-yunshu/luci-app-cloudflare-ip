@@ -121,6 +121,8 @@ jobs:
           bash tests/cfst-download-fallback-version.sh
           python3 tests/cfst-install-faults.py
           python3 tests/cfst-cache-qualification.py
+          CFIP_TEST_LEGACY="$PWD/package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto" python3 tests/cfst-install-faults.py
+          CFIP_TEST_LEGACY="$PWD/package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto" python3 tests/cfst-cache-qualification.py
           bash tests/source-refresh-deadline.sh
           bash tests/resource-pressure-contract.sh
           bash tests/multi-ip-diversity-contract.sh
