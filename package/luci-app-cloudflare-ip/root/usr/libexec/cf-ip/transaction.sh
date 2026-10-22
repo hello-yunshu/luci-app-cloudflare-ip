@@ -153,9 +153,24 @@ cfip_txn_refuse_unresolved() {
     done
 }
 
+# Only called for this process's newly allocated, not-yet-mutated workspace.
+cfip_txn_prepare_failed() {
+    local reason="$1" directory="$CFIP_TXN_DIR"
+    CFIP_RECOVERY_ERROR="$reason"
+    CFIP_TXN_STATE=NONE
+    CFIP_TXN_APPLY=false
+    if [[ -n "$directory" && -d "$directory" && ! -L "$directory" ]] && rm -rf -- "$directory"; then
+        CFIP_TXN_DIR=""
+    else
+        CFIP_RECOVERY_ERROR="$reason; incomplete preparation retained at $directory"
+    fi
+    return 1
+}
+
 cfip_txn_prepare() {
     local mode="$1"
     cfip_txn_refuse_unresolved || return 1
+    CFIP_RECOVERY_ERROR=""
     CFIP_TXN_MODE="$mode"
     CFIP_TXN_COMMITTED=false
     CFIP_TXN_ROLLED_BACK=false
@@ -172,24 +187,24 @@ cfip_txn_prepare() {
         pending_changes="$(uci changes passwall 2>/dev/null)" || return 1
         [[ -z "$pending_changes" ]] || { CFIP_RECOVERY_ERROR="PassWall has pending user changes before transaction"; return 1; }
     fi
-    CFIP_TXN_DIR="$(mktemp -d "${CFIP_RUNTIME_DIR:-/tmp/cf_ip}/txn-${CFIP_RUN_ID}.XXXXXX")" || return 1
+    CFIP_TXN_DIR="$(mktemp -d "${CFIP_RUNTIME_DIR:-/tmp/cf_ip}/txn-${CFIP_RUN_ID}.XXXXXX")" || { CFIP_RECOVERY_ERROR="Failed to allocate transaction snapshot directory"; return 1; }
     case "$mode" in
       passwall)
-        printf '[]\n' >"$CFIP_TXN_DIR/passwall-fields.json" || return 1
-        uci export passwall >"$CFIP_TXN_DIR/passwall.uci" 2>/dev/null || { rm -rf "$CFIP_TXN_DIR"; CFIP_TXN_DIR=""; return 1; }
+        printf '[]\n' >"$CFIP_TXN_DIR/passwall-fields.json" || { cfip_txn_prepare_failed "Failed to initialize PassWall field journal"; return 1; }
+        uci export passwall >"$CFIP_TXN_DIR/passwall.uci" 2>/dev/null || { cfip_txn_prepare_failed "Failed to snapshot PassWall UCI"; return 1; }
         if [[ -f "${CFIP_PASSWALL_STATE_FILE:-${CFIP_STATUS_DIR:-/etc/cf_ip}/passwall-managed.json}" ]]; then
-            cp -p "${CFIP_PASSWALL_STATE_FILE:-${CFIP_STATUS_DIR:-/etc/cf_ip}/passwall-managed.json}" "$CFIP_TXN_DIR/passwall-managed.json" || { rm -rf "$CFIP_TXN_DIR"; CFIP_TXN_DIR=""; return 1; }
-            printf '%s\n' present >"$CFIP_TXN_DIR/passwall-managed.state"
+            cp -p "${CFIP_PASSWALL_STATE_FILE:-${CFIP_STATUS_DIR:-/etc/cf_ip}/passwall-managed.json}" "$CFIP_TXN_DIR/passwall-managed.json" || { cfip_txn_prepare_failed "Failed to snapshot PassWall managed state"; return 1; }
+            printf '%s\n' present >"$CFIP_TXN_DIR/passwall-managed.state" || { cfip_txn_prepare_failed "Failed to journal present PassWall managed state"; return 1; }
         else
-            printf '%s\n' absent >"$CFIP_TXN_DIR/passwall-managed.state"
+            printf '%s\n' absent >"$CFIP_TXN_DIR/passwall-managed.state" || { cfip_txn_prepare_failed "Failed to journal absent PassWall managed state"; return 1; }
         fi
         ;;
       openclash)
-        [[ -f "$CFIP_OPENCLASH_CONFIG" ]] || { rm -rf "$CFIP_TXN_DIR"; CFIP_TXN_DIR=""; return 1; }
-        cp -p "$CFIP_OPENCLASH_CONFIG" "$CFIP_TXN_DIR/openclash.yaml" || { rm -rf "$CFIP_TXN_DIR"; CFIP_TXN_DIR=""; return 1; }
-        printf '%s\n' "$CFIP_OPENCLASH_EXPECTED_ENABLED" >"$CFIP_TXN_DIR/openclash.enable"
+        [[ -f "$CFIP_OPENCLASH_CONFIG" ]] || { cfip_txn_prepare_failed "OpenClash configuration is unavailable for snapshot"; return 1; }
+        cp -p "$CFIP_OPENCLASH_CONFIG" "$CFIP_TXN_DIR/openclash.yaml" || { cfip_txn_prepare_failed "Failed to snapshot OpenClash configuration"; return 1; }
+        printf '%s\n' "$CFIP_OPENCLASH_EXPECTED_ENABLED" >"$CFIP_TXN_DIR/openclash.enable" || { cfip_txn_prepare_failed "Failed to journal OpenClash enable state"; return 1; }
         ;;
-      *) rm -rf "$CFIP_TXN_DIR"; CFIP_TXN_DIR=""; return 1 ;;
+      *) cfip_txn_prepare_failed "Unsupported transaction mode"; return 1 ;;
     esac
     CFIP_TXN_STATE=PREPARED
 }

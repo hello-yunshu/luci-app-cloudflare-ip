@@ -1,5 +1,11 @@
 # G4、G5 执行记录
 
+## G5a snapshot write and actual storage-error checkpoint
+
+Conditional transaction callers disable errexit. Baseline PassWall present/absent markers and OpenClash enable marker writes can fail while preparation still returns success; initial field-journal failure also leaves its own workspace and blocks retry. Eight injected preparation cases yield three passing/five failing assertions, including the compound cleanup-failure case. All writes now have explicit checks. Only this process's newly allocated, not-mutated preparation workspace is cleaned; failed cleanup retains the path/root error. Successful retry clears the old preparation error; unresolved old journals remain protected.
+
+All eight host/native preparation cases and seven native SIGKILL regression cases pass. Beyond command faults, an actual private tmpfs is filled until journal printf returns ENOSPC: preparation refuses, removes its failed workspace, preserves original UCI, and succeeds after capacity is freed. A separate unprivileged child gets actual EACCES on the private runtime and preserves UCI/namespace; no account or host permission changes occur. Mount/network namespaces are private and cleaned. Related OpenClash write, commit, TERM and v2 transaction tests, syntax/ShellCheck/actionlint/diff pass. Receipt: transaction-prepare-faults.json. No real proxy lifecycle or powerloss durability claim; new exact-SHA qualification and remaining original G4/G5 gates remain OPEN.
+
 ## G5a actual SIGKILL unresolved journal checkpoint
 
 Four native cases kill the actual transaction worker process group after prepare or after mutation for PassWall/OpenClash. The baseline retains preimages/journals but a subsequent transaction silently proceeds in all four cases. The repair rejects any existing txn-* entry before capture/preparation, retains the exact unresolved path in the recovery error and never adopts old data into the new cleanup pointer. CLI snapshot failures now propagate this specific recovery error.

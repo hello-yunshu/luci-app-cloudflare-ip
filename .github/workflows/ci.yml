@@ -199,6 +199,7 @@ jobs:
           bash tests/shared-writer-lock.sh
           bash tests/status-stop-contract.sh
           bash tests/transaction-commit-failure.sh
+          bash tests/transaction-prepare-faults.sh
           bash tests/openclash-intended-mapping-negative.sh
           bash tests/security-contract.sh
           bash tests/cron-contract.sh
