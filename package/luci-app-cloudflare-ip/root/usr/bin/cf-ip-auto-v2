@@ -462,11 +462,12 @@ sync_recovery_failure(){
         CFIP_RECOVERY_ERROR="${CFIP_RECOVERY_ERROR:-rollback or service restoration failed}"
         cfip_log "RECOVERY REQUIRED: ${CFIP_RECOVERY_ERROR}; transaction snapshot retained at ${CFIP_TXN_DIR:-unknown}"
     fi
+    [[ -z "${CFIP_RECOVERY_ERROR:-}" ]] || recovery_required=true
     [[ -s "${CFIP_SELECTED_FILE:-}" ]] && best="$(jq '[.[].ip]' "$CFIP_SELECTED_FILE" 2>/dev/null || printf '[]')"
     if [[ "${CFIP_MODE:-}" == openclash ]]; then
         service="$(jq -cn --argjson enabled "${CFIP_OPENCLASH_EXPECTED_ENABLED:-null}" --argjson nodeFileWritten "${CFIP_OPENCLASH_FILE_WRITTEN:-false}" --argjson applied "${CFIP_OPENCLASH_SERVICE_APPLIED:-false}" --argjson deferred "${CFIP_OPENCLASH_DEFERRED:-false}" --argjson recoveryAttempted "${CFIP_OPENCLASH_RECOVERY_ATTEMPTED:-false}" --argjson recoveryVerified "${CFIP_OPENCLASH_RECOVERY_VERIFIED:-false}" --arg error "${CFIP_OPENCLASH_SERVICE_ERROR:-${CFIP_RECOVERY_ERROR:-}}" '{target:"openclash",expectedEnabled:$enabled,nodeFileWritten:$nodeFileWritten,serviceApplied:($applied and $nodeFileWritten),deferredUntilServiceStart:$deferred,recoveryAttempted:$recoveryAttempted,recoveryVerified:$recoveryVerified,error:(if $error=="" then null else $error end)}')"
     fi
-    jq -cn --arg error "$message" --arg recovery "${CFIP_RECOVERY_ERROR:-}" --argjson speedtestCompleted "${CFIP_SPEEDTEST_COMPLETED:-false}" --argjson rolledBack "${CFIP_TXN_ROLLED_BACK:-false}" --argjson recoveryRequired "$recovery_required" --argjson best "$best" --argjson service "$service" '{success:false,error:$error,speedtestCompleted:$speedtestCompleted,rolledBack:$rolledBack,recoveryRequired:$recoveryRequired,recoveryError:(if $recovery=="" then null else $recovery end),best_ips:$best,service:$service}'
+    jq -cn --arg error "$message" --arg recovery "${CFIP_RECOVERY_ERROR:-}" --argjson committed "${CFIP_TXN_COMMITTED:-false}" --argjson speedtestCompleted "${CFIP_SPEEDTEST_COMPLETED:-false}" --argjson rolledBack "${CFIP_TXN_ROLLED_BACK:-false}" --argjson recoveryRequired "$recovery_required" --argjson best "$best" --argjson service "$service" '{success:false,error:$error,configurationCommitted:$committed,speedtestCompleted:$speedtestCompleted,rolledBack:$rolledBack,recoveryRequired:$recoveryRequired,recoveryError:(if $recovery=="" then null else $recovery end),best_ips:$best,service:$service}'
     return 1
 }
 
@@ -618,9 +619,9 @@ run_v2() {
     CFIP_MEASUREMENT_DEADLINE=0
     if ! cfip_txn_commit; then
         rollback_active_transaction || true
-        jq -cn --argjson rolledBack "${CFIP_TXN_ROLLED_BACK:-false}" --arg recovery "${CFIP_RECOVERY_ERROR:-}" '{success:false,reason:"transaction_commit_failed",rolledBack:$rolledBack,recoveryVerified:($recovery==""),recoveryError:(if $recovery=="" then null else $recovery end)}' | cfip_atomic_write "$CFIP_TXN_RESULT_FILE"
+        jq -cn --argjson committed "${CFIP_TXN_COMMITTED:-false}" --argjson rolledBack "${CFIP_TXN_ROLLED_BACK:-false}" --arg recovery "${CFIP_RECOVERY_ERROR:-}" '{success:false,reason:"transaction_commit_failed",configurationCommitted:$committed,rolledBack:$rolledBack,recoveryVerified:($recovery==""),recoveryError:(if $recovery=="" then null else $recovery end)}' | cfip_atomic_write "$CFIP_TXN_RESULT_FILE"
         finalize_adaptive_audit false
-        fail_run "transaction commit failed"
+        fail_run "${CFIP_RECOVERY_ERROR:-transaction commit failed}"
         return 1
     fi
     jq -cn '{success:true,rolledBack:false,health:"validated"}' | cfip_atomic_write "$CFIP_TXN_RESULT_FILE"

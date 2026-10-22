@@ -1,0 +1,9 @@
+# Transaction interruption and cleanup results
+
+Transaction preimages and expected writes are private runtime journals. TERM uses the bounded rollback path; SIGKILL cannot run a trap. A subsequent preparation refuses existing `txn-*` entries and reports their exact paths. It neither adopts old journals nor deletes unknown directories, files or links. This is fail-closed interruption handling, not automatic recovery or persistence across reboot/power loss.
+
+A preparation failure occurs before proxy mutation. The process removes only its newly allocated preparation workspace. If that cleanup fails, the path and reason remain available and the next transaction is refused. A successful retry after storage capacity/permission is restored clears the previous preparation error.
+
+A commit-cleanup failure has different semantics: configuration and managed state have already committed, but removing the journal failed. The operation returns failure with `Configuration committed; transaction journal cleanup failed at ...`, keeps the journal pointer and marks the transaction COMMITTED. Rollback must not restore the old preimage. Sync failure responses and failed-commit transaction results include `configurationCommitted`; sync also sets `recoveryRequired` when the cleanup error remains.
+
+For review, preserve the retained directory and compare the live configuration with its recorded before/expected files (`openclash.yaml`/`openclash.written.yaml`, or PassWall's export/owned-field journal and managed-state snapshots). Include external edits and actual service observations in the decision. A failed command alone does not mean that live state equals the old preimage. Do not turn a committed cleanup failure into an automatic old-config restore or remove unrecognized journal contents. Journal paths/observations support explicit recovery review; they do not provide a universal compare-and-swap or a power-loss recovery protocol.
