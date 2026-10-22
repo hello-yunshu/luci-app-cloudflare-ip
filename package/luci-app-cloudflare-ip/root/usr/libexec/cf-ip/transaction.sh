@@ -318,10 +318,15 @@ cfip_txn_commit() {
         cp "$CFIP_TXN_DIR/passwall-managed.json.pending" "$CFIP_TXN_DIR/passwall-managed.written.json" || return 1
         mv "$CFIP_TXN_DIR/passwall-managed.json.pending" "${CFIP_PASSWALL_STATE_FILE:-${CFIP_STATUS_DIR:-/etc/cf_ip}/passwall-managed.json}" || return 1
     fi
-    [[ -n "$CFIP_TXN_DIR" ]] && rm -rf "$CFIP_TXN_DIR" 2>/dev/null || true
     CFIP_TXN_STATE=COMMITTED
     CFIP_TXN_COMMITTED=true
-    CFIP_TXN_DIR=""
+    if [[ -n "$CFIP_TXN_DIR" ]]; then
+        if rm -rf -- "$CFIP_TXN_DIR"; then CFIP_TXN_DIR=""
+        else
+            CFIP_RECOVERY_ERROR="Configuration committed; transaction journal cleanup failed at $CFIP_TXN_DIR"
+            return 1
+        fi
+    fi
     if [[ "$CFIP_TXN_MODE" == openclash && -n "$CFIP_TXN_BACKUP_FILE" ]]; then
         if ! cfip_txn_trim_openclash_backups; then
             printf 'OpenClash configuration committed; backup retention cleanup failed\n' >&2

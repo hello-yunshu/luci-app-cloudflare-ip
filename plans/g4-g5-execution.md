@@ -1,5 +1,11 @@
 # G4、G5 执行记录
 
+## G5a committed configuration versus journal cleanup checkpoint
+
+A failing commit regression shows journal rm failure is ignored: commit returns success and loses the retained path, while the next transaction is correctly refused by the new orphan guard. Commit now marks configuration COMMITTED before cleanup; a cleanup failure returns explicit error and retains the journal pointer. Rollback after COMMITTED is a no-op. Sync errors and failed-commit transaction results expose configurationCommitted; sync flags recoveryRequired for the remaining cleanup error.
+
+Host/native actual library/CLI-function cases prove ordinary pre-commit failure still restores old state, committed cleanup failure keeps new managed/config bytes, later rollback does not restore old bytes and the sync envelope reports committed=true/rolledBack=false/review required. UCI is a controlled command fixture in this case; no proxy runs. Preparation, OpenClash write, TERM and v2 transaction regressions plus ShellCheck/actionlint/diff pass. Receipt: transaction-commit-cleanup.json; recovery boundaries: TRANSACTION_RECOVERY.md. Manual review, not auto-deletion/restoration, handles retained committed journals. Latest exact-SHA qualification and all other original G4/G5 requirements remain OPEN.
+
 ## G5a snapshot write and actual storage-error checkpoint
 
 Conditional transaction callers disable errexit. Baseline PassWall present/absent markers and OpenClash enable marker writes can fail while preparation still returns success; initial field-journal failure also leaves its own workspace and blocks retry. Eight injected preparation cases yield three passing/five failing assertions, including the compound cleanup-failure case. All writes now have explicit checks. Only this process's newly allocated, not-mutated preparation workspace is cleaned; failed cleanup retains the path/root error. Successful retry clears the old preparation error; unresolved old journals remain protected.
