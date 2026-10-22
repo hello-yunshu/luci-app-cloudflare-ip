@@ -1,5 +1,11 @@
 # G4、G5 执行记录
 
+## G5d native occupied-port and foreign-listener checkpoint
+
+Actual publisher/common functions and production init/procd/uhttpd first publish a generation and verify exact generation/root HTTP bytes. A separate owned fixture uhttpd then occupies that LAN socket and serves foreign JSON. A subsequent real publication returns nonzero, keeps the old current link and all four public hashes, and never adopts the foreign response as ready. Disable stops the owned procd instance while preserving the independent foreign process; its still-open endpoint yields publisher_still_responding rather than disabled success. After the fixture listener exits, disabled status succeeds.
+
+The original publication directory, exact product config/status bytes and absent owned listeners are restored. No proxy/CFST optimization occurs. Receipt: native-publisher-port-conflict.json; archived raw statuses include initial ready, conflict, foreign-listener disable and final disabled states. This is native runtime evidence on developer overlays, not current rebuilt-package acceptance or an arbitrary identical-response adversary guarantee. Remaining concurrency/resource/KILL and complete G4/G5/latest-SHA qualification stay OPEN.
+
 ## G5d actual UCI/netifd LAN changes and publisher failure result
 
 The production publisher now has actual UCI/netifd event evidence. A private auxiliary 10.0.2.16 LAN address is added while retaining management 10.0.2.15; real network reload/event delivery rebinds uhttpd to the requested new address and closes the old listener. Removing the requested address removes the owned instance; restoring the address restarts actual HTTP through retained triggers. No synthetic service event or mocked LAN/private-address policy is used. Exact network/product config hashes, original single LAN address and absent publisher listeners are restored. Independent guest timeout restore protects management; no host network or physical device changes occur.
