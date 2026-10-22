@@ -1,0 +1,74 @@
+{
+  "scope": "G5a transaction snapshot preparation write/cleanup failures",
+  "baselineSource": "d01ddd1dc10f7de9789d21d8133f7f88dc971be3",
+  "baseline": [
+    {
+      "case": "fields",
+      "exit": 1,
+      "output": "FAIL fields left own failed preparation"
+    },
+    {
+      "case": "export",
+      "exit": 0,
+      "output": "PASS export refuses failure, preserves input and handles own workspace"
+    },
+    {
+      "case": "managed-copy",
+      "exit": 0,
+      "output": "PASS managed-copy refuses failure, preserves input and handles own workspace"
+    },
+    {
+      "case": "marker-present",
+      "exit": 1,
+      "output": "FAIL marker-present accepted failed snapshot write"
+    },
+    {
+      "case": "marker-absent",
+      "exit": 1,
+      "output": "FAIL marker-absent accepted failed snapshot write"
+    },
+    {
+      "case": "config-copy",
+      "exit": 0,
+      "output": "PASS config-copy refuses failure, preserves input and handles own workspace"
+    },
+    {
+      "case": "enable",
+      "exit": 1,
+      "output": "FAIL enable accepted failed snapshot write"
+    },
+    {
+      "case": "marker-present-rmfail",
+      "exit": 1,
+      "output": "FAIL marker-present-rmfail accepted failed snapshot write"
+    }
+  ],
+  "confirmedFalseSuccess": [
+    "present PassWall state marker",
+    "absent PassWall state marker",
+    "OpenClash enable marker"
+  ],
+  "otherConfirmedDefect": "initial field-journal failure leaves own workspace and prevents safe retry",
+  "repair": "check every preparation write; clean only newly allocated non-mutated workspace; failed cleanup retains journal/path/error; successful retry clears old error",
+  "hostFaultCases": 8,
+  "nativeFaultCases": 8,
+  "realNativeStorage": [
+    "private mount+network namespace tmpfs full causes actual ENOSPC on initial journal write; frees capacity and fresh prepare succeeds",
+    "unprivileged child UID/GID 65534 gets actual EACCES; no account changes; original UCI/runtime preserved"
+  ],
+  "nativeKillRegressionCases": 7,
+  "hostRelated": [
+    "OpenClash write faults",
+    "commit failure rollback",
+    "TERM rollback",
+    "v2 transaction semantics"
+  ],
+  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/transaction-prepare-faults",
+  "limits": [
+    "command failure fixtures and actual kernel storage cases separately recorded",
+    "OpenClash service state is a disabled fixture; no proxy lifecycle executed",
+    "cleanup refusal is explicit manual review, not auto-adoption",
+    "current exact SHA host/SDK/migration/offline qualification pending",
+    "other original G4/G5 requirements OPEN"
+  ]
+}
