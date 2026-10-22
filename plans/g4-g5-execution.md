@@ -1,5 +1,11 @@
 # G4、G5 执行记录
 
+## G5a actual SIGKILL unresolved journal checkpoint
+
+Four native cases kill the actual transaction worker process group after prepare or after mutation for PassWall/OpenClash. The baseline retains preimages/journals but a subsequent transaction silently proceeds in all four cases. The repair rejects any existing txn-* entry before capture/preparation, retains the exact unresolved path in the recovery error and never adopts old data into the new cleanup pointer. CLI snapshot failures now propagate this specific recovery error.
+
+All four native SIGKILL cases pass with actual isolated real UCI and filesystem/publication functions, plus unknown-directory/file/symlink preservation (seven cases). Preimages/expected journals survive; rejected probes leave every snapshot/config hash unchanged. OpenClash service observations remain disabled fixtures, with no real proxy action. Journal hashes and root error are retained in raw results; test-owned roots are cleaned only after assertions. Host OpenClash write faults, commit failure, TERM rollback and v2 transaction behavior pass; syntax/ShellCheck/actionlint/diff pass. Receipt: transaction-kill-journal.json. This is deliberate fail-closed/manual recovery review, not automatic SIGKILL rollback or powerloss durability. New exact-SHA hosted/SDK/migration and other original G4/G5 requirements remain OPEN.
+
 ## G5e actual read-only session authorization checkpoint
 
 A 120-second rpcd test session receives only the existing installed ACL's fourteen cf_ip read methods; all thirteen write methods are denied by actual session.access. Real uhttpd /ubus HTTP calls read status/version successfully and refuse sync, backup-delete and learner-reset before dispatch with JSON-RPC -32002 Access denied. Destroying the session makes a subsequent read fail as denied. Configuration, rpcd config, ACL and all product-state file hashes stay identical. No account/credential or ACL file is changed; token bytes are not persisted in evidence.

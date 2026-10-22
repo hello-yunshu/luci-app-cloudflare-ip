@@ -142,8 +142,20 @@ cfip_txn_restart_original_service() {
     cfip_restart_service "$service" "$deadline_class"
 }
 
+# SIGKILL cannot execute rollback traps. Never silently adopt or erase an
+# unresolved journal from a previous writer, even if it died before mutation.
+cfip_txn_refuse_unresolved() {
+    local journal
+    for journal in "${CFIP_RUNTIME_DIR:-/tmp/cf_ip}"/txn-*; do
+        [[ -e "$journal" || -L "$journal" ]] || continue
+        CFIP_RECOVERY_ERROR="Unresolved transaction journal preserved at $journal; recovery review required before new mutation"
+        return 1
+    done
+}
+
 cfip_txn_prepare() {
     local mode="$1"
+    cfip_txn_refuse_unresolved || return 1
     CFIP_TXN_MODE="$mode"
     CFIP_TXN_COMMITTED=false
     CFIP_TXN_ROLLED_BACK=false
