@@ -1,5 +1,11 @@
 # G4、G5 执行记录
 
+## G4a unresolved-journal fixture isolation checkpoint
+
+Run 39714754249 at 55ed2ee has a terminal failed Host job 119614095660. The real UCI rollback fixture retains an intentional external-edit conflict journal, then starts an independent case in that same runtime. Current production correctly refuses the unresolved journal. The fixture now explicitly verifies that refusal, exact journal hashes and external config preservation, before assigning a new runtime to each independent case. Existing assertions and retained journals remain; the guard is unchanged. All original real-UCI groups plus the new refusal check pass on native OpenWrt.
+
+OpenClash review regression has the same shared-runtime issue; before/after reproduction is retained. Its reset allocates a separate runtime without deleting old evidence, and all existing health/deadline/external-edit/restart/backup/standalone assertions pass. That script was missing from Host CI and is now included. No production changes or guard exemptions occur. Receipt: host-fixture-journal-isolation.json. The old run remains FAIL regardless of SDK results; a new exact-SHA full run, same-byte preflight, rebuilt-package/native UI and remaining original G4/G5 gates remain OPEN.
+
 ## G5a committed configuration versus journal cleanup checkpoint
 
 A failing commit regression shows journal rm failure is ignored: commit returns success and loses the retained path, while the next transaction is correctly refused by the new orphan guard. Commit now marks configuration COMMITTED before cleanup; a cleanup failure returns explicit error and retains the journal pointer. Rollback after COMMITTED is a no-op. Sync errors and failed-commit transaction results expose configurationCommitted; sync flags recoveryRequired for the remaining cleanup error.

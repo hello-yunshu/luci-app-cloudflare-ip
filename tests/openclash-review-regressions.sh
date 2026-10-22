@@ -51,7 +51,11 @@ source "$ROOT/package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto-v2"
 cfip_monotonic_seconds() { cat "$TMP/clock"; }
 cfip_run_with_timeout() { shift; "$@"; }
 sleep() { printf '%s' "$(( $(cat "$TMP/clock") + $1 ))" >"$TMP/clock"; /bin/sleep 0.01; }
+review_case=0
 reset() {
+ review_case=$((review_case+1))
+ CFIP_RUNTIME_DIR="$TMP/runtime-$review_case"
+ mkdir -p "$CFIP_RUNTIME_DIR"
  printf '%s' "$1" >"$TMP/enable"; printf '%s' "$2" >"$TMP/pid"; printf '%s' "${3:-healthy}" >"$TMP/init-mode"
  printf 0 >"$TMP/clock"; printf 0 >"$TMP/probe-count"; : >"$TMP/service.log"
  rm -f "$TMP/read-fail" "$TMP/disable-during-health" "$TMP/slow-health" "$TMP/commit-fail"
