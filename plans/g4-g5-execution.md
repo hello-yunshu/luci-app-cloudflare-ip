@@ -1,5 +1,11 @@
 # G4、G5 执行记录
 
+## G5e actual read-only session authorization checkpoint
+
+A 120-second rpcd test session receives only the existing installed ACL's fourteen cf_ip read methods; all thirteen write methods are denied by actual session.access. Real uhttpd /ubus HTTP calls read status/version successfully and refuse sync, backup-delete and learner-reset before dispatch with JSON-RPC -32002 Access denied. Destroying the session makes a subsequent read fail as denied. Configuration, rpcd config, ACL and all product-state file hashes stay identical. No account/credential or ACL file is changed; token bytes are not persisted in evidence.
+
+The initial minimal-Python idna limitation is a harness issue; native curl executes actual HTTP. Expected ubus [6] denial was corrected to the observed uhttpd JSON-RPC form. Receipt: native-readonly-session.json. This proves native session authorization using existing read grants, not login role assignment. All write permissions are checked, with three safely malformed HTTP write samples; no live write side effect is attempted. Current rebuilt package/exact-SHA qualification and all other original G4/G5 requirements remain OPEN.
+
 ## G5d native occupied-port and foreign-listener checkpoint
 
 Actual publisher/common functions and production init/procd/uhttpd first publish a generation and verify exact generation/root HTTP bytes. A separate owned fixture uhttpd then occupies that LAN socket and serves foreign JSON. A subsequent real publication returns nonzero, keeps the old current link and all four public hashes, and never adopts the foreign response as ready. Disable stops the owned procd instance while preserving the independent foreign process; its still-open endpoint yields publisher_still_responding rather than disabled success. After the fixture listener exits, disabled status succeeds.
