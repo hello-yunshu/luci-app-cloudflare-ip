@@ -856,6 +856,7 @@ openclash_health_once() {
 	[[ "$port" =~ ^[1-9][0-9]{0,4}$ ]] && ((port <= 65535)) || return 1
 	[[ -r "$OPENCLASH_CONFIG" ]] || return 1
 	secret="$(awk '/^[[:space:]]*secret:[[:space:]]*/ { v=$0; sub(/^[[:space:]]*secret:[[:space:]]*/, "", v); sub(/[[:space:]]+#.*/, "", v); sub(/[[:space:]]+$/, "", v); if (v ~ /^\047.*\047$/ || v ~ /^".*"$/) v=substr(v,2,length(v)-2); print v; exit }' "$OPENCLASH_CONFIG")" || return 1
+	[[ -n "$secret" ]] || secret="$(uci -q get openclash.config.dashboard_password 2>/dev/null || true)"
 	body="$(mktemp "${TMPDIR:-/tmp}/cf-openclash-health.XXXXXX")" || return 1
 	curl_cfg="$(mktemp "${TMPDIR:-/tmp}/cf-openclash-curl.XXXXXX")" || { rm -f "$body"; return 1; }
 	chmod 600 "$body" "$curl_cfg" 2>/dev/null || true

@@ -283,9 +283,9 @@ cfip_openclash_read_enable() {
 }
 
 cfip_openclash_secret() {
-    local config="${CFIP_OPENCLASH_CONFIG:-/etc/openclash/config/config.yaml}"
+    local config="${CFIP_OPENCLASH_CONFIG:-/etc/openclash/config/config.yaml}" secret
     [[ -r "$config" ]] || return 1
-    awk '
+    secret="$(awk '
         /^[[:space:]]*secret:[[:space:]]*/ {
             value=$0
             sub(/^[[:space:]]*secret:[[:space:]]*/, "", value)
@@ -295,7 +295,10 @@ cfip_openclash_secret() {
             print value
             exit
         }
-    ' "$config"
+    ' "$config")" || return 1
+    # A selected proxies fragment may omit the controller configuration.
+    [[ -n "$secret" ]] || secret="$(uci -q get openclash.config.dashboard_password 2>/dev/null || true)"
+    printf '%s' "$secret"
 }
 
 # This probes the same local controller endpoint used by OpenClash's
