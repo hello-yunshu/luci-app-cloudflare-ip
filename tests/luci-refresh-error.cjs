@@ -26,5 +26,20 @@ const source=fs.readFileSync(path.join(__dirname,'../package/luci-app-cloudflare
   if(response&&response.success===true)assert.equal(notices[0].kind,'info');
   else{assert.equal(notices[0].kind,'error');assert.equal(flatten(root),before,'failure replaced last known environment badges');}
  }
+ const diagnosticsSource=fs.readFileSync(path.join(__dirname,'../package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/diagnostics.js'),'utf8');
+ for(const response of [{success:false,error:'controlled diagnostics failure',runtime:{state:'stale-payload'}},{success:false},{},null,{success:true,runtime:{state:'ready'}}]) {
+  const utils={loadSharedCSS(){},appendFooter:x=>x,FOOTER_OPTIONS:{},callStatus:()=>Promise.resolve({})};
+  const view=new Function('view','ui','rpc','utils','E','_','window',diagnosticsSource)({extend:x=>x},{},{declare:({method})=>()=>Promise.resolve(method==='rill-diagnostics'?response:{success:true,ips:[]})},utils,E,x=>x,{setTimeout(){}});
+  const root=view.render(await view.load());
+  const text=flatten(root);
+  if(response&&response.success===true){
+   assert.ok(text.includes('ready'));assert.ok(!text.includes('Diagnostics unavailable'));
+  }else{
+   assert.ok(text.includes('Diagnostics unavailable'),'failed diagnostics were displayed as an empty success snapshot');
+   assert.ok(!text.includes('stale-payload'),'failed response data was rendered as a valid snapshot');
+   if(response&&response.error)assert.ok(text.includes(response.error));
+  }
+ }
+ console.log('PASS actual diagnostics view distinguishes successful snapshots from failed/missing RPC replies');
  console.log('PASS actual refresh handler rejects failed/missing results, preserves badges and resets busy; successful refresh still works');
 })().catch(e=>{console.error(e);process.exitCode=1;});

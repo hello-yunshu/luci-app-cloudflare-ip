@@ -1,5 +1,12 @@
 # G4、G5 执行记录
 
+## G5b diagnostics failure visibility and G5e native reboot checkpoint
+
+Native Logs & Records displays empty diagnostics objects despite an actual failed RPC (success:false/rc1). The actual view module reproduces that false snapshot. Diagnostics now renders an explicit accessible alert with the existing translated unavailable label and backend error; failed-response data is not shown as a valid snapshot. Five successful/failed/missing response cases and related Overview/status/binding regressions pass. Native UI with one temporary view overlay shows the error; actual keyboard refresh reads a private log fixture and Tab reaches Clear with a visible outline. Clear completes with an empty actual file and success UI, but browser control timed out around the native confirm; confirmation/cancellation interaction remains NOT PROVEN. Original view, package-DB bytes/mtime, configuration/status and absent test log are restored. Receipt: diagnostics-failure-honesty.json. New rebuilt-package and full eight-view action acceptance remain OPEN.
+
+Separately, the actual canonical baseline IPK from run 39715543215 reboots inside the private OpenWrt guest with enabled=0. A changed kernel boot ID proves a reboot, user cron/UCI/backup/history survive, stale managed cron disappears, and no optimization/service instance starts. Status only updates status_updated_at during shutdown, as expected; an initial overly strict byte-equality harness assertion was corrected using the exact JSON diff. Fixtures are removed and original status restored. Receipt: native-disabled-reboot.json. This is ordinary native guest reboot, not sudden powerloss/physical-router proof, and does not qualify new package bytes. Current G4/G5 completion remains OPEN.
+
+
 ## G5b disabled installation save/apply checkpoint
 
 The exact baseline 8d6d591 qualification run 39715543215 completed successfully, with canonical same-byte offline preflight and four wrong-SHA/attempt/byte/advisory-lane negative cases. Its actual canonical IPK online reinstall preserves custom UCI/URL/backup/history/user cron, cleans managed cron, verifies forty regular package payloads and restores original state. These results apply to that baseline, not future commits.
