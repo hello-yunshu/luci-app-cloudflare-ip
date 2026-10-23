@@ -1,5 +1,14 @@
 # G4、G5 执行记录
 
+## G5b disabled installation save/apply checkpoint
+
+The exact baseline 8d6d591 qualification run 39715543215 completed successfully, with canonical same-byte offline preflight and four wrong-SHA/attempt/byte/advisory-lane negative cases. Its actual canonical IPK online reinstall preserves custom UCI/URL/backup/history/user cron, cleans managed cron, verifies forty regular package payloads and restores original state. These results apply to that baseline, not future commits.
+
+Actual native LuCI acceptance finds a remaining defect: with no proxy installed and no target_domain, saving/applying disabled settings fails the execution-only proxy prerequisite. The same native regression fails before the patch. Only the read-only save validator now permits absent proxy prerequisites while disabled. All general semantic checks and nonempty domain syntax remain enforced; enabling and actual run/sync retain strict proxy requirements. Both proxy modes have positive/negative regressions, and existing staged validation, invalid budget, custom cron, readback and duplicate-click checks pass.
+
+Actual LuCI keyboard Space/Enter changes the enabled flag and saves; Save & Apply now succeeds, confirms UCI readback and retains enabled=0 with no pending changes or service instance after refresh. Baseline/error and after screenshots are retained. The UI after case uses one temporary developer CLI overlay on the qualified package, not a newly rebuilt package; source placeholders in that overlay are not package-version evidence. Exact original UCI/status and installed CLI are restored, and the temporary browser viewport is reset. Receipt: disabled-settings-validation.json. New exact-SHA qualification/rebuilt-package acceptance and full original G4/G5 completion remain OPEN.
+
+
 ## G4a unresolved-journal fixture isolation checkpoint
 
 Run 39714754249 at 55ed2ee has a terminal failed Host job 119614095660. The real UCI rollback fixture retains an intentional external-edit conflict journal, then starts an independent case in that same runtime. Current production correctly refuses the unresolved journal. The fixture now explicitly verifies that refusal, exact journal hashes and external config preservation, before assigning a new runtime to each independent case. Existing assertions and retained journals remain; the guard is unchanged. All original real-UCI groups plus the new refusal check pass on native OpenWrt.
