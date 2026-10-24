@@ -59,3 +59,9 @@ CF 现更新到该精确 RP 资格，Preview release 5，保留原 migration 与
 - release-channel.json 当前prerelease；release.yml明确拒绝Stable自动晋级。G7必须提供可审核的具体channel/版本/工作流方案，不能把当前prerelease资产说成Stable，也不能绕过检查。若改version/channel/workflow，则新SHA重新G6资格。
 - 最终proposal需列最终SHA、同run/attempt IPK/APK及SHA256、Runtime source/package/binary pins、支持范围与设备/soak决定、升级和撤回说明、tag未占用回读。
 - 发布只在具体proposal另获批准后执行。当前没有merge/tag/Release/feed/发布后验证；不得为了“完成G7”自动上线。
+
+## 24h 首轮健康预算修复（2026-10-25）
+
+620b979资格40100766849 attempt1及本地原包preflight/十项负向通过后，实际baseline在测速前健康复查失败，未停止服务或写节点；监督器恢复原1.8.3-r1及原状态，计时未开始。路由器只读复查同一函数：5秒预算一次失败、一次成功，10秒成功。原5秒预算要求三次稳定观察、默认间隔两秒，只给全部认证HTTP及配置读取共一秒余量，边界抖动会误拒绝。
+
+将common预检/写前检查和v2停服务前检查统一为10秒；三次稳定PID、HTTP200和JSON认证校验全部保留。现有完整资格执行的async-startup回归增加真实入口capture/stop/write的虚拟探测耗时：每次探测一秒时健康三次观察7秒通过，持续不健康仍在10秒内拒绝且不停止服务。新SHA必须重新完成完整资格和原包preflight后再部署；原620首轮证据保留，不计入24h。
