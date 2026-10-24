@@ -1,6 +1,6 @@
 # G6 RC 验收与 G7 Stable 晋级准备
 
-原范围以 stable-cross-repo-remediation-plan.md G6/G7、§8、§9 为准。当前整体 OPEN / Stable NO-GO。用户已指定维护部署并授权先备份、安装测试、配置写入和可能短时断网；具体地址、备份和敏感现场只留本机受限证据目录，不提交仓库。
+原范围以 stable-cross-repo-remediation-plan.md G6/G7、§8、§9 为准。当前整体 OPEN / Stable NO-GO。早前维护测试已回退原状态；用户随后明确推迟所有实机与Soak，直至再次明确通知。上游安全修复与重新资格已另获授权。备份和敏感现场只留本机受限证据目录，不提交仓库。最新状态和跨电脑继续入口见 plans/g6-g7-handoff-20261024.md。
 
 ## G6 已执行
 
