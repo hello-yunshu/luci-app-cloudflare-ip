@@ -5,6 +5,7 @@
 ## 资格与支持范围
 
 - 主产品默认 Native，Runtime 为显式可选的 Preview 辅助；不把 Preview v3 API 称为 Rill Stable，不让 Runtime 直接写代理配置。
+- OpenClash 写入要求其现有 Ruby/Psych 以及明确支持的 block YAML；全文语法、重复键、映射标量表示和生成结果在写入前检查。缺解析器或不支持的输入明确拒绝，不自动安装新组件、不静默截取部分节点。PassWall 路径不要求 Ruby。详见 OPENCLASH_YAML_SUPPORT.md。
 - CF 软件资格包括 Host/Legacy/RPC-LuCI、四个 x86 SDK、真实 IPK/APK 迁移、同字节 Runtime 集成、真实 CFST smoke、Docker replay、实际包 metadata、离线 preflight 和十项当前字节篡改拒绝。各层证据独立，不把 replay/fixture 当设备 PASS。
 - Runtime 固定 RP `8581c717db8c57fc83c0ace4d808bb9d32b4b1eb`，run `40066219701` attempt `1`，manifest SHA256 `421b3f6b4f12c92ac2288734c117f912f4c78ecfe38d714a9482676b71e4fa38`。Stable `1.5.6-r3` / Preview `1.5.6-r5` 两渠道、六目标共十二包资格及实际 metadata/ELF/hash 验证通过。具体 source/patch/lock/features/binary 身份见该 manifest 和 `contracts/rill-runtime.json`；不把新的上游修复提交冒充配方原始 source base。
 - 安全审计保留默认 WASM/Cranelift/Pulley，Wasmtime 49.0.4、Tokio 1.53.3，十二个目标记录零漏洞、零警告、无 ignore。DB `8a5b8090ef20c9c1b425f3373f28b0b23cc5c7a0`；最终审查须核对资格时间，发布拖延或有新公告时重审，不能永久复用本次审计。
