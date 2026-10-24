@@ -375,7 +375,9 @@ cfip_openclash_capture_state() {
         CFIP_OPENCLASH_SERVICE_ERROR="OpenClash is enabled but its core is not running; restore OpenClash before running CF"
         return 1
     fi
-    if ! cfip_openclash_health_wait 5; then
+    # Three observations need two spacing intervals plus authenticated probe
+    # time; five seconds leaves only one second for all three probes.
+    if ! cfip_openclash_health_wait 10; then
         CFIP_OPENCLASH_SERVICE_ERROR="OpenClash is enabled but its core or local controller is unhealthy; restore OpenClash before running CF"
         return 1
     fi
@@ -392,7 +394,7 @@ cfip_openclash_check_before_write() {
     if [[ "$expected" == 0 ]]; then
         ! pidof clash >/dev/null 2>&1 || { CFIP_OPENCLASH_SERVICE_ERROR="OpenClash core started externally before node write; no changes were made"; return 1; }
     else
-        cfip_openclash_health_wait 5 || { CFIP_OPENCLASH_SERVICE_ERROR="OpenClash became unhealthy before node write; restore it before running CF"; return 1; }
+        cfip_openclash_health_wait 10 || { CFIP_OPENCLASH_SERVICE_ERROR="OpenClash became unhealthy before node write; restore it before running CF"; return 1; }
     fi
     cfip_openclash_read_enable || return 1
     [[ "$CFIP_OPENCLASH_ENABLE_VALUE" == "$expected" ]] || { CFIP_OPENCLASH_SERVICE_ERROR="OpenClash enable state changed before node write"; return 1; }
