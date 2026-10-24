@@ -1,0 +1,35 @@
+{
+  "scope": "G5a commit journal cleanup failure and truthful sync failure result",
+  "baselineSource": "469452f50e8e7e692f1d7c238fb297eb8bd93179",
+  "beforeLog": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/transaction-commit-cleanup-before.log",
+  "before": "failed journal rm returns successful commit and clears path; next preparation would refuse the orphan",
+  "repair": [
+    "mark committed configuration before cleanup",
+    "return explicit cleanup failure with retained journal path",
+    "do not roll back already committed config/state",
+    "sync error and failed-commit result expose configurationCommitted; cleanup error requires review"
+  ],
+  "host": "PASS expanded actual library/CLI function fixture",
+  "native": "PASS actual Bash/BusyBox functions with UCI command fixture, not real proxy",
+  "assertions": [
+    "ordinary pre-commit failure still rolls back",
+    "post-commit cleanup failure is nonzero and COMMITTED",
+    "managed state matches new staged bytes",
+    "rollback after commit is a no-op",
+    "sync response success false, configurationCommitted true, rolledBack false, recoveryRequired true"
+  ],
+  "related": [
+    "prepare faults",
+    "OpenClash write faults",
+    "TERM rollback",
+    "v2 transaction semantics"
+  ],
+  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/transaction-commit-cleanup",
+  "limits": [
+    "command deletion failure injected",
+    "no automatic orphan adoption/deletion",
+    "runtime journal not powerloss durability",
+    "latest exact SHA CI/SDK/migration/offline required",
+    "other original G4/G5 gates remain OPEN"
+  ]
+}

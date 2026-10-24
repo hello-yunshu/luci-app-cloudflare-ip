@@ -39,7 +39,7 @@ with tempfile.TemporaryDirectory() as directory:
   shutil.copy(args.sdk_directory/asset['path'],release/Path(asset['path']).name)
  evidence=manifest(assets)
  def validate(data=evidence, version=identity['version']):
-  return validator.validate(data,release,data['commit'],data['runId'],version,identity['release'],contract)
+  return validator.validate(data,release,data['commit'],data['runId'],version,identity['release'],contract,expected_run_attempt=data['runAttempt'])
  validate()
  print('PASS actual SDK IPK control and real APK adbdump match byte-bound release evidence')
  def rejected(label,func):

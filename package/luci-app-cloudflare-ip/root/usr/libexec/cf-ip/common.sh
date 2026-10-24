@@ -15,6 +15,19 @@ cfip_json_error() {
     jq -cn --arg error "$1" '{success:false,error:$error}'
 }
 
+# jq on OpenWrt may omit ONIGURUMA. Keep whitespace normalization independent
+# of regex support; indices make trimming linear even for long whitespace runs.
+cfip_jq_trim_filter() {
+    cat <<'JQ_TRIM'
+def cfip_space: (.>=9 and .<=13) or .==32 or .==133 or .==160 or .==5760 or
+  (.>=8192 and .<=8202) or .==8232 or .==8233 or .==8239 or .==8287 or .==12288;
+def cfip_trim:
+  explode as $chars |
+  [range(0;($chars|length)) | select($chars[.] | cfip_space | not)] as $kept |
+  if ($kept|length)==0 then "" else $chars[$kept[0]:($kept[-1]+1)]|implode end;
+JQ_TRIM
+}
+
 cfip_bool() {
     case "${1:-}" in 1|on|true|yes|enabled) printf true ;; *) printf false ;; esac
 }
@@ -25,7 +38,7 @@ cfip_atomic_write() {
     tmp="$(mktemp "${output}.tmp.XXXXXX")" || return 1
     cat >"$tmp" || { rm -f "$tmp"; return 1; }
     chmod 600 "$tmp" 2>/dev/null || true
-    mv "$tmp" "$output"
+    mv "$tmp" "$output" || { rm -f "$tmp"; return 1; }
 }
 
 cfip_generate_run_id() {
@@ -270,9 +283,9 @@ cfip_openclash_read_enable() {
 }
 
 cfip_openclash_secret() {
-    local config="${CFIP_OPENCLASH_CONFIG:-/etc/openclash/config/config.yaml}"
+    local config="${CFIP_OPENCLASH_CONFIG:-/etc/openclash/config/config.yaml}" secret
     [[ -r "$config" ]] || return 1
-    awk '
+    secret="$(awk '
         /^[[:space:]]*secret:[[:space:]]*/ {
             value=$0
             sub(/^[[:space:]]*secret:[[:space:]]*/, "", value)
@@ -282,7 +295,10 @@ cfip_openclash_secret() {
             print value
             exit
         }
-    ' "$config"
+    ' "$config")" || return 1
+    # A selected proxies fragment may omit the controller configuration.
+    [[ -n "$secret" ]] || secret="$(uci -q get openclash.config.dashboard_password 2>/dev/null || true)"
+    printf '%s' "$secret"
 }
 
 # This probes the same local controller endpoint used by OpenClash's
@@ -359,7 +375,9 @@ cfip_openclash_capture_state() {
         CFIP_OPENCLASH_SERVICE_ERROR="OpenClash is enabled but its core is not running; restore OpenClash before running CF"
         return 1
     fi
-    if ! cfip_openclash_health_wait 5; then
+    # Three observations need two spacing intervals plus authenticated probe
+    # time; five seconds leaves only one second for all three probes.
+    if ! cfip_openclash_health_wait 10; then
         CFIP_OPENCLASH_SERVICE_ERROR="OpenClash is enabled but its core or local controller is unhealthy; restore OpenClash before running CF"
         return 1
     fi
@@ -376,7 +394,7 @@ cfip_openclash_check_before_write() {
     if [[ "$expected" == 0 ]]; then
         ! pidof clash >/dev/null 2>&1 || { CFIP_OPENCLASH_SERVICE_ERROR="OpenClash core started externally before node write; no changes were made"; return 1; }
     else
-        cfip_openclash_health_wait 5 || { CFIP_OPENCLASH_SERVICE_ERROR="OpenClash became unhealthy before node write; restore it before running CF"; return 1; }
+        cfip_openclash_health_wait 10 || { CFIP_OPENCLASH_SERVICE_ERROR="OpenClash became unhealthy before node write; restore it before running CF"; return 1; }
     fi
     cfip_openclash_read_enable || return 1
     [[ "$CFIP_OPENCLASH_ENABLE_VALUE" == "$expected" ]] || { CFIP_OPENCLASH_SERVICE_ERROR="OpenClash enable state changed before node write"; return 1; }
@@ -451,7 +469,7 @@ cfip_restart_service() {
     local service="$1" deadline_class="${2:-normal}" remaining
     [[ -x "$CFIP_INIT_DIR/$service" ]] || return 1
     if [[ "$service" == openclash ]]; then
-        local enable rc=0
+        local enable rc=0 startup_started startup_now startup_remaining
         [[ "${CFIP_OPENCLASH_CF_STOPPED:-false}" != true ]] || CFIP_OPENCLASH_RECOVERY_ATTEMPTED=true
         [[ "${CFIP_OPENCLASH_EXPECTED_ENABLED:-}" == 1 ]] || { CFIP_OPENCLASH_SERVICE_ERROR="OpenClash was not initially enabled; restart is forbidden"; return 1; }
         ((CFIP_OPENCLASH_RESTART_ATTEMPTS < 2)) || { CFIP_OPENCLASH_SERVICE_ERROR="OpenClash restart attempt limit reached"; return 1; }
@@ -474,6 +492,7 @@ cfip_restart_service() {
         fi
         [[ "$enable" == 1 ]] || { CFIP_OPENCLASH_SERVICE_ERROR="OpenClash enable state changed; refusing to overwrite it"; return 1; }
         CFIP_OPENCLASH_RESTART_ATTEMPTS=$((CFIP_OPENCLASH_RESTART_ATTEMPTS + 1))
+        startup_started="$(cfip_monotonic_seconds)" || return 1
         cfip_run_with_timeout "$CFIP_OPENCLASH_START_TIMEOUT_SECONDS" "$CFIP_INIT_DIR/openclash" restart >/dev/null 2>&1 || rc=$?
         if ((rc != 0)); then
             ((rc == 124)) && CFIP_OPENCLASH_SERVICE_ERROR="OpenClash restart exceeded its 312-second startup bound" || CFIP_OPENCLASH_SERVICE_ERROR="OpenClash init restart failed (rc=$rc)"
@@ -485,7 +504,11 @@ cfip_restart_service() {
             CFIP_OPENCLASH_SERVICE_ERROR="OpenClash disabled itself after core startup failed; inspect OpenClash logs"
             return 1
         fi
-        if [[ "$enable" != 1 ]] || ! cfip_openclash_health_wait 10 2; then
+        # Some OpenClash init versions return before the asynchronous core is
+        # ready. Init and stable HTTP/PID verification share one startup bound.
+        startup_now="$(cfip_monotonic_seconds)" || return 1
+        startup_remaining=$((CFIP_OPENCLASH_START_TIMEOUT_SECONDS - startup_now + startup_started))
+        if [[ "$enable" != 1 ]] || ((startup_remaining <= 0)) || ! cfip_openclash_health_wait "$startup_remaining" 2; then
             CFIP_OPENCLASH_SERVICE_ERROR="OpenClash restart returned but stable core and local /group health were not verified"
             return 1
         fi

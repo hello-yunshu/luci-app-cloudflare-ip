@@ -318,6 +318,8 @@ Runtime Stable/Preview各自受控升级；自动发现“最新已资格版本�
 - 不将Stable与Preview必须不同SHA当永久规则，按渠道能力合同判断；不删除历史r3ToR4，新增current通用矩阵并注明旧字段语义。
 - DoD：全部Host/Legacy/SDK/真实migration最新exactSHA终态通过，release preflight用相同bytes；线上发布仍NOT RUN。证据metadata/installed DB/owner/配置before-after/manifest与日志；Release/迁移视角复核。失败保持旧公开资产。
 
+G4 最新检查点：缺失/截断安装包的真实 opkg、apk 拒绝与已安装状态保留检查已加入迁移；资格门禁强制要求对应非零退出和保留证据。Host 负向校验通过，真实包管理器执行待当前 SHA CI，仍 NOT EVALUATED。覆盖写入冲突、安装中途失败和完整卸载生命周期仍 OPEN。
+
 ### G5 可靠性与LuCI体验（各子阶段唯一责任CF，L）
 
 关联Rill/RP只读；Runtime真实集成等G3，多数可G0后独立复现。事务优先，其次状态诚实性、来源与LAN；共享主入口/公共库修改串行整合。
@@ -329,6 +331,9 @@ Runtime Stable/Preview各自受控升级；自动发现“最新已资格版本�
 |G5c网络：source.sh/cfst.sh、legacy/standalone下载、observe/reuse/scheduler/adaptive库与tests|N01流式硬cap+总deadline；N02可信last-good标记；N03 CI先digest后执行；无证据部分先验证不重写|大chunked/慢源/HTTP redirect/坏CIDR/特殊地址/空源/缓存坏或旧/IPv6非nibble；CFST坏digest/错arch/commit失败保旧；deadline kill整树；reuse强制fresh、Native唯一准入、shadow无影响、guarded坏证据回退|
 |G5d LAN：publisher.sh、cf_ip_publisher、status/UI、v2-lan-publisher tests|L01 generation目录+原子current切换、成功才更新；跨独立HTTP请求仍需generation标识/读协议，不能声称目录原子切换保证永不跨代；L02网络接口事件重绑|并发HTTP/每文件失败/切换失败/进程退出、LAN IP变更/丢失/恢复、bind不属LAN/0.0.0.0/IPv6/端口占用、停用无监听入口；真实socket/HTTP readback，不以init0报success|
 |G5e生命周期/RPC：cf_ip init、rpcd/cf_ip、ACL/menu/config.sh、Makefile hooks与迁移脚本|启动/停止/reload/boot/升级卸载/cron一致，最小读写方法和参数/路径白名单，诊断脱敏；C03证明等价后可删|只读会话不能写、注入/坏backup ID/并发run-sync-start、信号清理；cron重复/禁用/掉电恢复；保旧UCI/backup/history/custom URL，RPC保错误，不擅自操作用户代理|
+
+G5e 最新检查点：共享 writer-lock 的 stale-PID 双写及 PID 写失败误接受已复现并修复；Host 15 个实际函数故障用例及相关回归通过。新增 OpenWrt flock 依赖、安装必需 helper 和四 SDK 目标工具执行门禁。当前 SHA 的 hosted/包资格、原生 procd/rpcd/LuCI、完整生命周期仍 OPEN；详见 `g4-g5-execution.md` 与 `writer-lock-recovery.json`。
+
 
 - 可能破坏：不支持YAML形态的旧行为、并发编辑、旧缓存兼容、LuCI保存链；默认保守拒绝并给具体原因，不部分解析宣称完整验证。
 - 每子阶段工作量M或L，以原失败与反例是否闭合为准。没有证明的风险先复现，有缺陷才最小修复。

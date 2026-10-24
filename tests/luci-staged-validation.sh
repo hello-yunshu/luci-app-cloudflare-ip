@@ -77,9 +77,43 @@ printf '%s\n' '{"truncated":' >"$CFIP_STATUS_DIR/rill-evidence.json"
 printf '%s\n' '{"assistedDisagreementCount":2}' >"$CFIP_STATUS_DIR/rill-holdout-cadence.json"
 printf '{"contextFingerprint":"%064d"}\n' 1 >"$CFIP_STATUS_DIR/rill-state-meta.json"
 snapshot_state() {
-    find "$CFIP_STATUS_DIR" -type f -printf '%P\n' | sort
-    find "$CFIP_STATUS_DIR" -type f -print0 | sort -z | xargs -0 -r sha256sum
+    python3 - "$CFIP_STATUS_DIR" <<'PY_SNAPSHOT'
+import hashlib,json,sys
+from pathlib import Path
+root=Path(sys.argv[1]);files=sorted(p for p in root.rglob('*') if p.is_file())
+if not files: raise SystemExit('state fixture must not be empty')
+for file in files:
+    print(json.dumps([str(file.relative_to(root)),hashlib.sha256(file.read_bytes()).hexdigest()]))
+PY_SNAPSHOT
 }
+
+# A fresh/disabled installation has no proxy target yet. Saving it must not
+# require a runnable proxy, while enabling or actually running still must.
+before_disabled_validation="$(snapshot_state)"
+for mode in passwall openclash; do
+    domain_key="cf_ip.${mode}.target_domain"
+    candidate="$(jq -cn --arg mode "$mode" --arg key "$domain_key" '{"cf_ip.main.enabled":"0","cf_ip.main.mode":$mode,($key):"","cf_ip.openclash.config":"/definitely-absent-cfip-test/config.yaml"}')"
+    disabled="$($BIN --validate-config "$candidate")" || { echo "disabled $mode save wrongly requires configured proxy: $disabled" >&2; exit 1; }
+    jq -e '.success == true and .valid == true' <<<"$disabled" >/dev/null
+    enabled="$(jq '. + {"cf_ip.main.enabled":"1"}' <<<"$candidate")"
+    if "$BIN" --validate-config "$enabled" >/dev/null 2>&1; then
+        echo "enabled $mode without proxy configuration was accepted" >&2; exit 1
+    fi
+    malformed="$(jq --arg key "$domain_key" '. + {($key):"bad;domain"}' <<<"$candidate")"
+    if "$BIN" --validate-config "$malformed" >/dev/null 2>&1; then
+        echo "disabled $mode malformed target was accepted" >&2; exit 1
+    fi
+    for action in --run --sync; do
+        args=("$action"); [[ "$action" == --sync ]] && args+=("$mode")
+        strict="$(CFIP_VALIDATE_CANDIDATE_JSON="$candidate" "$BIN" "${args[@]}" 2>&1)" && {
+            echo "actual $action accepted incomplete $mode configuration" >&2; exit 1
+        }
+        grep -Eq 'target_domain|OpenClash config not found' <<<"$strict"
+    done
+done
+[[ "$before_disabled_validation" == "$(snapshot_state)" ]] || { echo 'disabled validation/execution refusal changed persisted state' >&2; exit 1; }
+echo 'disabled staged settings permit absent proxies; enable/run and malformed targets remain rejected'
+
 before_validation="$(snapshot_state)"
 staged="$($BIN --validate-config '{"cf_ip.passwall.target_domain":"two.example"}')"
 jq -e '.success == true and .valid == true' <<<"$staged" >/dev/null

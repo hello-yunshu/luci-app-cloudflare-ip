@@ -25,14 +25,14 @@ for asset in manifest["assetFiles"]:
 # tests/real-package-identity.py and the SDK artifact contract job.
 metadata_by_format={a["package"]["format"]:a["package"] for a in manifest["assetFiles"]}
 module.PACKAGE.inspect=lambda file,fmt,*args: {"package":metadata_by_format[fmt],"sha256":hashlib.sha256(file.read_bytes()).hexdigest(),"size":file.stat().st_size}
-module.validate(manifest, release_dir, commit, run_id, version, release, contract)
+module.validate(manifest, release_dir, commit, run_id, version, release, contract, expected_run_attempt=1)
 print("synthetic byte-binding input accepted; real metadata coverage is separate")
 
 def rejected(label, changed_manifest=None, mutate_files=None):
     before = {p.name:p.read_bytes() for p in release_dir.iterdir() if p.is_file()}
     try:
         if mutate_files: mutate_files()
-        module.validate(copy.deepcopy(manifest) if changed_manifest is None else changed_manifest, release_dir, commit, run_id, version, release, contract)
+        module.validate(copy.deepcopy(manifest) if changed_manifest is None else changed_manifest, release_dir, commit, run_id, version, release, contract, expected_run_attempt=1)
     except (ValueError, KeyError, TypeError):
         print(f"rejected: {label}")
     else:

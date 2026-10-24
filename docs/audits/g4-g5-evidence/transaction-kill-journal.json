@@ -1,0 +1,30 @@
+{
+  "scope": "G5a real SIGKILL and unresolved transaction refusal",
+  "baselineSource": "0841ed0115daf6f99c31d0c5ccbc4fd344c2c5b1",
+  "before": "all four killed prepared/mutated PassWall/OpenClash journals ignored; new transaction accepted",
+  "afterCases": 7,
+  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/native-vm.EsMjO7/transaction-kill-journal",
+  "native": "actual Bash, real UCI isolated -c/-t root, actual filesystem/atomic rename/SIGKILL process group; no network",
+  "openclash": "disabled service observation/check callbacks are fixtures; actual journal/publication functions run",
+  "assertions": [
+    "SIGKILL has exit -9",
+    "preimage and expected journal survive",
+    "new prepare refused with exact unresolved path",
+    "old journal not adopted into cleanup pointer",
+    "probe changes no snapshot/config file",
+    "unknown directory/file/link preserved"
+  ],
+  "relatedHostRegressions": [
+    "OpenClash write fault matrix",
+    "transaction commit rollback",
+    "TERM rollback",
+    "v2 transaction return/remarks"
+  ],
+  "limits": [
+    "manual recovery review required; no automatic SIGKILL rollback claim",
+    "volatile runtime journal not reboot/powerloss durability",
+    "no real proxy process executed",
+    "new exact SHA host/SDK/migration qualification pending",
+    "other G4/G5 requirements OPEN"
+  ]
+}

@@ -36,8 +36,8 @@
 
 - 源码版本以 [PKG_VERSION / PKG_RELEASE](package/luci-app-cloudflare-ip/Makefile) 为准，可运行 `python3 scripts/package_identity.py` 查询。
 - 已发布版本和准确文件名以选定 Release 的 `qualification.json` 为准；源码候选可能尚未发布。
-- 发布渠道：`prerelease`
-- 2.x 仍属于 2.0 prerelease development line，不代表稳定版
+- 当前源码渠道：`stable` 候选；不表示已经发布 Stable
+- `2.6.0-r5` 正在按 G6/G7 完成资格及晋级准备；自动 Stable 发布保持禁用，具体 SHA、同 run/attempt 安装包与支持范围须另行批准
 
 正式包只从 `main` 的成功 exact-head CI 资格化运行中发布。IPK/APK、`sha256sums.txt` 和 `qualification.json` 属于同一证据链；主机测试和 SDK 构建不能替代真实 OpenWrt 设备、硬件兼容性或长期 soak 验证。
 

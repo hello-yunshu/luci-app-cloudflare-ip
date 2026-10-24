@@ -11,7 +11,7 @@ CF_IP_RUNTIME_DIR="${CF_IP_RUNTIME_DIR:-/tmp/cf_ip}"
 command_result() {
 	_result_rc=0
 	_result_json="$("$CF_IP_AUTO_BIN" "$@" 2>/dev/null)" || _result_rc=$?
-	if printf '%s\n' "$_result_json" | jq -e 'type == "object"' >/dev/null 2>&1; then
+	if _result_json="$(printf '%s\n' "$_result_json" | jq -ces 'if length==1 and (.[0]|type)=="object" then .[0] else error("one result object required") end' 2>/dev/null)"; then
 		if [ "$_result_rc" -ne 0 ]; then
 			printf '%s\n' "$_result_json" | jq -c --argjson rc "$_result_rc" '.success=false | . + {error:(.error // "cf-ip-auto command failed"),rc:$rc}'
 		else
@@ -35,29 +35,41 @@ service_running_state() {
 }
 
 cf_ip_rpc_lock_acquire() {
-	mkdir -p "$CF_IP_RUNTIME_DIR" || return 1
-	mkdir "$CF_IP_RUNTIME_DIR/cf-ip-auto-v2.lock" 2>/dev/null || return 1
-	printf '%s\n' "$$" >"$CF_IP_RUNTIME_DIR/cf-ip-auto-v2.lock/pid"
+	local lib="${CFIP_LIB_DIR:-/usr/libexec/cf-ip}/writer-lock.sh"
+	[ -r "$lib" ] || { CF_IP_WRITER_LOCK_ERROR=helper_unavailable; CF_IP_WRITER_LOCK_RC=0; return 1; }
+	. "$lib"
+	cf_ip_writer_lock_acquire "$CF_IP_RUNTIME_DIR"
 }
 
 cf_ip_rpc_lock_release() {
-	[ "$(cat "$CF_IP_RUNTIME_DIR/cf-ip-auto-v2.lock/pid" 2>/dev/null)" = "$$" ] || return 0
-	rm -f "$CF_IP_RUNTIME_DIR/cf-ip-auto-v2.lock/pid"
-	rmdir "$CF_IP_RUNTIME_DIR/cf-ip-auto-v2.lock" 2>/dev/null || true
+	cf_ip_writer_lock_release "$CF_IP_RUNTIME_DIR" || true
 }
 
 service_action_unlocked() {
 	action="$1"
 
 	case "$action" in
+		start|restart) _enabled=1 ;;
+		stop) _enabled=0 ;;
+		*) echo '{"success":false,"error":"unknown_action"}'; return 0 ;;
+	esac
+	uci set "cf_ip.main.enabled=$_enabled" 2>/dev/null; _rc=$?
+	if [ "$_rc" -ne 0 ]; then
+		printf '{"success":false,"action":"%s","error":"uci_set_failed","rc":%d}\n' "$action" "$_rc"
+		return 0
+	fi
+	uci commit cf_ip 2>/dev/null; _rc=$?
+	if [ "$_rc" -ne 0 ]; then
+		printf '{"success":false,"action":"%s","error":"uci_commit_failed","rc":%d}\n' "$action" "$_rc"
+		return 0
+	fi
+	case "$action" in
 		start|restart)
-			uci set cf_ip.main.enabled='1' 2>/dev/null
-			uci commit cf_ip 2>/dev/null
-			"$INIT_SCRIPT" enable >/dev/null 2>&1
-			;;
-		stop)
-			uci set cf_ip.main.enabled='0' 2>/dev/null
-			uci commit cf_ip 2>/dev/null
+			"$INIT_SCRIPT" enable >/dev/null 2>&1; _rc=$?
+			if [ "$_rc" -ne 0 ]; then
+				printf '{"success":false,"action":"%s","error":"init_enable_failed","rc":%d}\n' "$action" "$_rc"
+				return 0
+			fi
 			;;
 	esac
 
@@ -109,7 +121,7 @@ service_action_unlocked() {
 
 service_action() {
 	local action="$1" rc
-	cf_ip_rpc_lock_acquire || { printf '{"success":false,"action":"%s","error":"busy"}\n' "$action"; return 0; }
+	cf_ip_rpc_lock_acquire || { printf '{"success":false,"action":"%s","error":"busy","reason":"%s","lockRc":%s}\n' "$action" "${CF_IP_WRITER_LOCK_ERROR:-lock_busy}" "${CF_IP_WRITER_LOCK_RC:-0}"; return 0; }
 	trap 'cf_ip_rpc_lock_release' EXIT INT TERM
 	service_action_unlocked "$action"; rc=$?
 	trap - EXIT INT TERM
@@ -117,7 +129,51 @@ service_action() {
 	return "$rc"
 }
 
+# A private anonymous pipe carries startup confirmation separately from task
+# stdout. Bash is already a package dependency and used by the backend.
+run_start() {
+	local reply wait_seconds="${CFIP_RPC_RUN_WAIT_SECONDS:-8}"
+	case "$wait_seconds" in [1-8]) ;; *) echo '{"success":false,"error":"invalid_start_wait","accepted":false,"running":false}'; return 0 ;; esac
+	[ -x "$CF_IP_AUTO_BIN" ] || { echo '{"success":false,"error":"backend_unavailable","accepted":false,"running":false}'; return 0; }
+	if ! reply="$(bash -s -- "$0" "$CF_IP_AUTO_BIN" "$CF_IP_RUNTIME_DIR" "$wait_seconds" <<'STARTUP'
+rpc_file="$1"; backend="$2"; runtime="$3"; wait_seconds="$4"
+set -- __source_only__
+# Reuse the same result normalizer; do not execute a second RPC method.
+source "$rpc_file" >/dev/null || exit 1
+CF_IP_AUTO_BIN="$backend"
+request="rpc-run.$$.${RANDOM}.${RANDOM}"
+if ! exec 3< <(
+    # The worker inherits only the pipe write endpoint. Closing the reader
+    # therefore makes a late acknowledgement fail before context mutation.
+    exec 3>&1
+    exec </dev/null 2>/dev/null
+    CFIP_RUN_ACK_FD=3 CFIP_RUN_REQUEST_ID="$request" CFIP_RUNTIME_DIR="$runtime" command_result --run --no-delay </dev/null
+); then exit 1; fi
+if LC_ALL=C IFS= read -r -n 16385 -t "$wait_seconds" reply <&3; then
+    exec 3<&-
+    if (( ${#reply} > 16384 )) || ! reply="$(printf '%s\n' "$reply" | jq -ces 'if length==1 and (.[0]|type)=="object" then .[0] else error("one result object required") end' 2>/dev/null)"; then
+        echo '{"success":false,"action":"run","error":"run_start_not_acknowledged","accepted":null,"running":null,"unconfirmed":true}'
+    elif printf '%s\n' "$reply" | jq -e --arg request "$request" '.success==true and .action=="run" and .running==true and .acknowledged==true and .accepted==true and .requestId==$request and (.runId|type)=="string" and (.runId|length)>0 and (.pid|type)=="number" and .pid>1 and (.pid|floor)==.pid' >/dev/null 2>&1; then
+        printf '%s\n' "$reply"
+    elif printf '%s\n' "$reply" | jq -e '.success==false' >/dev/null 2>&1; then
+        printf '%s\n' "$reply" | jq -c '. + {action:"run",accepted:false,running:false}'
+    else
+        echo '{"success":false,"action":"run","error":"run_start_not_acknowledged","accepted":null,"running":null,"unconfirmed":true}'
+    fi
+else
+    exec 3<&-
+    echo '{"success":false,"action":"run","error":"run_start_unconfirmed","accepted":null,"running":null,"unconfirmed":true}'
+fi
+STARTUP
+)"; then
+		echo '{"success":false,"error":"startup_channel_failed","accepted":false,"running":false}'
+		return 0
+	fi
+	printf '%s\n' "$reply"
+}
+
 case "$1" in
+	__source_only__) : ;;
 	list)
 		cat <<'EOF'
 {
@@ -154,81 +210,31 @@ EOF
 	call)
 		method="$2"
 		case "$method" in
-			status)
-				command_result --status
+			status|check-env|refresh-env|read-log|clear-log|ip-history|download-cfst|source-status|source-registry|source-refresh|publisher-status|adaptive-status|rill-self-check|rill-diagnostics|self-update|oc-list-backups)
+				command_result "--$method"
 				;;
 			validate-config)
 				read _input
 				_candidate="$(printf '%s\n' "$_input" | jq -c '.candidate // {}' 2>/dev/null)" || _candidate='{}'
-				_out="$($CF_IP_AUTO_BIN --validate-config "$_candidate" 2>/dev/null)" || true
-				[ -n "$_out" ] && printf '%s\n' "$_out" || printf '%s\n' '{"success":false,"error":"configuration validation failed"}'
-				;;
-			check-env)
-				"$CF_IP_AUTO_BIN" --check-env 2>/dev/null || true
-				;;
-			refresh-env)
-				"$CF_IP_AUTO_BIN" --refresh-env 2>/dev/null || true
+				command_result --validate-config "$_candidate"
 				;;
 			run)
-				# Check lock before starting background speedtest
-				if [ -d /tmp/cf_ip/cf-ip-auto-v2.lock ]; then
-					echo '{"success":false,"error":"another instance is running"}'
-				else
-					# Start speedtest in background to avoid rpcd timeout
-					( "$CF_IP_AUTO_BIN" --run --no-delay >/dev/null 2>&1 ) &
-					echo '{"success":true,"action":"run","running":true}'
-				fi
+				run_start
 				;;
 			speedtest-status)
 				_status="$(command_result --status)"
-				_log="$("$CF_IP_AUTO_BIN" --read-log 2>/dev/null)" || true
-				# Merge status + log into single response
-				if command -v jq >/dev/null 2>&1 && [ -n "$_status" ]; then
-					_log_json="$(printf '%s' "$_log" | jq -c '.' 2>/dev/null)" || _log_json='{"logs":""}'
-					printf '%s\n' "$_status" | jq -c --argjson log "$_log_json" '. + {log_data: $log}' 2>/dev/null && return 0
-				fi
-				# Fallback: just return status
-				printf '%s\n' "${_status:-{\}}"
+				_log="$(command_result --read-log)"
+				# Both branches are normalized to one object, preserving their own
+				# backend failures without emitting a second top-level JSON value.
+				printf '%s\n' "$_status" | jq -c --argjson log "$_log" '. + {log_data: $log}'
 				;;
 			version)
 				printf '{"version":"%s","package_version":"%s","package_release":"%s"}\n' "$RPCD_VERSION" "$RPCD_PACKAGE_VERSION" "$RPCD_PACKAGE_RELEASE"
 				;;
-			read-log)
-				"$CF_IP_AUTO_BIN" --read-log 2>/dev/null || true
-				;;
-			clear-log)
-				"$CF_IP_AUTO_BIN" --clear-log 2>/dev/null || true
-				;;
-			ip-history)
-				"$CF_IP_AUTO_BIN" --ip-history 2>/dev/null || true
-				;;
-			download-cfst)
-				_out="$("$CF_IP_AUTO_BIN" --download-cfst 2>/dev/null)" || true
-				[ -n "$_out" ] && printf '%s\n' "$_out" || printf '%s\n' '{"success":false,"error":"no output from cf-ip-auto"}'
-				;;
-			source-status|source-registry|source-refresh|publisher-status)
-				_flag="--$method"
-				_out="$($CF_IP_AUTO_BIN "$_flag" 2>/dev/null)" || true
-				[ -n "$_out" ] && printf '%s\n' "$_out" || printf '%s\n' '{"success":false,"error":"no output from cf-ip-auto"}'
-				;;
-			adaptive-status)
-				_out="$("$CF_IP_AUTO_BIN" --adaptive-status 2>/dev/null)" || true
-				[ -n "$_out" ] && printf '%s\n' "$_out" || printf '%s\n' '{"success":false,"error":"no output from cf-ip-auto"}'
-				;;
-			rill-self-check|rill-diagnostics)
-				_flag="--$method"
-				_out="$($CF_IP_AUTO_BIN "$_flag" 2>/dev/null)" || true
-				[ -n "$_out" ] && printf '%s\n' "$_out" || printf '%s\n' '{"success":false,"error":"no output from cf-ip-auto"}'
-				;;
 			rill-reset)
 				read _input
 				_generation="$(jsonfilter -s "$_input" -e '$.expectedGeneration' 2>/dev/null)" || true
-				_out="$($CF_IP_AUTO_BIN --rill-reset "$_generation" 2>/dev/null)" || true
-				[ -n "$_out" ] && printf '%s\n' "$_out" || printf '%s\n' '{"success":false,"error":"no output from cf-ip-auto"}'
-				;;
-			self-update)
-				_out="$("$CF_IP_AUTO_BIN" --self-update 2>/dev/null)" || true
-				[ -n "$_out" ] && printf '%s\n' "$_out" || printf '%s\n' '{"success":false,"error":"no output from cf-ip-auto"}'
+				command_result --rill-reset "$_generation"
 				;;
 			start)
 				service_action start
@@ -248,9 +254,6 @@ EOF
 					command_result --sync "$_plugin"
 				fi
 				;;
-			oc-list-backups)
-				"$CF_IP_AUTO_BIN" --oc-list-backups 2>/dev/null || echo '{"success":false,"error":"failed to list backups"}'
-				;;
 			oc-restore-backup)
 				read _input
 				_backup_id="$(jsonfilter -s "$_input" -e '$.id' 2>/dev/null)" || true
@@ -266,8 +269,7 @@ EOF
 				if [ -z "$_backup_id" ]; then
 					echo '{"success":false,"error":"missing backup id"}'
 				else
-					_out="$("$CF_IP_AUTO_BIN" --oc-delete-backup "$_backup_id" 2>/dev/null)" || true
-					[ -n "$_out" ] && printf '%s\n' "$_out" || printf '%s\n' '{"success":false,"error":"no output from cf-ip-auto"}'
+					command_result --oc-delete-backup "$_backup_id"
 				fi
 				;;
 			*)

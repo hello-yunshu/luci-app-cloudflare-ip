@@ -1,0 +1,38 @@
+{
+  "status": "CHECKPOINT_ONLY",
+  "baseCommit": "2790057249314816af4c4b1beb6422f5c2ab3440",
+  "sourceSha256": "f504bdc96670ef7cccbb72cc0fd281339f969d7737862f8e6f713f497120d88b",
+  "before": "Exact pre-fix source loses previous qualified raw bytes when metadata rename fails. A narrowed current regression injecting only that rename failure reproduces the same overwrite.",
+  "after": "Single JSON bundle binds original content bytes and qualification metadata, verifies bounded byte roundtrip, then publishes by one same-directory rename. Readers extract both fields from one bounded snapshot. Legacy qualified schema-2 pairs are read only while no bundle exists.",
+  "faultsPassed": [
+    "candidate allocation",
+    "JSON rendering",
+    "byte roundtrip readback",
+    "chmod",
+    "publication rename",
+    "KILL before rename retains old qualified cache",
+    "KILL after rename retains new qualified cache",
+    "24 concurrent coherent snapshots during 12 generation publications"
+  ],
+  "platforms": [
+    "macOS Bash host with transport mocks",
+    "isolated actual ARM64 OpenWrt 24.10.8 rootfs, BusyBox and Bash, transport mocks",
+    "separate actual locally trusted HTTPS curl regression"
+  ],
+  "limitations": [
+    "No physical power-loss/fsync durability claim",
+    "Repeated-interruption orphan retention/cleanup and full resource exhaustion remain OPEN",
+    "Not final exact-SHA hosted or complete G4/G5 qualification"
+  ],
+  "evidence": {
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/source-cache-publication/before.log": "2f9faed7fa39d92867f0474197ea5a951833eda408e651c53b7587981be1f0a4",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/source-cache-publication/counterfactual.log": "4761ceed0b20472151bd140243a04a67dbbecf49ac346085b5720385a03b5683",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/source-cache-publication/counterfactual.sh": "fd42e1ba0f953942c8c3779299afbe22730390e2cd67ec9e98b04d02e931662e",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/source-cache-publication/source-before.sh": "d0eaeaf2ba7fdfb3f3f126a71f133a934a9c0401a777e4b54f9d58d0c0e23b1e",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/source-cache-publication/after.log": "eab35edf6a9e58a1f4b9683b47bacf7ff691a9e5acf7e6a5904e36cecb90afc1",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/source-cache-publication/openwrt-after.log": "f65de8a5e57f0b8fb593f2c0b55cdc8d7489bee4713c5a26fee712a90663ae48",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/source-cache-publication/trust-after.log": "87faa735d2c1dedbcbed0c02311e3ed7aad1eb24c5c38f072fad079f9a30705e",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/source-cache-publication/tls-after.json": "7d4415edaf276a847947d49f282ed7ef8cc56e44b21beaa0ce7094da2ccb44e8",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/source-cache-publication/engine-after.log": "14e434f3eaffffa01bc50f0924516c18b0a7003055d319e9aa26f82d5d07d167"
+  }
+}
