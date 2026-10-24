@@ -144,7 +144,7 @@ cfip_openclash_actual_mapping() {
 
 cfip_openclash_intended_from_templates() {
     local selected="$1" config="$2" domains_csv="$3" suffix="$4" filter="$5" output="$6"
-    local count name type server tls network servername host domain base seq ip idx line tmp filter_lc
+    local name type server tls network servername host domain base seq ip line tmp filter_lc
     cfip_openclash_yaml_supported "$config" || return 1
     local -a domains=() ips=()
     filter_lc="$(printf '%s' "$filter" | tr 'A-Z' 'a-z')"
@@ -165,19 +165,36 @@ cfip_openclash_intended_from_templates() {
         [[ -n "$domain" ]] || continue
         base="$name"
         while [[ "$base" =~ ^(.*)[[:space:]]\[CF-[0-9]+\][^[:space:]]*$ ]]; do base="${BASH_REMATCH[1]}"; done
-        count=1; [[ -n "$suffix" ]] && count="${#ips[@]}"
-        for ((idx=0; idx<count; idx++)); do
-            seq=$((idx+1)); ip="${ips[$idx]}"; line="$suffix"; line="${line//\{n\}/$seq}"; line="${line//\{ip\}/$ip}"
-            name="$base$line"
-            jq -cn --arg name "$name" --arg server "$ip" --arg servername "$domain" --arg network "$network" \
-              --argjson hostRequired "$([[ "$network" == ws || "$network" == xhttp ]] && printf true || printf false)" \
-              '{name:$name,server:$server,servername:$servername,network:$network,host:(if $hostRequired then $servername else null end)}' \
-              >"$tmp.row"
-            jq --argjson row "$(cat "$tmp.row")" '. + [$row]' "$tmp" >"$tmp.next" && mv "$tmp.next" "$tmp" || { rm -f "$tmp" "$tmp.row"; return 1; }
-        done
+        seq=""
+        if [[ "$name" =~ [[:space:]]\[CF-([0-9]+)\][^[:space:]]*$ ]]; then seq="${BASH_REMATCH[1]}"; fi
+        jq -cn --arg base "$base" --arg domain "$domain" --arg network "$network" --arg seq "$seq" \
+          '{base:$base,domain:$domain,network:$network,seq:(if $seq=="" then null else ($seq|tonumber) end)}' >"$tmp.row"
+        jq --argjson row "$(cat "$tmp.row")" '. + [$row]' "$tmp" >"$tmp.next" && mv "$tmp.next" "$tmp" || { rm -f "$tmp" "$tmp.row" "$tmp.next"; return 1; }
     done < <(cfip_openclash_mapping_tsv "$config")
-    mv "$tmp" "$output"
-    rm -f "$tmp.row"
+    # Existing generated blocks represent individual slots, not independent
+    # templates to expand again. Preserve each one (including conflicts) and
+    # derive only missing slots from the first matching base/domain template.
+    # Ordinary unmarked templates retain their full expansion; do not silently
+    # deduplicate actual nodes or collapse conflicting template definitions.
+    if ! jq --arg suffix "$suffix" --argjson ips "$(printf '%s\n' "${ips[@]}" | jq -R . | jq -s .)" '
+      . as $templates |
+      (if $suffix=="" then 1 else ($ips|length) end) as $count |
+      def emit($n):
+        . as $template | $ips[(($n-1)%($ips|length))] as $ip |
+        ($suffix | split("{n}") | join($n|tostring) | split("{ip}") | join($ip)) as $tail |
+        {name:($template.base+$tail),server:$ip,servername:$template.domain,network:$template.network,
+         host:(if $template.network=="ws" or $template.network=="xhttp" then $template.domain else null end),
+         _key:[$template.base,$template.domain],_seq:$n};
+      [$templates[] | if .seq==null then . as $t | range(1;$count+1) as $n | $t | emit($n)
+        elif .seq>0 then emit(.seq) else empty end] as $existing |
+      (reduce ($templates[] | select(.seq!=null and .seq>0)) as $t ([];
+        if any(.[]; [.base,.domain]==[$t.base,$t.domain]) then . else .+[$t] end)) as $groups |
+      ($existing + [$groups[] as $t | range(1;$count+1) as $n |
+        select(any($existing[]; ._key==[$t.base,$t.domain] and ._seq==$n)|not) | $t | emit($n)]) |
+      map(del(._key,._seq))
+    ' "$tmp" >"$tmp.next"; then rm -f "$tmp" "$tmp.row" "$tmp.next"; return 1; fi
+    mv "$tmp.next" "$output"
+    rm -f "$tmp" "$tmp.row"
 }
 
 cfip_openclash_validate_mapping() {
@@ -185,6 +202,8 @@ cfip_openclash_validate_mapping() {
     jq -n -e --slurpfile expected "$intended" --slurpfile observed "$actual" '
       ($expected[0]) as $e | ($observed[0] | map(select(.name|contains("[CF-")))) as $a |
       ($e|length)>0 and ($a|length)==($e|length) and
+      (($e|map(.name)|unique|length)==($e|length)) and
+      (($a|map(.name)|unique|length)==($a|length)) and
       (($a | map([.name,.server,.servername,.network,.host] | join("\u0000")) | unique | length) == ($a|length)) and
       all($e[]; . as $wanted | any($a[]; .name==$wanted.name and .server==$wanted.server and .servername==$wanted.servername and .network==$wanted.network and .host==$wanted.host))
     ' >/dev/null

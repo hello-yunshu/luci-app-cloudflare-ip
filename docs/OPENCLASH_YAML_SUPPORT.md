@@ -1,5 +1,7 @@
 # OpenClash YAML transformation boundary
 
+Intended mappings distinguish an ordinary template from an existing numbered CF variant. Each existing variant contributes its own selected-IP slot once; missing slots are derived from the first matching base-name/domain template. Existing slots retain their own transport and authentication profile. Ordinary templates still expand fully. Neither actual nodes nor conflicting definitions are silently deduplicated: expected and observed generated names must be unique, with exact IP/SNI/network/Host matching before publication. The real-renderer transaction regression covers repeated updates, unchanged selections, growth, a missing first slot and duplicate-node refusal using a jq fixture without regex support.
+
 Proxy sequence entries must be indented under `proxies`. Unindented YAML sequences are refused explicitly because the line mapper does not handle them; they must not produce an empty successful mapping.
 
 Endpoint transformation and readback support a conservative block-form `proxies` sequence. Each proxy starts with `- name:`. Node identity fields (`type`, `server`, `tls`, `network`, `servername`) use scalar values directly inside that node; the supported transport header uses `Host`. Mapping is scoped to the top-level `proxies` section. Generated variants are written before leaving that section; the tested group/rule tail is retained on repeated transformations.
