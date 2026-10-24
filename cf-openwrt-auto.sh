@@ -630,7 +630,7 @@ restart_service() {
 			return 0
 		fi
 		(( _OPENCLASH_RESTART_ATTEMPTS < 2 )) || { openclash_service_error "OpenClash restart attempt limit reached"; return 1; }
-		local enable rc=0
+		local enable rc=0 startup_started startup_remaining
 		[[ -z "$_STOPPED_SERVICE" ]] || _OPENCLASH_RECOVERY_ATTEMPTED=true
 		enable="$(openclash_enable_state)" || { openclash_service_error "cannot read openclash.config.enable"; return 1; }
 		if (( _OPENCLASH_RESTART_ATTEMPTS == 0 )) && [[ "$enable" == 0 ]]; then
@@ -646,11 +646,13 @@ restart_service() {
 		[[ "$enable" == 1 ]] || { openclash_service_error "OpenClash enable state changed; refusing to overwrite it"; return 1; }
 		_OPENCLASH_RESTART_ATTEMPTS=$((_OPENCLASH_RESTART_ATTEMPTS + 1))
 		_OPENCLASH_RECOVERY_ATTEMPTED=true
+		startup_started="$(date +%s)"
 		openclash_init_bounded restart "$_OPENCLASH_START_TIMEOUT" || rc=$?
 		((rc == 0)) || { openclash_service_error "OpenClash init restart failed or timed out (rc=$rc)"; return "$rc"; }
 		enable="$(openclash_enable_state)" || { openclash_service_error "cannot read OpenClash enable state after restart"; return 1; }
 		[[ "$enable" == 1 ]] || { openclash_service_error "OpenClash disabled itself after core startup failed; inspect OpenClash logs"; return 1; }
-		openclash_health_stable 10 || { openclash_service_error "OpenClash restart returned but stable core and local /group health were not verified"; return 1; }
+		startup_remaining=$((_OPENCLASH_START_TIMEOUT - $(date +%s) + startup_started))
+		((startup_remaining > 0)) && openclash_health_stable "$startup_remaining" || { openclash_service_error "OpenClash restart returned but stable core and local /group health were not verified"; return 1; }
 		[[ "$(openclash_enable_state)" == 1 ]] || { openclash_service_error "OpenClash enable state changed during startup verification"; return 1; }
 		_OPENCLASH_INITIAL_HEALTHY=true
 		return 0

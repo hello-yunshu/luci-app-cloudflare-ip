@@ -99,6 +99,7 @@ jobs:
           bash tests/openclash-review-regressions.sh
           bash tests/openclash-controller-credentials.sh
           bash tests/openclash-document-boundary.sh
+          bash tests/openclash-async-startup.sh
           bash tests/openclash-transform-unsupported.sh
           bash tests/openclash-transform-section.sh
           bash tests/openclash-yaml-boundary.sh
