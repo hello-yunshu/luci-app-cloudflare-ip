@@ -18,6 +18,8 @@ A PR workflow can test a merge commit distinct from its head SHA. Preserve both 
 
 ## Verified checkpoint
 
+Current CI also runs `tests/release-preflight-real.py` against the same run's two public SDK packages. Its positive path uses real metadata readers; ten isolated mutations must reject (commit/run/attempt, eligibility, path traversal, swapped hashes, Runtime pin, same-size byte change, extra package, and symlink). Canonical packages are never mutated. Receipts and `SHA256SUMS` are stored beside `qualification.json` in the attempt-scoped evidence artifact. The job prefetches the APK inspector image, then uses `CFIP_APK_OFFLINE=1` for no-pull, network-disabled metadata inspection. A failure prevents a successful evidence job.
+
 Run 39000051779 attempt 1, PR head `07802d4ce5c26c4456aba51f5caef0e9bba1b455`, tested commit `229363fb1c900df6b484a5246645395ec628b689`. Both trees are `04d32482234e8b388775f284cd94e2018fb93ec1`. All hosted CI jobs passed. Downloaded IPK/APK bytes passed local preflight using a network-disabled, no-pull APK metadata adapter. Wrong attempt and one-byte modification of a copied actual IPK were rejected without a receipt. Receipt: `docs/audits/g4-g5-evidence/offline-preflight-39000051779.json`.
 
 All ten migration scenarios retain installed DB snapshots. The four controlled user files (UCI with custom URL, backup, history, cron) have matching before/final hashes. This checkpoint covers these tested paths; broader upgrade/uninstall, lifecycle, negative migration and G5 requirements remain open.
