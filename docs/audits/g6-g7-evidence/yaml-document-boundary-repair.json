@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "issue": "Y01 full-document YAML admission and generated-output semantics",
+  "baseline": "3bf0ec11565123b123e3ca108d43bc6d4de2eb65",
+  "before": [
+    "Malformed tail after a supported proxies block was accepted",
+    "Duplicate root key outside proxies was accepted"
+  ],
+  "repair": [
+    "Psych AST parses one whole document without instantiating tagged objects",
+    "Reject duplicate keys, complex or implicit typed keys, ambiguous mapped escaping/comments and missing parser before mutation",
+    "Validate generated and restored candidates before publication",
+    "Preserve quoted literal hash characters and quote generated names where required",
+    "Do not inject another Host when one exists"
+  ],
+  "focusedHost": "PASS: all 20 OpenClash shell regressions; additional generated-name semantic cases passed afterward",
+  "nativeEnvironment": "OpenWrt25.12.5 x86_64 VM, existing Ruby3.4.9; isolated public fixtures only",
+  "nativeFixtures": "PASS: same three actual source functions; no installed-package, live-proxy or configuration modification",
+  "protocolMatrix": "Both standalone and Legacy, 3 protocols x 5 transports; exactly one mapped Host per proxy",
+  "sourceSha256": {
+    "cf-openwrt-auto.sh": "8169eabc2549b41f321790698c2f215da871fbb5a9a92891fea56601fa639648",
+    "package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto-legacy": "871b5679d341b82900a56050c42c99da8e0bd9ffb0123bec499f337a594c12b0",
+    "package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/openclash-readback.sh": "aac448d2155359d5d7f5c04da9f6eb77091a085b64e88ec4de5916c46e7409db",
+    "tests/openclash-document-boundary.sh": "3aed03eddfff7e797437c1d0e2073a1dddc081b031eb028c3503ecfb943b8281"
+  },
+  "fullQualification": "REQUIRED for changed candidate; prior 3bf0ec1 success does not cover this repair",
+  "publication": "NOT RUN"
+}

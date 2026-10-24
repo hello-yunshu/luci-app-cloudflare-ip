@@ -1,5 +1,11 @@
 # G4、G5 执行记录
 
+## 2026-10-24 G6 退出审查回到 Y01 修复
+
+最终审查实际复现支持代理段之外的 malformed YAML 与 duplicate root keys 被接受，不能把旧映射 guard 或成功 CI 当作全文资格。三个实际入口现共用一致的 Psych AST preflight，检查全文语法、单文档、唯一字符串键、可等价读取的 mapped 标量、indented name-first proxy 块；不实例化 YAML 对象。两个 renderer 和 Legacy restore 还在备份/发布前检查生成/恢复候选。新检查揭示并补修第二个 Host 注入、字面 # 被误删和需要引用的名称序列化。错误不输出标量内容，不支持或缺 Ruby/Psych 时拒绝写入。PassWall 不增加 Ruby 依赖。
+
+回归包括三个入口、缺 parser、语法/重复键/标量歧义负向、生成无效输出原字节保持、带 literal #/冒号/括号/空格/数字名称，以及两套实际 renderer 的 15-protocol matrix（Host 数量严格等于 proxy 数量）。相关 20 项 host scripts 和设备 Ruby 私有 fixture 已通过，实际用户配置的私有副本也通过。全新 exact-SHA hosted 资格仍必须通过；实机与 UI 覆盖依最新用户政策单列，不伪造 PASS。旧 checkpoint 中的 OPEN 是各自历史阶段状态，最终结论以 G6/G7 候选证据为准。
+
 ## G5b diagnostics failure visibility and G5e native reboot checkpoint
 
 Native Logs & Records displays empty diagnostics objects despite an actual failed RPC (success:false/rc1). The actual view module reproduces that false snapshot. Diagnostics now renders an explicit accessible alert with the existing translated unavailable label and backend error; failed-response data is not shown as a valid snapshot. Five successful/failed/missing response cases and related Overview/status/binding regressions pass. Native UI with one temporary view overlay shows the error; actual keyboard refresh reads a private log fixture and Tab reaches Clear with a visible outline. Clear completes with an empty actual file and success UI, but browser control timed out around the native confirm; confirmation/cancellation interaction remains NOT PROVEN. Original view, package-DB bytes/mtime, configuration/status and absent test log are restored. Receipt: diagnostics-failure-honesty.json. New rebuilt-package and full eight-view action acceptance remain OPEN.

@@ -25,7 +25,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install host tools
-        run: sudo apt-get update && sudo apt-get install -y jq ripgrep shellcheck cmake pkg-config libjson-c-dev
+        run: sudo apt-get update && sudo apt-get install -y jq ripgrep shellcheck cmake pkg-config libjson-c-dev ruby ruby-psych
       - name: Build and verify isolated real UCI rollback
         shell: bash
         run: |
@@ -98,6 +98,7 @@ jobs:
           bash tests/openclash-render-isolation.sh
           bash tests/openclash-review-regressions.sh
           bash tests/openclash-controller-credentials.sh
+          bash tests/openclash-document-boundary.sh
           bash tests/openclash-transform-unsupported.sh
           bash tests/openclash-transform-section.sh
           bash tests/openclash-yaml-boundary.sh
@@ -262,7 +263,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Install host tools
-        run: sudo apt-get update && sudo apt-get install -y jq shellcheck
+        run: sudo apt-get update && sudo apt-get install -y jq shellcheck ruby ruby-psych
       - name: Run 1.8.3 preservation contracts
         run: |
           set -euo pipefail

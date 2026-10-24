@@ -16,6 +16,10 @@ CF 现更新到该精确 RP 资格，Preview release 5，保留原 migration 与
 
 ## G6 已执行
 
+2026-10-24 软件退出审查补充：3bf0ec1 / run 40067431976 attempt 1 全部软件资格与生成的 Stable review 成功，head/tested merge 完整 tree 均 ecc1ea8882b37a7d7a3a2ab0dc0173d5ea7018dc；其实际原包在线安装、43 个非配置 payload、disabled 生命周期、真实 CLI/RPC 和 nginx 静态视图均通过，并正常回退原包/包集合/配置/状态/cron/world；所选外部 YAML 与实际生效配置在第二轮显式备份且前后摘要一致。原始私有日志留本机受限目录，脱敏 receipt 为 device-acceptance-3bf0ec1.json。此结果不继承到后续源码。
+
+退出审查同时复现 Y01 未关闭的全文缺口：支持的 proxies 段之后的语法错误和重复根键仍被旧 guard 接受。新 guard 在三个入口解析完整 Psych AST，不实例化 tagged 对象，拒绝重复/复杂/隐式类型键及不能与行读取器等价的 mapped 标量，并验证生成与恢复候选后才允许发布。补修已有 Host 的重复生成、quoted literal # 的截断及需引用名称的序列化。20 项相关 OpenClash 回归、设备现有 Ruby 的隔离实际函数用例通过；真实配置私有副本通过新 guard 和渲染，线上文件/PID 不变。改变了产品源码，必须新 SHA 全资格及相应候选记录；不得以 3bf0ec1 的绿灯完成新候选。
+
 - 刷新 PR18（OPEN/DRAFT）、分支 1e806fe5fd1b3d7c18db72837d97377d1875e2c9 和成功资格39898577254 attempt1；上游 RP38928695476 attempt1 仍成功且 artifact 可读。
 - 部署是 OpenWrt25.12.5 x86_64、APK3.0.5、Microsoft VM；已有1.8.3-r1和真实 OpenClash，无 PassWall/Runtime。不能称为物理设备/所有架构覆盖。
 - 备份配置/代理/原应用 payload/包DB/world/cron/enable 状态到权限受限目录。公开旧APK SHA与checksum一致，19个非用户配置payload与现装文件逐一相同。实际 isolated APK root 升级→降级成功后，才执行在线安装。

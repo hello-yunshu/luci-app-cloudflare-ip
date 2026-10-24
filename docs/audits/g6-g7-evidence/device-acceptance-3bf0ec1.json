@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "scope": "bounded native APK online upgrade/disabled lifecycle/real RPC/LuCI asset delivery and automatic downgrade restoration",
+  "candidateCommit": "3bf0ec11565123b123e3ca108d43bc6d4de2eb65",
+  "qualificationRunId": 40067431976,
+  "runAttempt": 1,
+  "packageSha256": "15d0c2c22b93586ddb0e04e08347450520bbdacf36077b51979c60db36084039",
+  "device": {
+    "firmware": "OpenWrt25.12.5",
+    "architecture": "x86_64",
+    "environment": "Microsoft VM",
+    "packageManager": "apk3.0.5"
+  },
+  "onlineUpgrade": true,
+  "payloadVerification": {
+    "status": "PASS",
+    "files": 43
+  },
+  "installedCandidateIdentity": "2.6.0-r5",
+  "disabledStartRestartStop": "PASS",
+  "actualCliAndUbusStatus": "PASS",
+  "nginxServesExactPackagedLuciView": "PASS",
+  "clashPidBefore": "3062",
+  "clashPidAfter": "3062",
+  "selectedAndEffectiveProxyConfigurationBackupCount": 2,
+  "proxyConfigurationHashes": [
+    "1472efa276bfe4bae9525ff7d5c0986c63fde7b73772f0a93987435178f98a64",
+    "8f13567602eeb61e04f22b71b01c7a4cfe66f522bc8d365d46e7761a913ea49c"
+  ],
+  "proxyConfigurationsUnchanged": true,
+  "restoration": {
+    "package": "1.8.3-r1",
+    "packageSet": "identical",
+    "cfConfiguration": "byte-identical",
+    "cron": "byte-identical",
+    "world": "byte-identical",
+    "cfStateDirectoryByteIdentical": true,
+    "uhttpdAddedThenRemoved": true,
+    "noPendingUciChanges": true,
+    "database": "maintained by apk; old raw DB was not copied over the live database"
+  },
+  "qualifiedPreviewRuntime": {
+    "packageCommit": "8581c717db8c57fc83c0ace4d808bb9d32b4b1eb",
+    "qualificationRunId": 40066219701,
+    "runAttempt": 1,
+    "packageSha256": "e102c61954457d2167d3f8c294ff279cad837d832cd32b848a6efd7c09f7405a",
+    "binarySha256": "29f71e71d91f18c18eb8e80d53d326ce061304d79552826f9291194b81ab04d7",
+    "nativeHelpAndVersion": "PASS",
+    "globallyInstalled": false
+  },
+  "limits": [
+    "not physical hardware coverage",
+    "no current-candidate full optimize, real network failure recovery, LAN address change, reboot or 24h Soak",
+    "served LuCI JavaScript is not full eight-view browser interaction proof",
+    "superseded by subsequent Y01 source repair; fresh candidate qualification and deployment evidence remain required"
+  ],
+  "harnessNotes": [
+    "First offline downgrade invocation used an unsupported option; corrected normal apk add succeeded; initial failure retained",
+    "First online cleanup rejected apk local-file checksum world constraint; corrected semantic comparison preserved every unrelated constraint; second full online smoke and automatic cleanup passed",
+    "Selected YAML outside /etc/openclash was explicitly backed up for the second full smoke"
+  ],
+  "publication": "NOT RUN"
+}
