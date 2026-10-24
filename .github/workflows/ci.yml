@@ -59,6 +59,7 @@ jobs:
           python3 tests/cfst-smoke-bytes.py
           python3 tests/build-version-policy.py
           python3 tests/qualification-artifact-download.py
+          python3 tests/stable-review.py
           bash tests/release-channel-contract.sh
           bash tests/v2-prerelease-workflow-contract.sh
           bash tests/immutable-tag-contract.sh
@@ -811,6 +812,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - name: Generate exact qualification manifest
         env:
           RESULTS: ${{ toJSON(needs) }}
@@ -859,8 +862,25 @@ jobs:
             fi
           done
           RESULTS="$RESULTS" ARTIFACTS="$ARTIFACTS" ASSET_FILES="$ASSET_FILES" RILL_EVIDENCE="$RILL_EVIDENCE" PACKAGE_MIGRATION="$PACKAGE_MIGRATION" bash tests/evidence-manifest.sh qualification.json
+          public_dir="$RUNNER_TEMP/release-preflight"
+          mkdir -p "$public_dir"
+          while IFS= read -r path; do
+            cp "$asset_dir/$path" "$public_dir/$(basename "$path")"
+          done < <(jq -r '.assetFiles[].path' qualification.json)
+          apk_bin="$GITHUB_WORKSPACE/scripts/apk-metadata.sh"
+          docker pull alpine:3.23
+          export CFIP_APK_OFFLINE=1
+          python3 scripts/release-preflight.py qualification.json "$public_dir" --commit "$GITHUB_SHA" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --apk-bin "$apk_bin" --output release-preflight.json
+          python3 tests/release-preflight-real.py qualification.json "$public_dir" --commit "$GITHUB_SHA" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --apk-bin "$apk_bin" --output release-preflight-negatives.json
+          (cd "$public_dir" && sha256sum -- * > "$GITHUB_WORKSPACE/SHA256SUMS")
+          python3 scripts/prepare-stable-review.py --manifest qualification.json --preflight release-preflight.json --negatives release-preflight-negatives.json --candidate "${{ github.event.pull_request.head.sha || github.sha }}" --repository "$GITHUB_REPOSITORY" --output stable-review.json
       - uses: actions/upload-artifact@v7
         with:
           name: qualification-evidence-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
-          path: qualification.json
+          path: |
+            qualification.json
+            release-preflight.json
+            release-preflight-negatives.json
+            SHA256SUMS
+            stable-review.json
           if-no-files-found: error
