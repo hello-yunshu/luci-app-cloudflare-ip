@@ -81,3 +81,9 @@ CF 现更新到该精确 RP 资格，Preview release 5，保留原 migration 与
 新资格40217946848 attempt1全部通过、原包preflight/10负向成功后，首轮实际post-apply出现混合结果：两项curl0/HTTP302、一项curl35握手前重置、一项curl28（TLS已完成538ms、HTTP0）。仅35可重试的策略因此立即拒绝，仍安全回滚且本轮fresh配置/代理摘要全PASS；24h未开始。私有归档SHA256 934a839e030e78ae1128065369bd253abd1072eb838661dccc04307b32789c08。
 
 就绪窗口内允许curl7连接失败和curl28超时与35握手前重置一起进入有界完整复验；仍仅fresh OpenClash apply、最多4轮/30秒且不超过原measurement deadline。证书60、HTTP及measurement-budget124仍立即拒绝；持续reset/timeout/connect最多4轮后拒绝。最终必须全部IP/domain实际通过，不能将部分成功视作提交条件。现有CI注册测试新增混合重置+TLS后超时恢复、持续timeout/connect及预算错误，10个场景在主机和路由器原生全PASS，复用生命周期保持PASS。此变更仍需新SHA完整资格及原包核验，旧e760资格不晋升。
+
+### Fresh OpenClash receive failure follow-up
+
+Candidate c9b3cde, qualification 40220328209 attempt 1, passed all 18 jobs and local real-metadata positive/10 negative checks. Its device baseline failed before the 24h timer: one resolved probe completed TLS (309.848ms) then returned curl 56 / HTTP 0; the other three returned curl 35 before TLS. The transaction verified rollback, and the supervisor restored original 1.8.3-r1, configuration/proxy/cron/world with no pending UCI. Private archive SHA256: 6de7a91ab8cabf8bb0a9167f1b9833bc9e07c5daf0741444760913a46279cd2e.
+
+The existing fresh-apply settling window now also permits receive transport error 56. It retains four rounds, a 30-second upper bound, the original measurement deadline, complete IP/domain verification, and rejection of certificate/HTTP/budget errors. Persistent receive failure still fails. All 12 observation scenarios pass on the host and isolated router source; reuse loss/lifecycle and ShellCheck error checks pass. A new complete qualification and original-package checks are required before deployment. No soak timer or desktop automation is running.
