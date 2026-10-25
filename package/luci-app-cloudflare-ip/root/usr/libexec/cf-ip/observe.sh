@@ -159,6 +159,42 @@ cfip_native_rank() {
 }
 
 cfip_post_apply_probe() {
+    # Controller health can precede readiness of OpenClash's data path. Only
+    # a freshly applied service may settle; reuse validation remains immediate.
+    if [[ "${CFIP_MODE:-}" != openclash || "${CFIP_OPENCLASH_SERVICE_APPLIED:-false}" != true ]]; then
+        cfip_post_apply_probe_once "$@"
+        return $?
+    fi
+    local output="$4" started now original_deadline="${CFIP_MEASUREMENT_DEADLINE:-0}" attempt rc=1 delay remaining rounds='[]' tmp
+    started="$(cfip_monotonic_seconds)" || return 1
+    local CFIP_MEASUREMENT_DEADLINE=$((started+30))
+    if ((original_deadline>0 && original_deadline<CFIP_MEASUREMENT_DEADLINE)); then
+        CFIP_MEASUREMENT_DEADLINE="$original_deadline"
+    fi
+    for attempt in 1 2 3 4; do
+        if cfip_post_apply_probe_once "$@"; then rc=0; else rc=$?; fi
+        ((rc==0 || rc==1)) || return "$rc"
+        [[ -s "$output" ]] || return "$rc"
+        now="$(cfip_monotonic_seconds)" || return 1
+        rounds="$(jq -cn --argjson rounds "$rounds" --argjson attempt "$attempt" --argjson elapsed "$((now-started))" --slurpfile result "$output" \
+            '$rounds + [{attempt:$attempt,elapsedSeconds:$elapsed,validated:($result[0].validated==true),failedCurlExits:([$result[0].probes[]? | select(.success!=true) | .curlExit]|unique)}]')" || return 1
+        ((rc!=0 && attempt<4)) || break
+        # Retry only pre-handshake resets (curl 35), never certificate errors,
+        # HTTP errors, measurement-budget exhaustion or missing observations.
+        jq -e '(.probes|length)>0 and any(.probes[]; .success!=true) and all(.probes[] | select(.success!=true); .curlExit==35 and .tlsMs==0)' "$output" >/dev/null 2>&1 || break
+        remaining="$(cfip_deadline_remaining)" || return 1
+        delay=$((1<<attempt))
+        ((remaining>delay)) || break
+        sleep "$delay"
+    done
+    tmp="$(mktemp "${TMPDIR:-/tmp}/cfip-post-apply-settling.XXXXXX")" || return 1
+    if ! jq --argjson rounds "$rounds" '. + {serviceSettling:{scope:"fresh_openclash_apply",maxSeconds:30,rounds:$rounds}}' "$output" >"$tmp"; then rm -f "$tmp"; return 1; fi
+    if ! cfip_atomic_write "$output" <"$tmp"; then rm -f "$tmp"; return 1; fi
+    rm -f "$tmp"
+    return "$rc"
+}
+
+cfip_post_apply_probe_once() {
     local selected_json="$1" domains_csv="$2" timeout_s="$3" output="$4" ip family domain probes='[]' ok=true p observed_at count=0 candidate loss throughput tmp reward_json
     [[ "$(jq 'length' "$selected_json" 2>/dev/null || printf 0)" -gt 0 ]] || return 2
     IFS=',' read -r -a domains <<<"$domains_csv"

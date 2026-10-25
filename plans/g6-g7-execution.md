@@ -65,3 +65,13 @@ CF 现更新到该精确 RP 资格，Preview release 5，保留原 migration 与
 620b979资格40100766849 attempt1及本地原包preflight/十项负向通过后，实际baseline在测速前健康复查失败，未停止服务或写节点；监督器恢复原1.8.3-r1及原状态，计时未开始。路由器只读复查同一函数：5秒预算一次失败、一次成功，10秒成功。原5秒预算要求三次稳定观察、默认间隔两秒，只给全部认证HTTP及配置读取共一秒余量，边界抖动会误拒绝。
 
 将common预检/写前检查和v2停服务前检查统一为10秒；三次稳定PID、HTTP200和JSON认证校验全部保留。现有完整资格执行的async-startup回归增加真实入口capture/stop/write的虚拟探测耗时：每次探测一秒时健康三次观察7秒通过，持续不健康仍在10秒内拒绝且不停止服务。新SHA必须重新完成完整资格和原包preflight后再部署；原620首轮证据保留，不计入24h。
+
+## 应用后数据通路就绪修复（2026-10-26）
+
+47fd35a实际24h尝试在第二次任务post-apply TLS探测失败并正确回滚，未满24h。两次独立限时诊断使用同一已资格原包且只私有包装真实curl：diag1复现Connection reset by peer/Broken pipe；diag2保留原失败返回码，在首次reset后延迟2秒仍curl35，再过5秒及10秒同一目标均curl0/HTTP302。全部诊断结束恢复原1.8.3-r1、本轮fresh配置/代理摘要和无pendingUCI通过。私有证据diag2 SHA256 3073ecf7edd413bdd1ecca0453ee57f58556a133c66c652a2c4e13fac52394cf。
+
+控制器/group稳定不保证代理数据通路已经就绪。仅fresh OpenClash apply增加最多4轮、30秒且不超过原测量deadline的验证窗口，间隔2/4/8秒；每一轮仍检查全部应用IP与全部目标。仅未完成TLS握手的curl35允许重试，证书、HTTP及预算错误立即拒绝；最终所有探测实际成功才提交。最终outcome保留每轮验证和失败码摘要serviceSettling，持续失败仍回滚。reuse/pre-apply不进入该窗口。
+
+已注册的v2-observation测试新增延迟恢复/持续重置/证书错误/HTTP错误/短测量预算/reuse六场景，主机及路由器原生均PASS；reuse-loss、真实full-then-reuse生命周期和ShellCheck error通过。必须新SHA完整资格、精确原包preflight及十项负向后再实际事务验证、新24h。
+
+复用覆盖计划须在warning保护缩短的1h窗口内安排一次复用任务；不能关闭保护策略凑覆盖。当前未设置自动检查，保持用户手动通知安排。
