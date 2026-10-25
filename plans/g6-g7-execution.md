@@ -75,3 +75,9 @@ CF 现更新到该精确 RP 资格，Preview release 5，保留原 migration 与
 已注册的v2-observation测试新增延迟恢复/持续重置/证书错误/HTTP错误/短测量预算/reuse六场景，主机及路由器原生均PASS；reuse-loss、真实full-then-reuse生命周期和ShellCheck error通过。必须新SHA完整资格、精确原包preflight及十项负向后再实际事务验证、新24h。
 
 复用覆盖计划须在warning保护缩短的1h窗口内安排一次复用任务；不能关闭保护策略凑覆盖。当前未设置自动检查，保持用户手动通知安排。
+
+### e760820实际首轮后的修正
+
+新资格40217946848 attempt1全部通过、原包preflight/10负向成功后，首轮实际post-apply出现混合结果：两项curl0/HTTP302、一项curl35握手前重置、一项curl28（TLS已完成538ms、HTTP0）。仅35可重试的策略因此立即拒绝，仍安全回滚且本轮fresh配置/代理摘要全PASS；24h未开始。私有归档SHA256 934a839e030e78ae1128065369bd253abd1072eb838661dccc04307b32789c08。
+
+就绪窗口内允许curl7连接失败和curl28超时与35握手前重置一起进入有界完整复验；仍仅fresh OpenClash apply、最多4轮/30秒且不超过原measurement deadline。证书60、HTTP及measurement-budget124仍立即拒绝；持续reset/timeout/connect最多4轮后拒绝。最终必须全部IP/domain实际通过，不能将部分成功视作提交条件。现有CI注册测试新增混合重置+TLS后超时恢复、持续timeout/connect及预算错误，10个场景在主机和路由器原生全PASS，复用生命周期保持PASS。此变更仍需新SHA完整资格及原包核验，旧e760资格不晋升。

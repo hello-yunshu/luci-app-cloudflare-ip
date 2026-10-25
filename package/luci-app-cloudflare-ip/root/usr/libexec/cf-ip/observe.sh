@@ -179,9 +179,10 @@ cfip_post_apply_probe() {
         rounds="$(jq -cn --argjson rounds "$rounds" --argjson attempt "$attempt" --argjson elapsed "$((now-started))" --slurpfile result "$output" \
             '$rounds + [{attempt:$attempt,elapsedSeconds:$elapsed,validated:($result[0].validated==true),failedCurlExits:([$result[0].probes[]? | select(.success!=true) | .curlExit]|unique)}]')" || return 1
         ((rc!=0 && attempt<4)) || break
-        # Retry only pre-handshake resets (curl 35), never certificate errors,
-        # HTTP errors, measurement-budget exhaustion or missing observations.
-        jq -e '(.probes|length)>0 and any(.probes[]; .success!=true) and all(.probes[] | select(.success!=true); .curlExit==35 and .tlsMs==0)' "$output" >/dev/null 2>&1 || break
+        # A fresh route can reset, refuse a connection or time out while its
+        # data path settles. Never retry certificate/HTTP/budget errors or
+        # missing observations; success still requires every real probe.
+        jq -e '(.probes|length)>0 and any(.probes[]; .success!=true) and all(.probes[] | select(.success!=true); (.curlExit==35 and .tlsMs==0) or .curlExit==7 or .curlExit==28)' "$output" >/dev/null 2>&1 || break
         remaining="$(cfip_deadline_remaining)" || return 1
         delay=$((1<<attempt))
         ((remaining>delay)) || break
