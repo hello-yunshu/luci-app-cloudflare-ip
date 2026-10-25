@@ -182,7 +182,7 @@ cfip_post_apply_probe() {
         # A fresh route can reset, refuse a connection or time out while its
         # data path settles. Never retry certificate/HTTP/budget errors or
         # missing observations; success still requires every real probe.
-        jq -e '(.probes|length)>0 and any(.probes[]; .success!=true) and all(.probes[] | select(.success!=true); (.curlExit==35 and .tlsMs==0) or .curlExit==7 or .curlExit==28)' "$output" >/dev/null 2>&1 || break
+        jq -e '(.probes|length)>0 and any(.probes[]; .success!=true) and all(.probes[] | select(.success!=true); (.curlExit==35 and .tlsMs==0) or .curlExit==7 or .curlExit==28 or .curlExit==56)' "$output" >/dev/null 2>&1 || break
         remaining="$(cfip_deadline_remaining)" || return 1
         delay=$((1<<attempt))
         ((remaining>delay)) || break

@@ -34,9 +34,11 @@ echo 'v2 observation/eligibility tests passed'
    printf '%s' "$(( $(cat "$TMP/probe-count") + 1 ))" >"$TMP/probe-count"
    local ok=false code=35 tls=0
    case "$scenario" in
-     delayed|mixed)
+     delayed|mixed|mixed_receive)
        if (( $(cat "$TMP/clock")>=7 )); then ok=true; code=0; tls=20
-       elif [[ "$scenario" == mixed && "$2" == two.example ]]; then code=28; tls=20; fi ;;
+       elif [[ "$scenario" == mixed && "$2" == two.example ]]; then code=28; tls=20
+       elif [[ "$scenario" == mixed_receive && "$2" == two.example ]]; then code=56; tls=20; fi ;;
+     receive) code=56; tls=20 ;;
      timeout) code=28; tls=20 ;;
      connect) code=7 ;;
      budget) code=124 ;;
@@ -46,7 +48,7 @@ echo 'v2 observation/eligibility tests passed'
    jq -cn --arg ip "$1" --arg domain "$2" --arg family "$3" --argjson ok "$ok" --argjson code "$code" --argjson tls "$tls" '{ip:$ip,domain:$domain,family:$family,success:$ok,curlExit:$code,tlsMs:$tls,ttfbMs:30,totalMs:40}'
  }
  CFIP_MODE=openclash; CFIP_OPENCLASH_SERVICE_APPLIED=true
- for scenario in delayed mixed persistent timeout connect certificate http budget short_budget reuse; do
+ for scenario in delayed mixed mixed_receive persistent timeout connect receive certificate http budget short_budget reuse; do
    printf 0 >"$TMP/clock"; printf 0 >"$TMP/probe-count"
    CFIP_OPENCLASH_SERVICE_APPLIED=true; CFIP_MEASUREMENT_DEADLINE=180
    [[ "$scenario" != short_budget ]] || CFIP_MEASUREMENT_DEADLINE=3
@@ -55,10 +57,10 @@ echo 'v2 observation/eligibility tests passed'
    # Dynamic local deadline must never replace the caller's measurement bound.
    [[ "$CFIP_MEASUREMENT_DEADLINE" == 180 || "$scenario" == short_budget && "$CFIP_MEASUREMENT_DEADLINE" == 3 ]]
    case "$scenario" in
-     delayed|mixed)
+     delayed|mixed|mixed_receive)
        [[ "$rc" == 0 && "$(cat "$TMP/clock")" == 14 && "$(cat "$TMP/probe-count")" == 16 ]]
        jq -e '.validated==true and (.probes|length)==4 and (.serviceSettling.rounds|length)==4 and .serviceSettling.rounds[0].validated==false' "$TMP/settling-$scenario.json" >/dev/null ;;
-     persistent|timeout|connect)
+     persistent|timeout|connect|receive)
        [[ "$rc" != 0 && "$(cat "$TMP/clock")" == 14 && "$(cat "$TMP/probe-count")" == 16 ]]
        jq -e '.validated==false and (.serviceSettling.rounds|length)==4' "$TMP/settling-$scenario.json" >/dev/null ;;
      short_budget) [[ "$rc" != 0 && "$(cat "$TMP/clock")" == 2 && "$(cat "$TMP/probe-count")" == 8 ]] ;;
