@@ -1,0 +1,32 @@
+{
+  "scope": "G4b candidate install against a real foreign package owner",
+  "baselineSource": "c304caf811566e4f99d91adf7060fc2ebb3116de",
+  "inputPackageSha256": "e3749a7b71bd9000d16847e70d2eb1e3a94902f13a359c3b1f61df3d33fd8911",
+  "nativeIpk": "PASS actual opkg in network-disabled private guest root; real cfip-owner-fixture package installed before candidate",
+  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/native-vm.EsMjO7/package-owner-conflict",
+  "assertions": [
+    "nonzero candidate install",
+    "explicit file clash diagnostic",
+    "foreign installed owner preserved",
+    "candidate not installed",
+    "all active installed records identical",
+    "original payload unchanged",
+    "user UCI/custom URL/backup/history/cron unchanged"
+  ],
+  "allowedManagerDiagnostics": [
+    "opkg not-installed candidate record retained in full raw DB",
+    "only extra etc/config/cf_ip-opkg.backup accepted if exact original mode/size/hash"
+  ],
+  "harnessFindings": [
+    "native opkg requires private root var/lock directory",
+    "whole info output includes rejected not-installed record",
+    "opkg conffile preimage may be copied before ownership check"
+  ],
+  "apk": "NOT EVALUATED; official guest runtime lacks mkpkg; SDK host builder required",
+  "open": [
+    "latest exact SHA SDK owner test in both formats",
+    "mid-install failure",
+    "complete uninstall hooks",
+    "complete G4/G5"
+  ]
+}

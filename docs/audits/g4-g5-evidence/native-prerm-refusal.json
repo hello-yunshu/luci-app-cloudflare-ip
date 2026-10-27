@@ -1,0 +1,27 @@
+{
+  "scope": "G5e lifecycle error propagation and package prerm refusal",
+  "baselineSource": "2aa0272dc3fb5df4b4cf0c1050de85fdef05f71e",
+  "hostBaseline": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/prerm-before.log",
+  "confirmedFailures": [
+    "prerm ignores stop/publisher-stop/disable failures and returns 0",
+    "rc.common procd start/stop wrappers overwrite start_service/stop_service errors"
+  ],
+  "repair": [
+    "prerm stops at first lifecycle error and reports root reason",
+    "service_started/service_stopped return captured lifecycle results"
+  ],
+  "hostCases": 5,
+  "nativeStartWithWriterLockExit": 1,
+  "nativeOpkgRemoveExit": 255,
+  "nativeResult": "package remains installed; complete owned payload/config/status preserved; repeated refusal retains the already recorded package state",
+  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/native-vm.EsMjO7/prerm-failure",
+  "platformBoundary": "SDK default_prerm still disables init links after package hook refuses; original two enabled states explicitly restored in fixture; no boot-state atomicity claim opkg retains requested deinstall intent (deinstall user installed); repeating install without --force-reinstall does not reset it. This is disclosed diagnostic/intent state, not full package-manager rollback.",
+  "environmentRecovery": "Initial native baseline actually removed the private test package because rc.common masked stop failure. Canonical old package reinstalled; UCI/status exact hashes verified; current developer sources restored. Initial environment-flag hypothesis disproven by helper and rc.common source plus logs.",
+  "limits": [
+    "developer init/prerm source overlay on historical canonical package",
+    "not current rebuilt SDK package acceptance",
+    "successful online remove/upgrade still open",
+    "APK online hook/upgrade failure behavior open",
+    "full G4/G5 and latest exact SHA qualification OPEN"
+  ]
+}

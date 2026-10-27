@@ -1636,3 +1636,33 @@ msgstr ""
 
 msgid "OpenClash service restored and health verified; new nodes were not applied."
 msgstr ""
+
+msgid "Service readiness check was cancelled."
+msgstr ""
+
+msgid "Service did not become ready before the timeout. Check service status and logs."
+msgstr ""
+
+msgid "Unable to verify the applied configuration. Reload and try again."
+msgstr ""
+
+msgid "Configuration still has uncommitted changes. Apply it again before restarting."
+msgstr ""
+
+msgid "Applied configuration does not match the saved settings. Reload and review the configuration."
+msgstr ""
+
+msgid "Applying configuration..."
+msgstr ""
+
+msgid "Task startup was not confirmed. Check status and logs before retrying."
+msgstr ""
+
+msgid "The started task has not published its status. Check status and logs before retrying."
+msgstr ""
+
+msgid "Unable to confirm speed test status: %s"
+msgstr ""
+
+msgid "Installed (Status Unknown)"
+msgstr ""

@@ -11,9 +11,12 @@ cfip_csv_num() {
 # Backward compatible specs: /path/result.csv:ipv4|ipv6|auto. A bare path uses auto family detection.
 cfip_parse_cfst() {
     local output="$1" protocol="$2" limit="$3"; shift 3
-    local tmp spec file family rank=0 line ip sent received loss latency download colo actual_family meta='{}' prefix_key
-    tmp="$(mktemp "${TMPDIR:-/tmp}/cfip-candidates.XXXXXX")" || return 1
-    printf '[]' >"$tmp"
+    local tmp spec file family rank=0 line ip sent received loss latency download colo actual_family meta='{}' prefix_key trim_filter stage rc
+    trim_filter="$(cfip_jq_trim_filter)" || return 1
+    [[ ! -e "$output" && ! -L "$output" || -f "$output" && ! -L "$output" ]] || return 1
+    stage="$(mktemp -d "${TMPDIR:-/tmp}/cfip-candidates.XXXXXX")" || return 1
+    tmp="$stage/current.json"
+    printf '[]' >"$tmp" || { rc=$?; rm -rf "$stage"; return "$rc"; }
     for spec in "$@"; do
         case "$spec" in *:ipv4|*:ipv6|*:auto) family="${spec##*:}"; file="${spec%:*}" ;; *) family=auto; file="$spec" ;; esac
         [[ -s "$file" ]] || continue
@@ -39,14 +42,15 @@ cfip_parse_cfst() {
             jq -c --arg ip "$ip" --arg family "$actual_family" --arg protocol "$protocol" --arg colo "${colo%$'\r'}" \
                 --arg prefixKey "$prefix_key" --argjson rank "$rank" --argjson sent "$sent_json" --argjson received "$received_json" \
                 --argjson loss "$loss_json" --argjson latency "$latency_json" --argjson download "$download_json" --argjson meta "$meta" \
-                '. + [{schemaVersion:1,candidateId:("cfst:"+$ip),ip:$ip,family:$family,cfstRank:$rank,
+                "$trim_filter"'. + [{schemaVersion:1,candidateId:("cfst:"+$ip),ip:$ip,family:$family,cfstRank:$rank,
                        sent:$sent,received:$received,lossRate:$loss,avgLatencyMs:$latency,downloadMBps:$download,
-                       colo:(if ($colo|gsub("^[[:space:]]+|[[:space:]]+$";""))=="" then null else ($colo|gsub("^[[:space:]]+|[[:space:]]+$";"")) end),prefixKey:(if $prefixKey=="" then null else $prefixKey end),testProtocol:$protocol,
-                       origin:($meta.origin//"unknown"),sources:($meta.sources//[]),sourceCount:($meta.sourceCount//0),sourceStale:($meta.stale//false)}]' "$tmp" >"$tmp.next" && mv "$tmp.next" "$tmp"
+                       colo:(if ($colo|cfip_trim)=="" then null else ($colo|cfip_trim) end),prefixKey:(if $prefixKey=="" then null else $prefixKey end),testProtocol:$protocol,
+                       origin:($meta.origin//"unknown"),sources:($meta.sources//[]),sourceCount:($meta.sourceCount//0),sourceStale:($meta.stale//false)}]' "$tmp" >"$stage/next.json" || { rc=$?; rm -rf "$stage"; return "$rc"; }
+            mv "$stage/next.json" "$tmp" || { rc=$?; rm -rf "$stage"; return "$rc"; }
         done <"$file"
     done
-    cat "$tmp" | cfip_atomic_write "$output"
-    rm -f "$tmp"
+    cfip_atomic_write "$output" <"$tmp" || { rc=$?; rm -rf "$stage"; return "$rc"; }
+    rm -rf "$stage"
 }
 
 cfip_probe_one() {
@@ -155,6 +159,43 @@ cfip_native_rank() {
 }
 
 cfip_post_apply_probe() {
+    # Controller health can precede readiness of OpenClash's data path. Only
+    # a freshly applied service may settle; reuse validation remains immediate.
+    if [[ "${CFIP_MODE:-}" != openclash || "${CFIP_OPENCLASH_SERVICE_APPLIED:-false}" != true ]]; then
+        cfip_post_apply_probe_once "$@"
+        return $?
+    fi
+    local output="$4" started now original_deadline="${CFIP_MEASUREMENT_DEADLINE:-0}" attempt rc=1 delay remaining rounds='[]' tmp
+    started="$(cfip_monotonic_seconds)" || return 1
+    local CFIP_MEASUREMENT_DEADLINE=$((started+30))
+    if ((original_deadline>0 && original_deadline<CFIP_MEASUREMENT_DEADLINE)); then
+        CFIP_MEASUREMENT_DEADLINE="$original_deadline"
+    fi
+    for attempt in 1 2 3 4; do
+        if cfip_post_apply_probe_once "$@"; then rc=0; else rc=$?; fi
+        ((rc==0 || rc==1)) || return "$rc"
+        [[ -s "$output" ]] || return "$rc"
+        now="$(cfip_monotonic_seconds)" || return 1
+        rounds="$(jq -cn --argjson rounds "$rounds" --argjson attempt "$attempt" --argjson elapsed "$((now-started))" --slurpfile result "$output" \
+            '$rounds + [{attempt:$attempt,elapsedSeconds:$elapsed,validated:($result[0].validated==true),failedCurlExits:([$result[0].probes[]? | select(.success!=true) | .curlExit]|unique)}]')" || return 1
+        ((rc!=0 && attempt<4)) || break
+        # A fresh route can reset, refuse a connection or time out while its
+        # data path settles. Never retry certificate/HTTP/budget errors or
+        # missing observations; success still requires every real probe.
+        jq -e '(.probes|length)>0 and any(.probes[]; .success!=true) and all(.probes[] | select(.success!=true); (.curlExit==35 and .tlsMs==0) or .curlExit==7 or .curlExit==28 or .curlExit==56)' "$output" >/dev/null 2>&1 || break
+        remaining="$(cfip_deadline_remaining)" || return 1
+        delay=$((1<<attempt))
+        ((remaining>delay)) || break
+        sleep "$delay"
+    done
+    tmp="$(mktemp "${TMPDIR:-/tmp}/cfip-post-apply-settling.XXXXXX")" || return 1
+    if ! jq --argjson rounds "$rounds" '. + {serviceSettling:{scope:"fresh_openclash_apply",maxSeconds:30,rounds:$rounds}}' "$output" >"$tmp"; then rm -f "$tmp"; return 1; fi
+    if ! cfip_atomic_write "$output" <"$tmp"; then rm -f "$tmp"; return 1; fi
+    rm -f "$tmp"
+    return "$rc"
+}
+
+cfip_post_apply_probe_once() {
     local selected_json="$1" domains_csv="$2" timeout_s="$3" output="$4" ip family domain probes='[]' ok=true p observed_at count=0 candidate loss throughput tmp reward_json
     [[ "$(jq 'length' "$selected_json" 2>/dev/null || printf 0)" -gt 0 ]] || return 2
     IFS=',' read -r -a domains <<<"$domains_csv"

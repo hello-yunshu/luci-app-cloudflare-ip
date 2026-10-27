@@ -13,7 +13,7 @@ define Package/luci-app-cloudflare-ip
   SECTION:=luci
   CATEGORY:=LuCI
   TITLE:=Cloudflare IP - Safe endpoint orchestration for PassWall/OpenClash on OpenWrt
-  DEPENDS:=+luci-base +bash +curl +tar +jq +ca-bundle +ca-certificates +uhttpd
+  DEPENDS:=+luci-base +bash +flock +curl +tar +jq +ca-bundle +ca-certificates +uhttpd
   PKGARCH:=all
 endef
 
@@ -48,11 +48,9 @@ define Build/Compile
 			"$(STAGING_DIR_HOSTPKG)/bin/po2lmo" "$$$$po_dir/cloudflare-ip.po" "$(PKG_BUILD_DIR)/lmo/cloudflare-ip.$$$$lmo_lang.lmo"; \
 		fi; \
 	done; \
-	sed -i 's/@PKG_VERSION@/$(PKG_VERSION)/g; s/@PKG_RELEASE@/$(PKG_RELEASE)/g' $(PKG_BUILD_DIR)/root/usr/bin/cf-ip-auto-v2
-	sed -i 's/@PKG_VERSION@/$(PKG_VERSION)/g' $(PKG_BUILD_DIR)/root/usr/bin/cf-ip-auto-legacy
-	sed -i 's/@PKG_VERSION@/$(PKG_VERSION)/g' $(PKG_BUILD_DIR)/root/usr/bin/cf-ip-auto
-	sed -i 's/@PKG_VERSION@/$(PKG_VERSION)/g' $(PKG_BUILD_DIR)/root/usr/libexec/rpcd/cf_ip
-	sed -i 's/@PKG_VERSION@/$(PKG_VERSION)/g' $(PKG_BUILD_DIR)/htdocs/luci-static/resources/cloudflare-ip/utils.js
+	for file in root/usr/bin/cf-ip-auto-v2 root/usr/bin/cf-ip-auto-legacy root/usr/bin/cf-ip-auto root/usr/libexec/rpcd/cf_ip htdocs/luci-static/resources/cloudflare-ip/utils.js; do \
+		sed -i 's/@PKG_VERSION@/$(PKG_VERSION)/g; s/@PKG_RELEASE@/$(PKG_RELEASE)/g; s/@PKG_FULL_VERSION@/$(PKG_VERSION)-r$(PKG_RELEASE)/g' "$(PKG_BUILD_DIR)/$$$$file" || exit 1; \
+	done
 endef
 
 define Package/luci-app-cloudflare-ip/install
@@ -66,7 +64,7 @@ define Package/luci-app-cloudflare-ip/install
 	$(INSTALL_DIR) $(1)/usr/libexec/rpcd
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/root/usr/libexec/rpcd/cf_ip $(1)/usr/libexec/rpcd/
 	$(INSTALL_DIR) $(1)/usr/libexec/cf-ip
-	for script in common.sh config.sh status.sh source.sh scheduler.sh cfst.sh observe.sh adaptive-measurement.sh context-policy.sh transaction.sh openclash-transform.sh openclash-readback.sh publisher.sh rill-disabled.sh candidate-rill.sh reuse.sh operational-health.sh; do \
+	for script in writer-lock.sh common.sh config.sh status.sh source.sh scheduler.sh cfst.sh observe.sh adaptive-measurement.sh context-policy.sh transaction.sh openclash-transform.sh openclash-readback.sh publisher.sh rill-disabled.sh candidate-rill.sh reuse.sh operational-health.sh; do \
 		$(INSTALL_BIN) $(PKG_BUILD_DIR)/root/usr/libexec/cf-ip/$$$$script $(1)/usr/libexec/cf-ip/; \
 	done
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/root/usr/libexec/cf-ip/migrate-self-update-url.sh $(1)/usr/libexec/cf-ip/
@@ -111,9 +109,9 @@ endef
 define Package/luci-app-cloudflare-ip/prerm
 #!/bin/sh
 [ -n "$${IPKG_INSTROOT}" ] || { \
-	/etc/init.d/cf_ip stop 2>/dev/null; \
-	/etc/init.d/cf_ip_publisher stop 2>/dev/null; \
-	/etc/init.d/cf_ip disable 2>/dev/null; \
+	/etc/init.d/cf_ip stop || { echo "cf_ip stop failed; refusing package removal" >&2; exit 1; }; \
+	/etc/init.d/cf_ip_publisher stop || { echo "cf_ip_publisher stop failed; refusing package removal" >&2; exit 1; }; \
+	/etc/init.d/cf_ip disable || { echo "cf_ip disable failed; refusing package removal" >&2; exit 1; }; \
 	rm -f /tmp/luci-indexcache.*; \
 	rm -rf /tmp/luci-modulecache/; \
 	exit 0; \

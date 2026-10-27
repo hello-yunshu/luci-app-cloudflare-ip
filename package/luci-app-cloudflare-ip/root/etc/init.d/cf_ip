@@ -14,20 +14,19 @@ cron_ensure_newline() {
 }
 
 cf_ip_shared_lock_acquire() {
-	mkdir -p "$CF_IP_RUNTIME_DIR" || return 1
-	mkdir "$CF_IP_RUNTIME_DIR/cf-ip-auto-v2.lock" 2>/dev/null || return 1
-	printf '%s\n' "$$" >"$CF_IP_RUNTIME_DIR/cf-ip-auto-v2.lock/pid"
+	local lib="${CFIP_LIB_DIR:-/usr/libexec/cf-ip}/writer-lock.sh"
+	[ -r "$lib" ] || { CF_IP_WRITER_LOCK_ERROR=helper_unavailable; return 1; }
+	. "$lib"
+	cf_ip_writer_lock_acquire "$CF_IP_RUNTIME_DIR"
 }
 
 cf_ip_shared_lock_release() {
-	[ "$(cat "$CF_IP_RUNTIME_DIR/cf-ip-auto-v2.lock/pid" 2>/dev/null)" = "$$" ] || return 0
-	rm -f "$CF_IP_RUNTIME_DIR/cf-ip-auto-v2.lock/pid"
-	rmdir "$CF_IP_RUNTIME_DIR/cf-ip-auto-v2.lock" 2>/dev/null || true
+	cf_ip_writer_lock_release "$CF_IP_RUNTIME_DIR" || true
 }
 
 cf_ip_with_shared_lock() {
 	[ "${CF_IP_LOCK_HELD:-0}" = 1 ] && { "$@"; return $?; }
-	cf_ip_shared_lock_acquire || { logger -t cf_ip -p daemon.err "another state-changing operation is running"; return 1; }
+	cf_ip_shared_lock_acquire || { logger -t cf_ip -p daemon.err "writer lock refused: ${CF_IP_WRITER_LOCK_ERROR:-lock_busy}"; return 1; }
 	trap 'cf_ip_shared_lock_release' EXIT INT TERM
 	"$@"; local rc=$?
 	trap - EXIT INT TERM
@@ -40,22 +39,44 @@ cf_ip_cron_ensure() {
 	/etc/init.d/cron start 2>/dev/null || /etc/init.d/crond start 2>/dev/null || true
 }
 
-cf_ip_cron_add() {
-	local expr="$1"
-	cf_ip_cron_ensure
-	cf_ip_cron_remove
-	mkdir -p /etc/crontabs
-	cron_ensure_newline
-	printf '%s /usr/bin/cf-ip-auto --run >/dev/null 2>&1\n' \
-		"$expr" >> "$CRONTAB_FILE"
+cf_ip_cron_reload() {
 	/etc/init.d/cron reload 2>/dev/null || /etc/init.d/crond reload 2>/dev/null || true
-	logger -t cf_ip -p daemon.info "crontab: scheduled with expression '${expr}'"
+}
+
+cf_ip_cron_update() {
+	local expr="${1:-}" candidate
+	[ -f "$CRONTAB_FILE" ] || [ -n "$expr" ] || return 0
+	[ ! -L "$CRONTAB_FILE" ] || return 1
+	mkdir -p "$(dirname "$CRONTAB_FILE")" || return 1
+	candidate="$(mktemp "${CRONTAB_FILE}.cf_ip.XXXXXX")" || return 1
+	if [ -e "$CRONTAB_FILE" ]; then
+		[ -f "$CRONTAB_FILE" ] && cp -p "$CRONTAB_FILE" "$candidate" || { rm -f "$candidate"; return 1; }
+		# Recognize exact historical generated commands or our explicit marker.
+		# Comments, wrappers, extra arguments and user labels are not ours.
+		awk '
+		  /^[ \t]*#/ { print; next }
+		  $6=="/usr/bin/cf-ip-auto" && ($7=="--run" || $7=="--sync") &&
+		  $8==">/dev/null" && $9=="2>&1" &&
+		  (NF==9 || (NF==12 && $10=="#" && $11=="cf_ip" && $12=="managed")) { next }
+		  { print }
+		' "$CRONTAB_FILE" >"$candidate" || { rm -f "$candidate"; return 1; }
+	fi
+	if [ -n "$expr" ]; then
+		printf '%s /usr/bin/cf-ip-auto --run >/dev/null 2>&1 # cf_ip managed\n' "$expr" >>"$candidate" || { rm -f "$candidate"; return 1; }
+	fi
+	mv "$candidate" "$CRONTAB_FILE" || { rm -f "$candidate"; return 1; }
+	cf_ip_cron_reload
+}
+
+cf_ip_cron_add() {
+	cf_ip_cron_ensure
+	cf_ip_cron_update "$1" || return 1
+	logger -t cf_ip -p daemon.info "crontab: scheduled with expression '$1'"
 }
 
 cf_ip_cron_remove() {
-	sed -i '/cf-ip-auto --run/d' "$CRONTAB_FILE" 2>/dev/null || true
-	/etc/init.d/cron reload 2>/dev/null || /etc/init.d/crond reload 2>/dev/null || true
-	logger -t cf_ip -p daemon.info "crontab: removed scheduled entries"
+	cf_ip_cron_update || return 1
+	logger -t cf_ip -p daemon.info "crontab: removed managed scheduled entries"
 }
 
 _start_service_unlocked() {
@@ -65,7 +86,7 @@ _start_service_unlocked() {
 
 	if [ "$enabled" -eq 0 ]; then
 		# Disabled must remove entries left by older package versions.
-		cf_ip_cron_remove
+		cf_ip_cron_remove || return 1
 		return 0
 	fi
 
@@ -110,11 +131,8 @@ _start_service_unlocked() {
 	}
 
 	# Schedule via crontab
-	cf_ip_cron_add "$cron_expr"
+	cf_ip_cron_add "$cron_expr" || return 1
 
-	# Clean up any leftover plugin sync cron entries from older versions
-	sed -i '/cf-ip-auto --sync/d' "$CRONTAB_FILE" 2>/dev/null || true
-	/etc/init.d/cron reload 2>/dev/null || /etc/init.d/crond reload 2>/dev/null || true
 
 	# Let cf-ip-auto apply its own startup delay so numeric and random modes stay consistent.
 	case "$startup_delay" in
@@ -134,12 +152,22 @@ _start_service_unlocked() {
 }
 
 _stop_service_unlocked() {
-	cf_ip_cron_remove
+	cf_ip_cron_remove || return 1
 	/usr/bin/cf-ip-auto --mark-stopped-held
 }
 
-start_service() { cf_ip_with_shared_lock _start_service_unlocked; }
-stop_service() { cf_ip_with_shared_lock _stop_service_unlocked; }
+# rc.common closes/kills the procd service after these functions and otherwise
+# overwrites their return code. Its final callbacks must report our result.
+start_service() {
+	if cf_ip_with_shared_lock _start_service_unlocked; then CF_IP_START_RC=0; else CF_IP_START_RC=$?; fi
+	return "$CF_IP_START_RC"
+}
+service_started() { return "${CF_IP_START_RC:-1}"; }
+stop_service() {
+	if cf_ip_with_shared_lock _stop_service_unlocked; then CF_IP_STOP_RC=0; else CF_IP_STOP_RC=$?; fi
+	return "$CF_IP_STOP_RC"
+}
+service_stopped() { return "${CF_IP_STOP_RC:-1}"; }
 service_triggers() {
 	procd_add_reload_trigger "cf_ip"
 	procd_add_validation validate_cf_ip

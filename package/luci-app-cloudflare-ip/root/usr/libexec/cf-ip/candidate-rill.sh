@@ -86,13 +86,16 @@ cfip_rill_rotate_lineage() {
 }
 
 cfip_rill_context_json() {
-    local domains="${CFIP_TARGET_DOMAINS:-}" protocol="${CFIP_SPEEDTEST_PROTOCOL:-tcp}" ip_type="${CFIP_IP_TYPE:-ipv4}" colo="${CFIP_SPEEDTEST_CFCOLO:-}"
-    jq -cn --arg domains "$domains" --arg protocol "$protocol" --arg ipType "$ip_type" --arg colo "$colo" \
-      '{normalizedTargetDomains:($domains|split(",")|map(gsub("^[[:space:]]+|[[:space:]]+$";"")|ascii_downcase)|map(select(length>0))|unique|sort),speedtestProtocol:($protocol|ascii_downcase),ipType:($ipType|ascii_downcase),cfColoRestriction:($colo|gsub("^[[:space:]]+|[[:space:]]+$";"")|ascii_downcase)}' | jq -cS .
+    local domains="${CFIP_TARGET_DOMAINS:-}" protocol="${CFIP_SPEEDTEST_PROTOCOL:-tcp}" ip_type="${CFIP_IP_TYPE:-ipv4}" colo="${CFIP_SPEEDTEST_CFCOLO:-}" trim_filter
+    trim_filter="$(cfip_jq_trim_filter)" || return 1
+    jq -cnS --arg domains "$domains" --arg protocol "$protocol" --arg ipType "$ip_type" --arg colo "$colo" \
+      "$trim_filter"'{normalizedTargetDomains:($domains|split(",")|map(cfip_trim|ascii_downcase)|map(select(length>0))|unique|sort),speedtestProtocol:($protocol|ascii_downcase),ipType:($ipType|ascii_downcase),cfColoRestriction:($colo|cfip_trim|ascii_downcase)}'
 }
 
 cfip_rill_context_fingerprint() {
-    local context="$(cfip_rill_context_json)"
+    local context
+    context="$(cfip_rill_context_json)" || return 1
+    [[ -n "$context" ]] || return 1
     printf '%s' "$context" | sha256sum | awk '{print $1}'
 }
 
@@ -249,18 +252,19 @@ cfip_rill_update_prefix_history() {
 }
 
 cfip_rill_update_colo_history() {
-    local observations="$1" now tmp
+    local observations="$1" now tmp trim_filter
     [[ -s "$observations" ]] || return 0
+    trim_filter="$(cfip_jq_trim_filter)" || return 1
     now="$(date +%s)"
     tmp="$(mktemp "${TMPDIR:-/tmp}/cfip-colo-history.XXXXXX")" || return 1
-    cfip_rill_colo_history_json | jq --argjson now "$now" --slurpfile rows "$observations" '
+    cfip_rill_colo_history_json | jq --argjson now "$now" --slurpfile rows "$observations" "$trim_filter"'
       def row: {samples:0,successes:0,failures:0,successRate:0.5,failureRate:0.5,latencySamples:[],ttfbSamples:[],lossSamples:[],throughputSamples:[],medianLatency:null,p95Latency:null,medianTtfb:null,loss:0.5,throughput:0,rewardEWMA:0,lastSeen:0};
       def nums($a): ($a|map(select(type=="number" and isfinite)));
       def median($a): if ($a|length)>0 then $a|sort|.[((length-1)/2|floor)] else null end;
       def p95($a): if ($a|length)>0 then $a|sort|.[([((length*0.95)|floor),length-1]|min)] else null end;
       def ewma($old;$value): if ($value|type)!="number" then $old elif ($old|type)!="number" then $value else (0.8*$old+0.2*$value) end;
       reduce ($rows[0][]?) as $c (.;
-        ($c.colo|tostring|gsub("^[[:space:]]+|[[:space:]]+$";"")) as $colo |
+        ($c.colo|tostring|cfip_trim) as $colo |
         if ($colo=="" or $colo=="null" or ($c.colo|type)!="string") then .unknownCount=(.unknownCount//0)+1
         else ($c.probeSummary//{}) as $p | ($c.eligible==true and (($p.totalMs//null)|type=="number")) as $ok | (.entries[$colo] // row) as $old |
           (($old.latencySamples + [($p.totalMs//null)|select(type=="number")])[-32:]|nums(.)) as $lat |
@@ -606,9 +610,9 @@ cfip_rill_actions_json() {
           ms($candidate.probeSummary.ttfbMs), ms($candidate.probeSummary.totalMs), clamp($candidate.cfstRank;128;1;128)/128,
           (if $candidate.family=="ipv6" then 1 else 0 end), clamp($candidate.sourceCount;0;0;16)/16,
           (if $candidate.sourceStale==true then 1 else 0 end),
-          (if any($candidate.sources[]?; tostring|test("official";"i")) then 1 else 0 end),
-          (if any($candidate.sources[]?; tostring|test("community";"i")) then 1 else 0 end),
-          (if any($candidate.sources[]?; tostring|test("manual";"i")) then 1 else 0 end),
+          (if any($candidate.sources[]?; tostring|ascii_downcase|contains("official")) then 1 else 0 end),
+          (if any($candidate.sources[]?; tostring|ascii_downcase|contains("community")) then 1 else 0 end),
+          (if any($candidate.sources[]?; tostring|ascii_downcase|contains("manual")) then 1 else 0 end),
           (if (($h.successCount//0)+($h.failureCount//0)) > 0 then clamp((($h.successCount//0) / (($h.successCount//0)+($h.failureCount//0)));0.5;0;1) else 0.5 end),
           (if (($h.successCount//0)+($h.failureCount//0)) > 0 then clamp((($h.failureCount//0) / (($h.successCount//0)+($h.failureCount//0)));0.5;0;1) else 0.5 end),
           clamp($median;10000;0;10000)/10000, clamp($p95;10000;0;10000)/10000,

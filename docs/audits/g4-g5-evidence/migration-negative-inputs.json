@@ -1,0 +1,34 @@
+{
+  "scope": "G4 rejected package inputs and strict qualification requirement",
+  "baselineSha": "8bc34e8526aa1d3985b22dec44ef6779725c861f",
+  "before": "strict qualification validator accepted a matrix without negative-install evidence",
+  "hostChecks": {
+    "qualificationNegativeMutationMatrix": "PASS",
+    "releaseAssetBindingSyntheticBytes": "PASS",
+    "exactAttemptDownloaderMockedAPI": "PASS",
+    "packageIdentityUnitCases": 7,
+    "shellSyntaxAndShellCheckError": "PASS"
+  },
+  "realManagerCases": {
+    "missing": "NOT RUN",
+    "truncated": "NOT RUN",
+    "requiredPreservation": [
+      "installed package information",
+      "base file ownership listing",
+      "all non-manager/non-temporary regular payload file hashes/modes and symlink targets",
+      "user config/custom URL/backup/history/cron"
+    ],
+    "evidence": "before/after installed DB copies, manager info, owner lists, payload snapshots, user hashes, rejection log and exit code"
+  },
+  "nativeStatus": "NOT EVALUATED locally: neither manager nor Docker is available; current-SHA hosted migration must execute these checks",
+  "boundary": "early invalid-input refusal only; no claim of mid-install rollback, owner-conflict, uninstall/lifecycle or real proxy/Runtime install coverage",
+  "remaining": "full G4/G5 and exact-SHA hosted package/offline qualification remain OPEN",
+  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/migration-negative-inputs",
+  "sha256": {
+    "binding.log": "e7e3bce11ec7ee8f5cd8c3d4663fef5c10c9fa18238b44815edd1e984f9e9e4b",
+    "identity.log": "2202ecdaacbf5b5bd68ee92a87c76139746f2a88608924346b284dc94d2c700e",
+    "before.log": "e55c82ee631d8cbb136085e2ace6ccc0db057ca69f57ad9539f19150dd91938f",
+    "download.log": "a810f9cdf0bdfe53657be95745521fa16467ea398873103248a7e4f585ed27d0",
+    "after.log": "d5f883592aea4ccb77059a52e2518e0f6850c2094962ba4262785ae504259760"
+  }
+}

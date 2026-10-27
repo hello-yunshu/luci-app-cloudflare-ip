@@ -1,0 +1,30 @@
+{
+  "sourceCommit": "48af71d4e4fe2bfc9278fcd8cceeabaacfa0fdae",
+  "container": "cfip-luci-qualification",
+  "rootfs": "OpenWrt 24.10.8 armsr/armv8",
+  "url": "http://127.0.0.1:32768/cgi-bin/luci/admin/services/cf_ip",
+  "installation": "actual Makefile payload; not an SDK package/installed DB qualification",
+  "browserObserved": [
+    "real LuCI overview loaded",
+    "refresh environment changed TAR/JQ Missing to Installed with success notification"
+  ],
+  "openDefects": [
+    "initial nested env ignored",
+    "footer omits package release"
+  ],
+  "gates": {
+    "eightViewResponsive": "OPEN",
+    "saveApplyRestart": "OPEN",
+    "device": "NOT RUN"
+  },
+  "evidence": {
+    "check-env.json": "cd2066f2fe5c9155868d9bc6a9ca9d783220a3b7a83c1e83ecf2f90a0bc11a77",
+    "overview-initial.png": "3438d67433276fd075fda8c01bd4d17941a8d7af542cb18661937d055c7c21b7",
+    "overview-refreshed.png": "e87d6a89d5e522ecc5cc50f651baa23f0427574e8a99a3144598ab89e439c09b",
+    "payload-identity.json": "80bb719f760adc811cfdfb2ad71878bc001a48ec5f41ed54ab4caea53ab9d5f0",
+    "render.log": "f92e5050483a33251cdabc05eb3492a880d7b69f0a5047e7fd7ad7e74229c17b",
+    "rootfs-identity.json": "1ebdb8ec2184ff7016e1f48b6cb58233a06f09e45d5c48c5810a64069db4319b",
+    "status.json": "b96f1cc1ecfa574c03b32bd0ae20f7631512b6daecdcd4ec098ef0957b6251a7",
+    "version.json": "f73f0d1f136bb312b006dff98aa06ae90cb0fa8d0830437c7d69918be3627f1f"
+  }
+}

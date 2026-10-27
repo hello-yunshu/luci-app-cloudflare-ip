@@ -530,6 +530,7 @@ openclash_health_once() {
 	[[ "$port" =~ ^[1-9][0-9]{0,4}$ ]] && ((port <= 65535)) || return 1
 	[[ -r "$OPENCLASH_CONFIG" ]] || return 1
 	secret="$(awk '/^[[:space:]]*secret:[[:space:]]*/ { v=$0; sub(/^[[:space:]]*secret:[[:space:]]*/, "", v); sub(/[[:space:]]+#.*/, "", v); sub(/[[:space:]]+$/, "", v); if (v ~ /^\047.*\047$/ || v ~ /^".*"$/) v=substr(v,2,length(v)-2); print v; exit }' "$OPENCLASH_CONFIG")" || return 1
+	[[ -n "$secret" ]] || secret="$(uci -q get openclash.config.dashboard_password 2>/dev/null || true)"
 	body="$(mktemp "${TMPDIR:-/tmp}/cf-openclash-health.XXXXXX")" || return 1
 	curl_cfg="$(mktemp "${TMPDIR:-/tmp}/cf-openclash-curl.XXXXXX")" || { rm -f "$body"; return 1; }
 	chmod 600 "$body" "$curl_cfg" 2>/dev/null || true
@@ -629,7 +630,7 @@ restart_service() {
 			return 0
 		fi
 		(( _OPENCLASH_RESTART_ATTEMPTS < 2 )) || { openclash_service_error "OpenClash restart attempt limit reached"; return 1; }
-		local enable rc=0
+		local enable rc=0 startup_started startup_remaining
 		[[ -z "$_STOPPED_SERVICE" ]] || _OPENCLASH_RECOVERY_ATTEMPTED=true
 		enable="$(openclash_enable_state)" || { openclash_service_error "cannot read openclash.config.enable"; return 1; }
 		if (( _OPENCLASH_RESTART_ATTEMPTS == 0 )) && [[ "$enable" == 0 ]]; then
@@ -645,11 +646,13 @@ restart_service() {
 		[[ "$enable" == 1 ]] || { openclash_service_error "OpenClash enable state changed; refusing to overwrite it"; return 1; }
 		_OPENCLASH_RESTART_ATTEMPTS=$((_OPENCLASH_RESTART_ATTEMPTS + 1))
 		_OPENCLASH_RECOVERY_ATTEMPTED=true
+		startup_started="$(date +%s)"
 		openclash_init_bounded restart "$_OPENCLASH_START_TIMEOUT" || rc=$?
 		((rc == 0)) || { openclash_service_error "OpenClash init restart failed or timed out (rc=$rc)"; return "$rc"; }
 		enable="$(openclash_enable_state)" || { openclash_service_error "cannot read OpenClash enable state after restart"; return 1; }
 		[[ "$enable" == 1 ]] || { openclash_service_error "OpenClash disabled itself after core startup failed; inspect OpenClash logs"; return 1; }
-		openclash_health_stable 10 || { openclash_service_error "OpenClash restart returned but stable core and local /group health were not verified"; return 1; }
+		startup_remaining=$((_OPENCLASH_START_TIMEOUT - $(date +%s) + startup_started))
+		((startup_remaining > 0)) && openclash_health_stable "$startup_remaining" || { openclash_service_error "OpenClash restart returned but stable core and local /group health were not verified"; return 1; }
 		[[ "$(openclash_enable_state)" == 1 ]] || { openclash_service_error "OpenClash enable state changed during startup verification"; return 1; }
 		_OPENCLASH_INITIAL_HEALTHY=true
 		return 0
@@ -808,7 +811,6 @@ passwall_base_name() {
 trim_scalar() {
 	local value="$1"
 
-	value="${value%%#*}"
 	value="${value%$'\r'}"
 	value="${value#"${value%%[![:space:]]*}"}"
 	value="${value%"${value##*[![:space:]]}"}"
@@ -816,6 +818,9 @@ trim_scalar() {
 		value="${value:1:${#value}-2}"
 	elif [[ "$value" == \'*\' && "$value" == *\' ]]; then
 		value="${value:1:${#value}-2}"
+	else
+		value="${value%%[[:space:]]#*}"
+		value="${value%"${value##*[![:space:]]}"}"
 	fi
 	printf '%s' "$value"
 }
@@ -1003,7 +1008,7 @@ emit_openclash_variant() {
 	local line idx
 	local name="" tls="" network=""
 	local name_idx=-1 server_idx=-1 tls_idx=-1 network_idx=-1 servername_idx=-1 ws_opts_idx=-1 xhttp_opts_idx=-1 headers_idx=-1 host_idx=-1
-	local prop_indent="" new_name
+	local prop_indent="" new_name rendered_name quote_name=false
 	local normalized_network opts_idx opt_key
 	local updated=false
 
@@ -1042,13 +1047,19 @@ emit_openclash_variant() {
 	else
 		new_name="$base_name"
 	fi
+	rendered_name="$new_name"
+	case "${new_name:0:1}" in '['|']'|'{'|'}'|','|'&'|'*'|'#'|'?'|'|'|'>'|'!'|'%'|'@'|"'"|'"') quote_name=true ;; esac
+	case "$(lower "$new_name")" in true|false|yes|no|on|off|null|'~') quote_name=true ;; esac
+	if [[ "$quote_name" == true || "$new_name" == *': '* || "$new_name" == *' #'* || "$new_name" == '- '* || "$new_name" == [[:space:]]* || "$new_name" == *[[:space:]] || "$new_name" =~ ^[-+]?([0-9]|\.[0-9]) ]]; then
+		rendered_name="$(jq -cn --arg value "$new_name" '$value')" || return 1
+	fi
 
 	write_openclash_proxy_separator
 
 	for idx in "${!BLOCK_LINES[@]}"; do
 		line="${BLOCK_LINES[$idx]}"
 		if ((idx == name_idx)) && [[ "$new_name" != "$name" ]]; then
-			write_openclash_line "$(printf '%s- name: %s' "$(line_indent "$line")" "$new_name")"
+			write_openclash_line "$(printf '%s- name: %s' "$(line_indent "$line")" "$rendered_name")"
 		elif ((idx == server_idx)); then
 			write_openclash_line "$(printf '%sserver: %s' "$prop_indent" "$ip")"
 			updated=true
@@ -1076,10 +1087,10 @@ emit_openclash_variant() {
 
 			if ((idx == headers_idx && host_idx < 0)); then
 				write_openclash_line "$(printf '%sHost: %s' "${prop_indent}    " "$domain")"
-			elif ((idx == opts_idx && headers_idx < 0)); then
+			elif ((idx == opts_idx && headers_idx < 0 && host_idx < 0)); then
 				write_openclash_line "$(printf '%sheaders:' "${prop_indent}  ")"
 				write_openclash_line "$(printf '%sHost: %s' "${prop_indent}    " "$domain")"
-			elif ((idx == network_idx && opts_idx < 0)); then
+			elif ((idx == network_idx && opts_idx < 0 && headers_idx < 0 && host_idx < 0)); then
 				write_openclash_line "$(printf '%s%s:' "$prop_indent" "$opt_key")"
 				write_openclash_line "$(printf '%sheaders:' "${prop_indent}  ")"
 				write_openclash_line "$(printf '%sHost: %s' "${prop_indent}    " "$domain")"
@@ -1184,11 +1195,96 @@ process_openclash_block() {
 	fi
 }
 
+cfip_openclash_yaml_supported() {
+    awk '
+      function reject(reason) { print "unsupported OpenClash proxy YAML at line " NR ": " reason > "/dev/stderr"; bad=1; exit 1 }
+      /\t/ { reject("tab indentation or scalar") }
+      /^proxies:/ {
+        if (seen++) reject("duplicate proxies section")
+        value=$0; sub(/^proxies:[ ]*/, "", value)
+        if (value!="" && value !~ /^#/) reject("proxies must use block sequence form")
+        active=1; next
+      }
+      /^[^ #][^:]*:/ { active=0 }
+      active {
+        text=$0; sub(/^[ ]*/, "", text)
+        if (text=="" || text ~ /^#/) next
+        if (text ~ /^-[ ]*/ && text !~ /^-[ ]+name:/ && text !~ /^-[ ]*$/) reject("proxy entries require block name-first form")
+        if (text ~ /^<<:/) reject("merge key")
+        if (text ~ /^-[ ]+name:/) {
+            for (field in mapped) delete mapped[field]
+            key="name"
+            proxy_indent=match($0,/[^ ]/)-1
+        } else { key=text; sub(/:.*/, "", key) }
+        if (key ~ /^(name|type|server|tls|network|servername|Host)$/) {
+            if (mapped[key]++) reject("duplicate mapped field " key)
+            if (key!="name" && key!="Host" && match($0,/[^ ]/)-1 != proxy_indent+2) reject("nested mapped field " key)
+        }
+        value=text; sub(/^[^:]+:[ ]*/, "", value)
+        if (value ~ /^[{&*!|>]/) reject("flow map, anchor, alias, tag or block scalar")
+      }
+      END { if (!seen || bad) exit 1 }
+    ' "$1" || return 1
+    command -v ruby >/dev/null 2>&1 || { printf '%s\n' 'unsupported OpenClash proxy YAML: Ruby/Psych is required for document validation' >&2; return 1; }
+    ruby -rpsych - "$1" <<'CFIP_YAML_DOCUMENT'
+path = ARGV.fetch(0)
+lines = File.readlines(path)
+def refuse(node, reason)
+  line = node.respond_to?(:start_line) ? node.start_line + 1 : 1
+  raise ArgumentError, "line #{line}: #{reason}"
+end
+def visit(node, lines, mapped = false)
+  if node.is_a?(Psych::Nodes::Mapping)
+    seen = {}
+    node.children.each_slice(2) do |key, value|
+      refuse(key, 'complex mapping keys are unsupported') unless key.is_a?(Psych::Nodes::Scalar)
+      refuse(key, 'typed mapping keys are unsupported') if (key.tag && key.tag != 'tag:yaml.org,2002:str') ||
+        (key.plain && key.value.match?(/\A(?:[-+]?(?:[0-9]|\.[0-9])|~\z|(?:true|false|yes|no|on|off|null)\z)/i))
+      refuse(key, 'duplicate mapping key') if seen[key.value]
+      seen[key.value] = true
+      if mapped && %w[name type server tls network servername Host].include?(key.value)
+        refuse(value, 'mapped values must be single-line scalars') unless value.is_a?(Psych::Nodes::Scalar) && value.start_line == value.end_line
+        raw = lines.fetch(key.start_line).chomp
+        prefix = /\A\s*(?:-\s+)?#{Regexp.escape(key.value)}:\s*/
+        refuse(key, 'quoted or ambiguous mapped key') unless raw.match?(prefix)
+        raw = raw.sub(prefix, '').strip.sub(/\A["']/, '').sub(/["']\z/, '')
+        refuse(value, 'unsupported mapped scalar escaping or comment') unless raw == value.value
+      end
+      visit(value, lines, mapped)
+    end
+  elsif node.respond_to?(:children) && node.children
+    node.children.each { |child| visit(child, lines, mapped) }
+  end
+end
+begin
+  stream = Psych.parse_stream(lines.join, filename: path)
+  refuse(stream, 'exactly one YAML document is required') unless stream.children.length == 1
+  root = stream.children.first.root
+  refuse(root, 'document root must be a mapping') unless root.is_a?(Psych::Nodes::Mapping)
+  visit(root, lines)
+  proxies = root.children.each_slice(2).find { |key, _| key.value == 'proxies' }
+  refuse(root, 'proxies must be a sequence') unless proxies && proxies[1].is_a?(Psych::Nodes::Sequence)
+  proxies[1].children.each do |entry|
+    refuse(entry, 'proxy entries require indented name-first block maps') unless entry.is_a?(Psych::Nodes::Mapping) &&
+      lines.fetch(entry.start_line).match?(/\A[ ]+-[ ]+name:/)
+  end
+  visit(proxies[1], lines, true)
+rescue Psych::SyntaxError => error
+  warn "unsupported OpenClash proxy YAML at line #{error.line}: invalid document syntax"
+  exit 1
+rescue ArgumentError => error
+  warn "unsupported OpenClash proxy YAML at #{error.message}"
+  exit 1
+end
+CFIP_YAML_DOCUMENT
+}
+
 update_openclash() {
 	local line backup backup_ts backup_seq=0
 
 	[[ -f "$OPENCLASH_CONFIG" ]] || die "OpenClash config not found: $OPENCLASH_CONFIG"
 	[[ -n "$OPENCLASH_TARGET_DOMAIN" ]] || die "OPENCLASH_TARGET_DOMAIN is empty"
+	cfip_openclash_yaml_supported "$OPENCLASH_CONFIG" || die "unsupported OpenClash proxy YAML; original config preserved"
 	openclash_check_before_write || die "${_OPENCLASH_SERVICE_ERROR:-OpenClash state could not be verified}"
 	if [[ -n "$_OPENCLASH_CONFIG_SNAPSHOT" ]]; then
 		cmp -s "$OPENCLASH_CONFIG" "$_OPENCLASH_CONFIG_SNAPSHOT" || die "OpenClash config changed during measurement; preserved external changes"
@@ -1205,8 +1301,24 @@ update_openclash() {
 	OPENCLASH_LAST_LINE_BLANK=true
 	BLOCK_LINES=()
 
+	local in_proxies=false
 	while IFS= read -r line || [[ -n "$line" ]]; do
 		line="${line%$'\r'}"
+		if [[ "$line" =~ ^proxies:[[:space:]]*($|#) ]]; then
+			in_proxies=true
+			write_openclash_line "$line"
+			continue
+		fi
+		if [[ "$in_proxies" == true && "$line" =~ ^[^[:space:]#][^:]*: ]]; then
+			process_openclash_block
+			BLOCK_LINES=()
+			append_missing_openclash_variants
+			in_proxies=false
+		fi
+		if [[ "$in_proxies" != true ]]; then
+			printf '%s\n' "$line" >>"$TMP_CONFIG"
+			continue
+		fi
 		if [[ "$line" =~ ^[[:space:]]*-[[:space:]]+name:[[:space:]]*.+$ && ${#BLOCK_LINES[@]} -gt 0 ]]; then
 			process_openclash_block
 			BLOCK_LINES=("$line")
@@ -1214,13 +1326,19 @@ update_openclash() {
 			BLOCK_LINES+=("$line")
 		fi
 	done <"$OPENCLASH_CONFIG"
-	process_openclash_block
-	append_missing_openclash_variants
+	if [[ "$in_proxies" == true ]]; then
+		process_openclash_block
+		append_missing_openclash_variants
+	fi
 
 	((OPENCLASH_UPDATED > 0)) || {
 		rm -f "$TMP_CONFIG"
 		die "no supported OpenClash proxy matched server: $OPENCLASH_TARGET_DOMAIN"
 	}
+	if ! cfip_openclash_yaml_supported "$TMP_CONFIG"; then
+		rm -f "$TMP_CONFIG"
+		die "rendered OpenClash YAML is unsupported; original config preserved"
+	fi
 
 	backup_ts="$(date +%Y%m%d%H%M%S)"
 	backup="${OPENCLASH_CONFIG}.bak.${backup_ts}"

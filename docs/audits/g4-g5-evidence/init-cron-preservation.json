@@ -1,0 +1,27 @@
+{
+  "scope": "G5e actual init cron functions with controlled crontab; cron reload/enable/start callbacks stubbed",
+  "baselineSource": "6f9415b0fba30b31e30255233d40827f6134993e",
+  "before": "actual removal deletes user comments and custom commands by substring; baseline cmp failure retained",
+  "baselineLog": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/init-cron-before.log",
+  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/native-vm.EsMjO7/init-cron-preservation",
+  "host": "PASS",
+  "nativeBusyBoxAsh": "PASS",
+  "cases": [
+    "preserve comments including positional command lookalike",
+    "preserve custom command arguments and user labels",
+    "remove exact old run/sync entries",
+    "duplicate scheduling produces one marked entry",
+    "marked removal preserves user tasks",
+    "rename failure preserves original and returns nonzero",
+    "copy/render failures preserve original and clean workspace",
+    "mode 0600 and final newline preserved"
+  ],
+  "ownershipMigration": "Unmarked exact historical generated command is adopted; user-authored byte-identical command cannot be distinguished. Extra arguments or labels are preserved.",
+  "open": [
+    "actual cron daemon and online package hook behavior",
+    "concurrent noncooperating crontab edits",
+    "KILL/power loss/resource faults",
+    "latest exact SHA package/native acceptance",
+    "complete G4/G5"
+  ]
+}

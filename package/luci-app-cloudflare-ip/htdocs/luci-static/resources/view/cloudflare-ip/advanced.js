@@ -110,8 +110,8 @@ return view.extend({
 		o.default = '5';
 		o.rmempty = false;
 
-		utils.createHandleSave(m);
-		utils.createHandleSaveApply(m);
+		utils.createHandleSave(m, this);
+		utils.createHandleSaveApply(m, this);
 
 		return utils.renderWithFooter(m.render(), utils.FOOTER_OPTIONS);
 	}

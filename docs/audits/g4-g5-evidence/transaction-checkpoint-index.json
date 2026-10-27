@@ -1,0 +1,62 @@
+{
+  "complete": false,
+  "scope": "Local T01 staging, real renderer and backup restoration checkpoint; G4/G5 final qualification remains open",
+  "baseCommit": "8ae23a0c886903bc3acc7eb0a56279ee11334e34",
+  "sourceSha256": {
+    "package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto-v2": "1df8e9c3fb090abd6cd7e97d94e660cdc73c76aaf315802cc3cd567ef6bfab8b",
+    "package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto-legacy": "b28a095d2a57bc54aaa30589a6fa603d3a1af799bdf53a8092c6b79747321531",
+    "package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/transaction.sh": "f060ec5814fd34616c6a14b48092d8d64a8de75a545d953b4d57f5ee65d3ef3b",
+    "package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/openclash-transform.sh": "18c0f535781a98b1e28f261189f2bcc1e6e7bb445b06e8928ef57ea69328d84a",
+    "package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/openclash-readback.sh": "440dd9524caa2780e8787a387e6acafa388ecbf10b240c4da65731e9675c061b",
+    "tests/openclash-transaction-write-failure.sh": "0d86a5e812a0c204865dc9a50d5fd7f803df537c3ec495595d31870f32f9178b",
+    "tests/openclash-render-isolation.sh": "ed4df03daf6f723b847536a1ef95a1c9dda532f0e532ddddbe7cdb956723924d",
+    "tests/openclash-readback-positive.sh": "c8bd0216091d8340be52bb6fcfdf585a172549396834b5e35d9e936439afef5e",
+    "tests/openclash-restore-publication.sh": "dd50ecc9e2976cbb6ea52766f96317f398b61b9b469149cfd627d4dd7784abc3"
+  },
+  "beforeExitCodes": {
+    "normalApplyFaultRegression": 1,
+    "positiveMappingWithEmptyStdin": 4,
+    "restoreFaultRegression": 1
+  },
+  "afterExitCodes": {
+    "eightNormalApplyFaults": 0,
+    "positiveMappingAndRejectionCases": 0,
+    "fourRestoreCases": 0,
+    "realRendererAndDisabledTransaction": 0,
+    "fifteenRelatedRegressionScripts": 0
+  },
+  "files": [
+    {
+      "path": "transaction-write-failure-before.log",
+      "sha256": "748d399ca31f03f9ad085ecb44c019bcf5af457bdfb32701ca0109d382ec4f9d"
+    },
+    {
+      "path": "transaction-write-failure-expanded.log",
+      "sha256": "1a500892e93e9cfa43bbdd395ea81ce15d4debb42591028900454ed6be4d6b79"
+    },
+    {
+      "path": "readback-positive-before.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "readback-positive-after.log",
+      "sha256": "30185519acc2690c27e2ff1d018dad15f4ca6e707022bbc0a058402037d4b96b"
+    },
+    {
+      "path": "restore-publication-before.log",
+      "sha256": "8c5ff83b14def0a95655b62a3fc55f57720fc357194abc7cc56b38983214c87c"
+    },
+    {
+      "path": "restore-publication-after.log",
+      "sha256": "6b707be18684b7e26b248520b8b09315ae785817e156b92e0f34a5fed6ed53e7"
+    },
+    {
+      "path": "render-full-transaction-after.log",
+      "sha256": "1a88fe631623738eca3d24df0ea4737e6c0ce6ae5a40e278c93652a156b420f6"
+    },
+    {
+      "path": "transaction-suite-v2.tsv",
+      "sha256": "f458dca33f3dde4a2e70a0317c5079e66fca3595364c854a9c2453477cdef883"
+    }
+  ]
+}

@@ -77,8 +77,8 @@ cfip_operational_rollup_json() {
         winnerRecallMean:numeric_mean([$audits[].winnerRecall]),
         topNRecallMean:numeric_mean([$audits[].topNRecall]),
         severeMissRate:numeric_mean([$audits[].severeMiss]),
-        adaptiveRegression: any($runs[]?; ((.adaptiveQualificationState // "")|tostring|test("negative|regress|degrad";"i"))),
-        candidateRegression: any($runs[]?; ((.candidateQualificationState // "")|tostring|test("negative|regress|degrad";"i")))
+        adaptiveRegression: any($runs[]?; ((.adaptiveQualificationState // "")|tostring|ascii_downcase|(contains("negative") or contains("regress") or contains("degrad")))),
+        candidateRegression: any($runs[]?; ((.candidateQualificationState // "")|tostring|ascii_downcase|(contains("negative") or contains("regress") or contains("degrad"))))
       }' <<<"$history"
 }
 
@@ -152,7 +152,7 @@ cfip_operational_reason_codes() {
     [[ "$(jq -r '.qualificationState // ""' <<<"$adaptive")" == stale ]] && reasons="$(jq -c '.+ ["adaptive_stale"]|unique' <<<"$reasons")"
     [[ "$(jq -r '.qualificationReason // ""' <<<"$adaptive")" == negative_evidence ]] && reasons="$(jq -c '.+ ["adaptive_regression"]|unique' <<<"$reasons")"
     [[ "$(jq -r '.adaptiveFallback // false' <<<"$metrics")" == true || "$event" == *fallback* || "$event" == *failed* ]] && reasons="$(jq -c '.+ ["measurement_budget_pressure"]|unique' <<<"$reasons")"
-    if jq -e '((.state // .qualificationState // "")|tostring|test("regress|degrad|negative";"i"))' <<<"$qualification" >/dev/null 2>&1; then
+    if jq -e '((.state // .qualificationState // "")|tostring|ascii_downcase|(contains("regress") or contains("degrad") or contains("negative")))' <<<"$qualification" >/dev/null 2>&1; then
         reasons="$(jq -c '.+ ["candidate_regression"]|unique' <<<"$reasons")"
     fi
     [[ "$(jq -r '.contextChanged // false' <<<"$meta")" == true ]] && reasons="$(jq -c '.+ ["context_changed"]|unique' <<<"$reasons")"
@@ -198,7 +198,7 @@ cfip_operational_update() {
     fi
     now="$(date +%s)"
     jq -cn --argjson old "$state" --argjson rolling "$rolling" --argjson reasons "$reasons" --arg state "$severity" --arg adaptive "$adaptive_state" --arg candidate "$candidate_state" --arg reuse "$reuse_state" --arg recommended "$recommended" --arg event "$event" --arg reason "$reason" --argjson now "$now" \
-      '$old + {schemaVersion:1,state:$state,reasonCodes:$reasons,adaptiveState:$adaptive,candidateState:$candidate,reuseState:$reuse,rolling:$rolling,recommendedAction:$recommended,updatedAt:$now,lastEvent:{name:$event,reason:(if $reason=="" then null else $reason end),at:$now}} | if $event=="full-optimize-success" then .lastFullOptimizeAt=$now elif $event=="adaptive-audit" then .lastAuditAt=$now elif ($event|test("fallback|failed")) then .lastFallbackAt=$now else . end' | cfip_atomic_write "${CFIP_OPERATIONAL_STATE_FILE:-${CFIP_STATUS_DIR:-/etc/cf_ip}/operational-health.json}"
+      '$old + {schemaVersion:1,state:$state,reasonCodes:$reasons,adaptiveState:$adaptive,candidateState:$candidate,reuseState:$reuse,rolling:$rolling,recommendedAction:$recommended,updatedAt:$now,lastEvent:{name:$event,reason:(if $reason=="" then null else $reason end),at:$now}} | if $event=="full-optimize-success" then .lastFullOptimizeAt=$now elif $event=="adaptive-audit" then .lastAuditAt=$now elif ($event|(contains("fallback") or contains("failed"))) then .lastFallbackAt=$now else . end' | cfip_atomic_write "${CFIP_OPERATIONAL_STATE_FILE:-${CFIP_STATUS_DIR:-/etc/cf_ip}/operational-health.json}"
 }
 
 cfip_operational_why_run() {

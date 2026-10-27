@@ -2,12 +2,19 @@
 set -Eeuo pipefail
 
 repo_dir="$(CDPATH='' cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-. "$repo_dir/cf-openwrt-auto.sh"
+if [[ $# == 0 ]]; then
+    bash "$0" "$repo_dir/cf-openwrt-auto.sh"
+    bash "$0" "$repo_dir/package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto-legacy"
+    exit
+fi
+. "$1"
+PURE_APPLY=true
 
 restart_service() {
     :
 }
 openclash_check_before_write() { :; }
+openclash_check_config() { :; }
 
 tmp_dir="$(mktemp -d)"
 trap 'rm -rf "$tmp_dir"' EXIT
@@ -46,7 +53,7 @@ update_openclash
 
 test "$(grep -F -c 'server: 104.16.1.1' "$OPENCLASH_CONFIG")" -eq 15
 test "$(grep -F -c 'servername:' "$OPENCLASH_CONFIG")" -eq 15
-test "$(grep -F -c 'Host:' "$OPENCLASH_CONFIG")" -ge 15
+test "$(grep -F -c 'Host:' "$OPENCLASH_CONFIG")" -eq 15
 test "$(grep -F -c '[CF-1]' "$OPENCLASH_CONFIG")" -eq 15
 test "$(find "$tmp_dir" -name 'clash-proxies.yaml.bak.*' | wc -l | tr -d ' ')" -eq 1
 

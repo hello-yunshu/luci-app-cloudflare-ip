@@ -166,9 +166,18 @@ case "$CFIP_OPENCLASH_SERVICE_ERROR" in *"refusing to re-enable it"*) ;; *) exit
 echo 'an externally detectable disable is preserved before service apply'
 
 reset_state 1 live healthy no-core; CFIP_OPENCLASH_EXPECTED_ENABLED=1
+(
+# Exercise the full production bound with a virtual clock, without waiting
+# five minutes for a core that this fixture deliberately never creates.
+printf 0 >"$TMP/startup-clock"
+cfip_monotonic_seconds() { cat "$TMP/startup-clock"; }
+sleep() { printf '%s' "$(( $(cat "$TMP/startup-clock") + $1 ))" >"$TMP/startup-clock"; }
+cfip_run_with_timeout() { shift; "$@"; }
 if cfip_restart_service openclash recovery; then echo 'restart without core passed' >&2; exit 1; fi
 test "$(cat "$TMP/restart-count")" = 1
 case "$CFIP_OPENCLASH_SERVICE_ERROR" in *"stable core"*) ;; *) exit 1 ;; esac
+test "$(cat "$TMP/startup-clock")" = 312
+)
 echo 'init restart zero without core is a failed recovery'
 
 reset_state 1 live healthy start-fail; CFIP_OPENCLASH_EXPECTED_ENABLED=1; CFIP_OPENCLASH_CF_STOPPED=true; CFIP_STOPPED_MODE=openclash
@@ -258,7 +267,7 @@ printf '%s\n' 'https://mirror.example/custom/cf-ip-auto' >"$TMP/update-url"
 "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/migrate-self-update-url.sh"
 test "$(cat "$TMP/update-url")" = 'https://mirror.example/custom/cf-ip-auto'
 rg -q 'migrate-self-update-url.sh' "$ROOT/package/luci-app-cloudflare-ip/Makefile"
-rg -q 'PKG_RELEASE:=5' "$ROOT/package/luci-app-cloudflare-ip/Makefile"
+python3 -B "$ROOT/scripts/package_identity.py" >/dev/null
 rg -q '/usr/libexec/cf-ip/migrate-self-update-url.sh' "$ROOT/package/luci-app-cloudflare-ip/Makefile"
 mkdir -p "$TMP/package-build/root/usr/libexec/cf-ip" "$TMP/package-root/usr/libexec/cf-ip"
 cp "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/migrate-self-update-url.sh" "$TMP/package-build/root/usr/libexec/cf-ip/"

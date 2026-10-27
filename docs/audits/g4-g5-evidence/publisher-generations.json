@@ -1,0 +1,51 @@
+{
+  "status": "CHECKPOINT_ONLY",
+  "baseCommit": "9cb43187d3e3d0f0ab4576fc6f7a400ebf394264",
+  "publisherSha256": "112d622cc5a051e4d5d0b1850201f84662fe04583889ec593954d297d7f64af6",
+  "before": "A partial artifact renderer failure was ignored and publication returned success; exact pre-fix source fails the current regression at this assertion.",
+  "changes": [
+    "Bounded private selected snapshot and checked public-IP/family rendering before publication",
+    "Complete immutable generation directory, per-artifact SHA256/size, fixed generation URL prefix",
+    "HTTP generation preflight then one current symlink rename and root readback; rollback on failed root confirmation",
+    "Compatibility links bootstrap from byte-identical legacy view, including regular files left after downgrade",
+    "Ownership-scoped retention keeps a bounded set of managed generations and preserves unknown directories",
+    "Readback uses a private manifest snapshot; status reports matched generation/count after a killed writer"
+  ],
+  "verified": [
+    "Four artifact-render failure classes preserve old public bytes",
+    "Cursor rename failure preserves old generation; post-rename reported failure resolves by link readback",
+    "Interrupted legacy conversion and interrupted re-upgrade preserve old bytes and retry",
+    "KILL before/after current switch retains complete old/new generation",
+    "Actual concurrent loopback HTTP: two consumers, ten publications, pinned manifest/artifact hash checks, bounded test runtime; 404 retries are allowed, mixed bytes are not",
+    "Actual isolated OpenWrt uhttpd serves pinned paths and matching artifact digests",
+    "Native UCI status, stop and procd rebind regressions pass",
+    "ShellCheck error, syntax, actionlint and diff checks pass"
+  ],
+  "httpObservations": {
+    "status": "PASS",
+    "scope": "actual loopback HTTP, two consumers, ten publications, fixture init",
+    "observations": {
+      "coherent": 323,
+      "retried404": 55
+    }
+  },
+  "limitations": [
+    "Compatibility-path requests can span a switch; coherent readers must pin generationPath",
+    "Pinned URLs can expire under retention and require bounded fresh-manifest retry",
+    "Forced termination can leave private staging/link directories; repeated-interruption orphan cleanup/resource exhaustion remain OPEN",
+    "No physical power-loss, universal noncooperating-writer CAS, process-ownership or device acceptance claim",
+    "Remaining G4/G5 and final exact-SHA hosted/package/offline qualification remain OPEN"
+  ],
+  "evidence": {
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-generations/before.log": "90796d99586230f76e25af75269b0b267d1fb3aaadb8621deada8f78691227b3",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-generations/counterfactual.log": "90796d99586230f76e25af75269b0b267d1fb3aaadb8621deada8f78691227b3",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-generations/publisher-before.sh": "e1c7796730bc6a1164281b93cd9f40198adb1cc81d19e62d7fbc8f708b141687",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-generations/after.log": "87fa4afb03949279b71aef7c05177c611dc4af570fafc102800973bd511f51a0",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-generations/concurrent-http.json": "35c1e53a3b2c0e9e959505b3097b64890ba3f8bfdcf741dd8f110528e033deb6",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-generations/readback-http.json": "4bebcfa23cf0cc4f4b2f6ff2df64d215149492a65f51f9a46d975e6bb6f8cf36",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-generations/native-after.log": "4419e9b40183b55d08102bd174afdf261aff7b8a4596ada623169dc0d0dd16aa",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-generations/status-after.log": "f69fc6e1260c00fa1dd620c32a6e87a9285e19591924484abd17f732f61adff3",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-generations/module-after.log": "c588d21e1c7336dc6508c715dfa6ddb922fa42ed6cc88502da995d85936c4dc5",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-generations/v2-status-after.log": "64d946744aabf6cf9653ff8273c911466b0a7826cb2bbeb8a6d78b540319a7c5"
+  }
+}

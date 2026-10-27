@@ -1,0 +1,27 @@
+{
+  "scope": "G5d repeated initial migration KILL retention",
+  "baselineSha": "5651fd37cdf2778f0782f2e8bc5ab4edd81f1285",
+  "before": "FAIL six interrupted bootstrap snapshots accumulate",
+  "after": "PASS six interruptions retain four owned snapshots with default retention, recover legacy bytes and preserve unknown directory",
+  "invalidCursor": "PASS refuses layout before pruning; host and actual isolated OpenWrt",
+  "regressions": [
+    "host/native generation atomic faults and KILL",
+    "native private workspace recovery and 32 allocator contention",
+    "native uhttpd pinned byte digests and isolated UCI status",
+    "actual HTTP two readers ten publications: 496 coherent observations, 138 expected 404 retries"
+  ],
+  "remainingOpen": [
+    "source-cache and old unmarked orphans",
+    "physical ENOSPC/power-loss and full resource/process lifecycle matrix",
+    "remaining G4/G5 and final exact-SHA hosted/artifact/offline qualification"
+  ],
+  "evidenceDirectory": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-bootstrap-retention",
+  "logs": {
+    "native.log": "ea2e4b80f113c83eb11322c4da2dcf9e792a07cf6346017b030bf1d4a2160df1",
+    "http.log": "2a7e999d3f5ecbbc633a8001767c28c3b7ec633da7b13146d5fed57735e613b3",
+    "generation.log": "87fa4afb03949279b71aef7c05177c611dc4af570fafc102800973bd511f51a0",
+    "native-cursor.log": "92f1d09c226bc93f0f6362fb5801d2b3613365b46a72642d25ccf35868686a0a",
+    "before.log": "c8f578e00a8a12f8ae797ec3164f47015aa9a7d17e55482deeecb69bb0d8bda6",
+    "after.log": "96efd434f7aa90a9e955395867c869d0d8abe4eccc6c2d2c7c7a68f39cad861b"
+  }
+}

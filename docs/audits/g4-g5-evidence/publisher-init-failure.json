@@ -1,0 +1,14 @@
+{
+  "scope": "G5d publisher rc.common error propagation",
+  "before": "actual 0.0.0.0 start returns 0 with no instance",
+  "beforeEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/native-vm.EsMjO7/publisher-init-failure/before.stdout",
+  "after": "actual start returns 1 for four invalid/unavailable binds and four invalid ports",
+  "afterEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/native-vm.EsMjO7/publisher-init-failure",
+  "repair": "capture start_service result and return through rc.common service_started callback",
+  "positiveRegression": "same real UCI/netifd HTTP rebind/loss/restoration matrix passes after patch",
+  "open": [
+    "asynchronous listener readiness still requires real HTTP/status; init0 does not qualify socket",
+    "current rebuilt package/SDK",
+    "complete G4/G5"
+  ]
+}

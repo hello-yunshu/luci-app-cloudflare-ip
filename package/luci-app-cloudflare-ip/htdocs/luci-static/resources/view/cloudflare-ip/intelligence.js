@@ -63,7 +63,7 @@ return view.extend({
 			_('The generic Rill Runtime is supplied by OpenWrt packaging. Cloudflare IP owns candidate validation, ranking policy, reward and proxy transactions.'));
 		var s, o;
 
-		s = m.section(form.TypedSection, 'main', _('Measurement Policy'));
+		s = m.section(form.NamedSection, 'main', 'service', _('Measurement Policy'));
 		s.anonymous = true;
 		o = s.option(form.ListValue, 'source_policy', _('Source Strategy'));
 		o.value('balanced', _('Balanced'));
@@ -81,7 +81,7 @@ return view.extend({
 		o = s.option(form.Flag, 'early_stop_enabled', _('Deterministic Early Stop'));
 		o.default = '1';
 
-		s = m.section(form.TypedSection, 'main', _('Adaptive Measurement'));
+		s = m.section(form.NamedSection, 'main', 'service', _('Adaptive Measurement'));
 		s.anonymous = true;
 		o = s.option(form.Flag, 'adaptive_measurement_enabled', _('Enable Adaptive Measurement'));
 		o.default = '1';
@@ -110,12 +110,12 @@ return view.extend({
 		o = s.option(form.DummyValue, '_adaptive_selection', _('Selection'));
 		o.cfgvalue = function() { return _('K') + ': ' + (adaptive.selectedK || 0) + ', ' + _('expansions') + ': ' + (adaptive.lastExpansionCount || 0) + ', ' + _('last fallback') + ': ' + (adaptive.lastFallbackReason || _('none')); };
 
-		s = m.section(form.TypedSection, 'main', _('Product Intelligence Summary'));
+		s = m.section(form.NamedSection, 'main', 'service', _('Product Intelligence Summary'));
 		s.anonymous = true;
 		o = s.option(form.DummyValue, '_endpoint', _('Current Endpoint'));
 		o.cfgvalue = function() { return (status.best_ips || []).join(', ') || _('Unavailable'); };
 		o = s.option(form.DummyValue, '_health_summary', _('System Health'));
-		o.cfgvalue = function() { var h = status.operationalHealth || {}; return h.state || _('healthy'); };
+		o.cfgvalue = function() { var h = status.operationalHealth || {}; return h.state || _('Unknown'); };
 		o = s.option(form.DummyValue, '_adaptive_summary', _('Adaptive Measurement'));
 		o.cfgvalue = function() { return (adaptive.requestedMode || _('off')) + ' → ' + (adaptive.effectiveMode || _('off')) + ' / ' + (adaptive.qualificationState || _('insufficient')); };
 		o = s.option(form.DummyValue, '_candidate_summary', _('Candidate Intelligence'));
@@ -123,10 +123,10 @@ return view.extend({
 		o = s.option(form.DummyValue, '_next_audit_summary', _('Next Full Audit / Optimize'));
 		o.cfgvalue = function() { return (adaptive.nextAuditInRuns == null ? _('unavailable') : adaptive.nextAuditInRuns + ' ' + _('runs')) + ' / ' + ((status.reusePolicy || {}).reason || _('policy current')); };
 
-		s = m.section(form.TypedSection, 'main', _('Operational Health'));
+		s = m.section(form.NamedSection, 'main', 'service', _('Operational Health'));
 		s.anonymous = true;
 		o = s.option(form.DummyValue, '_health_state', _('State'));
-		o.cfgvalue = function() { var h = status.operationalHealth || {}; return h.state || _('healthy'); };
+		o.cfgvalue = function() { var h = status.operationalHealth || {}; return h.state || _('Unknown'); };
 		o = s.option(form.DummyValue, '_health_reasons', _('Reason Codes'));
 		o.cfgvalue = function() { var h = status.operationalHealth || {}; return (h.reasonCodes || []).join(', ') || _('none'); };
 		o = s.option(form.DummyValue, '_why_run', _('Why This Run'));
@@ -297,6 +297,8 @@ return view.extend({
 		}).finally(function() { utils.resetBusy(button); });
 	};
 
+	utils.createHandleSave(m, this);
+	utils.createHandleSaveApply(m, this);
 	return utils.renderWithFooter(m.render(), utils.FOOTER_OPTIONS);
 	}
 });

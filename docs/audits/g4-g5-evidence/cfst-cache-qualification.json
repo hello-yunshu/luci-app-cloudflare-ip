@@ -1,0 +1,64 @@
+{
+  "scope": "G5c cached/offline CFST execution qualification",
+  "baselineSha": "e4b091112dd2245687e883900b3da761522f1ad0",
+  "before": {
+    "cacheCases": 21,
+    "failures": [
+      "missing-direct-bootstrap",
+      "malformed-direct-bootstrap",
+      "missing-source-direct-bootstrap",
+      "legacy-bootstrap-direct-bootstrap",
+      "http-source-direct-bootstrap",
+      "uppercase-digest-direct-bootstrap",
+      "legacy-bootstrap-direct-existing",
+      "source-object-direct-bootstrap",
+      "oversized-direct-bootstrap",
+      "metadata-symlink-direct-bootstrap",
+      "archive-symlink-direct-bootstrap",
+      "missing-offline-bootstrap",
+      "empty-version-direct-bootstrap"
+    ],
+    "unqualifiedExecutionCases": 12,
+    "qualifiedUppercaseDigest": "incorrectly refused",
+    "lowLevelInstaller": "accepted missing expected digest",
+    "sourceSha256": "cb00c3d16767c86531f14b14d1c535f0ee15ecbf11ca8a6dc7cea8195025f031"
+  },
+  "after": {
+    "status": "PASS",
+    "cacheCases": 21,
+    "installerCases": 23,
+    "sourceSha256": "c838d5edb2f382b6c5496205f9b0cacede76009b3e66a4e11302c729bd055b94",
+    "evidence": "per-case execution marker and artifact fingerprints in raw JSON"
+  },
+  "policy": [
+    "expected digest required before archive parsing/execution",
+    "one metadata snapshot, regular non-symlink files, maximum 16 KiB admitted metadata",
+    "single schema-1 object with nonempty version, HTTPS source and matching hash",
+    "existing runtime preserved when metadata is unqualified",
+    "arbitrary future version tags remain supported; legacy cached-archive source marker cannot bootstrap",
+    "digest case normalized"
+  ],
+  "regressions": [
+    "cached version preservation/retry",
+    "CFST version observations",
+    "security contract",
+    "Bash syntax/ShellCheck/actionlint/diff"
+  ],
+  "executionScope": "private host Bash 5.3, actual library/downloader with shell payload fixtures; no remote network or genuine CFST",
+  "boundary": [
+    "trusted cache namespace; metadata is not independent publisher authentication",
+    "native changed-source execution remains NOT EVALUATED",
+    "full download/resource/concurrency/KILL/retention matrix OPEN",
+    "full G4/G5 and exact-SHA SDK/migration/offline/native UI gates OPEN"
+  ],
+  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/cfst-cache-qualification",
+  "sha256": {
+    "fallback.log": "d329659b590142c5c190f6a4ce80bd0388026f1144e110278aa086c2a815ca7d",
+    "security.log": "de8767cb363c7193796a7a61344a74bd58a5bc81c72ed0003b6e4123e268b8f9",
+    "cache-before.json": "b4f805d56ef89b511e8b029b8a58d9eac9b8fc564f25c943400eaecc5fbad667",
+    "version.log": "bb7fbb95496da605445e00c922d4fe3ca2621d87b4e0215a308be04b9a5234bf",
+    "required-digest-before.json": "2e1dd488ffc2d3ddd998c8469614baf72adf64fb4c5deffa858fa6ddf4c57a26",
+    "cache-after.json": "16d3aab0ee13caa4b4c8513c603503cc5232f25cfba110437b785000c827f613",
+    "required-digest-after.json": "f61dae6bbd00d9e881aef0caf3c0703903e04fc79d8b86d1f3ecba746b5c0a1e"
+  }
+}

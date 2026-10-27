@@ -9,6 +9,15 @@ permissions:
   contents: read
 
 jobs:
+  package-identity:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.identity.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v7
+      - id: identity
+        run: echo "matrix=$(python3 -B scripts/package_identity.py --matrix)" >> "$GITHUB_OUTPUT"
+
   host-contract:
     runs-on: ubuntu-latest
     steps:
@@ -16,7 +25,15 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install host tools
-        run: sudo apt-get update && sudo apt-get install -y jq ripgrep shellcheck
+        run: sudo apt-get update && sudo apt-get install -y jq ripgrep shellcheck cmake pkg-config libjson-c-dev ruby ruby-psych
+      - name: Build and verify isolated real UCI rollback
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash tests/build-real-uci.sh "$RUNNER_TEMP/real-uci"
+          UCI_REAL_BIN="$RUNNER_TEMP/real-uci/uci-build/uci" bash tests/passwall-real-uci-rollback.sh
+          UCI_REAL_BIN="$RUNNER_TEMP/real-uci/uci-build/uci" bash tests/passwall-real-uci-faults.sh
+          UCI_REAL_BIN="$RUNNER_TEMP/real-uci/uci-build/uci" python3 tests/transaction-kill-journal.py
       - name: Shell syntax and lint
         shell: bash
         run: |
@@ -39,6 +56,10 @@ jobs:
       - name: Release channel and package identity contracts
         run: |
           set -euo pipefail
+          python3 tests/cfst-smoke-bytes.py
+          python3 tests/build-version-policy.py
+          python3 tests/qualification-artifact-download.py
+          python3 tests/stable-review.py
           bash tests/release-channel-contract.sh
           bash tests/v2-prerelease-workflow-contract.sh
           bash tests/immutable-tag-contract.sh
@@ -46,13 +67,44 @@ jobs:
       - name: V2 host contract tests
         run: |
           bash tests/v2-observation.sh
+          python3 tests/observation-write-faults.py
+          bash tests/jq-portable-runtime.sh
           bash tests/v2-rill-shadow.sh
           bash tests/v2-source-engine.sh
           bash tests/source-size-cap.sh
+          bash tests/source-cache-trust.sh
+          bash tests/source-cache-publication.sh
+          bash tests/source-cache-workspaces.sh
+          bash tests/source-runtime-write-failure.sh
+          bash tests/atomic-write-failure.sh
+          python3 tests/source-streaming-https.py
           bash tests/v2-single-cfst.sh
           bash tests/v2-lan-publisher.sh
+          sh tests/publisher-lan-policy.sh
+          bash tests/publisher-init-errors.sh
+          bash tests/publisher-status-honesty.sh
+          bash tests/publisher-bootstrap-retention.sh
+          bash tests/publisher-workspace-leases.sh
+          bash tests/publisher-generation-atomic.sh
+          python3 tests/publisher-generation-http.py
+          python3 tests/publisher-http-readback.py
           bash tests/v2-status.sh
+          python3 tests/status-observation-metadata.py
+          python3 tests/apk-ownership-preflight.py
+          python3 tests/package-prerm-failures.py
           bash tests/v2-transaction.sh
+          bash tests/openclash-rollback-external-conflict.sh
+          bash tests/openclash-transaction-write-failure.sh
+          bash tests/openclash-render-isolation.sh
+          bash tests/openclash-review-regressions.sh
+          bash tests/openclash-controller-credentials.sh
+          bash tests/openclash-document-boundary.sh
+          bash tests/openclash-async-startup.sh
+          bash tests/openclash-transform-unsupported.sh
+          bash tests/openclash-transform-section.sh
+          bash tests/openclash-yaml-boundary.sh
+          bash tests/openclash-readback-positive.sh
+          bash tests/openclash-restore-publication.sh
           bash tests/v2-candidate-budget.sh
           bash tests/v2-cfst-exact-input.sh
           bash tests/v2-measurement-deadline.sh
@@ -76,6 +128,10 @@ jobs:
           bash tests/rill-single-learner-contract.sh
           bash tests/cfst-version-contract.sh
           bash tests/cfst-download-fallback-version.sh
+          python3 tests/cfst-install-faults.py
+          python3 tests/cfst-cache-qualification.py
+          CFIP_TEST_LEGACY="$PWD/package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto" python3 tests/cfst-install-faults.py
+          CFIP_TEST_LEGACY="$PWD/package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto" python3 tests/cfst-cache-qualification.py
           bash tests/source-refresh-deadline.sh
           bash tests/resource-pressure-contract.sh
           bash tests/multi-ip-diversity-contract.sh
@@ -87,11 +143,16 @@ jobs:
           bash tests/delayed-feedback-reset-lineage.sh
           bash tests/prefix-colo-intelligence.sh
           bash tests/prefix-failure-decay.sh
+          node tests/luci-save-singleflight.cjs
+          node tests/luci-save-readback.cjs
+          node tests/luci-ready-state.cjs
+          node tests/luci-run-status.cjs
           bash tests/luci-validation-contract.sh
           bash tests/luci-staged-validation.sh
           bash tests/openclash-empty-fields.sh
           bash tests/installed-routing-contract.sh
           bash tests/disabled-cron-contract.sh
+          bash tests/init-cron-preservation.sh
           bash tests/evidence-manifest-default.sh
           bash tests/qualification-evidence-validator.sh
           bash tests/openwrt-package-metadata.sh
@@ -127,13 +188,23 @@ jobs:
           bash tests/rill-intelligence-status-contract.sh
           bash tests/rill-intelligence-luci-contract.sh
           bash tests/rill-runtime-absence.sh
+          python3 -B tests/qualified-rill-artifacts.py
           jq empty plans/rill/drift-decision.json
           bash tests/recovery-deadline.sh
           bash tests/sync-single-restart.sh
           bash tests/sync-stop-failure-cleanup.sh
+          python3 tests/run-early-failure-status.py
+          python3 tests/rpc-run-acknowledgement.py
+          python3 tests/rpc-failure-matrix.py
+          bash tests/rpc-readonly-policy.sh
+          node tests/luci-refresh-error.cjs
+          node tests/luci-status-observation.cjs
+          node tests/luci-view-bindings.cjs
+          python3 tests/writer-lock-recovery.py
           bash tests/shared-writer-lock.sh
           bash tests/status-stop-contract.sh
           bash tests/transaction-commit-failure.sh
+          bash tests/transaction-prepare-faults.sh
           bash tests/openclash-intended-mapping-negative.sh
           bash tests/security-contract.sh
           bash tests/cron-contract.sh
@@ -193,7 +264,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Install host tools
-        run: sudo apt-get update && sudo apt-get install -y jq shellcheck
+        run: sudo apt-get update && sudo apt-get install -y jq shellcheck ruby ruby-psych
       - name: Run 1.8.3 preservation contracts
         run: |
           set -euo pipefail
@@ -208,27 +279,11 @@ jobs:
           done
 
   openwrt-package:
+    needs: package-identity
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - branch: v24.10.5
-            pkgtype: ipk
-            arch: x86_64
-            rust_target: x86_64-unknown-linux-musl
-          - branch: v25.12.0
-            pkgtype: apk
-            arch: x86_64
-            rust_target: x86_64-unknown-linux-musl
-          - branch: v24.10.8
-            pkgtype: ipk
-            arch: x86_64
-            rust_target: x86_64-unknown-linux-musl
-          - branch: v25.12.5
-            pkgtype: apk
-            arch: x86_64
-            rust_target: x86_64-unknown-linux-musl
+      matrix: ${{ fromJSON(needs.package-identity.outputs.matrix) }}
     container:
       image: ghcr.io/openwrt/sdk:${{ matrix.arch }}-${{ matrix.branch }}
       options: --user root
@@ -253,7 +308,7 @@ jobs:
             /builder/dl/cargo
             /builder/rustup
             /builder/cargo
-          key: cloudflare-openwrt-rust-${{ runner.os }}-${{ matrix.branch }}-${{ hashFiles('rill-openwrt-packages/package/rill-runtime/Makefile', 'rill-openwrt-packages/package/rill-runtime-preview/Makefile', 'rill-openwrt-packages/scripts/prepare_rust_toolchain.sh') }}
+          key: cloudflare-openwrt-rust-${{ runner.os }}-${{ matrix.branch }}-${{ hashFiles('rill-openwrt-packages/metadata/build-toolchain.json', 'rill-openwrt-packages/package/rill-runtime/Makefile', 'rill-openwrt-packages/package/rill-runtime-preview/Makefile', 'rill-openwrt-packages/scripts/prepare_rust_toolchain.sh') }}
           restore-keys: |
             cloudflare-openwrt-rust-${{ runner.os }}-${{ matrix.branch }}-
       - name: Prepare SDK
@@ -265,7 +320,7 @@ jobs:
           rm -rf /builder/shared-workdir/build
           ln -sf /builder /builder/shared-workdir/build
           ./scripts/feeds update base packages luci
-          ./scripts/feeds install luci-base bash curl tar jq ca-bundle ca-certificates uhttpd rust
+          ./scripts/feeds install luci-base bash flock curl tar jq ca-bundle ca-certificates uhttpd rust
           for rust_makefile in feeds/packages/lang/rust/Makefile feeds/packages/lang/rust/rust-host-build.mk; do
             if [ -f "$rust_makefile" ]; then
               sed -i 's/--set=llvm.download-ci-llvm=true/--set=llvm.download-ci-llvm=false/g' "$rust_makefile"
@@ -285,6 +340,7 @@ jobs:
           cp -r "$GITHUB_WORKSPACE/rill-openwrt-packages/package/rill-runtime" ./package/
           cp -r "$GITHUB_WORKSPACE/rill-openwrt-packages/package/rill-runtime-preview" ./package/
           {
+            echo 'CONFIG_PACKAGE_flock=y'
             echo 'CONFIG_PACKAGE_rill-runtime=y'
             echo 'CONFIG_PACKAGE_rill-runtime-preview=y'
             echo 'CONFIG_PACKAGE_luci-app-cloudflare-ip=y'
@@ -298,17 +354,37 @@ jobs:
           set -euo pipefail
           unset CI
           build_helper="$GITHUB_WORKSPACE/luci-app-cloudflare-ip/scripts/openwrt-build-diagnostic.sh"
+          flock_target=''
+          for candidate in package/utils/util-linux package/feeds/base/util-linux package/feeds/packages/util-linux; do
+            if [ -f "$candidate/Makefile" ]; then flock_target="$candidate/compile"; break; fi
+          done
+          test -n "$flock_target"
+          bash "$build_helper" "$flock_target"
           bash "$build_helper" package/rill-runtime/compile
           bash "$build_helper" package/rill-runtime-preview/compile
           if [ "${{ matrix.pkgtype }}" = apk ]; then
             # APK rejects the source development suffix. Patch only the
             # checked-out package Makefile so dependency PKG_VERSION values
             # remain untouched and the source contract stays exact.
-            sed -i 's/^PKG_VERSION:=\([0-9][0-9.]*\)-dev$/PKG_VERSION:=\1.1/' package/luci-app-cloudflare-ip/Makefile
+            build_version=$(python3 "$GITHUB_WORKSPACE/luci-app-cloudflare-ip/scripts/package_identity.py" --build-version --format apk)
+            sed -i "s/^PKG_VERSION:=.*/PKG_VERSION:=$build_version/" package/luci-app-cloudflare-ip/Makefile
             bash "$build_helper" package/luci-app-cloudflare-ip/compile
           else
             bash "$build_helper" package/luci-app-cloudflare-ip/compile
           fi
+      - name: Execute SDK target writer-lock utility
+        id: writer_lock
+        shell: bash
+        env:
+          QUALIFICATION_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          bash "$GITHUB_WORKSPACE/luci-app-cloudflare-ip/tests/sdk-writer-lock.sh" /builder "$GITHUB_WORKSPACE/writer-lock-qualification"
+      - uses: actions/upload-artifact@v7
+        if: ${{ always() && steps.writer_lock.outcome != 'skipped' }}
+        with:
+          name: writer-lock-${{ matrix.branch }}-${{ matrix.pkgtype }}-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
+          path: writer-lock-qualification/
+          if-no-files-found: error
       - name: Inspect package artifact
         shell: bash
         working-directory: /builder
@@ -340,6 +416,7 @@ jobs:
           python3 "$GITHUB_WORKSPACE/luci-app-cloudflare-ip/scripts/openwrt-package-metadata.py" "$base_file" \
             --format "${{ matrix.pkgtype }}" --apk-bin /builder/staging_dir/host/bin/apk \
             --package-name luci-app-cloudflare-ip \
+            --source-root "$GITHUB_WORKSPACE/luci-app-cloudflare-ip" \
             --output "$GITHUB_WORKSPACE/output/${base_file##*/}.metadata.json"
           (
             cd "$GITHUB_WORKSPACE/output"
@@ -351,7 +428,7 @@ jobs:
           cp "$runtime_libgcc" "$GITHUB_WORKSPACE/output/validation-runtime/libgcc_s.so.1"
       - uses: actions/upload-artifact@v7
         with:
-          name: luci-app-cloudflare-ip-${{ matrix.pkgtype }}-${{ matrix.branch }}
+          name: luci-app-cloudflare-ip-${{ matrix.pkgtype }}-${{ matrix.branch }}-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
           path: output/
           if-no-files-found: error
 
@@ -386,11 +463,11 @@ jobs:
           path: legacy-r3
       - uses: actions/download-artifact@v8
         with:
-          name: luci-app-cloudflare-ip-${{ matrix.pkgtype }}-${{ matrix.branch }}
+          name: luci-app-cloudflare-ip-${{ matrix.pkgtype }}-${{ matrix.branch }}-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
           path: current-output
       - uses: actions/download-artifact@v8
         with:
-          name: luci-app-cloudflare-ip-ipk-v24.10.8
+          name: luci-app-cloudflare-ip-ipk-v24.10.8-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
           path: runtime-output
       - name: Install the real package manager
         shell: bash
@@ -481,7 +558,7 @@ jobs:
           build_historical() {
             local checkout_dir="$1" output_prefix="$2"
             cd /builder
-            ./scripts/feeds install luci-base bash curl tar jq ca-bundle ca-certificates uhttpd
+            ./scripts/feeds install luci-base bash flock curl tar jq ca-bundle ca-certificates uhttpd
             rm -rf /builder/package/luci-app-cloudflare-ip
             cp -r "$GITHUB_WORKSPACE/$checkout_dir/package/luci-app-cloudflare-ip" /builder/package/
             {
@@ -527,12 +604,18 @@ jobs:
           SOURCE_TAG=v2.6.0-2 SOURCE_SHA="$source_sha" OPKG="${OPKG_BIN:-opkg}" APK="${APK_BIN:-apk}" \
             R3_BASE="$r3_base" bash luci-app-cloudflare-ip/tests/package-migration.sh "${{ matrix.pkgtype }}" "$legacy_base" "$legacy_addon" "$current_base" "$current_addon" "$RUNTIME_BIN"
       - uses: actions/upload-artifact@v7
+        if: always()
         with:
-          name: package-migration-${{ matrix.pkgtype }}-${{ matrix.branch }}
-          path: package-migration-evidence.json
+          name: package-migration-${{ matrix.pkgtype }}-${{ matrix.branch }}-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
+          path: |
+            package-migration-evidence.json
+            package-migration-details/
           if-no-files-found: error
 
   rill-runtime-integration:
+    permissions:
+      contents: read
+      actions: read
     name: Same-release generic Runtime integration
     needs: openwrt-package
     runs-on: ubuntu-latest
@@ -548,32 +631,19 @@ jobs:
           git -C rill-openwrt-packages fetch --depth=1 origin "$package_commit"
           git -C rill-openwrt-packages checkout --detach "$package_commit"
           test "$(git -C rill-openwrt-packages rev-parse HEAD)" = "$package_commit"
-      - name: Require exact Preview package qualification evidence
+      - name: Download exact qualified Preview package bytes
         id: qualification
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail
-          package_commit=$(git -C rill-openwrt-packages rev-parse HEAD)
-          qualification_run=$(jq -r '.qualification.runId' contracts/rill-runtime.json)
-          run_json=$(gh run view "$qualification_run" --repo hello-yunshu/rill-openwrt-packages --json headSha,status,conclusion)
-          test "$(jq -r .headSha <<<"$run_json")" = "$package_commit"
-          test "$(jq -r .status <<<"$run_json")" = completed
-          test "$(jq -r .conclusion <<<"$run_json")" = success
-          evidence_dir="$RUNNER_TEMP/package-qualification"
-          mkdir -p "$evidence_dir"
-          gh run download "$qualification_run" --repo hello-yunshu/rill-openwrt-packages --name "qualification-evidence-$qualification_run" --dir "$evidence_dir"
-          evidence=$(find "$evidence_dir" -type f -name qualification.json -print -quit)
-          test -n "$evidence"
-          jq -e --arg commit "$package_commit" --arg upstream "$(jq -r '.preview.commit' contracts/rill-runtime.json)" \
-            '.packageCommit==$commit and .releaseEligible==true and .previewPackage.name=="rill-runtime-preview" and .previewPackage.upstreamCommit==$upstream and .previewPackage.qualificationState=="PASS"' "$evidence"
-          echo "qualification_manifest_sha256=$(sha256sum "$evidence" | awk '{print $1}')" >> "$GITHUB_OUTPUT"
           python3 scripts/check_rill_dependency.py --package-dir rill-openwrt-packages
-      - uses: actions/download-artifact@v8
-        with:
-          name: luci-app-cloudflare-ip-ipk-v24.10.8
-          path: runtime-package
+          target=$(python3 rill-openwrt-packages/scripts/openwrt_targets.py | jq -ce '[.[] | select(.pkgtype=="ipk" and .packageArch=="x86_64")] | if length==1 then .[0] else error("native integration target must be unique") end')
+          python3 scripts/qualified_rill_artifacts.py --package-dir rill-openwrt-packages \
+            --openwrt-version "$(jq -r .openwrtVersion <<<"$target")" --architecture x86_64 --pkgtype ipk \
+            --output runtime-package > runtime-package-selection.json
+          echo "qualification_manifest_sha256=$(sha256sum runtime-package/qualification.json | awk '{print $1}')" >> "$GITHUB_OUTPUT"
       - name: Extract and verify the actual Preview package Runtime
         id: runtime
         shell: bash
@@ -587,6 +657,8 @@ jobs:
           tar -xf "$preview_package" -C "$RUNNER_TEMP/preview-ipk" "./$data_member"
           case "$data_member" in *.zst) tar --zstd -xf "$RUNNER_TEMP/preview-ipk/$data_member" -C "$RUNNER_TEMP/preview-ipk/data" ;; *.gz) tar -xzf "$RUNNER_TEMP/preview-ipk/$data_member" -C "$RUNNER_TEMP/preview-ipk/data" ;; *) tar -xf "$RUNNER_TEMP/preview-ipk/$data_member" -C "$RUNNER_TEMP/preview-ipk/data" ;; esac
           test -x "$RUNNER_TEMP/preview-ipk/data/usr/bin/rill-runtime"
+          expected_binary_sha=$(jq -r '.qualifiedTarget.binarySha256' runtime-package-selection.json)
+          test "$(sha256sum "$RUNNER_TEMP/preview-ipk/data/usr/bin/rill-runtime" | awk '{print $1}')" = "$expected_binary_sha"
           upstream_commit=$(jq -r '.preview.commit' contracts/rill-runtime.json)
           test "$(jq -r '.upstream.commit' rill-openwrt-packages/metadata/rill-runtime-preview.json)" = "$upstream_commit"
           version=$(jq -r '.openwrtPackage.packageVersion' contracts/rill-runtime.json)
@@ -637,7 +709,7 @@ jobs:
             > rill-runtime-integration.json
       - uses: actions/upload-artifact@v7
         with:
-          name: rill-runtime-integration-evidence
+          name: rill-runtime-integration-evidence-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
           path: rill-runtime-integration.json
           if-no-files-found: error
 
@@ -646,18 +718,8 @@ jobs:
     needs: [host-contract, openwrt-package, package-migration, rill-runtime-integration, docker-replay]
     steps:
       - uses: actions/checkout@v7
-      - name: Verify development release guard
-        shell: bash
-        run: |
-          set -euo pipefail
-          version=$(sed -n 's/^PKG_VERSION:=//p' package/luci-app-cloudflare-ip/Makefile | head -n1)
-          if [[ "$GITHUB_REF" == refs/heads/main ||
-            "$GITHUB_REF" == refs/heads/release/* ||
-            ( "$GITHUB_EVENT_NAME" == pull_request && "$GITHUB_BASE_REF" == main ) ]]; then
-            [[ "$version" != *-dev ]]
-          else
-            [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+-dev$ ]]
-          fi
+      - name: Verify source build version policy
+        run: python3 scripts/check-build-version-policy.py
 
   rpc-luci-contract:
     runs-on: ubuntu-latest
@@ -692,59 +754,68 @@ jobs:
       - name: Install tools
         run: sudo apt-get update && sudo apt-get install -y jq
       - name: Download and execute real CFST
+        env:
+          GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/cfst"
           release_json="$RUNNER_TEMP/cfst/release.json"
-          curl -fsSL --retry 3 https://api.github.com/repos/XIU2/CloudflareSpeedTest/releases/latest -o "$release_json"
-          asset_url=$(jq -r '.assets[] | select(.name|test("linux_amd64.*tar.gz$"; "i")) | .browser_download_url' "$release_json" | head -n1)
-          test -n "$asset_url"
-          curl -fsSL --retry 3 "$asset_url" -o "$RUNNER_TEMP/cfst/archive"
-          tar -xf "$RUNNER_TEMP/cfst/archive" -C "$RUNNER_TEMP/cfst"
-          cfst=$(find "$RUNNER_TEMP/cfst" -type f -name cfst | head -n1)
-          test -n "$cfst"
-          chmod +x "$cfst"
+          gh api repos/XIU2/CloudflareSpeedTest/releases/latest > "$release_json"
+          asset_url=$(python3 scripts/prepare-cfst-smoke.py asset-url "$release_json")
+          curl -fsSL --proto '=https' --proto-redir '=https' --retry 3 --connect-timeout 10 --max-time 120 --max-filesize 67108864 "$asset_url" -o "$RUNNER_TEMP/cfst/archive"
+          cfst=$(python3 scripts/prepare-cfst-smoke.py verify "$release_json" "$RUNNER_TEMP/cfst/archive" "$RUNNER_TEMP/cfst/verified")
           cat > "$RUNNER_TEMP/cfst/input.txt" <<'EOF_INPUT'
           104.16.1.1/32
           2606:4700::1111/128
           EOF_INPUT
-          bash tests/cfst-real-smoke.sh "$cfst" "$RUNNER_TEMP/cfst/input.txt"
+          env -u GH_TOKEN -u GITHUB_TOKEN CFST_EVIDENCE_DIR="$RUNNER_TEMP/cfst/execution" bash tests/cfst-real-smoke.sh "$cfst" "$RUNNER_TEMP/cfst/input.txt"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: cfst-byte-qualification-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/cfst/release.json
+            ${{ runner.temp }}/cfst/verified/cfst-byte-qualification.json
+            ${{ runner.temp }}/cfst/execution/
+          if-no-files-found: error
 
   release-asset-contract:
+    needs: openwrt-package
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - name: Verify complete release asset/checksum contract
-        shell: bash
+      - name: Download exact-attempt SDK artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          set -euo pipefail
-          tmp="$RUNNER_TEMP/release-contract"
-          mkdir -p "$tmp"
-          version=$(sed -n 's/^PKG_VERSION:=//p' package/luci-app-cloudflare-ip/Makefile | head -n1)
-          touch "$tmp/luci-app-cloudflare-ip_${version}-4.ipk" "$tmp/luci-app-cloudflare-ip_${version}-4.apk"
-          (cd "$tmp" && sha256sum luci-app-cloudflare-ip* > sha256sums.txt)
-          bash tests/release-asset-contract.sh "$tmp" "$version"
+          while IFS= read -r artifact; do
+            python3 scripts/download-qualification-artifact.py --repo "$GITHUB_REPOSITORY" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --commit "${{ github.event.pull_request.head.sha || github.sha }}" --name "$artifact" --dir "package-assets/$artifact"
+          done < <(python3 -c 'from scripts.package_identity import artifact_names; print("\n".join(artifact_names()))')
+      - name: Verify real SDK package metadata, bytes and public selection
+        run: python3 -B scripts/check-package-assets.py package-assets
 
   qualification-guard:
     if: always()
-    needs: [host-contract, legacy-contract, rpc-luci-contract, openwrt-package, package-migration, rill-runtime-integration, package-release-guard, workflow-lint, real-cfst-smoke, release-asset-contract, docker-replay]
+    needs: [package-identity, host-contract, legacy-contract, rpc-luci-contract, openwrt-package, package-migration, rill-runtime-integration, package-release-guard, workflow-lint, real-cfst-smoke, release-asset-contract, docker-replay]
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v7
       - name: Require every qualification job
         env:
           RESULTS: ${{ toJSON(needs) }}
         run: |
           set -euo pipefail
-          echo "$RESULTS" | jq -e 'to_entries | all(.value.result == "success")'
+          python3 scripts/qualification_jobs.py <<<"$RESULTS"
           echo QUALIFICATION_COMPLETE
 
   evidence-manifest:
     if: always()
-    needs: [host-contract, legacy-contract, rpc-luci-contract, openwrt-package, package-migration, rill-runtime-integration, package-release-guard, workflow-lint, real-cfst-smoke, release-asset-contract, docker-replay]
+    needs: [package-identity, host-contract, legacy-contract, rpc-luci-contract, openwrt-package, package-migration, rill-runtime-integration, package-release-guard, workflow-lint, real-cfst-smoke, release-asset-contract, docker-replay]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - name: Generate exact qualification manifest
         env:
           RESULTS: ${{ toJSON(needs) }}
@@ -754,12 +825,12 @@ jobs:
           ARTIFACTS="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts" --paginate --jq '[.artifacts[] | {name: .name, digest: (.digest // null), size: .size_in_bytes}]' | jq -s 'add')"
           asset_dir="$RUNNER_TEMP/qualification-assets"
           mkdir -p "$asset_dir"
-          for artifact in luci-app-cloudflare-ip-ipk-v24.10.5 luci-app-cloudflare-ip-apk-v25.12.0; do
-            gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$artifact" --dir "$asset_dir/$artifact"
-          done
-          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name package-migration-ipk-v24.10.8 --dir "$asset_dir/package-migration-ipk"
-          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name package-migration-apk-v25.12.5 --dir "$asset_dir/package-migration-apk"
-          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name rill-runtime-integration-evidence --dir "$asset_dir/rill-runtime-integration"
+          while IFS= read -r artifact; do
+            python3 scripts/download-qualification-artifact.py --repo "$GITHUB_REPOSITORY" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --commit "${{ github.event.pull_request.head.sha || github.sha }}" --name "$artifact" --dir "$asset_dir/$artifact"
+          done < <(python3 scripts/package_identity.py --public-artifacts)
+          python3 scripts/download-qualification-artifact.py --repo "$GITHUB_REPOSITORY" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --commit "${{ github.event.pull_request.head.sha || github.sha }}" --name package-migration-ipk-v24.10.8 --dir "$asset_dir/package-migration-ipk"
+          python3 scripts/download-qualification-artifact.py --repo "$GITHUB_REPOSITORY" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --commit "${{ github.event.pull_request.head.sha || github.sha }}" --name package-migration-apk-v25.12.5 --dir "$asset_dir/package-migration-apk"
+          python3 scripts/download-qualification-artifact.py --repo "$GITHUB_REPOSITORY" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --commit "${{ github.event.pull_request.head.sha || github.sha }}" --name rill-runtime-integration-evidence --dir "$asset_dir/rill-runtime-integration"
           asset_files='[]'
           while IFS= read -r -d '' file; do
             metadata="$file.metadata.json"
@@ -782,7 +853,7 @@ jobs:
           migration_apk=$(find "$asset_dir/package-migration-apk" -type f -name package-migration-evidence.json -print -quit)
           test -n "$migration_ipk" -a -n "$migration_apk"
           PACKAGE_MIGRATION=$(jq -n --argjson ipk "$(cat "$migration_ipk")" --argjson apk "$(cat "$migration_apk")" \
-            '{schemaVersion:1,legacyVersion:$ipk.legacyVersion,sourceTag:$ipk.sourceTag,sourceSHA:$ipk.sourceSHA,currentSHA:$ipk.currentSHA,ipk:$ipk.ipk,apk:$apk.apk,baseOnlyUpgrade:($ipk.baseOnlyUpgrade and $apk.baseOnlyUpgrade),baseAddonToBaseUpgrade:($ipk.baseAddonToBaseUpgrade and $apk.baseAddonToBaseUpgrade),addonRemovalSafe:($ipk.addonRemovalSafe and $apk.addonRemovalSafe),r3ToR4:($ipk.r3ToR4 and $apk.r3ToR4),runtimeAbsent:($ipk.runtimeAbsent and $apk.runtimeAbsent),runtimePresent:($ipk.runtimePresent and $apk.runtimePresent)}')
+            '{schemaVersion:1,currentMatrices:[$ipk.currentMatrix,$apk.currentMatrix],historicalR3ToR4Meaning:$ipk.historicalR3ToR4Meaning,legacyVersion:$ipk.legacyVersion,sourceTag:$ipk.sourceTag,sourceSHA:$ipk.sourceSHA,currentSHA:$ipk.currentSHA,ipk:$ipk.ipk,apk:$apk.apk,baseOnlyUpgrade:($ipk.baseOnlyUpgrade and $apk.baseOnlyUpgrade),baseAddonToBaseUpgrade:($ipk.baseAddonToBaseUpgrade and $apk.baseAddonToBaseUpgrade),addonRemovalSafe:($ipk.addonRemovalSafe and $apk.addonRemovalSafe),r3ToR4:($ipk.r3ToR4 and $apk.r3ToR4),runtimeAbsent:($ipk.runtimeAbsent and $apk.runtimeAbsent),runtimePresent:($ipk.runtimePresent and $apk.runtimePresent)}')
           ASSET_FILES="$asset_files"
           RILL_EVIDENCE="$(cat "$rill_evidence_file")"
           for json_input in RESULTS ARTIFACTS ASSET_FILES RILL_EVIDENCE; do
@@ -793,8 +864,25 @@ jobs:
             fi
           done
           RESULTS="$RESULTS" ARTIFACTS="$ARTIFACTS" ASSET_FILES="$ASSET_FILES" RILL_EVIDENCE="$RILL_EVIDENCE" PACKAGE_MIGRATION="$PACKAGE_MIGRATION" bash tests/evidence-manifest.sh qualification.json
+          public_dir="$RUNNER_TEMP/release-preflight"
+          mkdir -p "$public_dir"
+          while IFS= read -r path; do
+            cp "$asset_dir/$path" "$public_dir/$(basename "$path")"
+          done < <(jq -r '.assetFiles[].path' qualification.json)
+          apk_bin="$GITHUB_WORKSPACE/scripts/apk-metadata.sh"
+          docker pull alpine:3.23
+          export CFIP_APK_OFFLINE=1
+          python3 scripts/release-preflight.py qualification.json "$public_dir" --commit "$GITHUB_SHA" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --apk-bin "$apk_bin" --output release-preflight.json
+          python3 tests/release-preflight-real.py qualification.json "$public_dir" --commit "$GITHUB_SHA" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --apk-bin "$apk_bin" --output release-preflight-negatives.json
+          (cd "$public_dir" && sha256sum -- * > "$GITHUB_WORKSPACE/SHA256SUMS")
+          python3 scripts/prepare-stable-review.py --manifest qualification.json --preflight release-preflight.json --negatives release-preflight-negatives.json --candidate "${{ github.event.pull_request.head.sha || github.sha }}" --repository "$GITHUB_REPOSITORY" --output stable-review.json
       - uses: actions/upload-artifact@v7
         with:
-          name: qualification-evidence
-          path: qualification.json
+          name: qualification-evidence-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
+          path: |
+            qualification.json
+            release-preflight.json
+            release-preflight-negatives.json
+            SHA256SUMS
+            stable-review.json
           if-no-files-found: error
