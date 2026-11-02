@@ -82,16 +82,28 @@ cfip_path_mode_private() {
     return 0
 }
 
+# Production runs as root, so only root-owned paths are accepted. Test and
+# qualification processes may run unprivileged, where -O is false for /usr/bin
+# and /etc even though the path is root-owned; accept UID 0 explicitly.
+cfip_path_owner_trusted() {
+    local path="${1:-}" uid
+    [[ -O "$path" ]] && return 0
+    uid="$(stat -c '%u' "$path" 2>/dev/null || stat -f '%u' "$path" 2>/dev/null)" || return 1
+    [[ "$uid" == 0 ]]
+}
+
 cfip_path_regular_root_safe() {
     local path="${1:-}"
-    [[ -f "$path" && ! -L "$path" && -O "$path" ]] || return 1
+    [[ -f "$path" && ! -L "$path" ]] || return 1
+    cfip_path_owner_trusted "$path" || return 1
     cfip_path_mode_private "$path" || return 1
     return 0
 }
 
 cfip_path_directory_root_safe() {
     local path="${1:-}"
-    [[ -d "$path" && ! -L "$path" && -O "$path" ]] || return 1
+    [[ -d "$path" && ! -L "$path" ]] || return 1
+    cfip_path_owner_trusted "$path" || return 1
     cfip_path_mode_private "$path" || return 1
     return 0
 }

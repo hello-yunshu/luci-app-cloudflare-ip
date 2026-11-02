@@ -5,8 +5,11 @@
 # document validator. Production sources readback first; standalone callers
 # (tests, recovery tools) get the sibling module loaded here.
 if ! declare -F cfip_openclash_yaml_supported >/dev/null 2>&1; then
+    _cfip_txn_lib="${BASH_SOURCE[0]%/*}"
+    [[ "$_cfip_txn_lib" != "${BASH_SOURCE[0]}" ]] || _cfip_txn_lib=.
     # shellcheck source=openclash-readback.sh
-    . "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/openclash-readback.sh"
+    . "$_cfip_txn_lib/openclash-readback.sh"
+    unset _cfip_txn_lib
 fi
 
 CFIP_TXN_DIR=""

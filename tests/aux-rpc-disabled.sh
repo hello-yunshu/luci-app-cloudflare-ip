@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
-mkdir -p "$TMP/bin" /etc/cf_ip
+mkdir -p "$TMP/bin" "$TMP/state"
 cat >"$TMP/bin/uci" <<'UCI'
 #!/bin/sh
 args="$*"
