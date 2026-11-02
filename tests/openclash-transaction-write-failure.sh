@@ -3,6 +3,7 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
+source "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/openclash-readback.sh"
 source "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/transaction.sh"
 cfip_begin_recovery() { :; }
 cfip_openclash_capture_state() { CFIP_OPENCLASH_EXPECTED_ENABLED=0; CFIP_OPENCLASH_INITIAL_HEALTHY=false; }
@@ -12,7 +13,7 @@ cfip_openclash_readback_selected() {
     [[ "$fault" != live-readback || "$CFIP_OPENCLASH_CONFIG" != "$case_dir/live.yaml" ]]
 }
 cfip_openclash_apply_selected() {
-    printf 'transaction candidate\n' >"$CFIP_OPENCLASH_CONFIG"
+    printf 'proxies: []\n# transaction candidate\n' >"$CFIP_OPENCLASH_CONFIG"
     if [[ "$fault" == outside-edit ]]; then printf 'external user edit\n' >"$case_dir/live.yaml"; fi
     [[ "$fault" != transform-after-write ]]
 }

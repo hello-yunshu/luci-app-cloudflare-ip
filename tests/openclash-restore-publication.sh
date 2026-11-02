@@ -27,11 +27,19 @@ for fault in written-snapshot publish-rename external-edit success; do
     CFIP_OPENCLASH_CONFIG="$case_dir/config.yaml"; CFIP_OPENCLASH_BACKUP_COUNT=3
     CFIP_CLEANUP_DONE=false
     printf 'user original\n' >"$CFIP_OPENCLASH_CONFIG"
-    printf 'restored candidate\n' >"$CFIP_OPENCLASH_CONFIG.bak.20200101000000"
+    cat >"$case_dir/expected.yaml" <<'YAML'
+mixed-port: 7890
+proxies:
+  - name: Restored One
+    type: vless
+    server: 104.16.1.1
+    tls: true
+YAML
+    cp "$case_dir/expected.yaml" "$CFIP_OPENCLASH_CONFIG.bak.20200101000000"
     if cmd_oc_restore_backup 20200101000000 >"$case_dir/result.json"; then rc=0; else rc=$?; fi
-    printf '%s: rc=%s live=%s\n' "$fault" "$rc" "$(cat "$CFIP_OPENCLASH_CONFIG")"
+    printf '%s: rc=%s live=%s\n' "$fault" "$rc" "$(head -n 1 "$CFIP_OPENCLASH_CONFIG")"
     case "$fault" in
-      success) [[ "$rc" == 0 && "$(cat "$CFIP_OPENCLASH_CONFIG")" == 'restored candidate' ]] ;;
+      success) [[ "$rc" == 0 ]] && cmp -s "$CFIP_OPENCLASH_CONFIG" "$case_dir/expected.yaml" ;;
       external-edit) [[ "$rc" != 0 && "$(cat "$CFIP_OPENCLASH_CONFIG")" == 'external user edit' ]] ;;
       *) [[ "$rc" != 0 && "$(cat "$CFIP_OPENCLASH_CONFIG")" == 'user original' ]] ;;
     esac

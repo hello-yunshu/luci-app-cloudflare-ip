@@ -1,6 +1,8 @@
-# 2.6.0-r5 Stable 候选晋级方案
+# 2.6.0-r5 Stable 候选晋级方案（历史记录，已被 r6 修复候选取代）
 
-本方案是 G7 审查材料，不是发布许可。版本权威仍为包 Makefile：`2.6.0-r5`、tag `v2.6.0-5`、source channel `stable`。自动 Stable 晋级在 `release.yml` 中保持禁用；merge、tag、Release、feed 和发布后回读都没有执行。
+> 状态：本文的字节、哈希和结论只对应 r5 / `371bf78`。当前包 Makefile 已提升为 `2.6.0-r6` 审计修复候选；r6 需要重新执行 exact-head CI 资格化、严格预检和用户审批，本文不构成 r6 的发布许可。
+
+本方案是历史 G7 审查材料。本文记录的候选为 `2.6.0-r5`、候选 tag `v2.6.0-5`、source channel `stable`；当前源码版本以包 Makefile 为准。自动 Stable 晋级在 `release.yml` 中保持禁用；merge、tag、Release、feed 和发布后回读都没有执行。
 
 ## 候选身份
 

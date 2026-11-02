@@ -4,9 +4,17 @@
 CFIP_INIT_DIR="${CFIP_INIT_DIR:-/etc/init.d}"
 
 cfip_log() {
-    local msg="$*" ts
+    local msg="$*" ts max_bytes current_bytes
     ts="$(date '+%Y-%m-%d %H:%M:%S' 2>/dev/null || date)"
     mkdir -p "${CFIP_LOG_FILE%/*}" 2>/dev/null || true
+    max_bytes="${CFIP_LOG_MAX_BYTES:-1048576}"
+    [[ "$max_bytes" =~ ^[1-9][0-9]*$ ]] || max_bytes=1048576
+    if [[ -f "$CFIP_LOG_FILE" ]]; then
+        current_bytes="$(wc -c <"$CFIP_LOG_FILE" 2>/dev/null || printf 0)"
+        if [[ "$current_bytes" =~ ^[0-9]+$ ]] && ((current_bytes >= max_bytes)); then
+            mv -f "$CFIP_LOG_FILE" "${CFIP_LOG_FILE}.1" 2>/dev/null || rm -f "$CFIP_LOG_FILE" 2>/dev/null || true
+        fi
+    fi
     printf '[%s] %s\n' "$ts" "$msg" >>"$CFIP_LOG_FILE" 2>/dev/null || true
     [[ "${CFIP_VERBOSE:-false}" == true ]] && printf '[cloudflare-ip] %s\n' "$msg" >&2 || true
 }
@@ -39,6 +47,179 @@ cfip_atomic_write() {
     cat >"$tmp" || { rm -f "$tmp"; return 1; }
     chmod 600 "$tmp" 2>/dev/null || true
     mv "$tmp" "$output" || { rm -f "$tmp"; return 1; }
+}
+
+# Managed paths are root-owned package state. Refuse traversal, symlink
+# components and group/world-writable targets before using them as root.
+cfip_path_absolute_safe() {
+    local path="${1:-}"
+    [[ "$path" == /* ]] || return 1
+    [[ "$path" != *"//"* ]] || return 1
+    [[ "$path" != *"/../"* && "$path" != *"/.." ]] || return 1
+    [[ "$path" != *"/./"* && "$path" != *"/." ]] || return 1
+    [[ "$path" != *".."* ]] || return 1
+    return 0
+}
+
+cfip_path_symlink_component() {
+    local path="${1:-}" cur="" component
+    local -a components=()
+    [[ "$path" == /* ]] || return 0
+    IFS=/ read -r -a components <<<"$path"
+    for component in "${components[@]}"; do
+        [[ -n "$component" ]] || continue
+        cur="$cur/$component"
+        [[ -L "$cur" ]] && return 0
+    done
+    return 1
+}
+
+cfip_path_mode_private() {
+    local path="${1:-}" mode
+    mode="$(ls -ld "$path" 2>/dev/null | awk 'NR==1{print $1}')" || return 1
+    [[ "$mode" =~ ^[bcddlps-][rwxstST-]{9}$ ]] || return 1
+    [[ "${mode:5:1}${mode:8:1}" != *w* ]] || return 1
+    return 0
+}
+
+# Production runs as root, so only root-owned paths are accepted. Test and
+# qualification processes may run unprivileged, where -O is false for /usr/bin
+# and /etc even though the path is root-owned; accept UID 0 explicitly.
+cfip_path_owner_trusted() {
+    local path="${1:-}" uid
+    [[ -O "$path" ]] && return 0
+    uid="$(stat -c '%u' "$path" 2>/dev/null || stat -f '%u' "$path" 2>/dev/null)" || return 1
+    [[ "$uid" == 0 ]]
+}
+
+cfip_path_regular_root_safe() {
+    local path="${1:-}"
+    [[ -f "$path" && ! -L "$path" ]] || return 1
+    cfip_path_owner_trusted "$path" || return 1
+    cfip_path_mode_private "$path" || return 1
+    return 0
+}
+
+cfip_path_directory_root_safe() {
+    local path="${1:-}"
+    [[ -d "$path" && ! -L "$path" ]] || return 1
+    cfip_path_owner_trusted "$path" || return 1
+    cfip_path_mode_private "$path" || return 1
+    return 0
+}
+
+cfip_path_under() {
+    local prefix="${1:-}" path="${2:-}"
+    [[ "$path" == "$prefix" || "$path" == "$prefix"/* ]]
+}
+
+# Rill state is package-owned; custom filenames under /etc/cf_ip are allowed,
+# but the path may never escape into system configuration.
+cfip_managed_rill_state_safe() {
+    local path="${1:-}" parent prefix="${CFIP_STATUS_DIR:-/etc/cf_ip}"
+    [[ "$prefix" == /* ]] || return 1
+    cfip_path_absolute_safe "$prefix" || return 1
+    cfip_path_absolute_safe "$path" || return 1
+    # Production uses /etc/cf_ip for both. Tests may redirect CFIP_STATUS_DIR,
+    # so accept either package-owned prefix; anything else stays rejected.
+    if ! cfip_path_under /etc/cf_ip "$path" && ! cfip_path_under "$prefix" "$path"; then
+        return 1
+    fi
+    cfip_path_symlink_component "$path" && return 1
+    if [[ -e "$path" || -L "$path" ]]; then
+        cfip_path_regular_root_safe "$path" || return 1
+    else
+        parent="${path%/*}"
+        [[ -n "$parent" ]] || return 1
+        if [[ -e "$parent" || -L "$parent" ]]; then
+            cfip_path_directory_root_safe "$parent" || return 1
+        fi
+    fi
+    return 0
+}
+
+# OpenClash owns this directory; only files below it may be read or replaced.
+cfip_managed_openclash_config_safe() {
+    local path="${1:-}" parent
+    [[ -n "$path" ]] || return 1
+    cfip_path_absolute_safe "$path" || return 1
+    cfip_path_under /etc/openclash "$path" || return 1
+    cfip_path_symlink_component "$path" && return 1
+    if [[ -e "$path" || -L "$path" ]]; then
+        cfip_path_regular_root_safe "$path" || return 1
+    else
+        parent="${path%/*}"
+        [[ -n "$parent" ]] || return 1
+        if [[ -e "$parent" || -L "$parent" ]]; then
+            cfip_path_directory_root_safe "$parent" || return 1
+        fi
+    fi
+    return 0
+}
+
+# CFST is a root-executed downloaded binary. Keep its directory inside the
+# package-owned locations and require root-owned, non-symlink targets.
+cfip_managed_work_dir_safe() {
+    local path="${1:-}" cfst_dir binary
+    [[ "$path" == /usr/bin || "$path" == /usr/share/cf-ip || "$path" == /usr/share/cf-ip/* ]] || return 1
+    cfip_path_absolute_safe "$path" || return 1
+    cfip_path_symlink_component "$path" && return 1
+    cfip_path_directory_root_safe "$path" || return 1
+    cfst_dir="$path/cfst"
+    binary="$cfst_dir/cfst"
+    if [[ -e "$cfst_dir" || -L "$cfst_dir" ]]; then
+        cfip_path_directory_root_safe "$cfst_dir" || return 1
+    fi
+    if [[ -e "$binary" || -L "$binary" ]]; then
+        cfip_path_regular_root_safe "$binary" || return 1
+    fi
+    return 0
+}
+
+# Runtime packages share /usr/bin/rill-runtime. The CF consumer is qualified
+# only against Preview; detect the channel before invoking the binary.
+cfip_rill_runtime_channel() {
+    local marker="${CFIP_RILL_CHANNEL_FILE:-/usr/share/rill/runtime-channel}" value=""
+    if [[ -f "$marker" && ! -L "$marker" && -O "$marker" ]]; then
+        # BusyBox tr treats '[:space:]' as literal characters; use sed.
+        value="$(head -n 1 "$marker" 2>/dev/null | sed 's/[[:space:]]//g')"
+        case "$value" in stable|preview) printf '%s' "$value"; return 0 ;; esac
+    fi
+    # Package DB files avoid invoking the package manager while an install
+    # transaction is still holding its lock.
+    if [[ -f /lib/apk/packages/rill-runtime-preview.list || -f /usr/lib/opkg/info/rill-runtime-preview.list ]]; then
+        printf preview; return 0
+    fi
+    if [[ -f /lib/apk/packages/rill-runtime.list || -f /usr/lib/opkg/info/rill-runtime.list ]]; then
+        printf stable; return 0
+    fi
+    if command -v apk >/dev/null 2>&1; then
+        if apk info -e rill-runtime-preview >/dev/null 2>&1; then printf preview; return 0; fi
+        if apk info -e rill-runtime >/dev/null 2>&1; then printf stable; return 0; fi
+    fi
+    if command -v opkg >/dev/null 2>&1; then
+        if opkg list-installed 2>/dev/null | grep -q '^rill-runtime-preview '; then printf preview; return 0; fi
+        if opkg list-installed 2>/dev/null | grep -q '^rill-runtime '; then printf stable; return 0; fi
+    fi
+    printf unknown
+}
+
+cfip_rill_runtime_allowed() {
+    [[ "$(cfip_rill_runtime_channel)" == preview ]]
+}
+
+cfip_managed_runtime_path_safe() {
+    local path="${1:-}" parent
+    [[ "$path" == /usr/bin/rill-runtime ]] || return 1
+    cfip_path_absolute_safe "$path" || return 1
+    cfip_path_symlink_component "$path" && return 1
+    if [[ -e "$path" || -L "$path" ]]; then
+        cfip_path_regular_root_safe "$path" || return 1
+    else
+        parent="${path%/*}"
+        cfip_path_directory_root_safe "$parent" || return 1
+    fi
+    return 0
 }
 
 cfip_generate_run_id() {
@@ -270,6 +451,16 @@ CFIP_OPENCLASH_SERVICE_APPLIED=false
 CFIP_OPENCLASH_SERVICE_ERROR=""
 CFIP_OPENCLASH_ENABLE_VALUE=""
 
+cfip_openclash_require_no_pending() {
+    local changes
+    changes="$(uci changes openclash 2>/dev/null)" || { CFIP_OPENCLASH_SERVICE_ERROR="cannot read OpenClash pending UCI changes"; return 1; }
+    [[ -z "$changes" ]] || {
+        CFIP_OPENCLASH_SERVICE_ERROR="OpenClash has unrelated pending UCI changes; refusing to commit them"
+        return 1
+    }
+    return 0
+}
+
 cfip_openclash_read_enable() {
     local value rc=0
     CFIP_OPENCLASH_ENABLE_VALUE=""
@@ -423,6 +614,7 @@ cfip_stop_service() {
         cfip_openclash_read_enable || return 1
         enable="$CFIP_OPENCLASH_ENABLE_VALUE"
         [[ "$enable" == 1 ]] || { CFIP_OPENCLASH_SERVICE_ERROR="OpenClash enable state changed before stop; refusing service/config changes"; return 1; }
+        cfip_openclash_require_no_pending || return 1
         uci -q set openclash.config.enable=0 || { CFIP_OPENCLASH_SERVICE_ERROR="failed to set temporary OpenClash stop state"; return 1; }
         if ! uci -q commit openclash; then
             if cfip_openclash_read_enable && [[ "$CFIP_OPENCLASH_ENABLE_VALUE" == 0 ]]; then
@@ -480,6 +672,7 @@ cfip_restart_service() {
                 CFIP_OPENCLASH_SERVICE_ERROR="OpenClash enable state changed before apply; refusing to re-enable it"
                 return 1
             }
+            cfip_openclash_require_no_pending || return 1
             if ! uci -q set openclash.config.enable=1 || ! uci -q commit openclash; then
                 CFIP_OPENCLASH_SERVICE_ERROR="failed to restore OpenClash enable state before restart"
                 return 1
@@ -657,7 +850,11 @@ cfip_run_with_timeout() {
     CFIP_ACTIVE_WATCHER_PID="$watcher"
     CFIP_ACTIVE_WATCHER_PGID="$watcher_pgid"
     while kill -0 "$pid" 2>/dev/null && kill -0 "$watcher" 2>/dev/null; do
-        sleep 0.1
+        # BusyBox sleep without FEATURE_FANCY_SLEEP rejects fractional values.
+        if [[ -z "${CFIP_SLEEP_FRACTIONAL:-}" ]]; then
+            if sleep 0.1 2>/dev/null; then CFIP_SLEEP_FRACTIONAL=1; else CFIP_SLEEP_FRACTIONAL=0; fi
+        fi
+        if [[ "$CFIP_SLEEP_FRACTIONAL" == 1 ]]; then sleep 0.1; else sleep 1; fi
     done
     if kill -0 "$pid" 2>/dev/null && ! kill -0 "$watcher" 2>/dev/null; then
         : >"$marker"

@@ -1202,7 +1202,9 @@ cfip_openclash_yaml_supported() {
       /^proxies:/ {
         if (seen++) reject("duplicate proxies section")
         value=$0; sub(/^proxies:[ ]*/, "", value)
-        if (value!="" && value !~ /^#/) reject("proxies must use block sequence form")
+        # An explicitly empty sequence is still safe to parse; any populated
+        # flow sequence remains outside the conservative contract.
+        if (value!="" && value !~ /^#/ && value !~ /^\[[ ]*\][ ]*(#.*)?$/) reject("proxies must use block sequence form")
         active=1; next
       }
       /^[^ #][^:]*:/ { active=0 }
