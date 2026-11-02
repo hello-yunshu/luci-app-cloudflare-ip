@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-24",
+  "candidateCommit": "7db4286fe2f620b852650b1bff228be04418efa2",
+  "qualificationRunId": 40086320914,
+  "runAttempt": 1,
+  "apkSha256": "8536b0373f4b3e17e48ce7026b63c5679e8c561171bce797756e26ee49acbbf7",
+  "device": "OpenWrt25.12.5 x86_64 Microsoft VM / OpenClash / IPv4 HTTP",
+  "authorization": "User approved the proposed 24-hour Native soak in this chat",
+  "baseline": "FAIL",
+  "soak": "NOT STARTED",
+  "error": "apply transaction failed (rc=16); OpenClash restart returned but stable core and local /group health were not verified",
+  "restoration": "PASS: original1.8.3-r1, package set, config/state/cron/world and authenticated controller health restored; no pending UCI",
+  "privateArchiveSha256": "054be7e3a7f4cbb1ba9cd3cdcfe36ad25e0b2884306a40d9c35a1517933f3d0a",
+  "reproduction": "An init command that returns immediately while controller readiness takes eight seconds is rejected by the old ten-second post-init window; three stable observations need through second12",
+  "repair": "Share the existing312-second startup bound between init execution and stable authenticated HTTP/PID verification in common, Legacy and standalone; do not extend it by a second independent wait",
+  "localRegression": "Eight related suites pass; new delayed/exhausted/never-ready cases pass in all three engines on WSL and native router using isolated functions and a virtual clock",
+  "qualification": "Changed product SHA requires fresh full qualification and a new baseline; prior green runs and failed trial are retained",
+  "publication": "NOT RUN"
+}

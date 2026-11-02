@@ -23,3 +23,49 @@ cfip_probe_one(){ local ip="$1" domain="$2" family="$3"; jq -cn --arg ip "$ip" -
 CFIP_RUN_ID=post-apply-test; printf '%s\n' '[{"ip":"104.16.1.1","family":"ipv4"},{"ip":"104.16.1.2","family":"ipv4"}]' >"$TMP/post-selected.json"; cfip_post_apply_probe "$TMP/post-selected.json" example.com 3 "$TMP/post.json"
 jq -e '.validated==true and (.appliedIps|length)==2 and (.probes|length)==2' "$TMP/post.json" >/dev/null
 echo 'v2 observation/eligibility tests passed'
+
+# Real post-apply verifier: fresh OpenClash may report controller readiness
+# before its TLS data path is ready. Every retry must verify all IPs/domains.
+(
+ printf 0 >"$TMP/clock"; printf 0 >"$TMP/probe-count"
+ cfip_monotonic_seconds(){ cat "$TMP/clock"; }
+ sleep(){ printf '%s' "$(( $(cat "$TMP/clock") + $1 ))" >"$TMP/clock"; }
+ cfip_probe_one(){
+   printf '%s' "$(( $(cat "$TMP/probe-count") + 1 ))" >"$TMP/probe-count"
+   local ok=false code=35 tls=0
+   case "$scenario" in
+     delayed|mixed|mixed_receive)
+       if (( $(cat "$TMP/clock")>=7 )); then ok=true; code=0; tls=20
+       elif [[ "$scenario" == mixed && "$2" == two.example ]]; then code=28; tls=20
+       elif [[ "$scenario" == mixed_receive && "$2" == two.example ]]; then code=56; tls=20; fi ;;
+     receive) code=56; tls=20 ;;
+     timeout) code=28; tls=20 ;;
+     connect) code=7 ;;
+     budget) code=124 ;;
+     certificate) code=60 ;;
+     http) code=0 ;;
+   esac
+   jq -cn --arg ip "$1" --arg domain "$2" --arg family "$3" --argjson ok "$ok" --argjson code "$code" --argjson tls "$tls" '{ip:$ip,domain:$domain,family:$family,success:$ok,curlExit:$code,tlsMs:$tls,ttfbMs:30,totalMs:40}'
+ }
+ CFIP_MODE=openclash; CFIP_OPENCLASH_SERVICE_APPLIED=true
+ for scenario in delayed mixed mixed_receive persistent timeout connect receive certificate http budget short_budget reuse; do
+   printf 0 >"$TMP/clock"; printf 0 >"$TMP/probe-count"
+   CFIP_OPENCLASH_SERVICE_APPLIED=true; CFIP_MEASUREMENT_DEADLINE=180
+   [[ "$scenario" != short_budget ]] || CFIP_MEASUREMENT_DEADLINE=3
+   [[ "$scenario" != reuse ]] || CFIP_OPENCLASH_SERVICE_APPLIED=false
+   if cfip_post_apply_probe "$TMP/post-selected.json" one.example,two.example 3 "$TMP/settling-$scenario.json"; then rc=0; else rc=$?; fi
+   # Dynamic local deadline must never replace the caller's measurement bound.
+   [[ "$CFIP_MEASUREMENT_DEADLINE" == 180 || "$scenario" == short_budget && "$CFIP_MEASUREMENT_DEADLINE" == 3 ]]
+   case "$scenario" in
+     delayed|mixed|mixed_receive)
+       [[ "$rc" == 0 && "$(cat "$TMP/clock")" == 14 && "$(cat "$TMP/probe-count")" == 16 ]]
+       jq -e '.validated==true and (.probes|length)==4 and (.serviceSettling.rounds|length)==4 and .serviceSettling.rounds[0].validated==false' "$TMP/settling-$scenario.json" >/dev/null ;;
+     persistent|timeout|connect|receive)
+       [[ "$rc" != 0 && "$(cat "$TMP/clock")" == 14 && "$(cat "$TMP/probe-count")" == 16 ]]
+       jq -e '.validated==false and (.serviceSettling.rounds|length)==4' "$TMP/settling-$scenario.json" >/dev/null ;;
+     short_budget) [[ "$rc" != 0 && "$(cat "$TMP/clock")" == 2 && "$(cat "$TMP/probe-count")" == 8 ]] ;;
+     *) [[ "$rc" != 0 && "$(cat "$TMP/clock")" == 0 && "$(cat "$TMP/probe-count")" == 4 ]] ;;
+   esac
+   echo "PASS post-apply settling $scenario"
+ done
+)

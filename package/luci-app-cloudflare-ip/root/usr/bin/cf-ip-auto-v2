@@ -240,7 +240,7 @@ stop_service_for_measurement(){
         [[ "${CFIP_OPENCLASH_EXPECTED_ENABLED:-}" == 1 ]] || return 0
         [[ "$CFIP_STOP_SERVICE" == true ]] || return 0
         CFIP_OPENCLASH_SERVICE_ERROR=""
-        if ! cfip_openclash_health_wait 5; then
+        if ! cfip_openclash_health_wait 10; then
             CFIP_OPENCLASH_SERVICE_ERROR="OpenClash became unhealthy before stop; no node file was changed"
             return 1
         fi

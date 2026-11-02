@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-24",
+  "failedCandidate": "22103dccbab4d399f062f38174ca1b979f692864",
+  "failedCandidateQualification": {"runId": 40091903786, "runAttempt": 1, "software": "PASS", "nativeBaseline": "FAIL rc15", "soak": "NOT STARTED"},
+  "before": {"expectedCount": 8, "expectedUnique": 4, "actualMarkedCount": 4, "actualUnique": 4, "unmatchedFields": 0},
+  "repair": "Model existing numbered variants once and fill only missing slots; retain independent per-slot profiles and reject actual duplicate names rather than deduplicating observed nodes",
+  "afterSameNativePrivateCase": {"status": "PASS", "expectedCount": 4, "actualMarkedCount": 4, "expectedDuplicateNames": 0, "actualDuplicateNames": 0, "unmatchedFields": 0, "liveProxyFilesUnchanged": true},
+  "regressions": {"wslRelatedSuites": 8, "nativeRelatedSuites": 4, "realTransaction": ["unmarked first run", "grow to two generated slots", "repeated changed IPs", "same-IP idempotence", "retain distinct slot authentication", "fill missing first slot", "duplicate nodes refuse before publication"], "readbackNegatives": ["wrong network", "wrong IP", "missing node", "duplicate tuple", "same-name conflicting fields"], "jq": "literal split/join; actual native no-ONIGURUMA jq and host no-regex fixture both passed"},
+  "authorization": "Current user goal: 请修复，实现24小时 soak 执行与验收",
+  "remaining": "Fresh exact-SHA full qualification, actual full baseline, 24-hour observation and final restoration/acceptance remain required",
+  "publication": "NOT RUN"
+}

@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "scope": "RP exact-attempt qualification and all twelve independently downloaded original packages",
+  "status": "PASS",
+  "packageCommit": "8581c717db8c57fc83c0ace4d808bb9d32b4b1eb",
+  "runId": 40066219701,
+  "runAttempt": 1,
+  "manifestSha256": "421b3f6b4f12c92ac2288734c117f912f4c78ecfe38d714a9482676b71e4fa38",
+  "actualPackagesVerified": 12,
+  "verification": "Pinned verify_qualification.py --artifacts-dir, real IPK/APK metadata and ELF/binary/package digest inspection; network-disabled python:3.12-alpine3.23 container",
+  "sourceLockSha256": "3e20b673fd5c32c881a80242556532a919c8b1d2836dc6d538ee00740cad6311",
+  "advisoryDatabase": {
+    "advisory-count": 1352,
+    "last-commit": "8a5b8090ef20c9c1b425f3373f28b0b23cc5c7a0",
+    "last-updated": "2026-10-23T21:33:55-06:00"
+  },
+  "auditsAllZeroWithoutWarningsOrIgnores": true,
+  "assets": [
+    {
+      "artifact": "rill-runtime-v24.10.8-aarch64_cortex-a53.ipk",
+      "sha256": "cb9a7d4089f2f0b6d70ad9be063393feb8cf36ba429cfdb58fe2e0d3a8a59dab",
+      "binarySha256": "d226de21c2b7bfccd939d4766a6c5d806b240787d2df143eac8647f7aa81b688",
+      "packageArch": "aarch64_cortex-a53",
+      "openwrtVersion": "24.10.8",
+      "pkgtype": "ipk"
+    },
+    {
+      "artifact": "rill-runtime-v24.10.8-aarch64_generic.ipk",
+      "sha256": "41aeabe29b9d97220ae3cdc1fe3b388e47c2072d3848486accf5610f09e3b78e",
+      "binarySha256": "1b92fe86366dc9ad3f574a4f8f927264a61f3551ac037f85528d32d2ce648d6c",
+      "packageArch": "aarch64_generic",
+      "openwrtVersion": "24.10.8",
+      "pkgtype": "ipk"
+    },
+    {
+      "artifact": "rill-runtime-v24.10.8-x86_64.ipk",
+      "sha256": "b294efe4ce2d5030dbf1af16b5f1495121a7bf2ff511e73d77e3d86bf8ac5c62",
+      "binarySha256": "66a3274e9ccb484687d7a4e1d286df6c939565a1c415cabca003f7e2a1a388e9",
+      "packageArch": "x86_64",
+      "openwrtVersion": "24.10.8",
+      "pkgtype": "ipk"
+    },
+    {
+      "artifact": "rill-runtime-v25.12.5-aarch64_cortex-a53.apk",
+      "sha256": "38b5f4f5df14f1a97ab2416c0adfc6fdbec6fa62e6ec5075286d3086a6a21caf",
+      "binarySha256": "f285cdb92bcf58b529f9d83d0590be213c89282c19bf9d56aadd82386ad84b4e",
+      "packageArch": "aarch64_cortex-a53",
+      "openwrtVersion": "25.12.5",
+      "pkgtype": "apk"
+    },
+    {
+      "artifact": "rill-runtime-v25.12.5-aarch64_generic.apk",
+      "sha256": "bd180375120020db487bb69e4502063280dfec70c60434d6fd3dc1a0a34986c9",
+      "binarySha256": "1be81d15881d2c27d76a98a597efeb4a9f27682471e3c1aa2d37cbd0211bcd12",
+      "packageArch": "aarch64_generic",
+      "openwrtVersion": "25.12.5",
+      "pkgtype": "apk"
+    },
+    {
+      "artifact": "rill-runtime-v25.12.5-x86_64.apk",
+      "sha256": "c52e7702ba3fb35611cff518871d7db0143e00f7ace670351d1e47e332753ced",
+      "binarySha256": "e3e7c536a8fbd045baf317396145f9735f01e6a6f6eb4ce125fb1cdb7983e160",
+      "packageArch": "x86_64",
+      "openwrtVersion": "25.12.5",
+      "pkgtype": "apk"
+    },
+    {
+      "artifact": "rill-runtime-preview-v24.10.8-aarch64_cortex-a53.ipk",
+      "sha256": "e97945c1abc42c947c447c1e0630b85641cd895ca6f459889c7bc0a23d5c2d98",
+      "binarySha256": "b724a008f6d14d1b8611cdefb4654628cf9d000301e66081cf326bbaaaa69a77",
+      "packageArch": "aarch64_cortex-a53",
+      "openwrtVersion": "24.10.8",
+      "pkgtype": "ipk"
+    },
+    {
+      "artifact": "rill-runtime-preview-v24.10.8-aarch64_generic.ipk",
+      "sha256": "fb6d28a500dcf93c10cd2c3289d234ae9c224f015e0578b2aa9112f67972b6bf",
+      "binarySha256": "ac5ac30631b63fc2dc409883e5a94c5653a43ed601a8828a4d168a7f90934107",
+      "packageArch": "aarch64_generic",
+      "openwrtVersion": "24.10.8",
+      "pkgtype": "ipk"
+    },
+    {
+      "artifact": "rill-runtime-preview-v24.10.8-x86_64.ipk",
+      "sha256": "2c1a808fe6f43eb27e954ff4efca1ea31307e00814056c841d85c6cff8c51fce",
+      "binarySha256": "2a2a10d1fa2b2dcf3bfd2a14305b4d346ef3c0f9960f353034d79c4b72e1d8d6",
+      "packageArch": "x86_64",
+      "openwrtVersion": "24.10.8",
+      "pkgtype": "ipk"
+    },
+    {
+      "artifact": "rill-runtime-preview-v25.12.5-aarch64_cortex-a53.apk",
+      "sha256": "ec43c8f92bd8b1eba26118dde1d4c3e636d0971fab3098f7815b39ae7b50eb35",
+      "binarySha256": "5e74c6c4da83f59d1e1fb5d753a9b11ba5e4a78354a1077614ed87ae026a29f2",
+      "packageArch": "aarch64_cortex-a53",
+      "openwrtVersion": "25.12.5",
+      "pkgtype": "apk"
+    },
+    {
+      "artifact": "rill-runtime-preview-v25.12.5-aarch64_generic.apk",
+      "sha256": "f13c54552815bba37476992fbdc5b168cff063ec3d35d27acaca8ec11f8ec18d",
+      "binarySha256": "a52a0b418d85803e5a9e62a7c0844e55ff22a74aa4d8f688ef1e9a9f8826ca6b",
+      "packageArch": "aarch64_generic",
+      "openwrtVersion": "25.12.5",
+      "pkgtype": "apk"
+    },
+    {
+      "artifact": "rill-runtime-preview-v25.12.5-x86_64.apk",
+      "sha256": "e102c61954457d2167d3f8c294ff279cad837d832cd32b848a6efd7c09f7405a",
+      "binarySha256": "29f71e71d91f18c18eb8e80d53d326ce061304d79552826f9291194b81ab04d7",
+      "packageArch": "x86_64",
+      "openwrtVersion": "25.12.5",
+      "pkgtype": "apk"
+    }
+  ],
+  "publication": "NOT RUN"
+}
