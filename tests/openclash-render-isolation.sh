@@ -21,7 +21,7 @@ cat >"$TMP/bin/uci" <<'UCI'
 [[ "${1:-}" != -q ]] || shift
 if [[ "${1:-}" != get || "${2:-}" != cf_ip.* ]]; then printf 'unexpected UCI: %s\n' "$*" >>"$RENDER_FIXTURE/side-effects"; exit 99; fi
 case "$2" in
- cf_ip.main.work_dir) printf '%s\n' "$RENDER_FIXTURE/work" ;;
+ cf_ip.main.work_dir) printf '%s\n' "/usr/bin" ;;
  cf_ip.openclash.config) printf '%s\n' "$RENDER_FIXTURE/live.yaml" ;;
  cf_ip.openclash.target_domain) printf 'cdn.example.com\n' ;;
  cf_ip.openclash.name_suffix) printf ' [CF-{n}]\n' ;;

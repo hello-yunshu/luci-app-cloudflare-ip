@@ -161,11 +161,13 @@ return view.extend({
 		o.datatype = 'range(100,10000)';
 		o.default = '2000';
 
-		o = s.option(form.Value, 'runtime', _('Runtime Path'));
-		o.default = '/usr/bin/rill-runtime';
+		o = s.option(form.DummyValue, '_runtime_path', _('Runtime Path'));
+		o.cfgvalue = function() { return '/usr/bin/rill-runtime'; };
+		o.description = _('Fixed package-managed Preview Runtime path; custom executable paths are rejected.');
 
 		o = s.option(form.Value, 'state_file', _('State File'));
 		o.default = '/etc/cf_ip/rill-state.json';
+		o.description = _('Must stay under /etc/cf_ip. Paths outside the package state directory are rejected.');
 
 		s = m.section(form.TypedSection, 'rill', _('Live State'));
 		s.anonymous = true;

@@ -74,11 +74,9 @@ return view.extend({
 			_('Output detailed progress logs.'));
 		o.default = '0';
 
-		o = s.option(form.Value, 'work_dir', _('Work Directory'),
-			_('Leave empty to use the script directory.'));
-		o.placeholder = '/root/cf-ip';
-		o.rmempty = true;
-		o.datatype = 'string';
+		o = s.option(form.DummyValue, '_work_dir', _('Work Directory'));
+		o.cfgvalue = function() { return uci.get('cf_ip', 'main', 'work_dir') || '/usr/bin'; };
+		o.description = _('Fixed to /usr/bin or /usr/share/cf-ip. CFST is downloaded and executed as root only from these directories.');
 
 		o = s.option(form.Value, 'measurement_timeout', _('Measurement Deadline (seconds)'),
 			_('Measurement deadline for stop, CFST, probes, apply and normal restart. Recovery has a separate deadline.'));

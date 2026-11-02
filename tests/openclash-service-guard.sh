@@ -15,6 +15,7 @@ cat >"$TMP/bin/uci" <<'EOF_UCI'
 #!/usr/bin/env bash
 [[ "${1:-}" == -q ]] && shift
 case "${1:-}" in
+  changes) : ;;
   get) case "$2" in openclash.config.enable) cat "$TEST_TMP/enable" ;; openclash.config.cn_port) printf 9090 ;; cf_ip.main.self_update_url) cat "$TEST_TMP/update-url" ;; *) exit 1 ;; esac ;;
   set) pair="$2"; case "${pair%%=*}" in openclash.config.enable) printf '%s\n' "${pair#*=}" >"$TEST_TMP/enable" ;; cf_ip.main.self_update_url) printf '%s\n' "${pair#*=}" >"$TEST_TMP/update-url" ;; *) exit 1 ;; esac ;;
   commit) printf 'commit\n' >>"$TEST_TMP/migration.log" ;;
@@ -208,7 +209,7 @@ CFIP_OPENCLASH_CONFIG="$TMP/openclash.yaml"
 printf 'original\n' >"$CFIP_OPENCLASH_CONFIG"
 CFIP_TXN_DIR=""; CFIP_RUN_ID=guard-disabled
 cfip_txn_prepare openclash
-cfip_openclash_apply_selected() { printf 'updated\n' >"$CFIP_OPENCLASH_CONFIG"; }
+cfip_openclash_apply_selected() { printf 'proxies: []\n# updated\n' >"$CFIP_OPENCLASH_CONFIG"; }
 cfip_openclash_readback_selected() { return 0; }
 printf '[]\n' >"$TMP/selected.json"
 cfip_txn_apply openclash "$TMP/selected.json"

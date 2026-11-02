@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-cloudflare-ip
 PKG_VERSION:=2.6.0
-PKG_RELEASE:=5
+PKG_RELEASE:=6
 
 PKG_MAINTAINER:=yunshu
 PKG_LICENSE:=GPL-3.0
@@ -68,6 +68,7 @@ define Package/luci-app-cloudflare-ip/install
 		$(INSTALL_BIN) $(PKG_BUILD_DIR)/root/usr/libexec/cf-ip/$$$$script $(1)/usr/libexec/cf-ip/; \
 	done
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/root/usr/libexec/cf-ip/migrate-self-update-url.sh $(1)/usr/libexec/cf-ip/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/root/usr/libexec/cf-ip/migrate-managed-config.sh $(1)/usr/libexec/cf-ip/
 	$(INSTALL_DIR) $(1)/usr/share/cf-ip
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/root/usr/share/cf-ip/candidate-rill-feature-schema-v2.json $(1)/usr/share/cf-ip/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/root/etc/init.d/cf_ip_publisher $(1)/etc/init.d/
@@ -87,10 +88,20 @@ define Package/luci-app-cloudflare-ip/install
 	fi
 endef
 
+define Package/luci-app-cloudflare-ip/preinst
+#!/bin/sh
+[ "$${PKG_UPGRADE:-0}" = 1 ] || exit 0
+[ -n "$${IPKG_INSTROOT}" ] && exit 0
+[ ! -x /etc/init.d/cf_ip ] || /etc/init.d/cf_ip stop || { echo "cf_ip stop failed; refusing package upgrade" >&2; exit 1; }
+[ ! -x /etc/init.d/cf_ip_publisher ] || /etc/init.d/cf_ip_publisher stop || { echo "cf_ip_publisher stop failed; refusing package upgrade" >&2; exit 1; }
+exit 0
+endef
+
 define Package/luci-app-cloudflare-ip/postinst
 #!/bin/sh
 [ -n "$${IPKG_INSTROOT}" ] || { \
 	[ -x /usr/libexec/cf-ip/migrate-self-update-url.sh ] && /usr/libexec/cf-ip/migrate-self-update-url.sh; \
+	[ -x /usr/libexec/cf-ip/migrate-managed-config.sh ] && /usr/libexec/cf-ip/migrate-managed-config.sh; \
 	[ -x /etc/init.d/cf_ip ] && /etc/init.d/cf_ip enable 2>/dev/null; \
 	uci -q get luci.languages.zh_cn >/dev/null || uci -q set luci.languages.zh_cn='简体中文'; \
 	uci -q commit luci; \

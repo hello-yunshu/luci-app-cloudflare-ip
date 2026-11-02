@@ -11,7 +11,9 @@ cfip_openclash_yaml_supported() {
       /^proxies:/ {
         if (seen++) reject("duplicate proxies section")
         value=$0; sub(/^proxies:[ ]*/, "", value)
-        if (value!="" && value !~ /^#/) reject("proxies must use block sequence form")
+        # An explicitly empty sequence is still safe to parse; any populated
+        # flow sequence remains outside the conservative contract.
+        if (value!="" && value !~ /^#/ && value !~ /^\[[ ]*\][ ]*(#.*)?$/) reject("proxies must use block sequence form")
         active=1; next
       }
       /^[^ #][^:]*:/ { active=0 }
@@ -86,6 +88,43 @@ rescue ArgumentError => error
   exit 1
 end
 CFIP_YAML_DOCUMENT
+}
+
+cfip_openclash_escape_regex() {
+    printf '%s' "$1" | sed 's/[][\\.^$*+?(){}|]/\\&/g'
+}
+
+# Parse a generated proxy name against the configured suffix. The suffix may
+# contain {n} and/or {ip}; empty and literal suffixes are valid too. Sets
+# CFIP_OC_BASE/CFIP_OC_SEQ; returns 1 for an unmarked template.
+cfip_openclash_name_parts() {
+    local name="$1" suffix="$2" token_n='__CFIP_N__' token_ip='__CFIP_IP__' work escaped regex
+    CFIP_OC_BASE=""; CFIP_OC_SEQ=""
+    [[ -n "$suffix" ]] || { CFIP_OC_BASE="$name"; CFIP_OC_SEQ=1; return 0; }
+    work="$suffix"
+    work="${work//\{n\}/$token_n}"
+    work="${work//\{ip\}/$token_ip}"
+    escaped="$(cfip_openclash_escape_regex "$work")" || return 1
+    escaped="${escaped//$token_n/([0-9]+)}"
+    escaped="${escaped//$token_ip/.*}"
+    regex="^(.*)${escaped}$"
+    [[ "$name" =~ $regex ]] || return 1
+    CFIP_OC_BASE="${BASH_REMATCH[1]}"
+    if [[ "$suffix" == *'{n}'* ]]; then
+        CFIP_OC_SEQ="${BASH_REMATCH[2]}"
+    else
+        CFIP_OC_SEQ=1
+    fi
+    return 0
+}
+
+cfip_openclash_variant_count() {
+    local suffix="$1" count="$2"
+    if [[ -n "$suffix" && "$suffix" == *'{n}'* ]]; then
+        printf '%s' "$count"
+    else
+        printf '1'
+    fi
 }
 
 cfip_openclash_protocol_supported() {
@@ -163,12 +202,13 @@ cfip_openclash_intended_from_templates() {
             if [[ "$server" == "$line" || "$servername" == "$line" || "$host" == "$line" ]]; then domain="$line"; break; fi
         done
         [[ -n "$domain" ]] || continue
-        base="$name"
-        while [[ "$base" =~ ^(.*)[[:space:]]\[CF-[0-9]+\][^[:space:]]*$ ]]; do base="${BASH_REMATCH[1]}"; done
-        seq=""
-        if [[ "$name" =~ [[:space:]]\[CF-([0-9]+)\][^[:space:]]*$ ]]; then seq="${BASH_REMATCH[1]}"; fi
-        jq -cn --arg base "$base" --arg domain "$domain" --arg network "$network" --arg seq "$seq" \
-          '{base:$base,domain:$domain,network:$network,seq:(if $seq=="" then null else ($seq|tonumber) end)}' >"$tmp.row"
+        if cfip_openclash_name_parts "$name" "$suffix"; then
+            base="$CFIP_OC_BASE"; seq="$CFIP_OC_SEQ"
+        else
+            base="$name"; seq=""
+        fi
+        jq -cn --arg base "$base" --arg domain "$domain" --arg network "$network" --arg tls "$tls" --arg sni "$servername" --arg host "$host" --arg seq "$seq" \
+          '{base:$base,domain:$domain,network:$network,tls:$tls,sni:$sni,host:$host,seq:(if $seq=="" then null else ($seq|tonumber) end)}' >"$tmp.row"
         jq --argjson row "$(cat "$tmp.row")" '. + [$row]' "$tmp" >"$tmp.next" && mv "$tmp.next" "$tmp" || { rm -f "$tmp" "$tmp.row" "$tmp.next"; return 1; }
     done < <(cfip_openclash_mapping_tsv "$config")
     # Existing generated blocks represent individual slots, not independent
@@ -178,12 +218,13 @@ cfip_openclash_intended_from_templates() {
     # deduplicate actual nodes or collapse conflicting template definitions.
     if ! jq --arg suffix "$suffix" --argjson ips "$(printf '%s\n' "${ips[@]}" | jq -R . | jq -s .)" '
       . as $templates |
-      (if $suffix=="" then 1 else ($ips|length) end) as $count |
+      (if $suffix=="" or ($suffix|contains("{n}")|not) then 1 else ($ips|length) end) as $count |
       def emit($n):
         . as $template | $ips[(($n-1)%($ips|length))] as $ip |
         ($suffix | split("{n}") | join($n|tostring) | split("{ip}") | join($ip)) as $tail |
-        {name:($template.base+$tail),server:$ip,servername:$template.domain,network:$template.network,
-         host:(if $template.network=="ws" or $template.network=="xhttp" then $template.domain else null end),
+        {name:($template.base+$tail),server:$ip,network:$template.network,
+         servername:(if $template.sni!="" or (($template.tls|ascii_downcase)=="true") then $template.domain else null end),
+         host:(if $template.host!="" or $template.network=="ws" or $template.network=="xhttp" then $template.domain else null end),
          _key:[$template.base,$template.domain],_seq:$n};
       [$templates[] | if .seq==null then . as $t | range(1;$count+1) as $n | $t | emit($n)
         elif .seq>0 then emit(.seq) else empty end] as $existing |
@@ -200,7 +241,9 @@ cfip_openclash_intended_from_templates() {
 cfip_openclash_validate_mapping() {
     local intended="$1" actual="$2"
     jq -n -e --slurpfile expected "$intended" --slurpfile observed "$actual" '
-      ($expected[0]) as $e | ($observed[0] | map(select(.name|contains("[CF-")))) as $a |
+      ($expected[0]) as $e |
+      ($e|map(.name)) as $names |
+      ($observed[0] | map(select(.name as $n | $names|index($n)))) as $a |
       ($e|length)>0 and ($a|length)==($e|length) and
       (($e|map(.name)|unique|length)==($e|length)) and
       (($a|map(.name)|unique|length)==($a|length)) and

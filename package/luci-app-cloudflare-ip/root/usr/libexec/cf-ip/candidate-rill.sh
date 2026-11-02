@@ -28,6 +28,7 @@ CFIP_RILL_HOLDOUT_INTERVAL="${CFIP_RILL_HOLDOUT_INTERVAL:-5}"
 CFIP_RILL_HOLDOUT_STATE_FILE="${CFIP_RILL_HOLDOUT_STATE_FILE:-$CFIP_RILL_BASE_DIR/rill-holdout-cadence.json}"
 CFIP_RILL_REWARD_TIE_EPSILON="${CFIP_RILL_REWARD_TIE_EPSILON:-0.02}"
 CFIP_RILL_EVALUATION_MAX_AGE_SECONDS="${CFIP_RILL_EVALUATION_MAX_AGE_SECONDS:-86400}"
+CFIP_RILL_READONLY="${CFIP_RILL_READONLY:-false}"
 
 cfip_rill_now_seconds() {
     if [[ "${CFIP_RILL_FAKE_NOW:-}" =~ ^[0-9]+$ ]]; then
@@ -515,16 +516,27 @@ cfip_rill_quarantine_pending_queue() {
 
 cfip_rill_runtime_call() {
     local request="$1" response schema request_file response_file rc=0 response_bytes
+    local state_path="$CFIP_RILL_STATE" readonly_dir=""
     [[ -x "$CFIP_RILL_RUNTIME" ]] || return 3
     schema="$(cfip_rill_schema_hash)" || return 4
-    cfip_rill_prepare_state || return 10
-    mkdir -p "${CFIP_RILL_STATE%/*}"
-    request_file="$(mktemp "${TMPDIR:-/tmp}/cfip-rill-call.XXXXXX")" || return 4
-    response_file="$(mktemp "${TMPDIR:-/tmp}/cfip-rill-response.XXXXXX")" || { rm -f "$request_file"; return 4; }
+    if [[ "${CFIP_RILL_READONLY:-false}" == true ]]; then
+        # Read-only callers operate on a private copy; Runtime state must not
+        # be created or mutated by status/diagnostics.
+        [[ -f "$state_path" && ! -L "$state_path" ]] || return 10
+        readonly_dir="$(mktemp -d "${TMPDIR:-/tmp}/cfip-rill-readonly.XXXXXX")" || return 4
+        cp -p "$state_path" "$readonly_dir/state" || { rm -rf "$readonly_dir"; return 10; }
+        state_path="$readonly_dir/state"
+    else
+        cfip_rill_prepare_state || return 10
+        mkdir -p "${CFIP_RILL_STATE%/*}"
+    fi
+    request_file="$(mktemp "${TMPDIR:-/tmp}/cfip-rill-call.XXXXXX")" || { rm -rf "$readonly_dir"; return 4; }
+    response_file="$(mktemp "${TMPDIR:-/tmp}/cfip-rill-response.XXXXXX")" || { rm -f "$request_file"; rm -rf "$readonly_dir"; return 4; }
     printf '%s\n' "$request" >"$request_file"
     cfip_run_with_timeout "${CFIP_RILL_TIMEOUT_S:-2}" sh -c 'cat "$1" | "$2" preview-serve --state "$3" --feature-schema-hash "$4" --model-generation "$5"' \
-      sh "$request_file" "$CFIP_RILL_RUNTIME" "$CFIP_RILL_STATE" "$schema" "$CFIP_RILL_MODEL_GENERATION" >"$response_file" 2>>"$CFIP_LOG_FILE" || rc=$?
+      sh "$request_file" "$CFIP_RILL_RUNTIME" "$state_path" "$schema" "$CFIP_RILL_MODEL_GENERATION" >"$response_file" 2>>"$CFIP_LOG_FILE" || rc=$?
     response_bytes="$(wc -c <"$response_file" 2>/dev/null || printf 0)"
+    rm -rf "$readonly_dir"
     if ((rc != 0)); then rm -f "$request_file" "$response_file"; return "$rc"; fi
     if ((response_bytes > 262144)); then rm -f "$request_file" "$response_file"; return 8; fi
     response="$(cat "$response_file")"; rm -f "$request_file" "$response_file"

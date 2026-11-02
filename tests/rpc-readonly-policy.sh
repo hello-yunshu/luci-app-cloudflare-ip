@@ -17,7 +17,7 @@ import json,subprocess,sys
 acl=json.load(open(sys.argv[1]))['luci-app-cloudflare-ip']
 read=set(acl['read']['ubus']['cf_ip']);write=set(acl['write']['ubus']['cf_ip'])
 methods=set(json.loads(subprocess.check_output(['sh',sys.argv[2],'list'])))
-mutations={'run','clear-log','refresh-env','self-update','download-cfst','source-refresh','start','stop','restart','sync','oc-restore-backup','oc-delete-backup','rill-reset'}
+mutations={'run','clear-log','refresh-env','self-update','download-cfst','source-refresh','adaptive-status','rill-self-check','rill-diagnostics','start','stop','restart','sync','oc-restore-backup','oc-delete-backup','rill-reset'}
 assert mutations <= write and not mutations & read,(read,write)
 assert read | write == methods and not read & write,(methods,read,write)
 PY

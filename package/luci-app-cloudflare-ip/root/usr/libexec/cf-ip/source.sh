@@ -14,6 +14,7 @@ CFIP_SOURCE_CONNECT_TIMEOUT="${CFIP_SOURCE_CONNECT_TIMEOUT:-5}"
 CFIP_SOURCE_TOTAL_TIMEOUT="${CFIP_SOURCE_TOTAL_TIMEOUT:-15}"
 CFIP_SOURCE_MAX_COUNT="${CFIP_SOURCE_MAX_COUNT:-16}"
 CFIP_SOURCE_MAX_VALID_PER_SOURCE="${CFIP_SOURCE_MAX_VALID_PER_SOURCE:-2048}"
+CFIP_SOURCE_CACHE_TOTAL_MAX_BYTES="${CFIP_SOURCE_CACHE_TOTAL_MAX_BYTES:-16777216}"
 CFIP_SOURCE_MIN_VALID_REMOTE="${CFIP_SOURCE_MIN_VALID_REMOTE:-2}"
 CFIP_HISTORY_MAX_AGE_SECONDS="${CFIP_HISTORY_MAX_AGE_SECONDS:-604800}"
 CFIP_SOURCE_POLICY="${CFIP_SOURCE_POLICY:-balanced}"
@@ -314,12 +315,39 @@ cfip_source_cache_work_create() {
 
 # Publish bytes and qualification metadata as one rename, preserving the old
 # bundle until the replacement is fully written and its byte roundtrip checked.
+cfip_source_cache_total_kb() {
+    local total
+    total="$(du -sk "${CFIP_SOURCE_CACHE_DIR:-}" 2>/dev/null | awk 'NR==1{print $1}')" || return 1
+    [[ "$total" =~ ^[0-9]+$ ]] || return 1
+    printf '%s' "$total"
+}
+
+cfip_source_cache_enforce_total() {
+    local max_bytes="${CFIP_SOURCE_CACHE_TOTAL_MAX_BYTES:-16777216}" max_kb total oldest
+    [[ "$max_bytes" =~ ^[1-9][0-9]*$ ]] || return 0
+    max_kb=$((max_bytes / 1024))
+    total="$(cfip_source_cache_total_kb 2>/dev/null || printf 0)"
+    [[ "$total" =~ ^[0-9]+$ ]] || return 0
+    while ((total > max_kb)); do
+        oldest="$(ls -td "${CFIP_SOURCE_CACHE_DIR:-}"/*/ 2>/dev/null | tail -n 1)"
+        [[ -n "$oldest" ]] || break
+        rm -rf "$oldest" || return 1
+        total="$(cfip_source_cache_total_kb 2>/dev/null || printf 0)"
+        [[ "$total" =~ ^[0-9]+$ ]] || break
+    done
+    return 0
+}
+
 cfip_source_cache_publish() {
     local work lease_pid="${BASHPID:-}" result=0
     # On Bash 3, exec in the command substitution exposes the caller via PPID.
     [[ -n "$lease_pid" ]] || lease_pid="$(exec sh -c 'printf "%s" "$PPID"')"
     work="$(cfip_source_cache_work_create "$1" "$lease_pid")" || return 1
-    cfip_source_cache_publish_private "$work" "$@" || result=$?
+    if cfip_source_cache_publish_private "$work" "$@"; then
+        cfip_source_cache_enforce_total || result=$?
+    else
+        result=$?
+    fi
     rm -rf "$work" || return 1
     return "$result"
 }

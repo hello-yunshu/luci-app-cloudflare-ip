@@ -243,14 +243,12 @@ cfip_txn_rollback() {
         CFIP_TXN_STATE=ROLLED_BACK
         ;;
       openclash)
-        # A failed normal startup is final for this run. Keep its node file,
-        # snapshot and OpenClash's own failure state for diagnosis.
+        local restored_config=false service_failed=false
         if { ((CFIP_OPENCLASH_RESTART_ATTEMPTS > 0)) || [[ "$CFIP_OPENCLASH_CF_STOPPED" == true && "$CFIP_OPENCLASH_RECOVERY_ATTEMPTED" == true ]]; } && [[ "$CFIP_OPENCLASH_SERVICE_APPLIED" != true ]]; then
-            CFIP_STOPPED_MODE=""
-            CFIP_RECOVERY_ERROR="${CFIP_OPENCLASH_SERVICE_ERROR:-OpenClashRecoveryFailed}"
-            return 1
+            # Restore the transaction snapshot first; never leave the failed
+            # candidate as the live config just because startup failed.
+            service_failed=true
         fi
-        local restored_config=false
         if cmp -s "$CFIP_OPENCLASH_CONFIG" "$CFIP_TXN_DIR/openclash.yaml"; then
             :
         elif [[ -f "$CFIP_TXN_DIR/openclash.written.yaml" ]] && cmp -s "$CFIP_OPENCLASH_CONFIG" "$CFIP_TXN_DIR/openclash.written.yaml"; then
@@ -262,6 +260,11 @@ cfip_txn_rollback() {
             # Do not start a stopped service with bytes this transaction never
             # validated. Keep the journal and report incomplete recovery.
             CFIP_STOPPED_MODE=""
+            return 1
+        fi
+        if [[ "$service_failed" == true ]]; then
+            CFIP_STOPPED_MODE=""
+            CFIP_RECOVERY_ERROR="${CFIP_OPENCLASH_SERVICE_ERROR:-OpenClashRecoveryFailed}"
             return 1
         fi
         if [[ "$CFIP_OPENCLASH_EXPECTED_ENABLED" == 1 ]] && {
@@ -451,6 +454,10 @@ cfip_passwall_expand_suffix() {
 cfip_txn_publish_openclash() {
     local candidate="$1" config="$CFIP_OPENCLASH_CONFIG" temporary backup label="${2:-}"
     [[ -z "$label" || "$label" == pre-restore ]] || return 1
+    cfip_openclash_yaml_supported "$candidate" || {
+        CFIP_OPENCLASH_SERVICE_ERROR="OpenClash candidate or backup is not a supported YAML document; nothing was published"
+        return 1
+    }
     cp -p "$candidate" "$CFIP_TXN_DIR/openclash.written.yaml" || { CFIP_OPENCLASH_SERVICE_ERROR="Failed to journal OpenClash candidate before publication"; return 1; }
     temporary="$(mktemp "${config}.candidate.XXXXXX")" || return 1
     if ! cp -p "$CFIP_TXN_DIR/openclash.written.yaml" "$temporary"; then rm -f "$temporary"; return 1; fi

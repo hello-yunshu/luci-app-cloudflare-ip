@@ -10,6 +10,7 @@ cat >"$TMP/bin/uci" <<'EOF'
 [[ "${1:-}" != -q ]] || shift
 [[ ! -e "$REVIEW_TMP/read-fail" || "$1" != get ]] || exit 1
 case "$1:$2" in
+changes:openclash) : ;;
 get:openclash.config.enable) cat "$REVIEW_TMP/enable" ;;
 get:openclash.config.cn_port) printf 9090 ;;
 get:cf_ip.main.mode) printf openclash ;;
@@ -110,9 +111,12 @@ cfip_txn_prepare openclash; cfip_stop_service openclash; CFIP_STOPPED_MODE=openc
 if cfip_txn_apply openclash "$TMP/selected.json"; then echo 'failed normal recovery passed' >&2; exit 1; fi
 rollback_active_transaction || :
 test "$(grep -c '^restart$' "$TMP/service.log")" = 1
-rg -q 'selected nodes' "$CFIP_OPENCLASH_CONFIG"; test "$CFIP_OPENCLASH_FILE_WRITTEN" = true
+# H2: a restart failure must not leave the invalid written candidate in place.
+rg -q 'secret: test-only' "$CFIP_OPENCLASH_CONFIG"
+! rg -q 'selected nodes' "$CFIP_OPENCLASH_CONFIG"
+test "$CFIP_OPENCLASH_FILE_WRITTEN" = true
 test -d "$CFIP_TXN_DIR"
-echo 'failed normal recovery preserves written nodes and never retries from transaction cleanup'
+echo 'failed normal recovery restores the original snapshot and never retries from transaction cleanup'
 
 reset 1 live
 cfip_openclash_capture_state

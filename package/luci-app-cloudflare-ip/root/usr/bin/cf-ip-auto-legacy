@@ -1251,8 +1251,33 @@ expand_suffix() {
 	printf '%s' "$suffix"
 }
 
+openclash_escape_regex() {
+	printf '%s' "$1" | sed 's/[][\\.^$*+?(){}|]/\\&/g'
+}
+
+openclash_name_parts() {
+	local proxy_name="$1" suffix="$OPENCLASH_NAME_SUFFIX" token_n='__CFIP_N__' token_ip='__CFIP_IP__' work escaped regex
+	OPENCLASH_BASE_NAME=""; OPENCLASH_VARIANT_SEQ=""
+	[[ -n "$suffix" ]] || { OPENCLASH_BASE_NAME="$proxy_name"; OPENCLASH_VARIANT_SEQ=1; return 0; }
+	work="$suffix"
+	work="${work//\{n\}/$token_n}"
+	work="${work//\{ip\}/$token_ip}"
+	escaped="$(openclash_escape_regex "$work")" || return 1
+	escaped="${escaped//$token_n/([0-9]+)}"
+	escaped="${escaped//$token_ip/.*}"
+	regex="^(.*)${escaped}$"
+	[[ "$proxy_name" =~ $regex ]] || return 1
+	OPENCLASH_BASE_NAME="${BASH_REMATCH[1]}"
+	if [[ "$suffix" == *'{n}'* ]]; then
+		OPENCLASH_VARIANT_SEQ="${BASH_REMATCH[2]}"
+	else
+		OPENCLASH_VARIANT_SEQ=1
+	fi
+	return 0
+}
+
 openclash_variant_count() {
-	if [[ -n "$OPENCLASH_NAME_SUFFIX" ]]; then
+	if [[ -n "$OPENCLASH_NAME_SUFFIX" && "$OPENCLASH_NAME_SUFFIX" == *'{n}'* ]]; then
 		printf '%s' "$IP_COUNT"
 	else
 		printf '1'
@@ -1261,21 +1286,17 @@ openclash_variant_count() {
 
 openclash_generated_index() {
 	local proxy_name="$1"
-
-	if [[ "$proxy_name" =~ [[:space:]]\[CF-([0-9]+)\][^[:space:]]*$ ]]; then
-		printf '%s' "${BASH_REMATCH[1]}"
-		return 0
-	fi
-	return 1
+	openclash_name_parts "$proxy_name" || return 1
+	printf '%s' "$OPENCLASH_VARIANT_SEQ"
 }
 
 openclash_base_name() {
 	local proxy_name="$1"
-
-	while [[ "$proxy_name" =~ ^(.*)[[:space:]]\[CF-[0-9]+\][^[:space:]]*$ ]]; do
-		proxy_name="${BASH_REMATCH[1]}"
-	done
-	printf '%s' "$proxy_name"
+	if openclash_name_parts "$proxy_name"; then
+		printf '%s' "$OPENCLASH_BASE_NAME"
+	else
+		printf '%s' "$proxy_name"
+	fi
 }
 
 openclash_domain_matches() {
@@ -1537,7 +1558,9 @@ cfip_openclash_yaml_supported() {
       /^proxies:/ {
         if (seen++) reject("duplicate proxies section")
         value=$0; sub(/^proxies:[ ]*/, "", value)
-        if (value!="" && value !~ /^#/) reject("proxies must use block sequence form")
+        # An explicitly empty sequence is still safe to parse; any populated
+        # flow sequence remains outside the conservative contract.
+        if (value!="" && value !~ /^#/ && value !~ /^\[[ ]*\][ ]*(#.*)?$/) reject("proxies must use block sequence form")
         active=1; next
       }
       /^[^ #][^:]*:/ { active=0 }

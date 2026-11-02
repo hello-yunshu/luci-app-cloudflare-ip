@@ -28,7 +28,7 @@ case "${1:-}" in
             cf_ip.main.speedtest_threads) printf '200' ;;
             cf_ip.main.speedtest_ping_count) printf '3' ;;
             cf_ip.main.stop_service) printf '1' ;;
-            cf_ip.main.work_dir) printf '%s' "$TMP/work" ;;
+            cf_ip.main.work_dir) printf '%s' "/usr/bin" ;;
             cf_ip.main.cron_interval) printf '6h' ;;
             cf_ip.main.candidate_budget) printf '128' ;;
             cf_ip.main.probe_top_count) printf '8' ;;
@@ -54,6 +54,7 @@ case "${1:-}" in
             cf_ip.rill.min_feedback_samples) printf '30' ;;
             cf_ip.rill.delayed_feedback_minutes) printf '10' ;;
             cf_ip.rill.timeout_ms) printf '2000' ;;
+            cf_ip.rill.state_file) printf '/etc/cf_ip/rill-state.json' ;;
             cf_ip.lan.enabled) printf '0' ;;
             *) exit 1 ;;
         esac
@@ -92,7 +93,7 @@ PY_SNAPSHOT
 before_disabled_validation="$(snapshot_state)"
 for mode in passwall openclash; do
     domain_key="cf_ip.${mode}.target_domain"
-    candidate="$(jq -cn --arg mode "$mode" --arg key "$domain_key" '{"cf_ip.main.enabled":"0","cf_ip.main.mode":$mode,($key):"","cf_ip.openclash.config":"/definitely-absent-cfip-test/config.yaml"}')"
+    candidate="$(jq -cn --arg mode "$mode" --arg key "$domain_key" '{"cf_ip.main.enabled":"0","cf_ip.main.mode":$mode,($key):"","cf_ip.openclash.config":"/etc/openclash/config/config.yaml"}')"
     disabled="$($BIN --validate-config "$candidate")" || { echo "disabled $mode save wrongly requires configured proxy: $disabled" >&2; exit 1; }
     jq -e '.success == true and .valid == true' <<<"$disabled" >/dev/null
     enabled="$(jq '. + {"cf_ip.main.enabled":"1"}' <<<"$candidate")"
