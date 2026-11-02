@@ -105,6 +105,10 @@ jobs:
           bash tests/openclash-yaml-boundary.sh
           bash tests/openclash-readback-positive.sh
           bash tests/openclash-restore-publication.sh
+          bash tests/openclash-pending-uci.sh
+          bash tests/openclash-restore-validation.sh
+          bash tests/openclash-service-guard.sh
+          bash tests/openclash-suffix-contract.sh
           bash tests/v2-candidate-budget.sh
           bash tests/v2-cfst-exact-input.sh
           bash tests/v2-measurement-deadline.sh
@@ -128,11 +132,13 @@ jobs:
           bash tests/rill-single-learner-contract.sh
           bash tests/cfst-version-contract.sh
           bash tests/cfst-download-fallback-version.sh
+          bash tests/cfst-install-deadline.sh
           python3 tests/cfst-install-faults.py
           python3 tests/cfst-cache-qualification.py
           CFIP_TEST_LEGACY="$PWD/package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto" python3 tests/cfst-install-faults.py
           CFIP_TEST_LEGACY="$PWD/package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto" python3 tests/cfst-cache-qualification.py
           bash tests/source-refresh-deadline.sh
+          bash tests/source-cache-cap.sh
           bash tests/resource-pressure-contract.sh
           bash tests/multi-ip-diversity-contract.sh
           bash tests/reuse-policy-contract.sh
@@ -149,6 +155,8 @@ jobs:
           node tests/luci-run-status.cjs
           bash tests/luci-validation-contract.sh
           bash tests/luci-staged-validation.sh
+          bash tests/aux-rpc-disabled.sh
+          bash tests/log-rotation.sh
           bash tests/openclash-empty-fields.sh
           bash tests/installed-routing-contract.sh
           bash tests/disabled-cron-contract.sh
@@ -258,6 +266,25 @@ jobs:
           set -euo pipefail
           jq -e '(.schemaVersion == 1) and (.timingMode == "replayed") and (.environment == "macbook-docker-replay") and ((.scenarios | length) == 7) and all(.scenarios[]; (has("estimatedWallClockSaving") | not))' docker/2.3/results/replay-evidence.json
           jq -e '(.schemaVersion == 1) and (.source.timingMode == "replayed") and (.aggregate | has("meanReplayProbeReductionRatio") and has("meanReplayWinnerRecall") and has("meanReplayTopNRecall") and has("replayFallbackRate") and has("meanReplayMeasurementDurationMs"))' docker/2.3/results/replay-evidence-summary.json
+
+  rootfs-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Run rootfs policy and migration tests in disposable OpenWrt
+        run: |
+          set -euo pipefail
+          docker run --rm --platform linux/amd64 \
+            -v "$GITHUB_WORKSPACE:/repo" -w /repo \
+            openwrt/rootfs:x86_64-24.10.8 sh -c '
+              set -eu
+              mkdir -p /var/lock /etc/cf_ip
+              opkg update >/dev/null 2>&1
+              opkg install bash jq >/dev/null 2>&1
+              bash tests/managed-path-policy.sh
+              bash tests/legacy-start-status.sh
+              bash tests/runtime-channel-matrix.sh
+            '
 
   legacy-contract:
     runs-on: ubuntu-latest
@@ -796,7 +823,7 @@ jobs:
 
   qualification-guard:
     if: always()
-    needs: [package-identity, host-contract, legacy-contract, rpc-luci-contract, openwrt-package, package-migration, rill-runtime-integration, package-release-guard, workflow-lint, real-cfst-smoke, release-asset-contract, docker-replay]
+    needs: [package-identity, host-contract, legacy-contract, rpc-luci-contract, openwrt-package, package-migration, rill-runtime-integration, package-release-guard, workflow-lint, real-cfst-smoke, release-asset-contract, docker-replay, rootfs-contract]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -810,7 +837,7 @@ jobs:
 
   evidence-manifest:
     if: always()
-    needs: [package-identity, host-contract, legacy-contract, rpc-luci-contract, openwrt-package, package-migration, rill-runtime-integration, package-release-guard, workflow-lint, real-cfst-smoke, release-asset-contract, docker-replay]
+    needs: [package-identity, host-contract, legacy-contract, rpc-luci-contract, openwrt-package, package-migration, rill-runtime-integration, package-release-guard, workflow-lint, real-cfst-smoke, release-asset-contract, docker-replay, rootfs-contract]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
