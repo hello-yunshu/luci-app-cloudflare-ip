@@ -27,7 +27,7 @@ if [[ "$CFIP_TEST_PHASE" == mutated ]]; then
   cfip_passwall_set_owned passwall.owned.address 104.18.1.1
   uci commit passwall
  else
-  printf 'candidate changed bytes\n' >"$CFIP_TEST_CASE/candidate.yaml"
+  printf 'proxies: []\n# candidate changed bytes\n' >"$CFIP_TEST_CASE/candidate.yaml"
   cfip_txn_publish_openclash "$CFIP_TEST_CASE/candidate.yaml"
  fi
 fi
