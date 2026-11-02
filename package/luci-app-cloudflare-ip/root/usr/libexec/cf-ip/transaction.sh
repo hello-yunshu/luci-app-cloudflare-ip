@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 # shellcheck shell=bash
 
+# The transaction publishes OpenClash candidates and therefore needs the
+# document validator. Production sources readback first; standalone callers
+# (tests, recovery tools) get the sibling module loaded here.
+if ! declare -F cfip_openclash_yaml_supported >/dev/null 2>&1; then
+    # shellcheck source=openclash-readback.sh
+    . "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/openclash-readback.sh"
+fi
+
 CFIP_TXN_DIR=""
 CFIP_TXN_ROLLED_BACK=false
 CFIP_TXN_STATE=NONE
