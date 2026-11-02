@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-02",
+  "scope": "G6 software exit evidence and G7 candidate identity after the fresh Runtime security requalification",
+  "candidate": {
+    "repository": "hello-yunshu/luci-app-cloudflare-ip",
+    "commit": "371bf78b772540f5829e5700f4f09a73e33888c1",
+    "testedCommit": "371bf78b772540f5829e5700f4f09a73e33888c1",
+    "tree": "96efc814ec9b0ddb3ff70f939875abe86d4e2315",
+    "runId": 41411391996,
+    "runAttempt": 1,
+    "qualificationManifestSha256": "f8ec144be0b98ac64832938e53d4c452efb41edcc94420256fcd989bfbf055f9",
+    "stableReviewSha256": "see qualification-evidence artifact; stable-review.json is bound to this run"
+  },
+  "identity": {
+    "name": "luci-app-cloudflare-ip",
+    "version": "2.6.0",
+    "release": 5,
+    "packageVersion": "2.6.0-r5",
+    "channel": "stable",
+    "tag": "v2.6.0-5"
+  },
+  "tagReadback": {
+    "candidateTag": "v2.6.0-5",
+    "available": true,
+    "existingRemoteTags": ["v2.6.0-1", "v2.6.0-2", "v2.6.0-3"],
+    "source": "git ls-remote --tags origin"
+  },
+  "assets": [
+    {
+      "path": "luci-app-cloudflare-ip-ipk-v24.10.5/luci-app-cloudflare-ip_2.6.0-r5_all.ipk",
+      "sha256": "13d8695cbedf7017c99af2514032a9a638ef7469be523873c2a583c5d02bc1c1",
+      "size": 165277,
+      "package": {"name": "luci-app-cloudflare-ip", "version": "2.6.0", "release": 5, "packageVersion": "2.6.0-r5", "format": "ipk", "architecture": "all"}
+    },
+    {
+      "path": "luci-app-cloudflare-ip-apk-v25.12.0/luci-app-cloudflare-ip-2.6.0-r5.apk",
+      "sha256": "5dd686b04ad3933e4bbef5c62e136a3f3c9ef88bd7d7cdbefd41b0d43e2dae2d",
+      "size": 165277,
+      "package": {"name": "luci-app-cloudflare-ip", "version": "2.6.0", "release": 5, "packageVersion": "2.6.0-r5", "format": "apk", "architecture": "noarch"}
+    }
+  ],
+  "jobs": {
+    "runJobCount": 18,
+    "requiredQualificationJobs": ["package-identity", "host-contract", "legacy-contract", "rpc-luci-contract", "openwrt-package", "package-migration", "rill-runtime-integration", "package-release-guard", "workflow-lint", "real-cfst-smoke", "release-asset-contract", "docker-replay"],
+    "allRequiredSuccess": true,
+    "qualificationGuard": "success",
+    "evidenceManifest": "success"
+  },
+  "offlinePreflight": {
+    "status": "PASS",
+    "receipt": "release-preflight.json",
+    "negativeCases": 10,
+    "negativeStatus": "PASS",
+    "negativeReceipt": "release-preflight-negatives.json"
+  },
+  "downloadReadback": {
+    "ipk": "sha256sum -c SHA256SUMS: PASS",
+    "apk": "sha256sum -c SHA256SUMS: PASS",
+    "downloadedArtifact": "luci-app-cloudflare-ip-ipk-v24.10.5-run-41411391996-attempt-1 and luci-app-cloudflare-ip-apk-v25.12.0-run-41411391996-attempt-1",
+    "note": "This verifies the published-byte candidate, not a public Release download; publication is NOT RUN."
+  },
+  "runtime": {
+    "packageRepository": "hello-yunshu/rill-openwrt-packages",
+    "packageCommit": "563fea8b9ff37cfcd7428258482e721775cc003f",
+    "qualificationRunId": 41409074857,
+    "runAttempt": 1,
+    "manifestSha256": "8d6b7dc575ada8ba38f7d7ac29e16015836560eb3d66192bd15d59c75340a838",
+    "stablePackage": "1.5.6-r4",
+    "previewPackage": "1.5.6-r6",
+    "sourceLockSha256": "fb26ca6d05a48b657123bee2abcacc025dcfddb76916ed8009024451c201fa03",
+    "wasmtime": "49.0.5",
+    "binarySha256": "f0c41e549e3467659b7c9cf3dfcba680a922c352f6317a5e5682fe55167ebc32",
+    "sameReleaseIntegration": "PASS",
+    "integrationEvidence": "rill-runtime-integration-evidence-run-41411391996-attempt-1/rill-runtime-integration.json"
+  },
+  "security": {
+    "freshDatabase": {"last-commit": "2295466c4e9df26647fd67d8fa1c705ac2fc7f81", "advisory-count": 1395, "last-updated": "2026-10-30T12:12:39+01:00"},
+    "shippedRuntime": {"dependencyCount": 235, "vulnerabilityCount": 0, "warnings": {}, "ignoredAdvisories": []},
+    "fullWorkspace": {"dependencyCount": 416, "vulnerabilityCount": 4, "advisoryIds": ["RUSTSEC-2026-0391", "RUSTSEC-2026-0398", "RUSTSEC-2026-0403", "RUSTSEC-2026-0410"], "reachableInShippedRuntime": false},
+    "evidence": "docs/audits/g6-g7-evidence/runtime-security-advisories-20261102.json"
+  },
+  "devicePolicy": {
+    "source": "docs/audits/g6-g7-evidence/device-policy-20261024.json",
+    "blocksG6G7Completion": false,
+    "candidateAcceptance": "NOT RUN",
+    "soak": "NOT RUN",
+    "soakReason": "No new 24h timer was started after the last failed baseline; the standing user policy makes device and soak evidence non-blocking for G6/G7 preparation."
+  },
+  "openLayers": [
+    "full eight-view real-browser action acceptance for this exact candidate is NOT RUN; earlier native receipts cover partial views only",
+    "current exact-candidate isolated rootfs/procd/rpcd boot acceptance is NOT RUN",
+    "physical hardware, PassWall online, IPv6 WAN, power-loss and 24h soak are NOT RUN",
+    "the full-workspace zstd findings are non-shipped risk evidence requiring a Stable support-scope decision"
+  ],
+  "publication": "NOT AUTHORIZED / NOT RUN",
+  "conclusion": "Software qualification PASS for the shipped CF package and shipped Runtime graph; G7 proposal is ready for review with explicit device/soak and non-shipped dependency limits."
+}

@@ -1,40 +1,68 @@
 # 2.6.0-r5 Stable 候选晋级方案
 
-本方案是 G7 审查材料，不是发布许可。版本权威为包 Makefile；当前候选 `2.6.0-r5`，tag `v2.6.0-5`，source channel `stable`。未公开候选沿用 r5，不为每次资格单独递增；已发布 tag 和资产不可覆盖。真正冻结的候选 SHA、tested commit/tree、成功 CI run/attempt、两个安装包及其摘要，以最终成功 run 的 `qualification-evidence-run-<run>-attempt-<attempt>/stable-review.json` 为准。任何软件门禁失败都不能以本文件代替。
+本方案是 G7 审查材料，不是发布许可。版本权威仍为包 Makefile：`2.6.0-r5`、tag `v2.6.0-5`、source channel `stable`。自动 Stable 晋级在 `release.yml` 中保持禁用；merge、tag、Release、feed 和发布后回读都没有执行。
 
-## 资格与支持范围
+## 候选身份
 
-- 主产品默认 Native，Runtime 为显式可选的 Preview 辅助；不把 Preview v3 API 称为 Rill Stable，不让 Runtime 直接写代理配置。
-- OpenClash 写入要求其现有 Ruby/Psych 以及明确支持的 block YAML；全文语法、重复键、映射标量表示和生成结果在写入前检查。缺解析器或不支持的输入明确拒绝，不自动安装新组件、不静默截取部分节点。PassWall 路径不要求 Ruby。详见 OPENCLASH_YAML_SUPPORT.md。
-- CF 软件资格包括 Host/Legacy/RPC-LuCI、四个 x86 SDK、真实 IPK/APK 迁移、同字节 Runtime 集成、真实 CFST smoke、Docker replay、实际包 metadata、离线 preflight 和十项当前字节篡改拒绝。各层证据独立，不把 replay/fixture 当设备 PASS。
-- Runtime 固定 RP `8581c717db8c57fc83c0ace4d808bb9d32b4b1eb`，run `40066219701` attempt `1`，manifest SHA256 `421b3f6b4f12c92ac2288734c117f912f4c78ecfe38d714a9482676b71e4fa38`。Stable `1.5.6-r3` / Preview `1.5.6-r5` 两渠道、六目标共十二包资格及实际 metadata/ELF/hash 验证通过。具体 source/patch/lock/features/binary 身份见该 manifest 和 `contracts/rill-runtime.json`；不把新的上游修复提交冒充配方原始 source base。
-- 安全审计保留默认 WASM/Cranelift/Pulley，Wasmtime 49.0.4、Tokio 1.53.3，十二个目标记录零漏洞、零警告、无 ignore。DB `8a5b8090ef20c9c1b425f3373f28b0b23cc5c7a0`；最终审查须核对资格时间，发布拖延或有新公告时重审，不能永久复用本次审计。
-- 已接入设备是 OpenWrt 25.12.5 x86_64、APK、Microsoft VM、OpenClash。最终候选实际部署结果另列；不声明物理硬件、其他 CPU、PassWall 在线部署、opkg 实机、真实闪存掉电或所有 IPv6 WAN 场景通过。
-- 用户在 2026-10-24 明确允许实机验证，并决定本地实机不阻塞 G6/G7 完成。新 24h Soak 未执行即记 NOT STARTED，不从历史 72h/7d 豁免推导 PASS；不从软件资格推导设备覆盖。
+- 候选提交：`371bf78b772540f5829e5700f4f09a73e33888c1`（本次只改 Runtime 依赖契约，不改 CF 包内 payload）。
+- tested commit：与候选相同；完整 tree `96efc814ec9b0ddb3ff70f939875abe86d4e2315`。
+- CI：run `41411391996` attempt `1`，全部 18 个 job success；qualification guard 与 evidence manifest 均 success。
+- `qualification.json` SHA256：`f8ec144be0b98ac64832938e53d4c452efb41edcc94420256fcd989bfbf055f9`。
+- 同一 run 的 `stable-review.json` 记录 `tagAvailable: true`、`publication: NOT AUTHORIZED / NOT RUN`。
+- tag 回读：远端仅存在 `v2.6.0-1`、`v2.6.0-2`、`v2.6.0-3`；`v2.6.0-5` 未占用。执行发布前必须再次刷新。
 
-## 原字节资产
+## 安装包资产
 
-只采用同一个成功 CF run/attempt 的以下资产，不重新构建、不拼不同 run：
+只采用同一成功 run/attempt 的原字节，不重建、不混 run：
 
-- `luci-app-cloudflare-ip_2.6.0-r5_all.ipk`
-- `luci-app-cloudflare-ip-2.6.0-r5.apk`
-- `qualification.json`、`release-preflight.json`、`release-preflight-negatives.json`、相对路径 `SHA256SUMS` 和 `stable-review.json`
+| 资产 | 大小 | SHA256 |
+|---|---|---|
+| `luci-app-cloudflare-ip_2.6.0-r5_all.ipk`（v24.10.5 IPK） | 165277 | `13d8695cbedf7017c99af2514032a9a638ef7469be523873c2a583c5d02bc1c1` |
+| `luci-app-cloudflare-ip-2.6.0-r5.apk`（v25.12.0 APK） | 165277 | `5dd686b04ad3933e4bbef5c62e136a3f3c9ef88bd7d7cdbefd41b0d43e2dae2d` |
 
-原字节 SHA256 从 `stable-review.json.assets` 和 `SHA256SUMS` 读取。兼容 addon 不作为推荐下载；Runtime 独立资格/分发，不混入主产品两个包。PR merge commit 与 head 不同必须证明完整 tree 相同，审查 receipt 对此拒绝不等价树。tag 占用在生成 receipt 时检查，执行发布前还需刷新。
+- `release-preflight.json`：PASS（离线真实 metadata/byte preflight）。
+- `release-preflight-negatives.json`：10 项负向全部 PASS，包括错 commit/run/attempt、不可发布、路径穿越、交换摘要、Runtime pin、同长度改字节、额外包、symlink。
+- 独立下载回读：两个 SDK artifact 的 `sha256sum -c SHA256SUMS` 均 PASS。该回读针对候选 artifact，不是公开 Release 下载；公开发布仍为 NOT RUN。
+- 兼容 addon 只作为构建/迁移资格产物，不作为推荐公开下载。Runtime 独立分发，不混入 CF 主包。
+
+## Runtime 与安全资格
+
+- Runtime 包固定 RP `563fea8b9ff37cfcd7428258482e721775cc003f`，run `41409074857` attempt `1`，manifest SHA256 `8d6b7dc575ada8ba38f7d7ac29e16015836560eb3d66192bd15d59c75340a838`。
+- Stable `1.5.6-r4` / Preview `1.5.6-r6` 两渠道、六目标共十二包资格通过；CF 同 run 的真实 Preview Runtime 集成 PASS，binary SHA256 `f0c41e549e3467659b7c9cf3dfcba680a922c352f6317a5e5682fe55167ebc32`。
+- 安全修复：新增 patch 040，把默认 WASM 引擎从 Wasmtime 49.0.4 升到 49.0.5，处理 2026-10-29 新公告 `RUSTSEC-2026-0422/0423/0424`；源码 lock 为 `fb26ca6d05a48b657123bee2abcacc025dcfddb76916ed8009024451c201fa03`。
+- 新鲜 RustSec DB `2295466c4e9df26647fd67d8fa1c705ac2fc7f81`（2026-10-30，1395 条）：**shipped `rill-runtime` feature graph 235 个依赖零漏洞、零 warning、零 ignore**。
+- 完整 workspace lock 416 个依赖仍有 4 条非 shipped 的 zstd 公告（`RUSTSEC-2026-0391/0398/0403/0410`）和 `unsound` warning。原因是可选 `polars` 分析成员依赖 zstd 0.13，而 shipped Runtime 的 cargo tree 不含 `polars`/`zstd`。这些发现被完整记录为风险证据，不写成“全 workspace 零漏洞”，也没有使用 ignore。详见 `docs/audits/g6-g7-evidence/runtime-security-advisories-20261102.json`。
+- 该非 shipped 发现是本次 Stable 的主要待裁决安全边界：接受则 Stable 支持范围只覆盖 shipped Runtime；不接受则需等 polars/zstd 上游升级后重新资格。
+
+## G6 软件状态与未执行边界
+
+- `371bf78` 的 Host、Legacy、RPC-LuCI、四 x86 SDK、两格式真实包迁移、同字节 Runtime 集成、真实 CFST smoke、Docker replay、资产合同、preflight 与负向、qualification/evidence guard 全部 PASS。
+- 设备策略沿用 `docs/audits/g6-g7-evidence/device-policy-20261024.json`：用户明确本地实机验证不阻塞 G6/G7 完成。当前候选实机为 **NOT RUN**；新 24h Soak 为 **NOT RUN**，没有从历史 72h/7d 豁免推导 PASS。
+- 完整八视图真实浏览器操作、当前 exact-candidate 隔离 rootfs/procd/rpcd 启动、物理硬件、PassWall 在线、IPv6 WAN、断电/ENOSPC 持久性均未在本候选上重跑；已有部分组件/native receipt，不得当作本候选 PASS。
+- 因此本方案是 **CONDITIONAL GO**：软件资格与可审资产已齐，发布仍取决于用户对上述设备/Soak 与非 shipped zstd 边界的明确裁决。
 
 ## 安装、升级、回退与撤回
 
-1. 安装前备份 CF 配置/状态、选中 YAML 片段和实际生效 OpenClash 配置、包 DB/world、cron、服务 enable 状态及原版可恢复包；备份只留用户受限目录。记录原进程和配置摘要，并验证独立 SSH 恢复入口。
-2. 校验 checksum、包真实 metadata、owner admission 和包管理器 solver；使用原文件名本地安装。不要 force-overwrite，不自动升级其他包。APK 目标安装 `apk add --allow-untrusted ./luci-app-cloudflare-ip-2.6.0-r5.apk`；IPK 目标使用 `opkg install ./luci-app-cloudflare-ip_2.6.0-r5_all.ipk`。新增依赖先明确列出，保护现有 nginx listener，不让默认 uhttpd 抢占端口。安装时停用 CF 自动优选，验证完成再按用户原状态恢复。
-3. 安装后核对包版本、owned payload 每文件 hash、rpcd/UI/status、实际代理稳定 PID 和认证后的 HTTP 健康。先测试 disabled/lifecycle/无匹配/失败恢复，再执行有界真实任务；init 返回 0 不等于代理健康。
-4. 失败时停止新增任务并保留诊断，使用已验证的原 `1.8.3-r1` APK 回退，恢复本次 owned 配置和原 cron/enable 状态；仅移除本次新增依赖。包数据库由包管理器维护，不整份覆盖旧 DB。出现用户或外部并发修改时停止自动覆盖，保留 diff 并人工裁决。
-5. 设备实测 APK 比较已证明 `2.6.0-r5 > 1.8.3-r1` 和 `2.6.0-r5 > 2.6.0-r3`。IPK 升级、降级和状态保留使用本次 CI 的实际 opkg 迁移证据；额外线上平台不扩展为已验证。
-6. 发布后出现故障应停止推荐、记录撤回范围，以新版本修复；禁止替换公开 tag/原资产。发布后独立下载和校验步骤在真正发布前保持 NOT RUN。
+1. 安装前备份 CF 配置/状态、选中 YAML 片段和实际生效 OpenClash 配置、包 DB/world、cron、服务 enable 状态及原版可恢复包到用户受限目录；记录原进程和配置摘要，并验证独立 SSH 恢复入口。
+2. 校验 checksum、真实包 metadata、owner admission 和包管理器 solver；使用原文件名本地安装。不要 force-overwrite，不自动升级其他包。APK 使用 `apk add --allow-untrusted ./luci-app-cloudflare-ip-2.6.0-r5.apk`；IPK 使用 `opkg install ./luci-app-cloudflare-ip_2.6.0-r5_all.ipk`。新增依赖先列出，保护现有 nginx listener，不让默认 uhttpd 抢占端口。
+3. 安装后核对包版本、owned payload 每文件 hash、rpcd/UI/status、实际代理稳定 PID 和认证后的 HTTP 健康。先测 disabled/lifecycle/无匹配/失败恢复，再有界执行真实任务；init 返回 0 不等于代理健康。
+4. 失败时停止新增任务并保留诊断，使用已验证的原 `1.8.3-r1` APK 回退，恢复本次 owned 配置和原 cron/enable 状态；仅移除本次新增依赖。包数据库由包管理器维护，不整份覆盖旧 DB。外部并发修改时停止自动覆盖，保留 diff 并人工裁决。
+5. 设备 APK 比较已证明 `2.6.0-r5 > 1.8.3-r1` 和 `2.6.0-r5 > 2.6.0-r3`；IPK 升级/降级/状态保留使用 CI 的实际 opkg 迁移证据。该证据不扩展到其他平台。
+6. 发布后故障应停止推荐、记录撤回范围，以新版本修复；禁止替换公开 tag/原资产。真正发布后的独立下载/校验步骤在发布前保持 NOT RUN。
 
 ## 工作流与最终批准
 
-现有 `release.yml` 的自动 workflow_run 仍只允许 prerelease，明确拒绝 Stable。此次 CI 只新增只读审查生成：完整资格、同 run 原包 preflight、十项负向、head/tested tree 一致、tag 未占用和当前设备政策均满足后，上传审查 receipt；不执行 merge、tag、Release 或 feed。
+现有 `release.yml` 只允许 `main` 上的 prerelease 自动路径，遇到 `stable` channel 明确退出；本方案不修改该 guard。实际 Stable 发布必须另设受控人工步骤，至少再次确认：
 
-实际 Stable 发布另设受控人工晋级步骤：必须针对上述具体 SHA/tag/run/attempt/摘要和支持范围取得用户批准。若先合并到 main 导致 SHA/tree 或渠道/版本/工作流变化，应重新资格并生成新方案，不能把 PR 旧包当作新 main 包。晋级从唯一成功 run 收集原包，不重建；在外部发布前再次检查安全新鲜度、tag 未占用和审批对象一致，再创建不可覆盖的 tag/Stable Release。完成后独立下载公开资产复核 checksum/metadata/manifest/run/attempt。feed 必须单列真实目标并单独获批，不隐式扩展。
+- 候选 `371bf78`（或重新资格后的 exact SHA）与 tree 未变；
+- `v2.6.0-5` 仍未被占用；
+- 同一成功 run/attempt 的 IPK/APK/SHA256SUMS/qualification.json 可回读；
+- Runtime pin/run/manifest 与支持范围仍一致；
+- 新鲜安全 DB 与本次披露的非 shipped zstd 边界已获裁决；
+- 设备/Soak 风险接受或补验已完成。
 
-当前发布状态：NOT AUTHORIZED / NOT RUN。G6/G7 是否完成由最终资格、原字节复核、实际覆盖记录和审查结果决定。
+若先把本方案/文档合并到 `main` 导致 SHA/tree 改变，必须对新 `main` SHA 重新跑完整 CI 和 preflight，不能把 `371bf78` 的包当成新 `main` 包。本文档的后续 docs-only 提交不改变包字节，但不是新的发布候选。
+
+## 当前发布状态
+
+`NOT AUTHORIZED / NOT RUN`。没有 merge、tag、Release、feed 或发布后验证；没有修改任何公开资产。
