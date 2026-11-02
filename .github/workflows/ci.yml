@@ -421,7 +421,8 @@ jobs:
           base_file=$(find ./bin -type f -name "luci-app-cloudflare-ip*.${{ matrix.pkgtype }}" ! -name '*-rill*' | head -n1)
           rill_file=$(find ./bin -type f -name "luci-app-cloudflare-ip-rill*.${{ matrix.pkgtype }}" | head -n1)
           preview_file=$(find ./bin -type f -name "rill-runtime-preview*.${{ matrix.pkgtype }}" | head -n1)
-          test -n "$base_file"; test -n "$rill_file"; test -n "$preview_file"
+          stable_file=$(find ./bin -type f -name "rill-runtime*.${{ matrix.pkgtype }}" ! -name 'rill-runtime-preview*' | head -n1)
+          test -n "$base_file"; test -n "$rill_file"; test -n "$preview_file"; test -n "$stable_file"
           for file in "$base_file" "$rill_file" "$preview_file"; do
             cp "$file" "$GITHUB_WORKSPACE/output/"
             mode=base; [[ "${file##*/}" == *-rill* ]] && mode=rill; [[ "${file##*/}" == rill-runtime-preview* ]] && mode=preview
@@ -440,6 +441,9 @@ jobs:
                    APK=/builder/staging_dir/host/bin/apk bash "$GITHUB_WORKSPACE/luci-app-cloudflare-ip/tests/package-content-contract.sh" "$file" apk "$mode" ;;
             esac
           done
+          echo "Verifying Runtime channel markers in same-release package bytes"
+          APK=/builder/staging_dir/host/bin/apk bash "$GITHUB_WORKSPACE/luci-app-cloudflare-ip/tests/runtime-channel-package-contract.sh" "$stable_file" "${{ matrix.pkgtype }}" stable
+          APK=/builder/staging_dir/host/bin/apk bash "$GITHUB_WORKSPACE/luci-app-cloudflare-ip/tests/runtime-channel-package-contract.sh" "$preview_file" "${{ matrix.pkgtype }}" preview
           python3 "$GITHUB_WORKSPACE/luci-app-cloudflare-ip/scripts/openwrt-package-metadata.py" "$base_file" \
             --format "${{ matrix.pkgtype }}" --apk-bin /builder/staging_dir/host/bin/apk \
             --package-name luci-app-cloudflare-ip \
@@ -684,6 +688,7 @@ jobs:
           tar -xf "$preview_package" -C "$RUNNER_TEMP/preview-ipk" "./$data_member"
           case "$data_member" in *.zst) tar --zstd -xf "$RUNNER_TEMP/preview-ipk/$data_member" -C "$RUNNER_TEMP/preview-ipk/data" ;; *.gz) tar -xzf "$RUNNER_TEMP/preview-ipk/$data_member" -C "$RUNNER_TEMP/preview-ipk/data" ;; *) tar -xf "$RUNNER_TEMP/preview-ipk/$data_member" -C "$RUNNER_TEMP/preview-ipk/data" ;; esac
           test -x "$RUNNER_TEMP/preview-ipk/data/usr/bin/rill-runtime"
+          bash tests/runtime-channel-package-contract.sh "$preview_package" ipk preview
           expected_binary_sha=$(jq -r '.qualifiedTarget.binarySha256' runtime-package-selection.json)
           test "$(sha256sum "$RUNNER_TEMP/preview-ipk/data/usr/bin/rill-runtime" | awk '{print $1}')" = "$expected_binary_sha"
           upstream_commit=$(jq -r '.preview.commit' contracts/rill-runtime.json)
