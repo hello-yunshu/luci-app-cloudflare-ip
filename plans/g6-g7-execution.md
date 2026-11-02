@@ -87,3 +87,42 @@ CF 现更新到该精确 RP 资格，Preview release 5，保留原 migration 与
 Candidate c9b3cde, qualification 40220328209 attempt 1, passed all 18 jobs and local real-metadata positive/10 negative checks. Its device baseline failed before the 24h timer: one resolved probe completed TLS (309.848ms) then returned curl 56 / HTTP 0; the other three returned curl 35 before TLS. The transaction verified rollback, and the supervisor restored original 1.8.3-r1, configuration/proxy/cron/world with no pending UCI. Private archive SHA256: 6de7a91ab8cabf8bb0a9167f1b9833bc9e07c5daf0741444760913a46279cd2e.
 
 The existing fresh-apply settling window now also permits receive transport error 56. It retains four rounds, a 30-second upper bound, the original measurement deadline, complete IP/domain verification, and rejection of certificate/HTTP/budget errors. Persistent receive failure still fails. All 12 observation scenarios pass on the host and isolated router source; reuse loss/lifecycle and ShellCheck error checks pass. A new complete qualification and original-package checks are required before deployment. No soak timer or desktop automation is running.
+
+## 2026-11-02 最终软件退出与 G7 可审方案
+
+用户目标为完成 G6/G7 到规划提示词定义的稳定态验收。对 `a85008c` 的既有资格做新鲜 RustSec 复核时，DB `2295466c...`（2026-10-30，1395 条）发现 Wasmtime 49.0.4 的 `RUSTSEC-2026-0422/0423/0424`，原候选安全新鲜度失效；旧 run 40222775485 不能继续作为最终 GO 证据。
+
+上游 RP 修复：新增 `package/rill-runtime/patches/040-wasm-engine-advisory-20261029.patch`，将默认 WASM 引擎升级到 49.0.5，源码 lock 变为 `fb26ca6d05a48b657123bee2abcacc025dcfddb76916ed8009024451c201fa03`；Stable 包 release 4、Preview 包 release 6。资格 run `41409074857` attempt 1（RP commit `563fea8b9ff37cfcd7428258482e721775cc003f`）六目标十二包全部 success，manifest SHA256 `8d6b7dc575ada8ba38f7d7ac29e16015836560eb3d66192bd15d59c75340a838`。
+
+安全审计边界：shipped `rill-runtime` cargo-tree 图 235 个依赖零漏洞、零 warning、零 ignore；完整 workspace lock 416 个依赖仍有 4 条由可选 `polars` 引入的非 shipped zstd 公告和 `unsound` warning。完整发现写入同一 qualification manifest 的 `workspaceSecurityAudit`，没有 ignore、没有从 shipped 图删除；若未来 shipped 图引入 polars/zstd，资格会 fail closed。该非 shipped 发现作为待用户裁决的 Stable 支持范围例外，不写成全 workspace PASS。
+
+CF 更新契约到该 RP 资格：`contracts/rill-runtime.json` 现为 commit `563fea8`、run `41409074857`、Preview `1.5.6-r6`、manifest `8d6b7dc5...`，`packageMigration` 历史字段保留。CF 完整 CI run `41411391996` attempt 1（commit `371bf78b772540f5829e5700f4f09a73e33888c1`，tested commit 相同，tree `96efc814ec9b0ddb3ff70f939875abe86d4e2315`）全部 18 job success；qualification manifest SHA256 `f8ec144be0b98ac64832938e53d4c452efb41edcc94420256fcd989bfbf055f9`，stable-review 为 `PREPARED_FOR_REVIEW`、tag `v2.6.0-5` available、publication NOT RUN。
+
+### G6 退出矩阵（候选 371bf78 / run 41411391996）
+
+| 层 | 状态 | 证据 / 边界 |
+|---|---|---|
+| 语法/JSON/JS/ShellCheck/actionlint | PASS | host-contract、legacy-contract、workflow-lint job success |
+| 版本/渠道/包身份 | PASS | package-identity；2.6.0-r5 / v2.6.0-5 / stable；tag 未占用 |
+| Host 合同 | PASS | host-contract job success |
+| Legacy 1.8.3 保护 | PASS | legacy-contract job success |
+| RPC/ACL/LuCI 静态路由 | PASS | rpc-luci-contract job success；native 只读会话 receipt 另列 |
+| SDK 四目标构建/真实 metadata | PASS | 4 个 openwrt-package job success；asset SHA256 回读一致 |
+| 真实 IPK/APK 迁移 | PASS | 两格式 package-migration job success |
+| 同 run Runtime 集成 | PASS | rill-runtime-integration job success；binary SHA256 `f0c41e...` |
+| 真实 CFST smoke | PASS | real-cfst-smoke job success（amd64 真实执行，非路由器） |
+| Docker replay | PASS | timingMode=replayed；不代表真实网络节省 |
+| 资产 preflight / 负向 | PASS | release-preflight PASS；10 项负向 PASS |
+| qualification / evidence guard | PASS | 12 个必需 job success；manifest + stable-review success |
+| 真实浏览器八视图 | NOT RUN | 仅历史/部分 native receipt；本候选未重跑，不能写成 PASS |
+| 当前候选 rootfs/procd/rpcd | NOT RUN | 历史容器/guest 证据不继承到本候选 |
+| 真实设备/代理网络/IPv6/断电 | NOT RUN | 用户 2026-10-24 政策：不阻塞 G6/G7；不冒充 PASS |
+| 新 24h Soak | NOT RUN | 最后一次失败后未开始新计时；不继承历史 72h/7d |
+| 完整 workspace 安全 | CONDITIONAL | shipped graph 零命中；4 条非 shipped zstd 需支持范围裁决 |
+| 公开发布/发布后回读 | NOT RUN | 无 merge/tag/Release/feed；仅候选 artifact 回读 |
+
+### G7 状态
+
+`docs/G7-STABLE-PROPOSAL.md` 已更新为具体可审方案：候选 371bf78、run/attempt、两包原字节 SHA256、Runtime pin/run/manifest、tag 未占用、安装/升级/回退/撤回说明、支持范围与未执行边界。结论为 **CONDITIONAL GO**：软件资格与 shipped Runtime 安全通过，但设备/Soak、完整真实 UI/rootfs 未执行，且完整 workspace 的 4 条非 shipped zstd 公告需要用户裁决。实际发布仍为 `NOT AUTHORIZED / NOT RUN`；本方案不执行任何发布动作。
+
+证据索引：`docs/audits/g6-g7-evidence/final-candidate-371bf78.json`、`docs/audits/g6-g7-evidence/runtime-security-advisories-20261102.json`、qualification artifact `qualification-evidence-run-41411391996-attempt-1`、RP artifact `qualification-evidence-41409074857-1`。

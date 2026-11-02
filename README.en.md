@@ -37,7 +37,7 @@ It does not replace either proxy service and does not rewrite unrelated nodes. M
 - Source version: [PKG_VERSION / PKG_RELEASE](package/luci-app-cloudflare-ip/Makefile); inspect with `python3 scripts/package_identity.py`.
 - Published version and exact asset names: use the selected Release and its `qualification.json`; the source candidate may be newer than the published package.
 - Source channel: `stable` candidate; this does not announce a published Stable release
-- `2.6.0-r5` is undergoing G6/G7 qualification and promotion preparation. Automatic Stable publication remains disabled; the exact SHA, same-run/attempt packages and support scope require separate approval
+- `2.6.0-r5` has completed G6 software qualification and has a G7 promotion proposal. Automatic Stable publication remains disabled; device/soak coverage and the non-shipped full-workspace dependency boundary require a user decision, and the exact SHA, same-run/attempt packages and support scope require separate approval
 
 Packages are promoted only from a successful exact-head qualification run on `main`. IPK/APK files, `sha256sums.txt`, and `qualification.json` belong to one evidence chain; host tests and SDK builds do not replace live OpenWrt, hardware-compatibility, or long-running soak validation.
 
