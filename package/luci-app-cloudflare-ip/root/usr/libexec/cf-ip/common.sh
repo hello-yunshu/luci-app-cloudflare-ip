@@ -4,15 +4,36 @@
 CFIP_INIT_DIR="${CFIP_INIT_DIR:-/etc/init.d}"
 
 cfip_log() {
-    local msg="$*" ts
+    local msg="$*" ts max_bytes current_bytes
     ts="$(date '+%Y-%m-%d %H:%M:%S' 2>/dev/null || date)"
     mkdir -p "${CFIP_LOG_FILE%/*}" 2>/dev/null || true
+    max_bytes="${CFIP_LOG_MAX_BYTES:-1048576}"
+    [[ "$max_bytes" =~ ^[1-9][0-9]*$ ]] || max_bytes=1048576
+    if [[ -f "$CFIP_LOG_FILE" ]]; then
+        current_bytes="$(wc -c <"$CFIP_LOG_FILE" 2>/dev/null || printf 0)"
+        if [[ "$current_bytes" =~ ^[0-9]+$ ]] && ((current_bytes >= max_bytes)); then
+            mv -f "$CFIP_LOG_FILE" "${CFIP_LOG_FILE}.1" 2>/dev/null || rm -f "$CFIP_LOG_FILE" 2>/dev/null || true
+        fi
+    fi
     printf '[%s] %s\n' "$ts" "$msg" >>"$CFIP_LOG_FILE" 2>/dev/null || true
     [[ "${CFIP_VERBOSE:-false}" == true ]] && printf '[cloudflare-ip] %s\n' "$msg" >&2 || true
 }
 
 cfip_json_error() {
     jq -cn --arg error "$1" '{success:false,error:$error}'
+}
+
+# jq on OpenWrt may omit ONIGURUMA. Keep whitespace normalization independent
+# of regex support; indices make trimming linear even for long whitespace runs.
+cfip_jq_trim_filter() {
+    cat <<'JQ_TRIM'
+def cfip_space: (.>=9 and .<=13) or .==32 or .==133 or .==160 or .==5760 or
+  (.>=8192 and .<=8202) or .==8232 or .==8233 or .==8239 or .==8287 or .==12288;
+def cfip_trim:
+  explode as $chars |
+  [range(0;($chars|length)) | select($chars[.] | cfip_space | not)] as $kept |
+  if ($kept|length)==0 then "" else $chars[$kept[0]:($kept[-1]+1)]|implode end;
+JQ_TRIM
 }
 
 cfip_bool() {
@@ -25,7 +46,180 @@ cfip_atomic_write() {
     tmp="$(mktemp "${output}.tmp.XXXXXX")" || return 1
     cat >"$tmp" || { rm -f "$tmp"; return 1; }
     chmod 600 "$tmp" 2>/dev/null || true
-    mv "$tmp" "$output"
+    mv "$tmp" "$output" || { rm -f "$tmp"; return 1; }
+}
+
+# Managed paths are root-owned package state. Refuse traversal, symlink
+# components and group/world-writable targets before using them as root.
+cfip_path_absolute_safe() {
+    local path="${1:-}"
+    [[ "$path" == /* ]] || return 1
+    [[ "$path" != *"//"* ]] || return 1
+    [[ "$path" != *"/../"* && "$path" != *"/.." ]] || return 1
+    [[ "$path" != *"/./"* && "$path" != *"/." ]] || return 1
+    [[ "$path" != *".."* ]] || return 1
+    return 0
+}
+
+cfip_path_symlink_component() {
+    local path="${1:-}" cur="" component
+    local -a components=()
+    [[ "$path" == /* ]] || return 0
+    IFS=/ read -r -a components <<<"$path"
+    for component in "${components[@]}"; do
+        [[ -n "$component" ]] || continue
+        cur="$cur/$component"
+        [[ -L "$cur" ]] && return 0
+    done
+    return 1
+}
+
+cfip_path_mode_private() {
+    local path="${1:-}" mode
+    mode="$(ls -ld "$path" 2>/dev/null | awk 'NR==1{print $1}')" || return 1
+    [[ "$mode" =~ ^[bcddlps-][rwxstST-]{9}$ ]] || return 1
+    [[ "${mode:5:1}${mode:8:1}" != *w* ]] || return 1
+    return 0
+}
+
+# Production runs as root, so only root-owned paths are accepted. Test and
+# qualification processes may run unprivileged, where -O is false for /usr/bin
+# and /etc even though the path is root-owned; accept UID 0 explicitly.
+cfip_path_owner_trusted() {
+    local path="${1:-}" uid
+    [[ -O "$path" ]] && return 0
+    uid="$(stat -c '%u' "$path" 2>/dev/null || stat -f '%u' "$path" 2>/dev/null)" || return 1
+    [[ "$uid" == 0 ]]
+}
+
+cfip_path_regular_root_safe() {
+    local path="${1:-}"
+    [[ -f "$path" && ! -L "$path" ]] || return 1
+    cfip_path_owner_trusted "$path" || return 1
+    cfip_path_mode_private "$path" || return 1
+    return 0
+}
+
+cfip_path_directory_root_safe() {
+    local path="${1:-}"
+    [[ -d "$path" && ! -L "$path" ]] || return 1
+    cfip_path_owner_trusted "$path" || return 1
+    cfip_path_mode_private "$path" || return 1
+    return 0
+}
+
+cfip_path_under() {
+    local prefix="${1:-}" path="${2:-}"
+    [[ "$path" == "$prefix" || "$path" == "$prefix"/* ]]
+}
+
+# Rill state is package-owned; custom filenames under /etc/cf_ip are allowed,
+# but the path may never escape into system configuration.
+cfip_managed_rill_state_safe() {
+    local path="${1:-}" parent prefix="${CFIP_STATUS_DIR:-/etc/cf_ip}"
+    [[ "$prefix" == /* ]] || return 1
+    cfip_path_absolute_safe "$prefix" || return 1
+    cfip_path_absolute_safe "$path" || return 1
+    # Production uses /etc/cf_ip for both. Tests may redirect CFIP_STATUS_DIR,
+    # so accept either package-owned prefix; anything else stays rejected.
+    if ! cfip_path_under /etc/cf_ip "$path" && ! cfip_path_under "$prefix" "$path"; then
+        return 1
+    fi
+    cfip_path_symlink_component "$path" && return 1
+    if [[ -e "$path" || -L "$path" ]]; then
+        cfip_path_regular_root_safe "$path" || return 1
+    else
+        parent="${path%/*}"
+        [[ -n "$parent" ]] || return 1
+        if [[ -e "$parent" || -L "$parent" ]]; then
+            cfip_path_directory_root_safe "$parent" || return 1
+        fi
+    fi
+    return 0
+}
+
+# OpenClash owns this directory; only files below it may be read or replaced.
+cfip_managed_openclash_config_safe() {
+    local path="${1:-}" parent
+    [[ -n "$path" ]] || return 1
+    cfip_path_absolute_safe "$path" || return 1
+    cfip_path_under /etc/openclash "$path" || return 1
+    cfip_path_symlink_component "$path" && return 1
+    if [[ -e "$path" || -L "$path" ]]; then
+        cfip_path_regular_root_safe "$path" || return 1
+    else
+        parent="${path%/*}"
+        [[ -n "$parent" ]] || return 1
+        if [[ -e "$parent" || -L "$parent" ]]; then
+            cfip_path_directory_root_safe "$parent" || return 1
+        fi
+    fi
+    return 0
+}
+
+# CFST is a root-executed downloaded binary. Keep its directory inside the
+# package-owned locations and require root-owned, non-symlink targets.
+cfip_managed_work_dir_safe() {
+    local path="${1:-}" cfst_dir binary
+    [[ "$path" == /usr/bin || "$path" == /usr/share/cf-ip || "$path" == /usr/share/cf-ip/* ]] || return 1
+    cfip_path_absolute_safe "$path" || return 1
+    cfip_path_symlink_component "$path" && return 1
+    cfip_path_directory_root_safe "$path" || return 1
+    cfst_dir="$path/cfst"
+    binary="$cfst_dir/cfst"
+    if [[ -e "$cfst_dir" || -L "$cfst_dir" ]]; then
+        cfip_path_directory_root_safe "$cfst_dir" || return 1
+    fi
+    if [[ -e "$binary" || -L "$binary" ]]; then
+        cfip_path_regular_root_safe "$binary" || return 1
+    fi
+    return 0
+}
+
+# Runtime packages share /usr/bin/rill-runtime. The CF consumer is qualified
+# only against Preview; detect the channel before invoking the binary.
+cfip_rill_runtime_channel() {
+    local marker="${CFIP_RILL_CHANNEL_FILE:-/usr/share/rill/runtime-channel}" value=""
+    if [[ -f "$marker" && ! -L "$marker" && -O "$marker" ]]; then
+        # BusyBox tr treats '[:space:]' as literal characters; use sed.
+        value="$(head -n 1 "$marker" 2>/dev/null | sed 's/[[:space:]]//g')"
+        case "$value" in stable|preview) printf '%s' "$value"; return 0 ;; esac
+    fi
+    # Package DB files avoid invoking the package manager while an install
+    # transaction is still holding its lock.
+    if [[ -f /lib/apk/packages/rill-runtime-preview.list || -f /usr/lib/opkg/info/rill-runtime-preview.list ]]; then
+        printf preview; return 0
+    fi
+    if [[ -f /lib/apk/packages/rill-runtime.list || -f /usr/lib/opkg/info/rill-runtime.list ]]; then
+        printf stable; return 0
+    fi
+    if command -v apk >/dev/null 2>&1; then
+        if apk info -e rill-runtime-preview >/dev/null 2>&1; then printf preview; return 0; fi
+        if apk info -e rill-runtime >/dev/null 2>&1; then printf stable; return 0; fi
+    fi
+    if command -v opkg >/dev/null 2>&1; then
+        if opkg list-installed 2>/dev/null | grep -q '^rill-runtime-preview '; then printf preview; return 0; fi
+        if opkg list-installed 2>/dev/null | grep -q '^rill-runtime '; then printf stable; return 0; fi
+    fi
+    printf unknown
+}
+
+cfip_rill_runtime_allowed() {
+    [[ "$(cfip_rill_runtime_channel)" == preview ]]
+}
+
+cfip_managed_runtime_path_safe() {
+    local path="${1:-}" parent
+    [[ "$path" == /usr/bin/rill-runtime ]] || return 1
+    cfip_path_absolute_safe "$path" || return 1
+    cfip_path_symlink_component "$path" && return 1
+    if [[ -e "$path" || -L "$path" ]]; then
+        cfip_path_regular_root_safe "$path" || return 1
+    else
+        parent="${path%/*}"
+        cfip_path_directory_root_safe "$parent" || return 1
+    fi
+    return 0
 }
 
 cfip_generate_run_id() {
@@ -257,6 +451,16 @@ CFIP_OPENCLASH_SERVICE_APPLIED=false
 CFIP_OPENCLASH_SERVICE_ERROR=""
 CFIP_OPENCLASH_ENABLE_VALUE=""
 
+cfip_openclash_require_no_pending() {
+    local changes
+    changes="$(uci changes openclash 2>/dev/null)" || { CFIP_OPENCLASH_SERVICE_ERROR="cannot read OpenClash pending UCI changes"; return 1; }
+    [[ -z "$changes" ]] || {
+        CFIP_OPENCLASH_SERVICE_ERROR="OpenClash has unrelated pending UCI changes; refusing to commit them"
+        return 1
+    }
+    return 0
+}
+
 cfip_openclash_read_enable() {
     local value rc=0
     CFIP_OPENCLASH_ENABLE_VALUE=""
@@ -270,9 +474,9 @@ cfip_openclash_read_enable() {
 }
 
 cfip_openclash_secret() {
-    local config="${CFIP_OPENCLASH_CONFIG:-/etc/openclash/config/config.yaml}"
+    local config="${CFIP_OPENCLASH_CONFIG:-/etc/openclash/config/config.yaml}" secret
     [[ -r "$config" ]] || return 1
-    awk '
+    secret="$(awk '
         /^[[:space:]]*secret:[[:space:]]*/ {
             value=$0
             sub(/^[[:space:]]*secret:[[:space:]]*/, "", value)
@@ -282,7 +486,10 @@ cfip_openclash_secret() {
             print value
             exit
         }
-    ' "$config"
+    ' "$config")" || return 1
+    # A selected proxies fragment may omit the controller configuration.
+    [[ -n "$secret" ]] || secret="$(uci -q get openclash.config.dashboard_password 2>/dev/null || true)"
+    printf '%s' "$secret"
 }
 
 # This probes the same local controller endpoint used by OpenClash's
@@ -359,7 +566,9 @@ cfip_openclash_capture_state() {
         CFIP_OPENCLASH_SERVICE_ERROR="OpenClash is enabled but its core is not running; restore OpenClash before running CF"
         return 1
     fi
-    if ! cfip_openclash_health_wait 5; then
+    # Three observations need two spacing intervals plus authenticated probe
+    # time; five seconds leaves only one second for all three probes.
+    if ! cfip_openclash_health_wait 10; then
         CFIP_OPENCLASH_SERVICE_ERROR="OpenClash is enabled but its core or local controller is unhealthy; restore OpenClash before running CF"
         return 1
     fi
@@ -376,7 +585,7 @@ cfip_openclash_check_before_write() {
     if [[ "$expected" == 0 ]]; then
         ! pidof clash >/dev/null 2>&1 || { CFIP_OPENCLASH_SERVICE_ERROR="OpenClash core started externally before node write; no changes were made"; return 1; }
     else
-        cfip_openclash_health_wait 5 || { CFIP_OPENCLASH_SERVICE_ERROR="OpenClash became unhealthy before node write; restore it before running CF"; return 1; }
+        cfip_openclash_health_wait 10 || { CFIP_OPENCLASH_SERVICE_ERROR="OpenClash became unhealthy before node write; restore it before running CF"; return 1; }
     fi
     cfip_openclash_read_enable || return 1
     [[ "$CFIP_OPENCLASH_ENABLE_VALUE" == "$expected" ]] || { CFIP_OPENCLASH_SERVICE_ERROR="OpenClash enable state changed before node write"; return 1; }
@@ -405,6 +614,7 @@ cfip_stop_service() {
         cfip_openclash_read_enable || return 1
         enable="$CFIP_OPENCLASH_ENABLE_VALUE"
         [[ "$enable" == 1 ]] || { CFIP_OPENCLASH_SERVICE_ERROR="OpenClash enable state changed before stop; refusing service/config changes"; return 1; }
+        cfip_openclash_require_no_pending || return 1
         uci -q set openclash.config.enable=0 || { CFIP_OPENCLASH_SERVICE_ERROR="failed to set temporary OpenClash stop state"; return 1; }
         if ! uci -q commit openclash; then
             if cfip_openclash_read_enable && [[ "$CFIP_OPENCLASH_ENABLE_VALUE" == 0 ]]; then
@@ -451,7 +661,7 @@ cfip_restart_service() {
     local service="$1" deadline_class="${2:-normal}" remaining
     [[ -x "$CFIP_INIT_DIR/$service" ]] || return 1
     if [[ "$service" == openclash ]]; then
-        local enable rc=0
+        local enable rc=0 startup_started startup_now startup_remaining
         [[ "${CFIP_OPENCLASH_CF_STOPPED:-false}" != true ]] || CFIP_OPENCLASH_RECOVERY_ATTEMPTED=true
         [[ "${CFIP_OPENCLASH_EXPECTED_ENABLED:-}" == 1 ]] || { CFIP_OPENCLASH_SERVICE_ERROR="OpenClash was not initially enabled; restart is forbidden"; return 1; }
         ((CFIP_OPENCLASH_RESTART_ATTEMPTS < 2)) || { CFIP_OPENCLASH_SERVICE_ERROR="OpenClash restart attempt limit reached"; return 1; }
@@ -462,6 +672,7 @@ cfip_restart_service() {
                 CFIP_OPENCLASH_SERVICE_ERROR="OpenClash enable state changed before apply; refusing to re-enable it"
                 return 1
             }
+            cfip_openclash_require_no_pending || return 1
             if ! uci -q set openclash.config.enable=1 || ! uci -q commit openclash; then
                 CFIP_OPENCLASH_SERVICE_ERROR="failed to restore OpenClash enable state before restart"
                 return 1
@@ -474,6 +685,7 @@ cfip_restart_service() {
         fi
         [[ "$enable" == 1 ]] || { CFIP_OPENCLASH_SERVICE_ERROR="OpenClash enable state changed; refusing to overwrite it"; return 1; }
         CFIP_OPENCLASH_RESTART_ATTEMPTS=$((CFIP_OPENCLASH_RESTART_ATTEMPTS + 1))
+        startup_started="$(cfip_monotonic_seconds)" || return 1
         cfip_run_with_timeout "$CFIP_OPENCLASH_START_TIMEOUT_SECONDS" "$CFIP_INIT_DIR/openclash" restart >/dev/null 2>&1 || rc=$?
         if ((rc != 0)); then
             ((rc == 124)) && CFIP_OPENCLASH_SERVICE_ERROR="OpenClash restart exceeded its 312-second startup bound" || CFIP_OPENCLASH_SERVICE_ERROR="OpenClash init restart failed (rc=$rc)"
@@ -485,7 +697,11 @@ cfip_restart_service() {
             CFIP_OPENCLASH_SERVICE_ERROR="OpenClash disabled itself after core startup failed; inspect OpenClash logs"
             return 1
         fi
-        if [[ "$enable" != 1 ]] || ! cfip_openclash_health_wait 10 2; then
+        # Some OpenClash init versions return before the asynchronous core is
+        # ready. Init and stable HTTP/PID verification share one startup bound.
+        startup_now="$(cfip_monotonic_seconds)" || return 1
+        startup_remaining=$((CFIP_OPENCLASH_START_TIMEOUT_SECONDS - startup_now + startup_started))
+        if [[ "$enable" != 1 ]] || ((startup_remaining <= 0)) || ! cfip_openclash_health_wait "$startup_remaining" 2; then
             CFIP_OPENCLASH_SERVICE_ERROR="OpenClash restart returned but stable core and local /group health were not verified"
             return 1
         fi
@@ -634,7 +850,11 @@ cfip_run_with_timeout() {
     CFIP_ACTIVE_WATCHER_PID="$watcher"
     CFIP_ACTIVE_WATCHER_PGID="$watcher_pgid"
     while kill -0 "$pid" 2>/dev/null && kill -0 "$watcher" 2>/dev/null; do
-        sleep 0.1
+        # BusyBox sleep without FEATURE_FANCY_SLEEP rejects fractional values.
+        if [[ -z "${CFIP_SLEEP_FRACTIONAL:-}" ]]; then
+            if sleep 0.1 2>/dev/null; then CFIP_SLEEP_FRACTIONAL=1; else CFIP_SLEEP_FRACTIONAL=0; fi
+        fi
+        if [[ "$CFIP_SLEEP_FRACTIONAL" == 1 ]]; then sleep 0.1; else sleep 1; fi
     done
     if kill -0 "$pid" 2>/dev/null && ! kill -0 "$watcher" 2>/dev/null; then
         : >"$marker"

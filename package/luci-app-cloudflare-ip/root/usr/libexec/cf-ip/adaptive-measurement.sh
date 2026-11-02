@@ -10,6 +10,7 @@ CFIP_ADAPTIVE_EVIDENCE_FILE="$CFIP_STATUS_DIR/adaptive-measurement-evidence.json
 CFIP_ADAPTIVE_EVIDENCE_LIMIT="${CFIP_ADAPTIVE_EVIDENCE_LIMIT:-100}"
 CFIP_ADAPTIVE_EVIDENCE_MAX_BYTES="${CFIP_ADAPTIVE_EVIDENCE_MAX_BYTES:-524288}"
 CFIP_ADAPTIVE_RUN_SEQUENCE=0
+CFIP_ADAPTIVE_READONLY="${CFIP_ADAPTIVE_READONLY:-false}"
 
 cfip_adaptive_default_state_json() {
     jq -cn --argjson scheduler "$CFIP_ADAPTIVE_SCHEDULER_VERSION" --argjson contract "$CFIP_ADAPTIVE_FEATURE_CONTRACT_VERSION" \
@@ -31,7 +32,9 @@ cfip_adaptive_evidence_json() {
        jq -e --argjson limit "$CFIP_ADAPTIVE_EVIDENCE_LIMIT" 'type=="array" and length<=$limit' "$CFIP_ADAPTIVE_EVIDENCE_FILE" >/dev/null 2>&1; then
         cat "$CFIP_ADAPTIVE_EVIDENCE_FILE"
     else
-        [[ -s "$CFIP_ADAPTIVE_EVIDENCE_FILE" ]] && mv "$CFIP_ADAPTIVE_EVIDENCE_FILE" "$CFIP_ADAPTIVE_EVIDENCE_FILE.quarantine.$(date +%Y%m%d%H%M%S)" 2>/dev/null || true
+        [[ "${CFIP_ADAPTIVE_READONLY:-false}" == true ]] || {
+            [[ -s "$CFIP_ADAPTIVE_EVIDENCE_FILE" ]] && mv "$CFIP_ADAPTIVE_EVIDENCE_FILE" "$CFIP_ADAPTIVE_EVIDENCE_FILE.quarantine.$(date +%Y%m%d%H%M%S)" 2>/dev/null || true
+        }
         printf '[]\n'
     fi
 }
@@ -155,7 +158,8 @@ cfip_adaptive_effective_mode() {
         local state fresh now max
         state="$(cfip_adaptive_state_json)"; fresh="$(jq -r '.freshAt // 0' <<<"$state")"; now="${CFIP_ADAPTIVE_NOW:-$(date +%s)}"; max="${CFIP_ADAPTIVE_EVALUATION_MAX_AGE_SECONDS:-604800}"
         if [[ "$(jq -r '.qualificationState // ""' <<<"$state")" == qualified && "$fresh" =~ ^[0-9]+$ && "$max" =~ ^[1-9][0-9]*$ ]] && ((now-fresh > max)); then
-            jq --argjson now "$now" '.+{qualificationState:"stale",qualificationReason:"evidence_stale",lastFallbackReason:"evidence_stale",updatedAt:$now}' <<<"$state" | cfip_atomic_write "$CFIP_ADAPTIVE_STATE_FILE"
+            [[ "${CFIP_ADAPTIVE_READONLY:-false}" == true ]] || \
+                jq --argjson now "$now" '.+{qualificationState:"stale",qualificationReason:"evidence_stale",lastFallbackReason:"evidence_stale",updatedAt:$now}' <<<"$state" | cfip_atomic_write "$CFIP_ADAPTIVE_STATE_FILE"
         fi
     fi
     printf shadow

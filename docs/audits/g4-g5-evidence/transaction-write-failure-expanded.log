@@ -1,0 +1,8 @@
+transform-after-write: apply=13 state=ROLLED_BACK rolledBack=true applyActive=false
+written-snapshot: apply=13 state=ROLLED_BACK rolledBack=true applyActive=false
+candidate-copy: apply=13 state=ROLLED_BACK rolledBack=true applyActive=false
+backup-copy: apply=13 state=ROLLED_BACK rolledBack=true applyActive=false
+publish-rename: apply=13 state=ROLLED_BACK rolledBack=true applyActive=false
+staged-readback: apply=15 state=ROLLED_BACK rolledBack=true applyActive=false
+live-readback: apply=15 state=ROLLED_BACK rolledBack=true applyActive=false
+outside-edit: apply=14 state=ROLLING_BACK rolledBack=false applyActive=false

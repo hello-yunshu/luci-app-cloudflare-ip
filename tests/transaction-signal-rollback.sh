@@ -7,11 +7,17 @@ cat >"$TMP/bin/uci" <<'EOF'
 set -euo pipefail
 state="${UCI_FAKE_STATE:?}"; [[ "${1:-}" == -q ]] && shift
 case "${1:-}" in
+  changes) : ;; # This fixture has no external pending delta.
   export|show) cat "$state" ;;
   import) cat >"$state" ;;
   set) pair="$2"; key="${pair%%=*}"; val="${pair#*=}"; sed "s#^${key}=.*#${key}='${val}'#" "$state" >"$state.next"; mv "$state.next" "$state" ;;
   commit|revert) cat >/dev/null || true ;;
-  get) exit 1 ;;
+  get)
+    key="${2#passwall.}"; section="${key%%.*}"; field="${key#*.}"
+    value="$(sed -n "s/^passwall\.${section}\.${field}=//p" "$state" | head -1)"
+    [[ -n "$value" ]] || exit 1
+    printf '%s\n' "${value:1:${#value}-2}"
+    ;;
   *) exit 1 ;;
 esac
 EOF
@@ -28,7 +34,7 @@ env CFIP_TXN_ORIGINAL_RUNNING=false bash -c '
   source "$CFIP_LIB_DIR/transaction.sh"
   source "$ROOT/package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto-v2"
   cfip_txn_prepare passwall
-  uci set passwall.s1.address=104.16.1.1
+  cfip_passwall_set_owned passwall.s1.address 104.16.1.1
   uci commit passwall
   CFIP_TXN_STATE=MUTATED
   trap run_cleanup EXIT

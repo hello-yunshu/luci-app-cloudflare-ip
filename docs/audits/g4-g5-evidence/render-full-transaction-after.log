@@ -1,0 +1,2 @@
+real bounded renderer changes only its private candidate without service, controller, UCI-write or live-backup side effects
+real disabled-service transaction publishes validated bytes, preserves its backup and enforces configured retention without restarting

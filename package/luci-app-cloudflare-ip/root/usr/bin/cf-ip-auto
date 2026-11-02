@@ -559,22 +559,97 @@ prepare_work_dir() {
 }
 
 install_speedtest_archive() {
-	local archive="$1" version="${2:-}"
+	local archive="$1" version="${2:-unknown}" source="${3:-unknown}" digest="${4:-}" archive_target="${5:-$1}"
+	local stage member actual_digest binary="${CFST_DIR}/${BINARY_NAME}" version_file="${CFST_DIR}/${BINARY_NAME}_version.txt" metadata_file="${archive_target}.meta"
+	local index snapshot_rc recovery_failed=false
+	local -a targets backups present
+	stage="$(mktemp -d "${CFST_DIR}/.cfst-install.XXXXXX")" || die "failed to create CFST staging directory"
+	[[ "$digest" =~ ^[0-9a-fA-F]{64}$ ]] || { rm -rf "$stage"; die "CFST archive has no valid expected SHA256 digest"; }
+	actual_digest="$(sha256sum "$archive" | awk '{print $1}')" || { rm -rf "$stage"; die "failed to hash CFST archive"; }
+	[[ "$actual_digest" =~ ^[0-9a-fA-F]{64}$ && "$digest" =~ ^[0-9a-fA-F]{64}$ && "${actual_digest,,}" == "${digest,,}" ]] || { rm -rf "$stage"; die "CFST archive SHA256 digest mismatch"; }
+	if ! tar -tzf "$archive" >"$stage/list" 2>/dev/null; then rm -rf "$stage"; die "CFST archive is not a valid tar.gz: $archive"; fi
+	while IFS= read -r member; do
+		[[ -n "$member" && "$member" != /* && "$member" != *$'\n'* ]] || { rm -rf "$stage"; die "unsafe path in CFST archive"; }
+		case "/$member/" in */../*|*/./../*) rm -rf "$stage"; die "unsafe path in CFST archive" ;; esac
+	done <"$stage/list"
+	member="$(awk -v binary="$BINARY_NAME" '$0==binary || $0 ~ ("/" binary "$") { if (found!="") exit 2; found=$0 } END { if (found!="") print found; else exit 1 }' "$stage/list")" || { rm -rf "$stage"; die "archive did not contain exactly one $BINARY_NAME"; }
+	mkdir "$stage/extract" || { rm -rf "$stage"; die "failed to create CFST extraction directory"; }
+	tar -xzf "$archive" -C "$stage/extract" -- "$member" 2>/dev/null || { rm -rf "$stage"; die "failed to extract CFST binary"; }
+	[[ -s "$stage/extract/$member" && ! -L "$stage/extract/$member" ]] || { rm -rf "$stage"; die "CFST archive binary is missing or not a regular file"; }
+	cp "$stage/extract/$member" "$stage/binary" || { rm -rf "$stage"; die "failed to stage CFST binary"; }
+	chmod +x "$stage/binary" || { rm -rf "$stage"; die "failed to mark CFST binary executable"; }
+	"$stage/binary" --version >/dev/null 2>&1 || "$stage/binary" -h >/dev/null 2>&1 || { rm -rf "$stage"; die "staged CFST binary failed its execution check"; }
+	printf '%s\n' "$version" >"$stage/version" || { rm -rf "$stage"; die "failed to prepare CFST version"; }
+	jq -cn --arg version "$version" --arg source "$source" --arg sha256 "$actual_digest" --arg installedAt "$(date +%s)" '{schemaVersion:1,version:$version,source:$source,sha256:$sha256,installedAt:($installedAt|tonumber)}' >"$stage/metadata" || { rm -rf "$stage"; die "failed to prepare CFST metadata"; }
+	# Every preimage must exist before the first live rename. Conditional callers
+	# disable Bash errexit, so each operation needs an explicit error check.
+	targets=("$binary" "$version_file" "$metadata_file")
+	backups=("$stage/old-binary" "$stage/old-version" "$stage/old-metadata")
+	if [[ "$archive_target" != "$archive" ]]; then targets+=("$archive_target"); backups+=("$stage/old-archive"); fi
+	for ((index=0; index<${#targets[@]}; index++)); do
+		present[index]=false
+		if [[ -e "${targets[index]}" || -L "${targets[index]}" ]]; then
+			[[ -f "${targets[index]}" && ! -L "${targets[index]}" ]] || { rm -rf "$stage"; die "unsafe CFST installation target: ${targets[index]}"; }
+			if cp -p "${targets[index]}" "${backups[index]}"; then present[index]=true
+			else snapshot_rc=$?; rm -rf "$stage"; die "failed to snapshot CFST target ${targets[index]} (rc=$snapshot_rc)"; fi
+		fi
+	done
+	if ! mv "$stage/binary" "$binary" || ! mv "$stage/version" "$version_file" || { [[ "$archive_target" != "$archive" ]] && ! mv "$archive" "$archive_target"; } || ! mv "$stage/metadata" "$metadata_file"; then
+		for ((index=0; index<${#targets[@]}; index++)); do
+			if [[ "${present[index]}" == true ]]; then
+				# Restore through a fresh candidate; retain every original backup
+				# until all restorations have succeeded.
+				if cp -p "${backups[index]}" "$stage/restore.$index" && mv "$stage/restore.$index" "${targets[index]}"; then :
+				else recovery_failed=true; fi
+			else rm -f "${targets[index]}" || recovery_failed=true; fi
+		done
+		if [[ "$recovery_failed" == true ]]; then die "failed to commit CFST installation; recovery required, preimages retained at $stage"; fi
+		rm -rf "$stage"
+		die "failed to commit staged CFST installation"
+	fi
+	rm -rf "$stage" || die "CFST installed but staging cleanup failed: $stage"
+	log "installed verified CloudflareSpeedTest $version from $source"
+}
 
-	log "using local CloudflareSpeedTest archive: $archive"
-	if ! tar -tzf "$archive" >/dev/null 2>&1; then
-		die "local CloudflareSpeedTest archive is not a valid tar.gz: $archive"
+install_cached_speedtest_archive() {
+	local archive="$1" metadata="${1}.meta" version="unknown" source="cached archive" digest="" old_version="unknown" metadata_bytes=0 qualified="" actual_digest
+	[[ -f "${CFST_DIR}/${BINARY_NAME}_version.txt" ]] && old_version="$(<"${CFST_DIR}/${BINARY_NAME}_version.txt")"
+	[[ -f "$archive" && ! -L "$archive" ]] || return 1
+	if [[ -f "$metadata" && ! -L "$metadata" ]]; then
+		metadata_bytes="$(wc -c <"$metadata" 2>/dev/null)" || metadata_bytes=0
+		metadata_bytes="${metadata_bytes//[[:space:]]/}"
 	fi
-	tar -xzf "$archive" -C "$CFST_DIR" || die "failed to extract CloudflareSpeedTest archive: $archive"
-	[[ -f "${CFST_DIR}/${BINARY_NAME}" ]] || die "archive did not contain $BINARY_NAME"
-	chmod +x "${CFST_DIR}/${BINARY_NAME}"
-	if [[ -n "$version" ]]; then
-		printf '%s\n' "$version" >"${CFST_DIR}/${BINARY_NAME}_version.txt"
+	# Read one bounded JSON snapshot. Fields must not come from separate live
+	# metadata generations, and a bare archive cannot qualify its own digest.
+	if [[ "$metadata_bytes" =~ ^[0-9]{1,5}$ ]] && ((10#$metadata_bytes > 0 && 10#$metadata_bytes <= 16384)) &&
+		qualified="$(head -c 16385 "$metadata" 2>/dev/null | jq -ces '
+		  # OpenWrt jq may omit regex support. Check C0/C1 controls and Unicode
+		  # White_Space numerically before raw extraction can trim newlines/NUL.
+		  def token: type=="string" and length>0 and all(explode[];
+		    .>32 and (.<127 or .>160) and .!=5760 and (.<8192 or .>8202) and
+		    .!=8232 and .!=8233 and .!=8239 and .!=8287 and .!=12288);
+		  if length==1 and (.[0] | type=="object" and .schemaVersion==1 and
+		    (.version|token) and
+		    (.source|token and length>8 and (ascii_downcase|startswith("https://"))) and
+		    (.sha256|type=="string" and length==64 and all(explode[];
+		      (.>=48 and .<=57) or (.>=65 and .<=70) or (.>=97 and .<=102))))
+		  then .[0] else empty end' 2>/dev/null)"; then
+		version="$(jq -r '.version' <<<"$qualified")"; source="$(jq -r '.source' <<<"$qualified")"; digest="$(jq -r '.sha256' <<<"$qualified")"
+		actual_digest="$(sha256sum "$archive" | awk '{print $1}')" || { log "failed to hash cached CFST archive"; return 1; }
+		[[ "${actual_digest,,}" == "${digest,,}" ]] || { log "cached CFST archive digest does not match its metadata"; return 1; }
+	else
+		if [[ -x "${CFST_DIR}/${BINARY_NAME}" ]]; then
+			log "cached archive has no qualified metadata; preserving existing binary ${old_version:-unknown}"
+			return 0
+		fi
+		log "cached CFST archive has no qualified digest metadata; refusing installation"
+		return 1
 	fi
+	install_speedtest_archive "$archive" "$version" "$source" "$digest" "$archive"
 }
 
 download_speedtest() {
-	local tag version old_version asset archive url download_url tmp_archive release_json release_tmp file_size
+	local tag version old_version asset archive url download_url tmp_archive release_json release_tmp file_size expected_digest actual_digest
 
 	need_cmd curl
 	need_cmd tar
@@ -590,8 +665,7 @@ download_speedtest() {
 		rm -f "$release_tmp"
 		if [[ -f "$archive" ]]; then
 			log "release metadata unavailable, falling back to local archive"
-			install_speedtest_archive "$archive"
-			return
+			install_cached_speedtest_archive "$archive" && return
 		fi
 		if [[ -x "${CFST_DIR}/${BINARY_NAME}" ]]; then
 			log "release metadata unavailable, using existing $BINARY_NAME"
@@ -612,6 +686,7 @@ download_speedtest() {
 		url="${RELEASE_DOWNLOAD_BASE}/${version}/${asset}"
 	fi
 	download_url="$(mirror_url "$url")"
+	expected_digest="$(printf '%s\n' "$release_json" | jq -r --arg name "$asset" '.assets[] | select(.name == $name) | .digest // empty' | head -n 1 | sed 's/^sha256://')"
 
 	if [[ ! -x "${CFST_DIR}/${BINARY_NAME}" || "$version" != "$old_version" ]]; then
 		log "downloading CloudflareSpeedTest $version for $tag"
@@ -620,14 +695,26 @@ download_speedtest() {
 			rm -f "$tmp_archive"
 			if [[ -f "$archive" ]]; then
 				log "download failed, falling back to local archive"
-				install_speedtest_archive "$archive" "$version"
-				return
+			install_cached_speedtest_archive "$archive" && return
 			fi
 			if [[ -x "${CFST_DIR}/${BINARY_NAME}" ]]; then
 				log "download failed, using existing $BINARY_NAME"
 				return
 			fi
 			die "failed to download CloudflareSpeedTest asset: $url"
+		fi
+		if [[ ! "$expected_digest" =~ ^[0-9a-fA-F]{64}$ ]]; then
+			rm -f "$tmp_archive"
+			if [[ -f "$archive" ]] && install_cached_speedtest_archive "$archive"; then return; fi
+			[[ -x "${CFST_DIR}/${BINARY_NAME}" ]] && { log "release metadata has no digest; retaining current CFST binary"; return; }
+			die "release metadata has no SHA256 digest for $asset"
+		fi
+		actual_digest="$(sha256sum "$tmp_archive" | awk '{print $1}')"
+		if [[ "${actual_digest,,}" != "${expected_digest,,}" ]]; then
+			rm -f "$tmp_archive"
+			if [[ -f "$archive" ]] && install_cached_speedtest_archive "$archive"; then return; fi
+			[[ -x "${CFST_DIR}/${BINARY_NAME}" ]] && { log "download digest mismatch; retaining current CFST binary"; return; }
+			die "CloudflareSpeedTest SHA256 digest mismatch for $asset"
 		fi
 		if ! tar -tzf "$tmp_archive" >/dev/null 2>&1; then
 			file_size="$(wc -c < "$tmp_archive" 2>/dev/null || printf 'unknown')"
@@ -638,8 +725,7 @@ download_speedtest() {
 			rm -f "$tmp_archive"
 			if [[ -f "$archive" ]]; then
 				log "downloaded archive is invalid, falling back to local archive"
-				install_speedtest_archive "$archive" "$version"
-				return
+			install_cached_speedtest_archive "$archive" && return
 			fi
 			if [[ -x "${CFST_DIR}/${BINARY_NAME}" ]]; then
 				log "downloaded archive is invalid, using existing $BINARY_NAME"
@@ -647,11 +733,7 @@ download_speedtest() {
 			fi
 			die "$invalid_download_error"
 		fi
-		mv "$tmp_archive" "$archive" || {
-			rm -f "$tmp_archive"
-			die "failed to save CloudflareSpeedTest archive: $archive"
-		}
-		install_speedtest_archive "$archive" "$version"
+		install_speedtest_archive "$tmp_archive" "$version" "$url" "$actual_digest" "$archive"
 		log "CloudflareSpeedTest $version installed successfully"
 	else
 		log "CloudflareSpeedTest $version already exists"
