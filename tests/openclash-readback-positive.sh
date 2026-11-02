@@ -9,4 +9,10 @@ jq '.[0].network="grpc"' "$TMP/intended.json" >"$TMP/wrong-network.json"
 if cfip_openclash_validate_mapping "$TMP/intended.json" "$TMP/wrong-network.json" </dev/null; then echo 'wrong network passed' >&2; exit 1; fi
 jq '. + .' "$TMP/intended.json" >"$TMP/duplicate.json"
 if cfip_openclash_validate_mapping "$TMP/intended.json" "$TMP/duplicate.json" </dev/null; then echo 'duplicate mapping passed' >&2; exit 1; fi
+jq '. + [.[0] + {server:"104.16.1.2"}]' "$TMP/intended.json" >"$TMP/name-collision.json"
+if cfip_openclash_validate_mapping "$TMP/name-collision.json" "$TMP/name-collision.json" </dev/null; then echo 'conflicting duplicate node name passed' >&2; exit 1; fi
+jq '.[0].server="104.16.1.2"' "$TMP/intended.json" >"$TMP/wrong-ip.json"
+if cfip_openclash_validate_mapping "$TMP/intended.json" "$TMP/wrong-ip.json" </dev/null; then echo 'wrong selected IP passed' >&2; exit 1; fi
+printf '[]\n' >"$TMP/missing.json"
+if cfip_openclash_validate_mapping "$TMP/intended.json" "$TMP/missing.json" </dev/null; then echo 'missing node passed' >&2; exit 1; fi
 echo 'exact IntendedMapping accepts empty stdin; wrong network and duplicate mappings reject'

@@ -2,6 +2,8 @@
 
 本文件是 RC 前的执行清单，不把 host contract 或 OpenWrt SDK build 当作真机证据。
 
+2026-10-24 当前政策：用户允许实机验证，并明确本地实机验证不阻塞 G6/G7 完成。当前候选实机与新 24h Soak 未执行即记 NOT RUN / NOT STARTED；不改写为 PASS。策略原文见 [device-policy-20261024.json](audits/g6-g7-evidence/device-policy-20261024.json)。历史测试及历史 Soak 豁免均不冒充当前候选结果。
+
 ## Matrix
 
 | OpenWrt | Arch | Proxy / protocol | Required scenarios | Evidence |

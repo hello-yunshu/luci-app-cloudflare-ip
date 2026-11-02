@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "observedAtUtc": "2026-10-24T05:32:58Z",
+  "scope": "Read-only SSH baseline before any candidate deployment",
+  "access": "PASS: public-key authentication through local ssh-agent and strict saved host-key verification",
+  "device": {
+    "firmware": "OpenWrt 25.12.5 r33051-f5dae5ece4",
+    "kernel": "6.12.94",
+    "architecture": "x86_64",
+    "model": "Microsoft Corporation Virtual Machine",
+    "packageManager": "apk",
+    "cloudflarePackage": "1.8.3-r1",
+    "openclashPackage": "0.47.156",
+    "runtimeInstalled": false,
+    "passwallInstalled": false,
+    "uhttpdInstalled": false
+  },
+  "processes": {"clashPid": 9759, "nginxPids": [5953, 5952, 5232], "rpcdPid": 1578},
+  "resourcesKiB": {"memTotal": 1007752, "memAvailable": 430788, "tmpAvailable": 472388, "rootAvailable": 673056},
+  "uptime": "23 days, 4:31",
+  "candidateAcceptance": "NOT RUN",
+  "soak": "NOT STARTED",
+  "physicalHardwareCoverage": "NOT EVALUATED: observed deployment is a VM",
+  "configurationOrServicesModified": false
+}

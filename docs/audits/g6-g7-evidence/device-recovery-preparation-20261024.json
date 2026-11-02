@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "scope": "Pre-deployment backup and recovery preparation; not a recovery test",
+  "privateBackupStoredOutsideGit": true,
+  "backupArchiveSha256": "f23b15011f33b94656580d3f023d75c89fc635e7ed9d89ad177997ff60b13f58",
+  "routerAndDownloadedArchiveDigestsMatch": true,
+  "backupIncludes": ["installed application owned files", "CF configuration and state", "OpenClash configuration and files", "network/firewall/DHCP configuration", "crontabs", "APK world and installed database", "service enable links", "installed package inventory"],
+  "pendingUciChangesBeforeBackup": 0,
+  "localBackupPermissions": "Inheritance removed; current Windows account only",
+  "remoteBackupPermissions": "umask 077 and directory mode 700",
+  "originalPackage": {
+    "version": "1.8.3-r1",
+    "source": "https://github.com/hello-yunshu/luci-app-cloudflare-ip/releases/tag/v1.8.3-1",
+    "asset": "luci-app-cloudflare-ip-1.8.3-r1.apk",
+    "sha256": "c6cebdcddbabf1155e8a1e72a70626d9533e5b6e59c1ff671ea090591b0a89e8",
+    "releaseApiDigestAndDownloadedBytesMatch": true,
+    "copiedToRouterAndDigestVerified": true
+  },
+  "realApkVersionComparison": {"2.6.0-r5 vs 1.8.3-r1": ">", "2.6.0-r5 vs 2.6.0-r3": ">"},
+  "servicesOrConfigurationChanged": false,
+  "recoveryExecuted": false,
+  "candidateInstalled": false
+}

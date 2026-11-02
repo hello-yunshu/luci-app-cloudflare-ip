@@ -1,8 +1,36 @@
 # G6 RC 验收与 G7 Stable 晋级准备
 
+## 新目标：修复并完成24小时执行与验收
+
+用户已明确要求继续修复并实现完整24小时Soak及验收，取代上一轮失败后的停止安排。22103dc虽然全部软件资格通过，实际首轮在私有候选映射校验rc15处中止，源恢复已验证，独立监督恢复原1.8.3与原设置；没有计时。期望生成器把已有编号变体各自重新全量展开，真实私有副本复现8条期望（仅4条唯一）对4条实际，全部字段可匹配。现改为按现有编号逐条建模并仅补缺号，保持各槽位的认证/传输信息，未标记模板继续完整展开；期望与实际名称唯一、错IP/字段/缺节点/真实重复的拒绝均保留。
+
+相关8项WSL套件和4项原生隔离套件通过，同一真实失败输入在私有副本上得到4对4且全部字段匹配。完整事务回归覆盖扩容、连续更新、同IP幂等、不同认证、缺首号和写前拒绝真实重复；使用实际无ONIGURUMA原生jq与禁正则fixture通过。机器证据见soak-mapping-repair.json。软件修复不等于Soak完成：仍须新SHA全资格、真实首轮、满86400秒观察、负载/复用/资源/恢复的最终审查。24小时未完成前目标保持进行中；不得合并或发布。
+
+## 2026-10-24 用户批准新24小时 Soak 后的最新状态
+
+7db4286 的完整资格40086320914 attempt1及有限在线安装/回退均通过，随后用户明确批准24小时 Native/OpenClash Soak。部署后的首轮真实完整优选在配置应用阶段失败，独立恢复监督已恢复原1.8.3-r1和原设置，24小时计时尚未开始。失败记录见 docs/audits/g6-g7-evidence/soak-baseline-7db4286.json；该失败不能被先前软件绿灯覆盖，当前公开发布继续停止。
+
+已复现异步启动的时间窗口缺陷：init可提前返回，随后固定10秒不足以完成三次稳定健康观察。修复使init与HTTP/PID验证共享原312秒总界限，三个入口一致；未放宽健康条件或新增无限重试。延迟启动正向、总预算耗尽和永不就绪负向在三个入口与本机/路由器隔离函数回归通过，八项相关套件通过。修复后的新SHA必须重新完成全资格与首轮实测，成功后才另起新24小时计时；原失败证据永久保留。
+
 原范围以 stable-cross-repo-remediation-plan.md G6/G7、§8、§9 为准。当前整体 OPEN / Stable NO-GO。早前维护测试已回退原状态；用户随后明确推迟所有实机与Soak，直至再次明确通知。上游安全修复与重新资格已另获授权。备份和敏感现场只留本机受限证据目录，不提交仓库。最新状态和跨电脑继续入口见 plans/g6-g7-handoff-20261024.md。
 
+## 2026-10-24 换机后的最新决定与推进
+
+用户在本聊天更新指令：本地实机验证不作为 G6/G7 完成阻塞，且允许继续实机验证。该决定取代上述延期状态，原文及边界记录于 docs/audits/g6-g7-evidence/device-policy-20261024.json。当前候选实机与新 24h Soak 尚未执行，不能记为 PASS；软件资格、安全审计、同字节绑定仍须通过。完成 G7 是形成具体可审核晋级方案，合并、tag、Release 和 feed 发布仍待该方案单独批准。
+
+已读回 RP run 40061634026 两次 attempt：六个目标均在读取官方 SDK 目录网页时连续 HTTP 502，未进入编译。官方相同路径的 sha256sums 可访问；RP 8581c717db8c57fc83c0ace4d808bb9d32b4b1eb 改为从该校验清单唯一解析 SDK 名称和摘要，拒绝缺失、重复、非法摘要、路径穿越及错版本/目标，保留下载后哈希校验。Linux 本地 54 项测试 PASS，真实官方清单解析 PASS。新资格 run 40066219701 正在运行，不提前记成功或更新 CF pin。
+
+CF 的 evidence-manifest 步骤新增真实当次 SDK 包的离线 preflight 和十项篡改拒绝，结果与相对路径 SHA256SUMS 一起保存在同一 qualification-evidence artifact。此步骤不连接设备，不发布包；需随最终依赖更新后整合 SHA 通过完整 CI 才成为本次候选证据。
+
+RP 8581c71 的 run 40066219701 attempt 1 已全部成功；manifest SHA256 为 421b3f6b4f12c92ac2288734c117f912f4c78ecfe38d714a9482676b71e4fa38。12 个实际下载包均经断网容器的真实 metadata/ELF/package/binary 摘要验证通过。各目标审计 DB 为 8a5b8090ef20c9c1b425f3373f28b0b23cc5c7a0（2026-10-24T03:33:55Z），均零漏洞、零警告、无 ignore；两渠道 lock 均为 3e20b673fd5c32c881a80242556532a919c8b1d2836dc6d538ee00740cad6311。
+
+CF 现更新到该精确 RP 资格，Preview release 5，保留原 migration 与独立上游 source identity。保留 2.6.0-r5 / v2.6.0-5 作为候选，source channel 冻结为 stable；不代表公开 Stable。release.yml 原自动晋级拒绝 Stable 的保护不变。新 CI 在同一次资格中生成 stable-review.json，绑定最终候选 SHA/tested tree、run/attempt、两个原包摘要、Runtime pins、设备政策与 tag 未占用检查；只生成可审材料，不授予发布许可。若其中任何软件或审查门禁失败，G6/G7 软件状态仍 OPEN。
+
 ## G6 已执行
+
+2026-10-24 软件退出审查补充：3bf0ec1 / run 40067431976 attempt 1 全部软件资格与生成的 Stable review 成功，head/tested merge 完整 tree 均 ecc1ea8882b37a7d7a3a2ab0dc0173d5ea7018dc；其实际原包在线安装、43 个非配置 payload、disabled 生命周期、真实 CLI/RPC 和 nginx 静态视图均通过，并正常回退原包/包集合/配置/状态/cron/world；所选外部 YAML 与实际生效配置在第二轮显式备份且前后摘要一致。原始私有日志留本机受限目录，脱敏 receipt 为 device-acceptance-3bf0ec1.json。此结果不继承到后续源码。
+
+退出审查同时复现 Y01 未关闭的全文缺口：支持的 proxies 段之后的语法错误和重复根键仍被旧 guard 接受。新 guard 在三个入口解析完整 Psych AST，不实例化 tagged 对象，拒绝重复/复杂/隐式类型键及不能与行读取器等价的 mapped 标量，并验证生成与恢复候选后才允许发布。补修已有 Host 的重复生成、quoted literal # 的截断及需引用名称的序列化。20 项相关 OpenClash 回归、设备现有 Ruby 的隔离实际函数用例通过；真实配置私有副本通过新 guard 和渲染，线上文件/PID 不变。改变了产品源码，必须新 SHA 全资格及相应候选记录；不得以 3bf0ec1 的绿灯完成新候选。
 
 - 刷新 PR18（OPEN/DRAFT）、分支 1e806fe5fd1b3d7c18db72837d97377d1875e2c9 和成功资格39898577254 attempt1；上游 RP38928695476 attempt1 仍成功且 artifact 可读。
 - 部署是 OpenWrt25.12.5 x86_64、APK3.0.5、Microsoft VM；已有1.8.3-r1和真实 OpenClash，无 PassWall/Runtime。不能称为物理设备/所有架构覆盖。
@@ -31,3 +59,31 @@
 - release-channel.json 当前prerelease；release.yml明确拒绝Stable自动晋级。G7必须提供可审核的具体channel/版本/工作流方案，不能把当前prerelease资产说成Stable，也不能绕过检查。若改version/channel/workflow，则新SHA重新G6资格。
 - 最终proposal需列最终SHA、同run/attempt IPK/APK及SHA256、Runtime source/package/binary pins、支持范围与设备/soak决定、升级和撤回说明、tag未占用回读。
 - 发布只在具体proposal另获批准后执行。当前没有merge/tag/Release/feed/发布后验证；不得为了“完成G7”自动上线。
+
+## 24h 首轮健康预算修复（2026-10-25）
+
+620b979资格40100766849 attempt1及本地原包preflight/十项负向通过后，实际baseline在测速前健康复查失败，未停止服务或写节点；监督器恢复原1.8.3-r1及原状态，计时未开始。路由器只读复查同一函数：5秒预算一次失败、一次成功，10秒成功。原5秒预算要求三次稳定观察、默认间隔两秒，只给全部认证HTTP及配置读取共一秒余量，边界抖动会误拒绝。
+
+将common预检/写前检查和v2停服务前检查统一为10秒；三次稳定PID、HTTP200和JSON认证校验全部保留。现有完整资格执行的async-startup回归增加真实入口capture/stop/write的虚拟探测耗时：每次探测一秒时健康三次观察7秒通过，持续不健康仍在10秒内拒绝且不停止服务。新SHA必须重新完成完整资格和原包preflight后再部署；原620首轮证据保留，不计入24h。
+
+## 应用后数据通路就绪修复（2026-10-26）
+
+47fd35a实际24h尝试在第二次任务post-apply TLS探测失败并正确回滚，未满24h。两次独立限时诊断使用同一已资格原包且只私有包装真实curl：diag1复现Connection reset by peer/Broken pipe；diag2保留原失败返回码，在首次reset后延迟2秒仍curl35，再过5秒及10秒同一目标均curl0/HTTP302。全部诊断结束恢复原1.8.3-r1、本轮fresh配置/代理摘要和无pendingUCI通过。私有证据diag2 SHA256 3073ecf7edd413bdd1ecca0453ee57f58556a133c66c652a2c4e13fac52394cf。
+
+控制器/group稳定不保证代理数据通路已经就绪。仅fresh OpenClash apply增加最多4轮、30秒且不超过原测量deadline的验证窗口，间隔2/4/8秒；每一轮仍检查全部应用IP与全部目标。仅未完成TLS握手的curl35允许重试，证书、HTTP及预算错误立即拒绝；最终所有探测实际成功才提交。最终outcome保留每轮验证和失败码摘要serviceSettling，持续失败仍回滚。reuse/pre-apply不进入该窗口。
+
+已注册的v2-observation测试新增延迟恢复/持续重置/证书错误/HTTP错误/短测量预算/reuse六场景，主机及路由器原生均PASS；reuse-loss、真实full-then-reuse生命周期和ShellCheck error通过。必须新SHA完整资格、精确原包preflight及十项负向后再实际事务验证、新24h。
+
+复用覆盖计划须在warning保护缩短的1h窗口内安排一次复用任务；不能关闭保护策略凑覆盖。当前未设置自动检查，保持用户手动通知安排。
+
+### e760820实际首轮后的修正
+
+新资格40217946848 attempt1全部通过、原包preflight/10负向成功后，首轮实际post-apply出现混合结果：两项curl0/HTTP302、一项curl35握手前重置、一项curl28（TLS已完成538ms、HTTP0）。仅35可重试的策略因此立即拒绝，仍安全回滚且本轮fresh配置/代理摘要全PASS；24h未开始。私有归档SHA256 934a839e030e78ae1128065369bd253abd1072eb838661dccc04307b32789c08。
+
+就绪窗口内允许curl7连接失败和curl28超时与35握手前重置一起进入有界完整复验；仍仅fresh OpenClash apply、最多4轮/30秒且不超过原measurement deadline。证书60、HTTP及measurement-budget124仍立即拒绝；持续reset/timeout/connect最多4轮后拒绝。最终必须全部IP/domain实际通过，不能将部分成功视作提交条件。现有CI注册测试新增混合重置+TLS后超时恢复、持续timeout/connect及预算错误，10个场景在主机和路由器原生全PASS，复用生命周期保持PASS。此变更仍需新SHA完整资格及原包核验，旧e760资格不晋升。
+
+### Fresh OpenClash receive failure follow-up
+
+Candidate c9b3cde, qualification 40220328209 attempt 1, passed all 18 jobs and local real-metadata positive/10 negative checks. Its device baseline failed before the 24h timer: one resolved probe completed TLS (309.848ms) then returned curl 56 / HTTP 0; the other three returned curl 35 before TLS. The transaction verified rollback, and the supervisor restored original 1.8.3-r1, configuration/proxy/cron/world with no pending UCI. Private archive SHA256: 6de7a91ab8cabf8bb0a9167f1b9833bc9e07c5daf0741444760913a46279cd2e.
+
+The existing fresh-apply settling window now also permits receive transport error 56. It retains four rounds, a 30-second upper bound, the original measurement deadline, complete IP/domain verification, and rejection of certificate/HTTP/budget errors. Persistent receive failure still fails. All 12 observation scenarios pass on the host and isolated router source; reuse loss/lifecycle and ShellCheck error checks pass. A new complete qualification and original-package checks are required before deployment. No soak timer or desktop automation is running.
