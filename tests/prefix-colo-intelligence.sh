@@ -36,4 +36,10 @@ JSON
 actions="$(cfip_rill_actions_json "$TMP/candidates.json")"
 test "$(jq -r '.[0].features | length' <<<"$actions")" = 22
 test "$(jq -r '.[0].features[21] > 0.5' <<<"$actions")" = true
+jq '.[0].sources=["OFFICIAL","Community-seed","manual"]' "$TMP/candidates.json" >"$TMP/source-kinds.json"
+actions="$(cfip_rill_actions_json "$TMP/source-kinds.json")"
+jq -e '.[0].features[11:14] == [1,1,1]' <<<"$actions" >/dev/null
+jq '.[0].sources=["unrelated"]' "$TMP/candidates.json" >"$TMP/source-kinds.json"
+actions="$(cfip_rill_actions_json "$TMP/source-kinds.json")"
+jq -e '.[0].features[11:14] == [0,0,0]' <<<"$actions" >/dev/null
 echo 'Prefix aggregate, IPv6 normalization and Colo intelligence passed'

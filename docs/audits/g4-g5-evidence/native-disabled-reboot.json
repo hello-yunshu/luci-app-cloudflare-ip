@@ -1,0 +1,34 @@
+{
+  "scope": "actual canonical qualified baseline IPK on private native OpenWrt, ordinary reboot, no overlays",
+  "baselineHead": "8d6d5913e55c7dce05f2cbedfc8700a36bc8e5c9",
+  "runId": 39715543215,
+  "beforeBootId": "3179953c-9ad8-43e2-8f1d-ac99ea0a6962",
+  "afterBootId": "aec2f774-9ad1-4a1f-948e-24fa96ada005",
+  "checks": {
+    "newBoot": true,
+    "mainDisabled": true,
+    "uciUnchanged": true,
+    "statusOnlyTimestampChanged": true,
+    "noTaskOrServiceInstance": true,
+    "historyUnchanged": true,
+    "backupUnchanged": true,
+    "userCronPreserved": true,
+    "managedCronRemoved": true
+  },
+  "initialHarnessCorrection": "initial all-status-byte-equality assertion rejected expected stop timestamp update; authoritative JSON diff is only status_updated_at",
+  "limits": [
+    "ordinary reboot is not sudden powerloss or physical-router proof",
+    "no enabled optimization/proxy/CFST task run",
+    "new head rebuilt-package acceptance pending"
+  ],
+  "files": {
+    "after.log": "34bb917c6fede5ebca38ead5a823b83f1daefba9b5ff88667cab64a8ff292c3d",
+    "after.tar.gz": "4a6dd2f073e45769fbab3548fbc0228d964c327b51fd4ade05d9033a6b50cee9",
+    "before-driver.sh": "17237c779a5f3eaabf081547d392bd4cb2605c59a2f941a9f1034b0180a6e00f",
+    "before.log": "1193fbb861fcb56bbc93ebf029e5e5bb4e9a67f5e36c2da5726988866ce45252",
+    "before.tar.gz": "ca2c900c08cf0bb59fb9f93d1485ea347c7f3af3aaa1f1d7074272be9d2ccb2a",
+    "reboot-request.log": "3c696c094e2a1323fa00cf0974a861af0cd6824b1672248c1d12791a70a61e4e",
+    "restore.log": "33b26b7781e2f350719daff5464b3a1c8fd263f77d3bbfb5f420be58fbea71ab",
+    "status-after.json": "36f2a847a647d4707cc96c2fbb642cc6fc96cda2db09fa52aff98b25fd517c31"
+  }
+}

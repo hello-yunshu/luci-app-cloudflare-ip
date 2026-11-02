@@ -33,6 +33,11 @@ var css = `
 `;
 
 return view.extend({
+	/* Actions use their own RPC controls; this view has no editable UCI map. */
+	handleSave: null,
+	handleSaveApply: null,
+	handleReset: null,
+
 	load: function() {
 		return Promise.all([
 			utils.callStatus().catch(function() { return {}; }),
@@ -61,17 +66,22 @@ return view.extend({
 		var intelligenceSection = E('div', { 'class': 'cbi-section cfi-section' });
 		intelligenceSection.appendChild(E('h3', {}, _('Rill Diagnostics')));
 		intelligenceSection.appendChild(E('p', {}, _('This snapshot explains fallback, qualification, delayed feedback, Prefix and Colo intelligence without exposing the internal model.')));
-		var diagnosticsPre = E('pre', { 'class': 'cfi-log-area', 'style': 'white-space:pre-wrap;max-height:28em;overflow:auto' }, JSON.stringify({
-			runtime: diagnostics.runtime || {},
-			qualification: diagnostics.qualification || {},
-			sourcePolicy: diagnostics.sourcePolicy || {},
-			reusePolicy: diagnostics.reusePolicy || {},
-			prefixIntelligence: diagnostics.prefixIntelligence || {},
-			coloIntelligence: diagnostics.coloIntelligence || {},
-			pendingFeedback: diagnostics.pendingFeedback || [],
-			stateMeta: diagnostics.stateMeta || {}
-		}, null, 2));
-		intelligenceSection.appendChild(diagnosticsPre);
+		if (diagnostics.success !== true) {
+			intelligenceSection.appendChild(E('div', { 'class': 'alert-message danger', 'role': 'alert' },
+				E('p', {}, [ _('Diagnostics unavailable'), ': ', diagnostics.error || _('Unknown') ])));
+		} else {
+			var diagnosticsPre = E('pre', { 'class': 'cfi-log-area', 'style': 'white-space:pre-wrap;max-height:28em;overflow:auto' }, JSON.stringify({
+				runtime: diagnostics.runtime || {},
+				qualification: diagnostics.qualification || {},
+				sourcePolicy: diagnostics.sourcePolicy || {},
+				reusePolicy: diagnostics.reusePolicy || {},
+				prefixIntelligence: diagnostics.prefixIntelligence || {},
+				coloIntelligence: diagnostics.coloIntelligence || {},
+				pendingFeedback: diagnostics.pendingFeedback || [],
+				stateMeta: diagnostics.stateMeta || {}
+			}, null, 2));
+			intelligenceSection.appendChild(diagnosticsPre);
+		}
 		container.appendChild(intelligenceSection);
 
 		/* Recent Logs */

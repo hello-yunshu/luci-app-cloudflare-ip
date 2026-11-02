@@ -1,0 +1,23 @@
+{
+  "scope": "G4b actual raw APK conflict partial initial-install recovery; controlled offline root",
+  "sourceBaseline": "87feb6417222e451af442adee8e9502589ec1d17",
+  "nativeTool": "official aarch64 apk-tools 3.0.5 via extracted loader, target root architecture x86_64; no payload execution",
+  "network": "unshare -n; network=no; empty repositories; no scripts",
+  "inputPackageSha256": "f7795213a60762824eb248b492c44fcb09f2f2d15f4990798f25b65c11bd7e02",
+  "reconstruction": "actual hosted installed DB copied; all seven pre-existing payload records reconstructed with exact recorded content hash/mode/size, including checksum-pinned APK world",
+  "rawConflictExit": 1,
+  "rawConflict": "foreign file collision; candidate registered and other payload extracted",
+  "recoveryExit": 0,
+  "afterRecovery": "all seven pre-existing payload records identical; no additional regular payload files except package-manager diagnostic log; installed names identical; foreign file retained",
+  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/native-vm.EsMjO7/apk-partial-recovery",
+  "archiveSha256": "6c2feb114adb3c15a56ac295f48dd1d66a7ca1623161f6fe2d11a1607a8cdd2d",
+  "limits": [
+    "initial candidate absent before failure",
+    "no concurrent external editor",
+    "not upgrade recovery",
+    "not ENOSPC/KILL/powerloss",
+    "not online hooks",
+    "current exact SHA migration pending",
+    "complete G4/G5 remains OPEN"
+  ]
+}

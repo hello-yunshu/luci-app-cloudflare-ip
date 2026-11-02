@@ -5,7 +5,12 @@
 'require dom';
 'require baseclass';
 
-var FOOTER_VERSION = '@PKG_VERSION@';
+var FOOTER_VERSION = '@PKG_FULL_VERSION@';
+var saveApplySequence = 0;
+
+var callApplyConfig = rpc.declare({ object: 'uci', method: 'apply', params: [ 'timeout', 'rollback' ], reject: true });
+var callConfirmConfig = rpc.declare({ object: 'uci', method: 'confirm', reject: true });
+var callReadConfig = rpc.declare({ object: 'uci', method: 'get', params: [ 'config' ], expect: { values: {} }, reject: true });
 
 var callStatus = rpc.declare({ object: 'cf_ip', method: 'status', expect: { '': {} } });
 var callCheckEnv = rpc.declare({ object: 'cf_ip', method: 'check-env', expect: { '': {} } });
@@ -17,12 +22,31 @@ var FOOTER_OPTIONS = {
 	repoUrl: 'https://github.com/hello-yunshu/luci-app-cloudflare-ip'
 };
 
+function isUciNoData(error) {
+	return error === 5 || /\bubus code 5\b/.test(error && error.message ? error.message : String(error));
+}
+
 function safeApply() {
-	return uci.apply().catch(function(e) {
-		var message = e && e.message ? e.message : String(e);
-		if (e === 5 || /\bubus code 5\b/.test(message) || /No data|未收到数据/.test(message))
-			return;
-		throw e;
+	/* uci.apply() schedules confirmation later and resolves before that timer.
+	 * A page reload can cancel it, silently rolling the saved settings back. */
+	return callApplyConfig(30, true).then(function(code) {
+		if (code === 5) throw code;
+		if (code !== 0) throw new Error(_('Unable to verify the applied configuration. Reload and try again.'));
+		return true;
+	}).catch(function(error) {
+		if (isUciNoData(error)) return false;
+		throw error;
+	});
+}
+
+function confirmAppliedConfig(transactionStarted) {
+	return callConfirmConfig().then(function(code) {
+		if (code === 5) throw code;
+		if (code !== 0) throw new Error(_('Unable to verify the applied configuration. Reload and try again.'));
+	}).catch(function(error) {
+		/* No transaction is acceptable only after no-data apply AND exact readback. */
+		if (!transactionStarted && isUciNoData(error)) return;
+		throw new Error(error && error.message ? error.message : String(error));
 	});
 }
 
@@ -30,7 +54,9 @@ function setBusy(button, label) {
 	if (!button)
 		return;
 	button.disabled = true;
-	button.setAttribute('data-original-title', button.textContent);
+	button.setAttribute('aria-busy', 'true');
+	if (button.getAttribute('data-original-title') == null)
+		button.setAttribute('data-original-title', button.textContent);
 	button.textContent = label;
 }
 
@@ -38,12 +64,14 @@ function resetBusy(button) {
 	if (!button)
 		return;
 	button.disabled = false;
+	button.removeAttribute('aria-busy');
 	button.textContent = button.getAttribute('data-original-title') || button.textContent;
 	button.removeAttribute('data-original-title');
 }
 
-function reloadSoon(delay) {
+function reloadSoon(delay, isActive) {
 	window.setTimeout(function() {
+		if (isActive && !isActive()) return;
 		window.location.reload();
 	}, delay || 1200);
 }
@@ -52,30 +80,77 @@ function waitForServiceReady(callStatus, options) {
 	options = options || {};
 	var interval = options.interval || 3000;
 	var timeout = options.timeout || 120000;
-	var isReady = options.isReady || function(s) { return s && s.running && s.last_result !== 'running'; };
-	var startedAt = Date.now();
+	var isReady = options.isReady || function(s) {
+		return s && s.running === true && s.last_result !== 'running' && s.jobRunning !== true && s.active_run !== true;
+	};
+	return new Promise(function(resolve, reject) {
+		var settled = false, pollTimer = null, activeTimer = null, deadlineTimer = null;
+		function finish(error, status) {
+			if (settled) return;
+			settled = true;
+			[pollTimer, activeTimer, deadlineTimer].forEach(function(timer) {
+				if (timer !== null) window.clearTimeout(timer);
+			});
+			if (error) reject(error); else resolve(status);
+		}
+		function failure(code, message) {
+			var error = new Error(message);
+			error.code = code;
+			finish(error);
+		}
+		function active() {
+			if (settled) return false;
+			if (options.isActive && !options.isActive()) {
+				failure('ServiceReadyCancelled', _('Service readiness check was cancelled.'));
+				return false;
+			}
+			return true;
+		}
+		function checkActive() {
+			try {
+				if (active()) activeTimer = window.setTimeout(checkActive, interval);
+			} catch (error) { finish(error); }
+		}
+		function poll() {
+			try { if (!active()) return; } catch (error) { finish(error); return; }
+			Promise.resolve().then(callStatus).then(function(status) {
+				if (!active()) return;
+				status = status || {};
+				if (status.success === false) {
+					failure('ServiceStatusError', status.error || _('Error'));
+					return;
+				}
+				if (isReady(status)) finish(null, status);
+				else pollTimer = window.setTimeout(poll, interval);
+			}).catch(function(error) { finish(error); });
+		}
+		deadlineTimer = window.setTimeout(function() {
+			failure('ServiceReadyTimeout', _('Service did not become ready before the timeout. Check service status and logs.'));
+		}, timeout);
+		if (options.isActive) checkActive();
+		poll();
+	});
+}
 
-	function wait(delay) {
-		return new Promise(function(resolve) {
-			window.setTimeout(resolve, delay);
-		});
-	}
-
-	function poll() {
-		if (options.isActive && !options.isActive())
-			return Promise.resolve({});
-
-		return callStatus().then(function(status) {
-			status = status || {};
-			if (isReady(status))
-				return status;
-			if (Date.now() - startedAt >= timeout)
-				return status;
-			return wait(interval).then(poll);
-		});
-	}
-
-	return poll();
+function waitForRunStatus(fetchStatus, acknowledgement, options) {
+	options = options || {};
+	if (!acknowledgement || acknowledgement.success !== true || acknowledgement.accepted !== true ||
+		acknowledgement.acknowledged !== true || typeof acknowledgement.runId !== 'string' || !acknowledgement.runId ||
+		typeof acknowledgement.requestId !== 'string' || !acknowledgement.requestId)
+		return Promise.reject(new Error((acknowledgement && acknowledgement.error) || _('Task startup was not confirmed. Check status and logs before retrying.')));
+	return waitForServiceReady(fetchStatus, Object.assign({}, options, {
+		isReady: function(status) {
+			return status.runId === acknowledgement.runId && status.requestId === acknowledgement.requestId &&
+				(status.active_run === true || status.jobRunning === true ||
+					(typeof status.last_result === 'string' && status.last_result !== '' && status.last_result !== '-'));
+		}
+	})).catch(function(error) {
+		if (error.code === 'ServiceReadyTimeout') {
+			error.code = 'RunStatusTimeout';
+			error.message = _('The started task has not published its status. Check status and logs before retrying.');
+		}
+		throw error;
+	});
 }
 
 function requireSuccess(result) {
@@ -111,12 +186,56 @@ function buildStagedCandidate() {
 	return candidate;
 }
 
+function configSnapshot(values) {
+	if (!values || typeof values !== 'object' || Array.isArray(values) || !Object.keys(values).length)
+		throw new Error(_('Unable to verify the applied configuration. Reload and try again.'));
+	var snapshot = Object.create(null);
+	Object.keys(values).sort().forEach(function(name) {
+		var section = values[name], options = Object.create(null);
+		if (!section || typeof section !== 'object' || typeof section['.type'] !== 'string')
+			throw new Error(_('Unable to verify the applied configuration. Reload and try again.'));
+		Object.keys(section).sort().forEach(function(option) {
+			if (option.charAt(0) !== '.') {
+				var value = section[option];
+				options[option] = Array.isArray(value) ? value.map(String) : String(value);
+			}
+		});
+		snapshot[name] = { type: section['.type'], options: options };
+	});
+	return snapshot;
+}
+
+function stagedConfigSnapshot() {
+	var sections = Object.create(null);
+	uci.sections('cf_ip').forEach(function(section) {
+		if (typeof section['.name'] !== 'string' || !section['.name'] || sections[section['.name']])
+			throw new Error(_('Unable to verify the applied configuration. Reload and try again.'));
+		sections[section['.name']] = section;
+	});
+	return configSnapshot(sections);
+}
+
+function readAppliedConfig(expected) {
+	return Promise.all([ callReadConfig('cf_ip'), uci.changes() ]).then(function(result) {
+		var values = result[0], changes = result[1];
+		if (!changes || typeof changes !== 'object' || Array.isArray(changes))
+			throw new Error(_('Unable to verify the applied configuration. Reload and try again.'));
+		if (Object.prototype.hasOwnProperty.call(changes, 'cf_ip') && !Array.isArray(changes.cf_ip))
+			throw new Error(_('Unable to verify the applied configuration. Reload and try again.'));
+		if (changes.cf_ip && changes.cf_ip.length)
+			throw new Error(_('Configuration still has uncommitted changes. Apply it again before restarting.'));
+		if (JSON.stringify(configSnapshot(values)) !== JSON.stringify(expected))
+			throw new Error(_('Applied configuration does not match the saved settings. Reload and review the configuration.'));
+		return values;
+	});
+}
+
 function loadSharedCSS() {
 	if (!document.getElementById('cfi-shared-css')) {
 		var link = E('link', {
 			'id': 'cfi-shared-css',
 			'rel': 'stylesheet',
-			'href': L.resource('cloudflare-ip/cloudflare-ip.css') + '?v=@PKG_VERSION@'
+			'href': L.resource('cloudflare-ip/cloudflare-ip.css') + '?v=@PKG_FULL_VERSION@'
 		});
 		document.head.appendChild(link);
 	}
@@ -218,8 +337,9 @@ function renderWithFooter(rendered, options) {
 	});
 }
 
-function createHandleSave(m) {
-	m.handleSave = function(ev) {
+function createHandleSave(m, owner) {
+	owner = owner || m;
+	owner.handleSave = function(ev) {
 		var tasks = [];
 		document.getElementById('maincontent')
 			.querySelectorAll('.cbi-map').forEach(function(map) {
@@ -229,33 +349,72 @@ function createHandleSave(m) {
 	};
 }
 
-function createHandleSaveApply(m) {
-	m.handleSaveApply = function(ev, mode) {
-		var candidate;
-		return this.handleSave(ev).then(function() {
+function createHandleSaveApply(m, view) {
+	view = view || m;
+	var pending = null;
+	var generation = (view.__cfipApplyGeneration || 0) + 1;
+	view.__cfipApplyGeneration = generation;
+	view.handleSaveApply = function(ev, mode) {
+		if (pending) return pending;
+		var candidate, expected, transactionStarted, owner = this;
+		var button = ev && ev.currentTarget && ev.currentTarget.tagName === 'BUTTON' ? ev.currentTarget : null;
+		var root = m.root, buttonOwner = String(++saveApplySequence);
+		function isActive() {
+			return view.__cfipApplyGeneration === generation && (!root || root.isConnected !== false) && (!button || button.isConnected !== false);
+		}
+		function requireActive() {
+			if (!isActive()) { var error = new Error('SaveApplyCancelled'); error.code = 'SaveApplyCancelled'; throw error; }
+		}
+		if (button) button.setAttribute('data-cfi-apply-owner', buttonOwner);
+		setBusy(button, _('Applying configuration...'));
+		var operation = Promise.resolve().then(function() { requireActive(); return owner.handleSave(ev); }).then(function() {
+			requireActive();
 			candidate = buildStagedCandidate();
+			expected = stagedConfigSnapshot();
 			return callValidateConfig(candidate).then(requireSuccess);
 		}).then(function() {
+			requireActive();
 			return safeApply();
-		}).then(function() {
-			return uci.load('cf_ip');
-		}).then(function() {
-			if (uci.get('cf_ip', 'main', 'enabled') !== '1') {
+		}).then(function(started) {
+			requireActive();
+			transactionStarted = started;
+			return readAppliedConfig(expected);
+		}).then(function(applied) {
+			requireActive();
+			return confirmAppliedConfig(transactionStarted).then(function() { return applied; });
+		}).then(function(applied) {
+			requireActive();
+			if (!applied.main || applied.main.enabled !== '1') {
 				ui.addNotification(null, E('p', _('Configuration saved and applied.')), 'info');
-				reloadSoon(600);
+				reloadSoon(600, isActive);
 				return;
 			}
 
 			ui.addNotification(null, E('p', _('Configuration saved. Restarting service...')), 'info');
 			return callServiceRestart().then(requireSuccess).then(function() {
-				return waitForServiceReady(callStatus);
+				requireActive();
+				return waitForServiceReady(callStatus, { isActive: isActive });
 			}).then(function(status) {
+				requireActive();
 				ui.addNotification(null, E('p', _('Configuration applied and service is ready.')), 'info');
-				reloadSoon(300);
+				reloadSoon(300, isActive);
 			});
 		}).catch(function(e) {
+			if (!isActive() || (e && e.code === 'SaveApplyCancelled')) return;
 			ui.addNotification(null, E('p', _('Unable to apply configuration: %s').format(e.message)), 'error');
 		});
+		function cleanup() {
+			if (button && button.getAttribute('data-cfi-apply-owner') === buttonOwner) {
+				resetBusy(button); button.removeAttribute('data-cfi-apply-owner');
+			}
+			pending = null;
+		}
+		pending = operation.then(function(value) {
+			cleanup(); return value;
+		}, function(error) {
+			cleanup(); throw error;
+		});
+		return pending;
 	};
 }
 
@@ -265,6 +424,7 @@ return baseclass.extend({
 	resetBusy: resetBusy,
 	reloadSoon: reloadSoon,
 	waitForServiceReady: waitForServiceReady,
+	waitForRunStatus: waitForRunStatus,
 	requireSuccess: requireSuccess,
 	loadSharedCSS: loadSharedCSS,
 	renderFooter: renderFooter,

@@ -59,10 +59,12 @@ return view.extend({
 		if (openclashInstalled)
 			o.value('openclash', 'OpenClash');
 		if (!passwallInstalled && !openclashInstalled) {
-			o.value('none', _('None (No proxy service detected)'));
+			var storedMode = uci.get('cf_ip', 'main', 'mode');
+			o.value(storedMode === 'openclash' ? 'openclash' : 'passwall', _('None (No proxy service detected)'));
+			o.readonly = true;
 			o.description = _('PassWall or OpenClash is not installed. Please install one before using this service.');
 		}
-		o.default = passwallInstalled ? 'passwall' : (openclashInstalled ? 'openclash' : 'none');
+		o.default = passwallInstalled ? 'passwall' : (openclashInstalled ? 'openclash' : (uci.get('cf_ip', 'main', 'mode') === 'openclash' ? 'openclash' : 'passwall'));
 		o.rmempty = false;
 
 		o = s.option(form.Value, 'ip_count', _('IP Count'),
@@ -137,8 +139,8 @@ return view.extend({
 		o.default = '1';
 		o.rmempty = false;
 
-		utils.createHandleSave(m);
-		utils.createHandleSaveApply(m);
+		utils.createHandleSave(m, this);
+		utils.createHandleSaveApply(m, this);
 
 		return utils.renderWithFooter(m.render(), utils.FOOTER_OPTIONS);
 	}

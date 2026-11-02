@@ -1,0 +1,99 @@
+{
+  "scope": "G4 SDK target writer-lock gate host environment correction",
+  "baselineSha": "aafd69d24779073300ca2be12e8857fa7d898362",
+  "observedFailure": {
+    "runId": 39236083235,
+    "sourceSha": "ddba97bd2cf2f2875875194521cafbb126e4aa9d",
+    "jobId": 118005420386,
+    "step": "Execute SDK target writer-lock utility",
+    "error": "tests/sdk-writer-lock.sh: line 28: jq: command not found",
+    "meaning": "SDK build passed but new target utility qualification did not complete; not evidence that native locking passed"
+  },
+  "change": [
+    "use existing Python standard library for JSON metadata/receipt processing",
+    "preserve binary/case/loader diagnostics even when execution step fails; separate artifact remains outside public package output"
+  ],
+  "hostVerification": {
+    "actualWriterLockCasesWithJqInvocationDenied": {
+      "status": "PASS",
+      "scope": "actual lock acquisition with controlled PID-check scheduling and PID-write fault",
+      "results": [
+        {
+          "case": "simultaneous stale PID recovery has one writer",
+          "status": "PASS",
+          "admitted": [
+            "accepted-A"
+          ]
+        },
+        {
+          "case": "failed owner PID write refuses writer",
+          "status": "PASS"
+        },
+        {
+          "case": "cli stale recovery, release and stable gate inode",
+          "status": "PASS"
+        },
+        {
+          "case": "init stale recovery, release and stable gate inode",
+          "status": "PASS"
+        },
+        {
+          "case": "rpc stale recovery, release and stable gate inode",
+          "status": "PASS"
+        },
+        {
+          "case": "live-owner preserved",
+          "status": "PASS"
+        },
+        {
+          "case": "zero-owner preserved",
+          "status": "PASS"
+        },
+        {
+          "case": "malformed-owner preserved",
+          "status": "PASS"
+        },
+        {
+          "case": "negative-owner preserved",
+          "status": "PASS"
+        },
+        {
+          "case": "unknown stale-lock payload preserved",
+          "status": "PASS"
+        },
+        {
+          "case": "symlink gate refused without target modification",
+          "status": "PASS"
+        },
+        {
+          "case": "missing flock refuses writer",
+          "status": "PASS"
+        },
+        {
+          "case": "KILL releases actual kernel gate without replacing its inode",
+          "status": "PASS"
+        },
+        {
+          "case": "partial owner PID write is refused, cleaned and retryable",
+          "status": "PASS"
+        },
+        {
+          "case": "kernel tool failure is distinct from contention and retains exit code",
+          "status": "PASS"
+        }
+      ],
+      "failures": []
+    },
+    "sdkEmbeddedPythonCompilation": "PASS",
+    "bashSyntaxShellcheckActionlintDiff": "PASS",
+    "scope": "Darwin host kernel adapter, not target utility execution"
+  },
+  "nativeTargetUtility": "NOT EVALUATED for corrected source until new hosted execution",
+  "remaining": "current-SHA full G4/G5 SDK/migration/native LuCI/package/offline qualification OPEN",
+  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/sdk-writer-host-runtime",
+  "sha256": {
+    "apk-job-clean.log": "14adf00206a4398bb497ec0da03c55b42cfb65daea2ff1554f0b8e7d3dc79a0c",
+    "host-no-jq.json": "653671f0376d5015238d09c73eaa289c81543272418842d452365fb05650e76d",
+    "apk-job.log": "63586f5666181e20aa8e182fdc99fb546e0090e2370ecbff25c841f80eb51056"
+  }
+}

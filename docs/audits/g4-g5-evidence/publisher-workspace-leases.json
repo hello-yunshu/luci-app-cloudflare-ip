@@ -1,0 +1,42 @@
+{
+  "scope": "G5d private publisher workspace recovery checkpoint",
+  "baselineSha": "f146b02a36a9b63bf70e2f8e0fcdbf96642bc6e8",
+  "status": "PASS for listed host and isolated OpenWrt cases; G4/G5 OPEN",
+  "evidenceDirectory": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-workspace-leases",
+  "cases": [
+    "KILL before pointer switch and next-publication orphan reclaim",
+    "live PID and unknown or linked data preserved",
+    "sequential admission refusal and successful capacity reuse",
+    "32 concurrent reservations with observed payload admission <=16 and later retry",
+    "nonempty unowned, symlink and writable namespace refused",
+    "failed quarantine rename preserves data and refuses new allocation",
+    "generation render/pointer/KILL regressions",
+    "actual loopback HTTP pinned reads and failure/readback tests",
+    "actual isolated OpenWrt uhttpd bytes and sandbox UCI status",
+    "host/native status and module publisher regressions"
+  ],
+  "limitations": [
+    "Sampled directory count is not a kernel global quota or universal concurrent snapshot",
+    "Concurrent bursts can refuse all requests; subsequent retry succeeds",
+    "PID reuse conservatively retains old workspace",
+    "Old unmarked and source-cache orphans not reclaimed",
+    "Public bootstrap generation orphan pruning OPEN",
+    "Physical ENOSPC, power-loss, full lifecycle/resource matrix and final exact-SHA hosted/artifact qualification OPEN"
+  ],
+  "testCorrections": [
+    "Removed reusable symlink slots after quota test exposed ln directory following; use empty reservation count",
+    "Native runtime lacks stat; use Bash -O and existing ls",
+    "Concurrent fixture sets private umask to avoid intentionally unsafe namespace",
+    "Native v2-status test initially absent from staged tree; copied then passed separately"
+  ],
+  "logs": {
+    "native-status.log": "64d946744aabf6cf9653ff8273c911466b0a7826cb2bbeb8a6d78b540319a7c5",
+    "status.log": "a12672f4353ad68cc27031acc99145be20c96e484916aa8774b6ad407ae4533c",
+    "native-extended.log": "5a1289f0ab7658501a58018772daa949402b586935c800d2b337300b38f10671",
+    "native.log": "21492a9244ccb09ae99d835f8a14a4fe8f5811f5e483ac2a25cf827a61e21071",
+    "http.log": "59e252cd2abd6f44e946e9493721a232199d7d7278af9ba1abf4cbf3059c14b4",
+    "generation.log": "87fa4afb03949279b71aef7c05177c611dc4af570fafc102800973bd511f51a0",
+    "before.log": "4310f9b6e4b0dc0e169a262bcc1ce9a0e2b908cec8a5b7591d9cf391601a6a7d",
+    "after.log": "c7602b9a3e8243872406367696de1ba2ec994e2e517e1725f8a574fc53666272"
+  }
+}

@@ -19,6 +19,7 @@ return view.extend({
 		var env = data[1] || {};
 
 		if (!env.passwall_installed) {
+			this.handleSave = this.handleSaveApply = this.handleReset = null;
 			return E('div', { 'class': 'cbi-map cfi-form-map' }, [
 				E('div', { 'class': 'cbi-section cfi-empty-state' },
 					E('h3', {}, _('PassWall Not Found')),
@@ -47,8 +48,8 @@ return view.extend({
 		o.placeholder = ' [CF-{n}]';
 		o.rmempty = true;
 
-		utils.createHandleSave(m);
-		utils.createHandleSaveApply(m);
+		utils.createHandleSave(m, this);
+		utils.createHandleSaveApply(m, this);
 
 		return utils.renderWithFooter(m.render(), utils.FOOTER_OPTIONS);
 	}

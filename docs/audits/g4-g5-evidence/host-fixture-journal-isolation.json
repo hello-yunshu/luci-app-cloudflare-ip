@@ -1,0 +1,19 @@
+{
+  "scope": "G4a current host regression fixture isolation after unresolved-journal protection",
+  "failedRun": 39714754249,
+  "head": "55ed2ee185819b11aeb534083db70c2672e71158",
+  "jobId": 119614095660,
+  "jobLog": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/host-39714754249.log",
+  "failure": "real UCI rollback test intentionally retains conflict journal, then reuses same runtime for an independent scenario; correct product guard refuses it",
+  "fix": "first assert same-runtime refusal/config+journal hashes unchanged, then use separate runtime per independent case; retain old journals until fixture cleanup",
+  "nativeRealUci": "all original groups plus unresolved-entry check PASS",
+  "openclashReview": "same fixture issue reproduced and isolated; all existing review assertions PASS; added to Host CI",
+  "productionChanges": false,
+  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/host-39714754249-fixture",
+  "open": [
+    "new exact SHA hosted Host/SDK/migration qualification",
+    "same-byte offline preflight",
+    "current rebuilt native package/UI acceptance",
+    "remaining original G4/G5 requirements"
+  ]
+}

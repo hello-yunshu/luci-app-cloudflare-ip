@@ -1,0 +1,13 @@
+{
+  "exitCode": 0,
+  "sourceSha256": "02f8b5cecb3327b29a5347c323426fefa5fd3ae1529effec5b833e95db73e9f6",
+  "stdout": "PASS real procd fixture starts actual HTTP listener\nPASS real interface event rebinds owned listener and closes old address\nPASS interface loss removes actual listener\nPASS interface restoration restarts actual listener through retained trigger\nPASS disabled reload removes real owned procd listener\nPASS disabled restart does not create a listener\nPASS re-enabled reload restores actual listener\n",
+  "stderr": "",
+  "scope": "actual procd/uhttpd with controlled loopback interface/config policy fixtures; not real UCI interface delivery",
+  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/native-vm.EsMjO7/publisher-procd",
+  "cleanup": "named procd service absent after test",
+  "open": [
+    "real UCI/netifd delivery",
+    "complete G5d"
+  ]
+}

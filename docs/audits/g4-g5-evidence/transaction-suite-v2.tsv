@@ -1,0 +1,15 @@
+tests/openclash-restore-publication.sh	0
+tests/openclash-rpc-contract.sh	0
+tests/openclash-transaction-write-failure.sh	0
+tests/openclash-render-isolation.sh	0
+tests/openclash-readback-positive.sh	0
+tests/openclash-intended-mapping-negative.sh	0
+tests/v2-transaction.sh	0
+tests/transaction-hard-deadline.sh	0
+tests/transaction-commit-failure.sh	0
+tests/openclash-service-guard.sh	0
+tests/openclash-legacy-service-guard.sh	0
+tests/openclash-review-regressions.sh	0
+tests/sync-single-restart.sh	0
+tests/signal-child-tree-rollback.sh	0
+tests/legacy/openclash-backup-roundtrip.sh	0

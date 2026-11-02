@@ -1,0 +1,107 @@
+{
+  "scope": "G5c cached CFST metadata qualification on OpenWrt jq without regex support",
+  "baselineSha": "68d071bf1e2bad50626fa3746e9df742d5210b38",
+  "nativeRuntime": "private QEMU OpenWrt 24.10.8/aarch64 kernel 6.6.144; Bash 5.2.37, jq 1.8.1 compiled without ONIGURUMA, actual native flock and BusyBox ash",
+  "before": {
+    "nativeOriginalMatrix": {
+      "passed": 17,
+      "failed": 4
+    },
+    "expandedMatrix": {
+      "passed": 28,
+      "failed": 6
+    },
+    "rootCause": "jq test() is unavailable in the official installed OpenWrt jq; valid metadata cannot qualify",
+    "executionSafety": "no unqualified execution observed"
+  },
+  "after": {
+    "nativeCacheCases": 34,
+    "nativeCacheStatus": "PASS",
+    "hostCacheCasesWithRegexDenied": 34,
+    "hostCacheStatus": "PASS",
+    "nativeInstallerCases": 23,
+    "nativeInstallerStatus": "PASS",
+    "installedNativeWriterLockCases": 15,
+    "installedNativeWriterLockStatus": "PASS"
+  },
+  "policy": [
+    "single bounded metadata snapshot retained",
+    "regex-independent numeric codepoint checks preserve controls/whitespace rejection before Bash extraction",
+    "HTTPS case-insensitive prefix and nonempty remainder; nonempty Unicode-safe version; exactly 64 ASCII hexadecimal digest characters",
+    "existing binary/archive/external targets preserved on rejection",
+    "host fixture denies optional regex primitives but executes actual jq for all supported operations"
+  ],
+  "executionBoundary": [
+    "native cache and installer rerun uses explicit candidate source file in private guest test directory; not a newly built installed package",
+    "writer-lock uses actual installed CLI/helper/init/rpc source with controlled process/filesystem faults and real native kernel flock; not full procd lifecycle acceptance",
+    "payloads are shell fixtures, not genuine CFST or real proxy/Runtime integration",
+    "parser children run in network-disabled namespaces; original product UCI is restored",
+    "other regex-using paths in candidate-rill.sh, operational-health.sh and observe.sh need independent native reproduction/repair; full jq portability is not claimed",
+    "standalone legacy copy parity, concurrency/KILL/resource/retention matrix, all remaining G4/G5 and latest-SHA CI/package/offline gates OPEN"
+  ],
+  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/native-vm.EsMjO7/native-component-tests",
+  "sourceSha256": "98dedf9ae718781bd63ad0b9434171b1e9652b7ff8bbcd406137265f714833b9",
+  "rawSha256": {
+    "cfst-cache-qualification.json": "74ef3576f9b11adf5256aeee8731764949ab811fa5932238a10088470670de19",
+    "cfst-cache-expanded-before.json": "a2c3bd55b3d38c72dabc47cae09406533b0a4667d2dceb84eaf60e10445f3028",
+    "cfst-cache-expanded-after.json": "b2da28b46986d39d03891150484553877d71b60339ae4c6a5b5a0a7bc2601ff5",
+    "cfst-cache-host-capability-before.json": "c20d937584829a5587489e6d37d41b41ae76aee4979c2d7a59677181745ffed7",
+    "cfst-cache-host-capability-after.json": "26f21fcd1329aeb919b2a377040a6f34d62ea053747b741ac1bbc341067b5632",
+    "cfst-cache-native-capability-after.json": "007750e984ba6df11217120d5824abeced4b75e84db3b454ff66a0458fdf2d90",
+    "cfst-installer-portable-after.json": "99eb0f4ba97576832dd15093cfcef250f74fdd75e018d5afa33948fb75afcf18",
+    "writer-lock-recovery.json": "653671f0376d5015238d09c73eaa289c81543272418842d452365fb05650e76d",
+    "jq-regex-capability.json": "7d93b7b83f48f6e3c2217dc78c32c172077f9e3317b3c5c3cbf533e69e1e8ebd",
+    "runtime-identity.log": "f4a92ed1de8fa4e55e25428e4dbaa4c146939371d4a9c1ac8ef23e655c6bff92",
+    "regressions.json": "40db43561ad82d2e8aaa95114d39dbec7139936bc0f1f52768eadac9c0907874"
+  },
+  "regressions": [
+    {
+      "command": [
+        "bash",
+        "tests/cfst-download-fallback-version.sh"
+      ],
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "bash",
+        "tests/cfst-version-contract.sh"
+      ],
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "bash",
+        "tests/security-contract.sh"
+      ],
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "/tmp/cfip-test-bash.kZIbqD/install/bin/bash",
+        "-n",
+        "package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto-legacy"
+      ],
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "shellcheck",
+        "-s",
+        "bash",
+        "-S",
+        "error",
+        "package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto-legacy"
+      ],
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exitCode": 0
+    }
+  ]
+}

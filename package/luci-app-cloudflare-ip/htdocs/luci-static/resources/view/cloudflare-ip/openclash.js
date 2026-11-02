@@ -33,6 +33,7 @@ return view.extend({
 		var backupData = data[2] || {};
 
 		if (!env.openclash_installed) {
+			this.handleSave = this.handleSaveApply = this.handleReset = null;
 			return E('div', { 'class': 'cbi-map cfi-form-map' }, [
 				E('div', { 'class': 'cbi-section cfi-empty-state' },
 					E('h3', {}, _('OpenClash Not Found')),
@@ -79,8 +80,8 @@ return view.extend({
 		o.placeholder = '3';
 		o.rmempty = false;
 
-		utils.createHandleSave(m);
-		utils.createHandleSaveApply(m);
+		utils.createHandleSave(m, this);
+		utils.createHandleSaveApply(m, this);
 
 		/* Build backup section as a separate DOM tree appended after the form */
 		var backupSection = E('div', { 'class': 'cbi-section cfi-section', 'id': 'oc-backups-section' });

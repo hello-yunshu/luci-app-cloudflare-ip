@@ -66,6 +66,7 @@ required=(
   usr/lib/lua/luci/controller/cloudflare-ip.lua
   www/luci-static/resources/cloudflare-ip/cloudflare-ip.css
   www/luci-static/resources/view/cloudflare-ip/overview.js
+  usr/libexec/cf-ip/writer-lock.sh
   usr/libexec/cf-ip/common.sh
   usr/libexec/cf-ip/transaction.sh
   usr/libexec/cf-ip/candidate-rill.sh

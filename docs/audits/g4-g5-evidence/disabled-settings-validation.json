@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "stage": "G5b",
+  "baselineHead": "8d6d5913e55c7dce05f2cbedfc8700a36bc8e5c9",
+  "defect": "Disabled settings cannot be saved/applied before a proxy target is configured",
+  "baseline": {
+    "nativeRegressionExit": 1,
+    "browserError": "无法应用配置：invalid or empty PassWall target_domain",
+    "mainEnabled": "0"
+  },
+  "after": {
+    "nativeRegressionExit": 0,
+    "browserFeedback": "配置已保存并应用。",
+    "readback": {
+      "enabled": false,
+      "pendingUciChanges": false,
+      "serviceInstance": false
+    },
+    "scope": "same qualified baseline IPK plus one temporary developer CLI overlay; overlay restored afterwards"
+  },
+  "negativeCases": [
+    "PassWall enabled with empty target rejected",
+    "OpenClash enabled with missing config/empty target rejected",
+    "disabled nonempty malformed target rejected for both modes",
+    "actual run and sync with disabled incomplete configuration rejected for both modes",
+    "invalid candidate budget still rejected",
+    "invalid custom cron still rejected"
+  ],
+  "validation": [
+    "native Bash 5 staged RPC-before-apply and semantic regression",
+    "host Node actual LuCI save readback and singleflight handlers",
+    "bash syntax and ShellCheck error level",
+    "git diff --check",
+    "disabled validation and rejected run/sync preserve all persisted fixture-state hashes"
+  ],
+  "restored": {
+    "configSha256": "d4347c4f7c5f84e57b6deadb6d833b5ccbb86616c85eb8f3b78474e5d0eb7e6a",
+    "statusSha256": "68ca7b124fd89399c8f307647a02258af4ab321385e6aec445769502018ba48b",
+    "installedCliSha256": "3ebadff963254fe66f2c9dae3db7f1be1d95b6cd38c33f6c80303331e6f8e7c8"
+  },
+  "remaining": "New exact-head qualification, rebuilt-package UI and remaining G4/G5 original gates OPEN",
+  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/run-39715543215/native-ui",
+  "files": {
+    "disabled-apply-after.png": "4d80bfa29cad784dd8c99d10e044d0ce4b487a528c4276cbf3b3cbeeeab725d1",
+    "disabled-apply-before.png": "9969a309cfe62f12f5e25b5969db19a4a626a9a468b2eb60c1db7c8fd660af7d",
+    "disabled-readback.log": "ea024bd860ccb3bdada709d50e1ed48da6da80042667eaaec2e547fe0a462caf",
+    "restart-invalid-config.png": "376f9b22f960a6d358d12c74ba753eab6fd9f27a2b378a962ee9095e8ff014ba",
+    "staged-after.log": "9e665676c0f0a61a97835bfcfa6c5ece03771e1d7f980fdd304a15fbb5293cce",
+    "staged-before.log": "e156b10eb2c68970d58039a2bff5a9d2e8d60ad424b7faa7a9fa94315941cabc"
+  }
+}

@@ -10,6 +10,7 @@ cat >"$TMP/bin/uci" <<'EOF'
 [[ "${1:-}" != -q ]] || shift
 [[ ! -e "$REVIEW_TMP/read-fail" || "$1" != get ]] || exit 1
 case "$1:$2" in
+changes:openclash) : ;;
 get:openclash.config.enable) cat "$REVIEW_TMP/enable" ;;
 get:openclash.config.cn_port) printf 9090 ;;
 get:cf_ip.main.mode) printf openclash ;;
@@ -51,7 +52,11 @@ source "$ROOT/package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto-v2"
 cfip_monotonic_seconds() { cat "$TMP/clock"; }
 cfip_run_with_timeout() { shift; "$@"; }
 sleep() { printf '%s' "$(( $(cat "$TMP/clock") + $1 ))" >"$TMP/clock"; /bin/sleep 0.01; }
+review_case=0
 reset() {
+ review_case=$((review_case+1))
+ CFIP_RUNTIME_DIR="$TMP/runtime-$review_case"
+ mkdir -p "$CFIP_RUNTIME_DIR"
  printf '%s' "$1" >"$TMP/enable"; printf '%s' "$2" >"$TMP/pid"; printf '%s' "${3:-healthy}" >"$TMP/init-mode"
  printf 0 >"$TMP/clock"; printf 0 >"$TMP/probe-count"; : >"$TMP/service.log"
  rm -f "$TMP/read-fail" "$TMP/disable-during-health" "$TMP/slow-health" "$TMP/commit-fail"
@@ -106,9 +111,12 @@ cfip_txn_prepare openclash; cfip_stop_service openclash; CFIP_STOPPED_MODE=openc
 if cfip_txn_apply openclash "$TMP/selected.json"; then echo 'failed normal recovery passed' >&2; exit 1; fi
 rollback_active_transaction || :
 test "$(grep -c '^restart$' "$TMP/service.log")" = 1
-rg -q 'selected nodes' "$CFIP_OPENCLASH_CONFIG"; test "$CFIP_OPENCLASH_FILE_WRITTEN" = true
+# H2: a restart failure must not leave the invalid written candidate in place.
+rg -q 'secret: test-only' "$CFIP_OPENCLASH_CONFIG"
+! rg -q 'selected nodes' "$CFIP_OPENCLASH_CONFIG"
+test "$CFIP_OPENCLASH_FILE_WRITTEN" = true
 test -d "$CFIP_TXN_DIR"
-echo 'failed normal recovery preserves written nodes and never retries from transaction cleanup'
+echo 'failed normal recovery restores the original snapshot and never retries from transaction cleanup'
 
 reset 1 live
 cfip_openclash_capture_state

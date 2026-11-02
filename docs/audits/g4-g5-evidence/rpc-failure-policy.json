@@ -1,0 +1,43 @@
+{
+  "scope": "G5e RPC failure propagation and mutating-method ACL policy; G5b refresh error module",
+  "baselineSha": "2e9e15c31c0d877e75a1ae1b63ce4b195a9f4410",
+  "before": {
+    "backendMatrix": "99 failures in 132 cases across 22 methods",
+    "lifecycle": "all six UCI set/commit failure cases invoked init or returned wrong root error",
+    "acl": "actual legacy refresh wrote cache despite read-only RPC grant",
+    "ui": "actual refresh handler emitted success notification for failed result"
+  },
+  "after": {
+    "status": "PASS",
+    "scope": "actual shell RPC dispatcher with fixture backend/parser",
+    "methods": 22,
+    "cases": 132,
+    "independentLogCases": 1,
+    "lifecycleCases": 8,
+    "failures": []
+  },
+  "otherChecks": [
+    "source ACL assigns every declared method to exactly one class; mutations write-only",
+    "actual refresh handler four failure/success cases in isolated DOM/RPC module fixture",
+    "existing OpenClash RPC render/failure, backup roundtrip, shared lock, security, cron semantic/disabled, LuCI ready/readback/singleflight regressions"
+  ],
+  "evidenceDirectory": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/rpc-failure-policy",
+  "limitations": [
+    "Backend/UCI/init/jsonfilter in dispatcher matrix are fixtures; native rpcd session ACL proof NOT EVALUATED",
+    "UI is module fixture, browser/keyboard/responsive eight-view acceptance remains OPEN",
+    "Committed/pending UCI recovery after commit/enable failure is not proven here",
+    "Docker socket unavailable; native procd disabled and real UCI event tests remain OPEN",
+    "Full G4/G5 and new exact-SHA hosted/artifact/offline qualification OPEN"
+  ],
+  "logs": {
+    "ui-before.log": "638582c2d535a297ba874416167a31243075f977f006b46556d7b0aa783efb17",
+    "ui-after.log": "bdddb32916b4b4ee426cffb68028ed0681de111c9521e6968dd4e4bdf498bddc",
+    "readonly-before.log": "b32bbf19adaedcb169f84fee2a2dbd46a50c2268042e01ffe91074ba20bace5d",
+    "rpc-before.sh": "39e9fde5bcaf4e53cb73d2c65b27428f47527bdc957aec4b72dd501f11919488",
+    "matrix-after.json": "accb7fb81eda1f23af41caaa83ab8f186fb1046d7721c3d2d6c380a3bf9c9eda",
+    "lifecycle-before.json": "92ea243fc6e5ae80fffb3f9be3170f88204991ea7525406c4aa29ca6dc27169c",
+    "regressions.log": "864bd4b04f8cd7716e91311c415b4356c03ad687cc36df04d95908501f1f63e3",
+    "readonly-after.log": "04d5770330385d25d8b17b6c6be48c7a9e7a35df1e9a6b5eeba1e315c5a0901c",
+    "matrix-before.json": "896a4561466ecc45136d9cb005f1eb702bfe7dc8d186600813a90fd274e872e9"
+  }
+}

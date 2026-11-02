@@ -1,0 +1,110 @@
+{
+  "scope": "G5e shared CLI/init/RPC writer-lock metadata recovery",
+  "baselineSha": "34774942787515d8f42c687173e2aad53eeb35a5",
+  "before": {
+    "status": "FAIL",
+    "cases": 2,
+    "defects": [
+      "simultaneous stale-PID recovery admits two writers",
+      "failed owner-PID write falsely accepts writer"
+    ]
+  },
+  "after": {
+    "status": "PASS",
+    "scope": "actual lock acquisition with controlled PID-check scheduling and PID-write fault",
+    "results": [
+      {
+        "case": "simultaneous stale PID recovery has one writer",
+        "status": "PASS",
+        "admitted": [
+          "accepted-A"
+        ]
+      },
+      {
+        "case": "failed owner PID write refuses writer",
+        "status": "PASS"
+      },
+      {
+        "case": "cli stale recovery, release and stable gate inode",
+        "status": "PASS"
+      },
+      {
+        "case": "init stale recovery, release and stable gate inode",
+        "status": "PASS"
+      },
+      {
+        "case": "rpc stale recovery, release and stable gate inode",
+        "status": "PASS"
+      },
+      {
+        "case": "live-owner preserved",
+        "status": "PASS"
+      },
+      {
+        "case": "zero-owner preserved",
+        "status": "PASS"
+      },
+      {
+        "case": "malformed-owner preserved",
+        "status": "PASS"
+      },
+      {
+        "case": "negative-owner preserved",
+        "status": "PASS"
+      },
+      {
+        "case": "unknown stale-lock payload preserved",
+        "status": "PASS"
+      },
+      {
+        "case": "symlink gate refused without target modification",
+        "status": "PASS"
+      },
+      {
+        "case": "missing flock refuses writer",
+        "status": "PASS"
+      },
+      {
+        "case": "KILL releases actual kernel gate without replacing its inode",
+        "status": "PASS"
+      },
+      {
+        "case": "partial owner PID write is refused, cleaned and retryable",
+        "status": "PASS"
+      },
+      {
+        "case": "kernel tool failure is distinct from contention and retains exit code",
+        "status": "PASS"
+      }
+    ],
+    "failures": []
+  },
+  "hostKernel": "Darwin kernel flock through tests/helpers/flock-kernel.py; not a no-op mock",
+  "regressions": {
+    "earlyFailureStatusCases": 26,
+    "rpcBackendAndLifecycleCases": 141,
+    "startupGroups": 8,
+    "sharedWriterAndNestedLifecycle": "PASS",
+    "routingStagedValidationCron": "PASS"
+  },
+  "sdkTargetUtility": "NOT EVALUATED; new four-SDK CI gate must execute compiled OpenWrt utility and publish separate SHA/run/attempt receipt",
+  "nativeProcdRpcdLuci": "NOT EVALUATED: Docker socket unavailable; shared daemon not restarted",
+  "migrationFixture": "flock added to synthetic dependency database only; does not prove target executable integration",
+  "boundary": [
+    "persistent gate inode must not be replaced by external actors",
+    "cooperating current writers in trusted owned runtime namespace",
+    "no automatic dead-transaction rollback or physical power-loss claim",
+    "full G4/G5 and current exact-SHA package qualification remain OPEN"
+  ],
+  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/writer-lock-recovery",
+  "files": {
+    "ack.json": "4f52faf428970649f5c9b04e5fac3a1419bd799160c51149ba4951a28c79e60e",
+    "after.json": "653671f0376d5015238d09c73eaa289c81543272418842d452365fb05650e76d",
+    "before.json": "a2f6257c8e9e6f68749d81552378b54280b14f4a29e14a0aa690d403555219d7",
+    "early-status.json": "1c71c3a0c0c90f8a6402bd90ba9e3a320a94db0f72d4fc99778477476034a897",
+    "regressions.log": "eedaabd8366e38aae268780717e56c3caeb18f3734dca7384089129c9e454db2",
+    "routing.log": "2d728cea27ae0385e53537446c3b7d7f133a0722eaf2300b1c7e076a3274250c",
+    "rpc.json": "accb7fb81eda1f23af41caaa83ab8f186fb1046d7721c3d2d6c380a3bf9c9eda",
+    "shared.log": "0c3351cd9c8c152c0c1ea55ceebc114bc4d61aeadfadc2eca5bea963cb77adb8"
+  }
+}

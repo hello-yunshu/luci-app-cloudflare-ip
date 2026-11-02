@@ -55,9 +55,13 @@ jobs:
     outputs:
       commit: ${{ steps.verify.outputs.commit }}
       run_id: ${{ steps.verify.outputs.run_id }}
+      run_attempt: ${{ steps.verify.outputs.run_attempt }}
       version: ${{ steps.verify.outputs.version }}
       release: ${{ steps.verify.outputs.release }}
       channel: ${{ steps.verify.outputs.channel }}
+      tag: ${{ steps.verify.outputs.tag }}
+      ipk_name: ${{ steps.verify.outputs.ipk_name }}
+      apk_name: ${{ steps.verify.outputs.apk_name }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -68,17 +72,19 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           QUALIFICATION_RUN_ID: ${{ github.event.workflow_run.id }}
+          QUALIFICATION_RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
           QUALIFICATION_SHA: ${{ github.event.workflow_run.head_sha }}
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/qualification"
-          gh run download "$QUALIFICATION_RUN_ID" --repo "$GITHUB_REPOSITORY" --name qualification-evidence --dir "$RUNNER_TEMP/qualification"
+          python3 scripts/download-qualification-artifact.py --repo "$GITHUB_REPOSITORY" --run-id "$QUALIFICATION_RUN_ID" --run-attempt "$QUALIFICATION_RUN_ATTEMPT" --commit "$QUALIFICATION_SHA" --name qualification-evidence --dir "$RUNNER_TEMP/qualification"
           manifest="$RUNNER_TEMP/qualification/qualification.json"
           test -f "$manifest"
-          python3 scripts/validate-qualification-evidence.py "$manifest" --commit "$QUALIFICATION_SHA" --require-assets 2 --require-release-eligible --run-id "$QUALIFICATION_RUN_ID" --contract contracts/rill-runtime.json
-          version=$(sed -n 's/^PKG_VERSION:=//p' package/luci-app-cloudflare-ip/Makefile | head -n1)
-          release=$(sed -n 's/^PKG_RELEASE:=//p' package/luci-app-cloudflare-ip/Makefile | head -n1)
+          python3 scripts/validate-qualification-evidence.py "$manifest" --commit "$QUALIFICATION_SHA" --require-assets 2 --require-release-eligible --run-id "$QUALIFICATION_RUN_ID" --run-attempt "$QUALIFICATION_RUN_ATTEMPT" --contract contracts/rill-runtime.json
+          version=$(python3 scripts/package_identity.py --field version)
+          release=$(python3 scripts/package_identity.py --field release)
+          python3 scripts/package_identity.py >/dev/null
           channel=$(jq -er 'select(.schemaVersion == 1) | .channel' release-channel.json)
           reason=$(jq -er 'select((.reason // "") != "") | .reason' release-channel.json)
           if [[ "$channel" != prerelease ]]; then
@@ -87,12 +93,18 @@ jobs:
           fi
           echo "release channel: $channel ($reason)"
           [[ "$version" != *-dev ]]
+          for format in ipk apk; do
+            name=$(jq -er --arg fmt "$format" '.assetFiles[] | select(.package.format==$fmt) | .path | split("/")[-1]' "$manifest")
+            echo "${format}_name=$name" >> "$GITHUB_OUTPUT"
+          done
           {
             echo "commit=$QUALIFICATION_SHA"
+            echo "run_attempt=$QUALIFICATION_RUN_ATTEMPT"
             echo "run_id=$QUALIFICATION_RUN_ID"
             echo "version=$version"
             echo "release=$release"
             echo "channel=$channel"
+            echo "tag=$(python3 scripts/package_identity.py --field tag)"
           } >> "$GITHUB_OUTPUT"
 
   collect:
@@ -108,6 +120,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           QUALIFICATION_RUN_ID: ${{ needs.check-qualification.outputs.run_id }}
+          QUALIFICATION_RUN_ATTEMPT: ${{ needs.check-qualification.outputs.run_attempt }}
+          QUALIFICATION_SHA: ${{ needs.check-qualification.outputs.commit }}
           VERSION: ${{ needs.check-qualification.outputs.version }}
           RELEASE: ${{ needs.check-qualification.outputs.release }}
         shell: bash
@@ -115,12 +129,10 @@ jobs:
           set -euo pipefail
           work="$RUNNER_TEMP/qualification-assets"
           mkdir -p "$work" release
-          for artifact in \
-            luci-app-cloudflare-ip-ipk-v24.10.5 \
-            luci-app-cloudflare-ip-apk-v25.12.0 \
-            qualification-evidence; do
-            gh run download "$QUALIFICATION_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$artifact" --dir "$work/$artifact"
-          done
+          while IFS= read -r artifact; do
+            python3 scripts/download-qualification-artifact.py --repo "$GITHUB_REPOSITORY" --run-id "$QUALIFICATION_RUN_ID" --run-attempt "$QUALIFICATION_RUN_ATTEMPT" --commit "$QUALIFICATION_SHA" --name "$artifact" --dir "$work/$artifact"
+          done < <(python3 scripts/package_identity.py --public-artifacts)
+          python3 scripts/download-qualification-artifact.py --repo "$GITHUB_REPOSITORY" --run-id "$QUALIFICATION_RUN_ID" --run-attempt "$QUALIFICATION_RUN_ATTEMPT" --commit "$QUALIFICATION_SHA" --name qualification-evidence --dir "$work/qualification-evidence"
           manifest="$work/qualification-evidence/qualification.json"
           test -f "$manifest"
           cp "$manifest" release/qualification.json
@@ -136,12 +148,14 @@ jobs:
         env:
           EXPECTED_SHA: ${{ needs.check-qualification.outputs.commit }}
           QUALIFICATION_RUN_ID: ${{ needs.check-qualification.outputs.run_id }}
+          QUALIFICATION_RUN_ATTEMPT: ${{ needs.check-qualification.outputs.run_attempt }}
+          QUALIFICATION_SHA: ${{ needs.check-qualification.outputs.commit }}
           VERSION: ${{ needs.check-qualification.outputs.version }}
           RELEASE: ${{ needs.check-qualification.outputs.release }}
         shell: bash
         run: |
           set -euo pipefail
-          python3 scripts/validate-release-assets.py release/qualification.json release --commit "$EXPECTED_SHA" --run-id "$QUALIFICATION_RUN_ID" --version "$VERSION" --release "$RELEASE" --contract contracts/rill-runtime.json
+          python3 scripts/validate-release-assets.py release/qualification.json release --commit "$EXPECTED_SHA" --run-id "$QUALIFICATION_RUN_ID" --run-attempt "$QUALIFICATION_RUN_ATTEMPT" --version "$VERSION" --release "$RELEASE" --contract contracts/rill-runtime.json
           (cd release && sha256sum luci-app-cloudflare-ip*.ipk luci-app-cloudflare-ip*.apk > sha256sums.txt)
           bash tests/release-asset-contract.sh release "$VERSION"
       - uses: actions/upload-artifact@v7
@@ -166,13 +180,14 @@ jobs:
       - name: Guard immutable release tag before asset upload
         env:
           EXPECTED_SHA: ${{ needs.check-qualification.outputs.commit }}
+          QUALIFICATION_SHA: ${{ needs.check-qualification.outputs.commit }}
           VERSION: ${{ needs.check-qualification.outputs.version }}
           RELEASE: ${{ needs.check-qualification.outputs.release }}
         shell: bash
         run: |
           set -euo pipefail
           git fetch --force --tags origin
-          tag="v${VERSION}-${RELEASE}"
+          tag=$(python3 scripts/package_identity.py --field tag)
           ref="refs/tags/${tag}"
           if git show-ref --verify --quiet "$ref"; then
             tag_sha="$(git rev-parse "${ref}^{commit}")"
@@ -181,21 +196,21 @@ jobs:
       - name: Publish exact qualified release
         uses: softprops/action-gh-release@v3
         with:
-          tag_name: v${{ needs.check-qualification.outputs.version }}-${{ needs.check-qualification.outputs.release }}
-          name: v${{ needs.check-qualification.outputs.version }}-${{ needs.check-qualification.outputs.release }}
+          tag_name: ${{ needs.check-qualification.outputs.tag }}
+          name: ${{ needs.check-qualification.outputs.tag }}
           prerelease: true
           make_latest: false
           body: |
-            Cloudflare IP 2.6.0-r4
+            Cloudflare IP ${{ needs.check-qualification.outputs.version }} (package release ${{ needs.check-qualification.outputs.release }})
             2.0 prerelease development line
 
             # 下载说明
 
             OpenWrt 24.10.x：
-            下载 `luci-app-cloudflare-ip_${{ needs.check-qualification.outputs.version }}-r${{ needs.check-qualification.outputs.release }}_all.ipk`
+            下载 `${{ needs.check-qualification.outputs.ipk_name }}`
 
             OpenWrt 25.12+：
-            下载 `luci-app-cloudflare-ip-${{ needs.check-qualification.outputs.version }}-r${{ needs.check-qualification.outputs.release }}.apk`
+            下载 `${{ needs.check-qualification.outputs.apk_name }}`
 
             只安装 Cloudflare IP 主包即可使用 Native、Adaptive Measurement 和 Operational Health。
             Rill integration is included in the main package.
@@ -206,7 +221,7 @@ jobs:
             Compatibility package: the deprecated `luci-app-cloudflare-ip-rill` package is for existing installations only.
             New users do not need to download this package manually.
 
-            旧版 Rill addon 用户：2.6.0-r4 已完成兼容迁移，直接升级主包即可。旧 `luci-app-cloudflare-ip-rill` 可以保留，也可以在升级成功后移除；新主包不再依赖旧 addon 文件。
+            旧版 Rill addon 用户：本版本包含兼容迁移，直接升级主包即可。旧 `luci-app-cloudflare-ip-rill` 可以保留，也可以在升级成功后移除；新主包不再依赖旧 addon 文件。
 
             校验：`sha256sum -c sha256sums.txt`
 
@@ -224,10 +239,12 @@ jobs:
       - name: Verify published tag identity
         env:
           EXPECTED_SHA: ${{ needs.check-qualification.outputs.commit }}
+          QUALIFICATION_SHA: ${{ needs.check-qualification.outputs.commit }}
           VERSION: ${{ needs.check-qualification.outputs.version }}
           RELEASE: ${{ needs.check-qualification.outputs.release }}
         shell: bash
         run: |
           set -euo pipefail
           git fetch --force --tags origin
-          test "$(git rev-parse "refs/tags/v${VERSION}-${RELEASE}^{commit}")" = "$EXPECTED_SHA"
+          tag=$(python3 scripts/package_identity.py --field tag)
+          test "$(git rev-parse "refs/tags/${tag}^{commit}")" = "$EXPECTED_SHA"

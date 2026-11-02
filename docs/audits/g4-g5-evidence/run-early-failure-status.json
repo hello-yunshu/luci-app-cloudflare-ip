@@ -1,0 +1,45 @@
+{
+  "scope": "G5e early exit task-status identity and guarded failure publication",
+  "baselineSha": "4195b5332d4ca76ad56c6dc603ba16e5fd4fa3b2",
+  "before": {
+    "cases": 18,
+    "failures": 14,
+    "observation": "early context failure/raw exit/TERM could leave cached old success, missing status or empty job identity"
+  },
+  "after": {
+    "status": "PASS",
+    "cases": 26,
+    "providers": [
+      "passwall",
+      "openclash"
+    ],
+    "evidence": "after.json contains actual startup and status identities plus before/after user/config/backup/history SHA-256 values"
+  },
+  "regressions": [
+    "eight grouped actual startup tests, host sh and dash",
+    "141 backend/lifecycle RPC matrix cases",
+    "full optimize followed by actual current-IP reuse",
+    "Adaptive Shadow/audit/Guarded/fallback and context requalification",
+    "OpenClash service/recovery/legacy EXIT scope, transaction signal rollback",
+    "stopped-service status, v2 schema and shared-writer lock"
+  ],
+  "mechanism": "allocate run ID before startup ACK, snapshot prior cache digest without invalidating reuse, publish failure only under retained writer ownership into own record or unchanged preimage; preserve specific terminal root error and append recovery error",
+  "remainingOpen": [
+    "Snapshot/check/rename is not a universal noncooperating-writer CAS",
+    "Status-storage publication failures and full stale-lock recovery/concurrency matrix",
+    "Overview explicit runId observation matching and complete eight-view runtime acceptance",
+    "Native rpcd/procd/UCI fixture for current changes NOT EVALUATED: Docker unavailable",
+    "Remaining G4/G5 and new exact-SHA hosted/artifact/offline qualification"
+  ],
+  "evidenceDirectory": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/run-early-failure-status",
+  "logs": {
+    "before.json": "d4fe326cf5b9fb86598fac31a2e7a0e11f6946c8b0cc2007f14ec2cbb4f81f83",
+    "rpc-matrix.json": "accb7fb81eda1f23af41caaa83ab8f186fb1046d7721c3d2d6c380a3bf9c9eda",
+    "ack.json": "4f52faf428970649f5c9b04e5fac3a1419bd799160c51149ba4951a28c79e60e",
+    "after.json": "27d1866274311405ff17b98ee09a0e0cbe55be025f7aaf23d94074f5f90fcc74",
+    "ack-dash.json": "4f52faf428970649f5c9b04e5fac3a1419bd799160c51149ba4951a28c79e60e",
+    "rpc-before.sh": "91390892046085dfc3df150ab1531a2a9be99a655067a53f9c304f70c43d9cd7",
+    "cli-before.sh": "7fa6108a7ec718f1fa27e1dd1ef37954cd542ff083efa9e86803487f242d167d",
+    "regressions.log": "6ad8d9fcd3853699afea0298442c2fc9962db1d4cfc524eeb6b33953f48a8acb"
+  }
+}

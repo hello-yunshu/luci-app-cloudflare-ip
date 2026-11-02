@@ -1,0 +1,17 @@
+{
+  "scope": "G5 status observation source/component/native LuCI evidence",
+  "baselineSha": "feb384f77c9f68a06c6d44f0e5a1a6385b3adb5e",
+  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/native-vm.EsMjO7/status-observation",
+  "hostMetadataCases": 8,
+  "nativeMetadataCases": 8,
+  "baselinePassed": 2,
+  "baselineFailed": 6,
+  "cacheSha256": "68ca7b124fd89399c8f307647a02258af4ab321385e6aec445769502018ba48b",
+  "uciSha256": "d4347c4f7c5f84e57b6deadb6d833b5ccbb86616c85eb8f3b78474e5d0eb7e6a",
+  "proxyInitExecuted": false,
+  "open": [
+    "rebuilt package and LMO",
+    "new exact SHA CI/offline qualification",
+    "complete G4/G5"
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "scope": "G5d native generation/HTTP correctness under occupied socket with actual production init/procd/uhttpd",
+  "sourceSha": "0851933c0ca3da00f7e5dddd43fd1db3693eade0",
+  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/native-vm.EsMjO7/publisher-port-conflict",
+  "actualTooling": "native Bash/common.sh/publisher.sh; actual init, procd and uhttpd; no service/HTTP mocks",
+  "ready": {
+    "success": true,
+    "state": "ready",
+    "listenerReady": true,
+    "generation": "gen.a12100c94b9294addb664d2d93f47e4f4999ff8f7d087a0de87974fed7f07674",
+    "generationPath": "/generations/gen.a12100c94b9294addb664d2d93f47e4f4999ff8f7d087a0de87974fed7f07674",
+    "bind": "10.0.2.15",
+    "requestedBind": "10.0.2.15",
+    "port": 18088,
+    "count": 1,
+    "paths": [
+      "/ip.txt",
+      "/best-ipv4.txt",
+      "/best-ipv6.txt",
+      "/result.json"
+    ],
+    "observedAt": 1792635763.67626
+  },
+  "occupiedPort": {
+    "success": false,
+    "state": "error",
+    "listenerReady": false,
+    "error": "publisher_generation_readback_failed",
+    "observedAt": 1792635764.743801
+  },
+  "disableWithForeignListener": {
+    "success": false,
+    "state": "error",
+    "listenerReady": false,
+    "error": "publisher_still_responding",
+    "bind": "",
+    "port": 12345,
+    "observedAt": 1792635766.812448
+  },
+  "finalDisabled": {
+    "success": false,
+    "state": "disabled",
+    "listenerReady": false,
+    "count": 0,
+    "paths": [],
+    "bind": "",
+    "port": 12345,
+    "stopAcknowledged": true,
+    "observedAt": 1792635766.841852
+  },
+  "assertions": [
+    "exact initial real HTTP generation readback",
+    "failed new generation leaves current link unchanged",
+    "all four public file hashes unchanged",
+    "foreign PID remains alive",
+    "owned procd instance removed on disable",
+    "foreign endpoint produces explicit still-responding failure",
+    "only after endpoint closes is disabled confirmed",
+    "original publication directory and config/status restored"
+  ],
+  "restoredHashes": "d4347c4f7c5f84e57b6deadb6d833b5ccbb86616c85eb8f3b78474e5d0eb7e6a  /etc/config/cf_ip\n68ca7b124fd89399c8f307647a02258af4ab321385e6aec445769502018ba48b  /etc/cf_ip/status.json\n",
+  "limits": [
+    "controlled selected IP input; no CFST/proxy optimization",
+    "developer overlay, not rebuilt latest package",
+    "not global socket ownership under arbitrary identical-response adversary",
+    "concurrency/resource/KILL/full G4/G5 remain OPEN"
+  ]
+}

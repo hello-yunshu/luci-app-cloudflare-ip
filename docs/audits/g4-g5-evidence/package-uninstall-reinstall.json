@@ -1,0 +1,20 @@
+{
+  "scope": "G4b offline full uninstall/reinstall with actual package manager",
+  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/native-vm.EsMjO7/package-uninstall-reinstall",
+  "sourceBaseline": "631c42333a4bd9e58bde00f6bc184b085b3e7f63",
+  "inputIpkSha256": "e3749a7b71bd9000d16847e70d2eb1e3a94902f13a359c3b1f61df3d33fd8911",
+  "nativeIpk": "PASS",
+  "removedOwnedRegularFilesAndSymlinks": 40,
+  "modifiedConffilePreserved": true,
+  "userCustomUrlBackupHistoryCronPreserved": true,
+  "dependencyRecordsRemainInstalled": true,
+  "reinstalledPayloadOwnerCorrect": true,
+  "apk": "NOT EVALUATED pending current SDK",
+  "onlineHooks": "NOT EVALUATED by this offline test",
+  "open": [
+    "current exact SHA SDK matrices",
+    "online lifecycle/procd/cron hooks",
+    "mid-install failures",
+    "complete G4/G5"
+  ]
+}

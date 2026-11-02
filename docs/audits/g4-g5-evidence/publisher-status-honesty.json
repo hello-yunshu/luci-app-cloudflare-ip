@@ -1,0 +1,29 @@
+{
+  "status": "CHECKPOINT_ONLY",
+  "baseCommit": "196811967098e7153408b3941717af97b0e80a3a",
+  "finding": "A stopped listener still returned cached success; disabling returned without clearing the ready observation",
+  "changes": [
+    "Bounded status snapshot parsing and current HTTP recheck without rewriting stored observation",
+    "Committed configuration loaded by independent publisher-status command",
+    "Current configured endpoint is reconciled; automatic LAN lookup uses bounded ubus timeout and qualified addresses",
+    "Disable propagates failed stop, probes old/current endpoints and records disabled non-ready state only after acknowledgement",
+    "Ready publication records effective bind; stopped/invalid status cannot reuse success"
+  ],
+  "scope": "Host injected failures and actual local HTTP. Isolated native uhttpd, real UCI sandbox configuration/CLI, and procd rebind regression passed; network/private-policy fixture boundaries remain as documented in earlier receipts.",
+  "limitations": [
+    "No physical stop/process-ownership or LAN/device qualification claim from HTTP absence",
+    "Generation atomicity, full disabled/procd configuration propagation and remaining G4/G5/final exact-SHA hosted qualification OPEN"
+  ],
+  "precedingCI": {
+    "runId": 39145150770,
+    "status": "in_progress at observation"
+  },
+  "evidence": {
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-status-honesty/before.log": "e453eac809d04d1981126708cf386fae68f3731ab33438e34c3909ca379b5616",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-status-honesty/after.log": "f69fc6e1260c00fa1dd620c32a6e87a9285e19591924484abd17f732f61adff3",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-status-honesty/http-after.json": "670fd25e536b4098bc2a49c7085d5959eed08e05d1c8004eb801ae3715ae45fd",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-status-honesty/native-after.log": "47f3e9548fac029adc7d09f540a7978d362e5b679aba5b5040eca721dac02139",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-status-honesty/module-after.log": "c588d21e1c7336dc6508c715dfa6ddb922fa42ed6cc88502da995d85936c4dc5",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-status-honesty/v2-status-after.log": "64d946744aabf6cf9653ff8273c911466b0a7826cb2bbeb8a6d78b540319a7c5"
+  }
+}

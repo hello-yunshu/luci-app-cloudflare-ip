@@ -1,0 +1,53 @@
+{
+  "scope": "G5c standalone CFST installer/cache/download parity; harmless archive/script fixtures",
+  "baselineSha": "858922c0bdee3236391c954cce1bb28e811afcac",
+  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/standalone-cfst-parity",
+  "baselineCache": {
+    "passed": 23,
+    "failed": 11,
+    "confirmed": "offline missing metadata accepted and creates binary; wrong-digest cache changes existing artifacts",
+    "directEntryLimitation": "old standalone has no dedicated cached installer, so direct-entry failures include missing function, not only qualification defects"
+  },
+  "baselineInstaller": "matrix aborts at bootstrap archive publication assertion; raw traceback retained; no complete baseline matrix claim",
+  "after": {
+    "host": {
+      "cfst-cache-qualification": {
+        "passed": 34,
+        "failed": 0,
+        "sourceSha256": "d4ed40b9741588a00ff51aff0bfcfedf2d34df775df66105c64c3e5dc84fed7d"
+      },
+      "cfst-install-faults": {
+        "passed": 23,
+        "failed": 0,
+        "sourceSha256": "d4ed40b9741588a00ff51aff0bfcfedf2d34df775df66105c64c3e5dc84fed7d"
+      }
+    },
+    "native": {
+      "cfst-cache-qualification": {
+        "passed": 34,
+        "failed": 0,
+        "sourceSha256": "d4ed40b9741588a00ff51aff0bfcfedf2d34df775df66105c64c3e5dc84fed7d"
+      },
+      "cfst-install-faults": {
+        "passed": 23,
+        "failed": 0,
+        "sourceSha256": "d4ed40b9741588a00ff51aff0bfcfedf2d34df775df66105c64c3e5dc84fed7d"
+      }
+    }
+  },
+  "otherChecks": [
+    "CFST version",
+    "fallback cached version/retry",
+    "security contract",
+    "Bash syntax",
+    "ShellCheck error",
+    "actionlint",
+    "diff check"
+  ],
+  "open": [
+    "real CFST standalone target execution",
+    "concurrency/KILL/resource/recovery durability",
+    "latest exact SHA SDK/migration/offline",
+    "complete G4/G5"
+  ]
+}

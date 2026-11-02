@@ -1660,3 +1660,33 @@ msgstr "无法刷新来源：%s"
 
 msgid "OpenClash service restored and health verified; new nodes were not applied."
 msgstr "OpenClash 服务已恢复并通过健康验证；新节点未应用。"
+
+msgid "Service readiness check was cancelled."
+msgstr "服务就绪检查已取消。"
+
+msgid "Service did not become ready before the timeout. Check service status and logs."
+msgstr "服务未在规定时间内就绪，请检查服务状态和日志。"
+
+msgid "Unable to verify the applied configuration. Reload and try again."
+msgstr "无法确认配置是否已应用，请刷新后重试。"
+
+msgid "Configuration still has uncommitted changes. Apply it again before restarting."
+msgstr "配置仍有未提交的更改，请先重新应用再重启。"
+
+msgid "Applied configuration does not match the saved settings. Reload and review the configuration."
+msgstr "已应用的配置与保存的设置不一致，请刷新并核对配置。"
+
+msgid "Applying configuration..."
+msgstr "正在应用配置…"
+
+msgid "Task startup was not confirmed. Check status and logs before retrying."
+msgstr "任务启动尚未确认。请先查看状态和日志，再决定是否重试。"
+
+msgid "The started task has not published its status. Check status and logs before retrying."
+msgstr "已启动的任务尚未更新状态。请先查看状态和日志，再决定是否重试。"
+
+msgid "Unable to confirm speed test status: %s"
+msgstr "无法确认测速任务状态：%s"
+
+msgid "Installed (Status Unknown)"
+msgstr "已安装（状态未知）"

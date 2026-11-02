@@ -1,0 +1,27 @@
+{
+  "scope": "G5e actual short-lived rpcd read-only session and uhttpd ubus permission enforcement",
+  "sourceSha": "850464eb5dba77a3467e139a59e84f0e3dd69a7d",
+  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/native-vm.EsMjO7/native-readonly-session",
+  "readMethodsAllowed": 14,
+  "writeMethodsDenied": 13,
+  "httpReadCases": [
+    "status",
+    "version"
+  ],
+  "httpDeniedWrites": [
+    "sync",
+    "oc-delete-backup",
+    "rill-reset"
+  ],
+  "destroyedSessionDenied": true,
+  "configAclProductStateHashesUnchanged": true,
+  "aclSha256": "0f0b75365b6df14e75f26787961ea83f33d83571c90a342ff528d6eeff704193",
+  "session": "120-second maximum; existing source read grants only; explicitly destroyed in finally; no credentials/account/ACL file changes",
+  "harness": "minimal Python lacks idna; actual native curl used for HTTP. uhttpd expresses denied calls as JSON-RPC -32002 Access denied rather than ubus array [6].",
+  "limits": [
+    "direct existing-read-grant session, not login role assignment",
+    "write methods checked all by native access; three sampled HTTP denials use invalid safe arguments",
+    "current native developer overlay not newly rebuilt package",
+    "full G4/G5/latest qualification remains OPEN"
+  ]
+}

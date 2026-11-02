@@ -1,0 +1,38 @@
+{
+  "status": "CHECKPOINT_ONLY",
+  "sourceBaseCommit": "b18084fc08f56bd2450c3a83a1452d3ce9d0fdb1",
+  "nativeRuntime": "OpenWrt 24.10.8 / LuCI openwrt-24.10 26.205.85413~cac97ed",
+  "finding": "Native View.addFooter binds View.handleSaveApply; previous hooks were attached to form.Map and bypassed by actual page buttons. No-proxy sentinel none was persisted by native apply.",
+  "before": {
+    "moduleBindingRegressionExit": 1,
+    "browserPersisted": {
+      "mode": "none",
+      "ip_count": "5",
+      "enabled": "0"
+    }
+  },
+  "after": {
+    "invalidTargetDomain": "Actual button rejected invalid or empty PassWall target_domain; committed ip_count remained 4",
+    "validTargetDomain": "Actual button accepted one.example fixture; success notification observed with exact visible-text wait; fresh reload and CLI returned ip_count 5, mode passwall, enabled 0",
+    "fixtureRestored": {
+      "ip_count": "4",
+      "mode": "passwall",
+      "enabled": "0"
+    },
+    "sessionExpiry": "One apply completed persistence but expired session caused error, not success; reauthentication then positive save/readback passed",
+    "scope": "All four shared forms now bind handlers on View, with Map retained for root connectivity. Only settings exercised in browser in this checkpoint; other actions/views remain OPEN."
+  },
+  "evidenceDirectory": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/luci-runtime",
+  "files": {
+    "package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js": "aa2e8d1bf82bce5e6f85cd3a9d1ef39f1e1a3daf5831eed7b329e5bd3e562152",
+    "package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/passwall.js": "bfea99f6031aaea96877d375addb59b3a7421ed62b25a54d273bcc810ca4b533",
+    "package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/advanced.js": "0f7171ca74528c06e1677a5bc6cfffcb262d695737f2eb2567ceeb02f2cae763",
+    "package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js": "e652f542174b2da539597666c2d6279282c6c4868b6b73a03165ca0bd37fb334",
+    "package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/settings.js": "e71b667d888310d0c7f7e0589bc3197537573da01e173345f88b30cd69ce03d9",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/luci-runtime/settings-validation-rejected.png": "f03399c2ba8598db18565c6324df5efadc59eb91cdd7facb5f35244417004319",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/luci-runtime/settings-save-applied.png": "164a8b357b3441803b7d3946b57a86e80cce311d29c80cb7228d9fa71a755b5c",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/luci-runtime/settings-view-binding-fixed.png": "ead2bfef2d0a984a190e19d07a7c7b722c7505430e0583c42aa55e6e966c2a08",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/luci-runtime/view-binding-before.log": "51e6279935de225d7774a17edb6db55f29b60ea6183f2f945c20b82362910ce5",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/luci-runtime/view-binding-after.log": "0d004a344c75eda5d957a27992be1b14c18a403e4857de0055ddd6cde563e8fe"
+  }
+}

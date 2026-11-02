@@ -1,0 +1,27 @@
+{
+  "status": "CHECKPOINT_ONLY",
+  "baseCommit": "427efcc21149882f1040696220c7650da971095f",
+  "sourceSha256": "84d9fd1b336826e3efd542e930f134ebb455dfef323d51f70125b9b7daba46e1",
+  "before": "Failed runtime status rename was ignored, and fresh fetch returned success",
+  "after": [
+    "Fresh/cache status write failure returns failure",
+    "Fresh/cache output write failure returns failure before new success status",
+    "Qualified persistent cache remains usable after runtime failure",
+    "Built-in/custom collectors skip rejected source records instead of merging preexisting output"
+  ],
+  "coverage": "Injected rename failures on host and actual isolated OpenWrt rootfs; transport mocked in these cases. Separate source trust/publication/real-local-TLS/source-engine regressions passed.",
+  "limitations": [
+    "No physical ENOSPC/flash/power-loss proof",
+    "Interrupted temporary-file orphan cleanup and remaining resource/aggregate deadline cases OPEN",
+    "Remaining G4/G5 and exact-SHA hosted qualification OPEN"
+  ],
+  "evidence": {
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/source-runtime-write/before.log": "ba24e0da026864558d2f5e132e71a0450783ea77587cde4248edf70094627749",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/source-runtime-write/after.log": "cbfda77d10c21dea7a2cf4dddf046631398d15ea86694988d37ba3541f897c73",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/source-runtime-write/openwrt-after.log": "cbfda77d10c21dea7a2cf4dddf046631398d15ea86694988d37ba3541f897c73",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/source-runtime-write/publication-after.log": "eab35edf6a9e58a1f4b9683b47bacf7ff691a9e5acf7e6a5904e36cecb90afc1",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/source-runtime-write/trust-after.log": "87faa735d2c1dedbcbed0c02311e3ed7aad1eb24c5c38f072fad079f9a30705e",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/source-runtime-write/tls-after.json": "c653b52a4db3aae4027ef3c0f7a4121a9753eebd8b68ba9c271f36f1e4b045c2",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/source-runtime-write/engine-after.log": "1dd07bebf3d300b76a77bf2aa0d5b328d5edf2912b0de22cd358ff5d86329dde"
+  }
+}

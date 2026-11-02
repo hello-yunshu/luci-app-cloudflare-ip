@@ -152,6 +152,8 @@ function waitReadyAndReload() {
 }
 
 function makeEnvBadge(installed, label) {
+	if (typeof installed !== 'boolean')
+		return E('span', { 'class': 'cfi-badge gray' }, '? ' + _('Unknown'));
 	if (installed) {
 		return E('span', { 'class': 'cfi-badge green' }, '\u2714 ' + (label || _('Installed')));
 	}
@@ -159,7 +161,11 @@ function makeEnvBadge(installed, label) {
 }
 
 function makePluginBadge(installed, running) {
-	if (running) {
+	if (typeof installed !== 'boolean')
+		return makeEnvBadge(null);
+	if (installed && typeof running !== 'boolean')
+		return E('span', { 'class': 'cfi-badge gray' }, _('Installed (Status Unknown)'));
+	if (installed && running) {
 		return E('span', { 'class': 'cfi-badge green' }, '\u2714 ' + _('Running'));
 	} else if (installed) {
 		return E('span', { 'class': 'cfi-badge orange' }, '\u26A0 ' + _('Installed (Stopped)'));
@@ -191,15 +197,15 @@ var css = `
 	.cfi-status-banner.stopped { border-left: 5px solid var(--warning-color, #d89b00); }
 	.cfi-status-banner.running-test { border-left: 5px solid var(--main-color, #0069d9); }
 	.cfi-status-icon { font-size: 2.5em; line-height: 1; flex-shrink: 0; }
-	.cfi-status-icon.running { color: var(--success-color, #3aa657); }
-	.cfi-status-icon.stopped { color: var(--warning-color, #d89b00); }
-	.cfi-status-icon.running-test { color: var(--main-color, #0069d9); animation: cfi-pulse 1.5s ease-in-out infinite; }
+	.cfi-status-icon.running { color: var(--cfi-success-text); }
+	.cfi-status-icon.stopped { color: var(--cfi-warning-text); }
+	.cfi-status-icon.running-test { color: var(--cfi-link); animation: cfi-pulse 1.5s ease-in-out infinite; }
 	.cfi-status-text h3 { margin: 0 0 0.2em 0; font-size: 1.3em; }
-	.cfi-status-text h3.running { color: var(--success-color, #3aa657); }
-	.cfi-status-text h3.stopped { color: var(--warning-color, #d89b00); }
-	.cfi-status-text h3.running-test { color: var(--main-color, #0069d9); }
+	.cfi-status-text h3.running { color: var(--cfi-success-text); }
+	.cfi-status-text h3.stopped { color: var(--cfi-warning-text); }
+	.cfi-status-text h3.running-test { color: var(--cfi-link); }
 	@keyframes cfi-pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
-	.cfi-status-text p { margin: 0; color: var(--subtext-color, #666); font-size: 0.9em; }
+	.cfi-status-text p { margin: 0; color: var(--cfi-muted); font-size: 0.9em; }
 	.cfi-stats-grid {
 		display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
 		gap: 1em; margin-bottom: 1.5em;
@@ -210,13 +216,13 @@ var css = `
 	}
 	.cfi-stat-card .cfi-stat-value {
 		font-size: 1.8em; font-weight: bold; line-height: 1.2;
-		color: var(--main-color, #0069d9);
+		color: var(--cfi-link);
 	}
-	.cfi-stat-card .cfi-stat-value.green { color: var(--success-color, #3aa657); }
-	.cfi-stat-card .cfi-stat-value.red { color: var(--danger-color, #d94b4b); }
-	.cfi-stat-card .cfi-stat-value.orange { color: var(--warning-color, #d89b00); }
+	.cfi-stat-card .cfi-stat-value.green { color: var(--cfi-success-text); }
+	.cfi-stat-card .cfi-stat-value.red { color: var(--cfi-danger-text); }
+	.cfi-stat-card .cfi-stat-value.orange { color: var(--cfi-warning-text); }
 	.cfi-stat-card .cfi-stat-label {
-		font-size: 0.85em; color: var(--subtext-color, #666);
+		font-size: 0.85em; color: var(--cfi-muted);
 		margin-top: 0.3em;
 	}
 	@media (max-width: 600px) {
@@ -235,12 +241,20 @@ var css = `
 	`;
 
 return view.extend({
+	/* Actions use their own RPC controls; this view has no editable UCI map. */
+	handleSave: null,
+	handleSaveApply: null,
+	handleReset: null,
+
 	load: function() {
 		return Promise.all([
 			utils.callStatus(),
 			uci.load('cf_ip')
 		]).then(function(results) {
-			return results[0] || {};
+			var status = results[0];
+			if (!status || typeof status !== 'object' || Array.isArray(status) || status.success === false || typeof status.running !== 'boolean')
+				throw new Error(_('Unable to load status: %s').format(status && status.error || _('Unknown')));
+			return status;
 		});
 	},
 
@@ -261,8 +275,9 @@ return view.extend({
 		if (scriptVersion.charAt(0) === '@') scriptVersion = '-';
 		var error = data.error || '';
 
-		/* Env info from status (merged by backend) */
-		var envUpdatedAt = data.updated_at || '';
+		/* v2 idle status nests environment; legacy status exposes root fields. */
+		var environment = Object.assign({}, data, data.env || {});
+		var envUpdatedAt = environment.updated_at || '';
 
 		var container = E('div', { 'class': 'cbi-map cfi-dashboard' });
 		container.appendChild(E('style', {}, css));
@@ -401,18 +416,15 @@ return view.extend({
 					utils.setBusy(btn, '\u23F3 ' + _('Running...'));
 					isRunningTest = true;
 					// Trigger speedtest in background (non-blocking RPC)
-					callRun().then(function(result) {
-						result = result || {};
-						if (result.success !== true) {
-							ui.addNotification(null, E('p', _('Unable to start speed test: %s').format(result.error || _('Unknown'))), 'error');
-							isRunningTest = false;
-							utils.resetBusy(btn);
-							return;
-						}
-						// Reload page after short delay; backend writes "running" status almost instantly
-						utils.reloadSoon(1000);
+					return callRun().then(function(result) {
+						return utils.waitForRunStatus(utils.callStatus, result, {
+							isActive: function() { return container.isConnected; }
+						});
+					}).then(function() {
+						if (container.isConnected) utils.reloadSoon(300, function() { return container.isConnected; });
 					}).catch(function(e) {
-						ui.addNotification(null, E('p', _('Speed test failed: %s').format(e.message)), 'error');
+						if (container.isConnected && e.code !== 'ServiceReadyCancelled')
+							ui.addNotification(null, E('p', _('Unable to confirm speed test status: %s').format(e.message)), 'error');
 						isRunningTest = false;
 						utils.resetBusy(btn);
 					});
@@ -520,7 +532,7 @@ return view.extend({
 				'href': 'https://github.com/hello-yunshu/luci-app-cloudflare-ip',
 				'target': '_blank',
 				'rel': 'noopener',
-				'style': 'color:var(--main-color, #0069d9);text-decoration:none'
+				'style': 'text-decoration:underline'
 			}, 'hello-yunshu/luci-app-cloudflare-ip'))
 		]));
 
@@ -544,14 +556,16 @@ return view.extend({
 		var envTds = [];
 		for (var i = 0; i < envItems.length; i++) {
 			var item = envItems[i];
-			var val = data[item.key];
+			var val = environment[item.key];
 			var badge;
 
 			if (item.plugin) {
-				var isRunning = data[item.runningKey] || false;
+				var isRunning = environment[item.runningKey];
 				badge = makePluginBadge(val, isRunning);
 			} else if (item.cfst) {
-				if (val) {
+				if (typeof val !== 'boolean') {
+					badge = makeEnvBadge(null);
+				} else if (val) {
 					var cfstVer = data.cfst_version || '';
 					badge = E('span', { 'class': 'cfi-badge green' }, '\u2714 ' + (cfstVer ? cfstVer : _('Installed')));
 				} else {
@@ -580,7 +594,8 @@ return view.extend({
 				var btn = this;
 				utils.setBusy(btn, _('Checking...'));
 				return callRefreshEnv().then(function(result) {
-					result = result || {};
+					if (!result || result.success !== true)
+						throw new Error(result && result.error || _('Error'));
 					for (var j = 0; j < envTds.length; j++) {
 						var entry = envTds[j];
 						var it = entry.item;
@@ -588,10 +603,12 @@ return view.extend({
 						var newBadge;
 
 						if (it.plugin) {
-							var newRunning = result[it.runningKey] || false;
+							var newRunning = result[it.runningKey];
 							newBadge = makePluginBadge(newVal, newRunning);
 						} else if (it.cfst) {
-							if (newVal) {
+							if (typeof newVal !== 'boolean') {
+								newBadge = makeEnvBadge(null);
+							} else if (newVal) {
 								var ver = result.cfst_version || '';
 								newBadge = E('span', { 'class': 'cfi-badge green' }, '\u2714 ' + (ver ? ver : _('Installed')));
 							} else {
@@ -635,6 +652,6 @@ return view.extend({
 			container.appendChild(depSection);
 
 
-		return utils.appendFooter(container, Object.assign({}, utils.FOOTER_OPTIONS, { version: scriptVersion }));
+		return utils.appendFooter(container, utils.FOOTER_OPTIONS);
 	}
 });

@@ -38,6 +38,22 @@ FAST_IPS=("172.64.53.65" "172.64.229.52")
 IP_COUNT=2
 VERBOSE=true
 
+# This transformation fixture models an explicitly disabled service. Keep the
+# real pre-write guard: no host UCI, process, controller or init call may escape.
+printf '0\n' >"$tmp_dir/enable"
+printf '\n' >"$tmp_dir/core-pid"
+_OPENCLASH_EXPECTED_ENABLED=0
+uci() {
+    [[ "${1:-}" == -q ]] && shift
+    [[ "${1:-}" == get && "${2:-}" == openclash.config.enable ]] || return 1
+    cat "$tmp_dir/enable"
+}
+pidof() {
+    [[ "${1:-}" == clash ]] || return 1
+    [[ -s "$tmp_dir/core-pid" ]] && [[ "$(cat "$tmp_dir/core-pid")" != "" ]] || return 1
+    cat "$tmp_dir/core-pid"
+}
+
 cat >"$OPENCLASH_CONFIG" <<'YAML'
 proxies:
   - name: VLESS-ws
@@ -50,6 +66,19 @@ proxies:
       path: /ws
 YAML
 
+# Unknown or externally changed service state must still fail before writes.
+cp "$OPENCLASH_CONFIG" "$tmp_dir/before.yaml"
+for condition in unknown enabled external-core; do
+    printf '0\n' >"$tmp_dir/enable"; : >"$tmp_dir/core-pid"
+    case "$condition" in
+        unknown) rm "$tmp_dir/enable" ;;
+        enabled) printf '1\n' >"$tmp_dir/enable" ;;
+        external-core) printf '1234\n' >"$tmp_dir/core-pid" ;;
+    esac
+    if ( update_openclash ); then fail "$condition service state unexpectedly accepted"; fi
+    cmp -s "$OPENCLASH_CONFIG" "$tmp_dir/before.yaml" || fail "$condition changed config"
+done
+printf '0\n' >"$tmp_dir/enable"; : >"$tmp_dir/core-pid"
 update_openclash
 
 # Should generate 2 variants with {ip} in name

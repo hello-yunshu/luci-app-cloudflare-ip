@@ -1,0 +1,40 @@
+{
+  "stage": "G5b",
+  "baselineHead": "91585e5609084edc9282fc28565ce5c119cce71b",
+  "defect": "diagnostics success:false/missing reply is rendered as an empty successful snapshot",
+  "baseline": "actual native RPC returns success:false rc1; UI renders only empty objects; actual view module regression fails",
+  "repair": "explicit role=alert with existing translated Diagnostics unavailable and escaped backend error; successful snapshots unchanged",
+  "tests": {
+    "actualViewModuleResponses": 5,
+    "successSnapshot": true,
+    "failureReasonVisible": true,
+    "failedPayloadHidden": true,
+    "missingRepliesExplicit": true,
+    "relatedOverviewAndBindings": true,
+    "jsSyntaxAndDiff": true
+  },
+  "native": {
+    "scope": "qualified baseline package plus one temporary diagnostics.js overlay; no newly rebuilt package claim",
+    "failureMessage": "无法获取诊断信息: cf-ip-auto returned no valid result",
+    "keyboardRefreshReadActualFixture": true,
+    "tabFocusOnClearButton": true,
+    "focusOutline": "solid",
+    "clearActualFixtureEmpty": true,
+    "clearFeedback": "日志已清除。",
+    "controlLimitation": "Enter dispatch and later AX initially timed out; documented Escape restored browser response, after which UI and file showed clear completed. Dialog cancellation/confirmation interaction NOT PROVEN."
+  },
+  "restored": {
+    "installedViewSha256": "3b2c587de1ccf2763f61fd4fcab5eb696bac69e406f864d181d592a017c5bbe6",
+    "packageDatabaseBytesAndMtime": true,
+    "configAndStatusHashesUnchanged": true,
+    "absentOwnedTestLogRestored": true
+  },
+  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/diagnostics-honesty",
+  "remaining": "new exact-head qualification/rebuilt-package UI and original full eight-view keyboard/focus/action matrix OPEN",
+  "files": {
+    "after.png": "52f5b424be893bc22ccd3508e6862a0aa7fa28ae476de8c83ea93bffd9dfe62e",
+    "before.png": "9e78fde0ebef86ebe2f30fcc60059626fe9eb144b859fccfca7a24c4a21d58ca",
+    "installed-original.js": "3b2c587de1ccf2763f61fd4fcab5eb696bac69e406f864d181d592a017c5bbe6",
+    "restore.log": "5411d74a4bfcd3f07569aecbeae074b02474c02251962f9dea99839cb8ca45fd"
+  }
+}

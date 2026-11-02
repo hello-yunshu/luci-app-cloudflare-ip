@@ -1,0 +1,23 @@
+{
+  "scope": "G5e actual native cron daemon, rc.common/procd/init and status; disabled service only",
+  "sourceSha": "6bc33eec4073990447c18d014b4b4192e281dc53",
+  "initSourceSha256": "395f082ec1091587c091d4a47b362e1142af137bb0e8b34d1d8ef7b78403a357",
+  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/native-vm.EsMjO7/online-cron-lifecycle",
+  "cases": [
+    "real cron daemon running with controlled never-due schedules",
+    "duplicate scheduling exactly one marked entry preserving user lines",
+    "disabled actual init restart removes managed cron without a service instance",
+    "actual CLI status running/scheduled/jobRunning false",
+    "repeated init stop preserves user tasks",
+    "original inactive cron/no root crontab/status bytes restored"
+  ],
+  "uciUnchangedSha256": "d4347c4f7c5f84e57b6deadb6d833b5ccbb86616c85eb8f3b78474e5d0eb7e6a",
+  "statusRestoredSha256": "68ca7b124fd89399c8f307647a02258af4ab321385e6aec445769502018ba48b",
+  "limits": [
+    "developer source overlay; not newly rebuilt package",
+    "no enabled optimization/proxy/CFST task executed",
+    "no actual scheduled job fire",
+    "boot/upgrade/uninstall online hooks not covered",
+    "complete G4/G5 and latest exact SHA qualification OPEN"
+  ]
+}

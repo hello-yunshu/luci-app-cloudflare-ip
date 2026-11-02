@@ -1,0 +1,145 @@
+{
+  "scope": "G5 native jq portability for context, observations and operational health; observation write failure propagation",
+  "baselineSha": "7a3486fe377b55ad3776074acf8eb75ce5d465da",
+  "before": {
+    "nativeContext": "fails with jq without ONIGURUMA",
+    "nativeFingerprint": "returns success and SHA-256 of empty text after context jq failure",
+    "nativeOperationalHistory": "fails with jq regex error and invalid --argjson input",
+    "nativeObservation": "valid CSV row fails jq but parser returns 0 and replaces previous JSON with []",
+    "hostParserFaultMatrix": {
+      "passed": 2,
+      "failed": 6
+    }
+  },
+  "after": {
+    "nativeContext": "PASS",
+    "nativeOperationalHistory": "PASS after portable test find -print adjustment",
+    "nativeObservationAndNativeEligibility": "PASS with probe fixtures",
+    "nativePrefixColoAndFeatureFlags": "PASS; 22 features; uppercase canonical source kinds retained",
+    "nativeRegexDeniedCombinedMatrix": "PASS",
+    "observationFaultCasesHost": 8,
+    "observationFaultCasesNative": 8,
+    "canonicalContextByteParityCases": 14,
+    "hostFocusedRegressions": [
+      {
+        "case": "rill-context-change-reset",
+        "exitCode": 0,
+        "seconds": 0.17
+      },
+      {
+        "case": "rill-context-lineage-rotation",
+        "exitCode": 0,
+        "seconds": 0.24
+      },
+      {
+        "case": "rill-context-nonmaterial-config-change",
+        "exitCode": 0,
+        "seconds": 0.1
+      },
+      {
+        "case": "rill-context-pending-feedback-isolation",
+        "exitCode": 0,
+        "seconds": 0.21
+      },
+      {
+        "case": "rill-qualification-context-reset",
+        "exitCode": 0,
+        "seconds": 0.15
+      },
+      {
+        "case": "rill-context-requalification-lifecycle",
+        "exitCode": 0,
+        "seconds": 67.17,
+        "hostFlock": "actual kernel fcntl adapter"
+      },
+      {
+        "case": "rill-disabled-noexec",
+        "exitCode": 0,
+        "seconds": 0.02,
+        "hostFlock": "actual kernel fcntl adapter"
+      },
+      {
+        "case": "rill-assisted-authority-fallback",
+        "exitCode": 0,
+        "seconds": 0.16,
+        "hostFlock": "actual kernel fcntl adapter"
+      },
+      {
+        "case": "rill-assisted-regression-downgrade",
+        "exitCode": 0,
+        "seconds": 0.86,
+        "hostFlock": "actual kernel fcntl adapter"
+      },
+      {
+        "case": "adaptive-shadow-no-influence",
+        "exitCode": 0,
+        "seconds": 0.11,
+        "hostFlock": "actual kernel fcntl adapter"
+      },
+      {
+        "case": "operational-health",
+        "exitCode": 0,
+        "seconds": 0.18,
+        "hostFlock": "actual kernel fcntl adapter"
+      },
+      {
+        "case": "operational-null-sample-contract",
+        "exitCode": 0,
+        "seconds": 0.05,
+        "hostFlock": "actual kernel fcntl adapter"
+      },
+      {
+        "case": "operational-immediate-refresh",
+        "exitCode": 0,
+        "seconds": 0.45,
+        "hostFlock": "actual kernel fcntl adapter"
+      }
+    ]
+  },
+  "implementation": [
+    "common Unicode whitespace normalization without jq regex",
+    "sorted context JSON in one jq call; failed/empty contexts produce no fingerprint",
+    "case-normalized substring checks for canonical ASCII source/state markers",
+    "private parser workspace; checked initial/row/rename/final writes; unsafe output types refused",
+    "CI capability guard and conditional-caller fault matrix"
+  ],
+  "environmentCorrections": [
+    "native test used find -quit unavailable in BusyBox; retain same nonempty quarantine check using find -print",
+    "Darwin lifecycle regression needs existing real-kernel fcntl flock adapter; initial missing-tool failure retained separately"
+  ],
+  "executionBoundary": [
+    "native new-source libraries run in a private test project on actual OpenWrt 24.10.8/aarch64 with regex-disabled jq, Bash and BusyBox tools",
+    "network namespaces isolate test subprocesses; actual installed product files remain untouched by these source overlays",
+    "Runtime/proxy/probe callbacks are fixtures; not real proxy/Runtime or full procd lifecycle acceptance",
+    "package rebuilt from this new source, latest-SHA hosted/offline/native-package gates remain OPEN",
+    "SIGKILL/reboot/parser orphan bounds, quotas, complete storage/input fault matrix, standalone parity and remaining G4/G5 remain OPEN"
+  ],
+  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/native-vm.EsMjO7/runtime-jq-portability",
+  "sourceSha256": {
+    "package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/common.sh": "3a1afdb4c8ede366e00110a814099805d8d0f5a84dfabbd8aeb154b28fed60c6",
+    "package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh": "0ff3b794ea7e2ea821d25bb0c8f6a3078012162f1f359a2203141de196864787",
+    "package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/observe.sh": "6f984d6ea7732074235320fb5c4f85f7a65791b5ac81f1c5cb9c3eb60d9fb6a3",
+    "package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/operational-health.sh": "bcb36b20a5c35aaafc86be8bdcc79b0a98df62a5bb7c5b41edcbe236c559966c"
+  },
+  "rawSha256": {
+    "observation-faults-host-before.json": "a0c6ec615b895b855478db289c21b3a4ac1e219740b711a38e8d816ea2729dc0",
+    "observation-faults-host-after.json": "0a1dc84f81d9c1dfebd6d950aadb48eff75e5cf67b11823556c94b5667b69c0b",
+    "observation-faults-native-after.json": "d4c52c9af18d0b4420791dcbea50a9cf593688bf2b35717f53829c91fb68cea8",
+    "context-byte-parity.json": "43cef22753ca9d2cdf3ff9d0dc4348c8b40a0e573e2b9c332264b47b8c93fa33",
+    "native-results.json": "35deb19d6938a6518d55b97bf15c708f75c73116e081568cb169d1d4b4edb654",
+    "native-results-final.json": "2a83ca25dfbb8c71557439bd16aa8f17ab5854c33963c49532b509bfa2c28ac7",
+    "fingerprint-native-before.json": "f9e47bea4b587df020904ef75028b5891e3db990dba6e9a03c67c06be21eaba0",
+    "host-regressions.json": "498103f6d4479347b383ee33506a60270c8105d84c6f743e952717e18a1307b2",
+    "host-regressions-initial.json": "f11ca730baf6f203de2db8fcb34ded8839b4a8bd74e734c83d6910e8b96818fe",
+    "rill-context-requalification-host-environment-before.log": "1d0484f3453ad8df1966ac6a50895c8529058573bd2589fcbb91cb9bbd626af7",
+    "operational-history-native-harness-before.log": "dcd288d11b3718300d14fe69688544f2c1a328efdf0dd4886a337eacf440ce42",
+    "jq-portable-runtime-native-after.log": "776e8febfd0fc6a013f631e49ba37b231f961ae4365c2c92f7b6e1bea0fab923"
+  },
+  "priorNativeBeforeEvidence": {
+    "directory": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/native-vm.EsMjO7/native-component-tests",
+    "files": [
+      "remaining-jq-native-reproducers.json",
+      "observe-regex-native-before.json"
+    ]
+  }
+}

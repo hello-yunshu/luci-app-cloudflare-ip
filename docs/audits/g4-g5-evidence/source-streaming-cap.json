@@ -1,0 +1,89 @@
+{
+  "status": "CHECKPOINT_ONLY",
+  "baseCommit": "bfb55d628fe3a791892819a936334ff2b5e7f9a0",
+  "sourceSha256": "7d53cd6b07599658e8a9e01d7f83047f8cf64d09beeb54fb65720ef54660fa05",
+  "before": {
+    "configuredMaxBytes": 2048,
+    "actualTempBytes": 1126400,
+    "counterfactual": "Real current test fails against exact pre-fix source"
+  },
+  "after": {
+    "status": "PASS",
+    "transport": "actual curl + locally trusted TLS, no certificate bypass",
+    "sourceSha256": "7d53cd6b07599658e8a9e01d7f83047f8cf64d09beeb54fb65720ef54660fa05",
+    "cases": [
+      {
+        "endpoint": "valid",
+        "elapsedSeconds": 0.082,
+        "maxObservedTempBytes": 0,
+        "fromCache": false,
+        "lastError": null
+      },
+      {
+        "endpoint": "exact",
+        "elapsedSeconds": 0.087,
+        "maxObservedTempBytes": 0,
+        "fromCache": false,
+        "lastError": null
+      },
+      {
+        "endpoint": "over",
+        "elapsedSeconds": 0.066,
+        "maxObservedTempBytes": 2049,
+        "fromCache": true,
+        "lastError": "source_too_large"
+      },
+      {
+        "endpoint": "large",
+        "elapsedSeconds": 0.067,
+        "maxObservedTempBytes": 2049,
+        "fromCache": true,
+        "lastError": "source_too_large"
+      },
+      {
+        "endpoint": "slow",
+        "elapsedSeconds": 1.111,
+        "maxObservedTempBytes": 2049,
+        "fromCache": true,
+        "lastError": "fetch_failed"
+      },
+      {
+        "endpoint": "redirect",
+        "elapsedSeconds": 0.088,
+        "maxObservedTempBytes": 2049,
+        "fromCache": false,
+        "lastError": null
+      },
+      {
+        "endpoint": "downgrade",
+        "elapsedSeconds": 0.065,
+        "maxObservedTempBytes": 2049,
+        "fromCache": true,
+        "lastError": "fetch_failed"
+      }
+    ]
+  },
+  "openwrtSink": "Real ARM64 OpenWrt 24.10.8 BusyBox head -c and /dev/stdout sink passed with mocked producer; this is not TLS/router proof",
+  "regressions": [
+    "source-size-cap",
+    "source-refresh-deadline",
+    "v2-source-engine",
+    "bash syntax",
+    "ShellCheck error level",
+    "actionlint",
+    "diff check"
+  ],
+  "limitations": [
+    "Actual local TLS exercises macOS curl with max-filesize branch deliberately disabled, simulating feature absence without replacing curl",
+    "Not current exact-SHA hosted qualification",
+    "N02 cache identity/freshness and remaining G5c work OPEN",
+    "No device writes or publication"
+  ],
+  "evidence": {
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/source-streaming/before.log": "6e7966e739ea1298fa45c4dc704a97713d9db299c6f65ffa226ee68dedadea4c",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/source-streaming/counterfactual.log": "ed09253684e1073070efd9fd3fd696552e055dbdeb1dd31ceffed998c2aa0539",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/source-streaming/after.log": "b2a0c3883fe48a3713eeeb92b4709210dc347a3a28f76ea9b570dd52da5192ef",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/source-streaming/openwrt-busybox-sink.log": "57bfd4cfc3408772f967ee89d537b564443d3366da9ceb021887e765ce50a158",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/source-streaming/source-engine-after.log": "e976a70e413adf7fc6e1b37f6effa665f55a6f842db97799f8389b87f2c69a59"
+  }
+}

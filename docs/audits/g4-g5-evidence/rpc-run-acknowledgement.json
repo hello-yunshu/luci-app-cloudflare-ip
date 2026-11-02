@@ -1,0 +1,114 @@
+{
+  "scope": "G5e actual run startup acknowledgement and shared-lock contention",
+  "baselineSha": "4a1fa20ed92625f9bcd4e93c780e2f52ac6103c7",
+  "before": "All four initial cases reproduced running:true despite invalid config, missing backend, configured lock contention or eight concurrent requests",
+  "after": {
+    "status": "PASS",
+    "scope": "actual shell RPC and CLI run/lock/start ordering with fixture config/context",
+    "results": [
+      {
+        "case": "invalid configuration is reported before running success",
+        "status": "PASS"
+      },
+      {
+        "case": "missing backend cannot report running success",
+        "status": "PASS"
+      },
+      {
+        "case": "configured shared lock rejects RPC run",
+        "status": "PASS"
+      },
+      {
+        "case": "backend without acknowledgement cannot report running success",
+        "status": "PASS"
+      },
+      {
+        "case": "malformed, oversized and mismatched acknowledgements are rejected",
+        "status": "PASS"
+      },
+      {
+        "case": "startup channel helper failure refuses run without scratch",
+        "status": "PASS"
+      },
+      {
+        "case": "bounded timeout prevents delayed context mutation",
+        "status": "PASS"
+      },
+      {
+        "case": "eight concurrent RPCs admit one acknowledged lock owner",
+        "status": "PASS"
+      }
+    ],
+    "failures": []
+  },
+  "dash": {
+    "status": "PASS",
+    "scope": "actual shell RPC and CLI run/lock/start ordering with fixture config/context",
+    "results": [
+      {
+        "case": "invalid configuration is reported before running success",
+        "status": "PASS"
+      },
+      {
+        "case": "missing backend cannot report running success",
+        "status": "PASS"
+      },
+      {
+        "case": "configured shared lock rejects RPC run",
+        "status": "PASS"
+      },
+      {
+        "case": "backend without acknowledgement cannot report running success",
+        "status": "PASS"
+      },
+      {
+        "case": "malformed, oversized and mismatched acknowledgements are rejected",
+        "status": "PASS"
+      },
+      {
+        "case": "startup channel helper failure refuses run without scratch",
+        "status": "PASS"
+      },
+      {
+        "case": "bounded timeout prevents delayed context mutation",
+        "status": "PASS"
+      },
+      {
+        "case": "eight concurrent RPCs admit one acknowledged lock owner",
+        "status": "PASS"
+      }
+    ],
+    "failures": []
+  },
+  "mechanism": "Private anonymous pipe, source-only shared result normalizer, actual CLI acknowledgement after two config reads and shared-lock acquisition, default eight-second wait and capped reply read; no persistent IPC payload",
+  "independentRegressions": [
+    "141 synchronous/backend/lifecycle RPC matrix cases",
+    "shared writer lock, Adaptive Shadow/audit/Guarded/fallback/final evidence",
+    "staged config validation, transaction signal rollback, real-current-IP reuse",
+    "read-only policy and OpenClash RPC render/failure"
+  ],
+  "testCorrections": [
+    "dash does not support read -t; bounded reader runs in required Bash",
+    "Avoid named FIFO utility dependency and scratch-file orphan windows by using anonymous process substitution",
+    "Actual RPC capture detected inherited stderr holding replies until backend completion; worker stdin/stderr explicitly detached"
+  ],
+  "remainingOpen": [
+    "Startup acknowledgement is an observation, not task completion",
+    "Unconfirmed startup reports accepted/running null; a timeout cannot prove no task began",
+    "Post-ack early failure state persistence and complete lifecycle matrix still OPEN",
+    "Actual native rpcd/BusyBox/procd, process signal matrix and new browser acceptance NOT EVALUATED: Docker socket unavailable",
+    "Remaining G4/G5 and final exact-SHA hosted/artifact/offline qualification OPEN"
+  ],
+  "evidenceDirectory": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/rpc-run-acknowledgement",
+  "logs": {
+    "before.json": "551490fc243195e0234aa835a5633f7b9103585e20b5e10e7554718c2c6dbe52",
+    "dash.json": "4f52faf428970649f5c9b04e5fac3a1419bd799160c51149ba4951a28c79e60e",
+    "fd-before.json": "0e0412b1982bc74307f128870d95d95c8f0fd87b6222d4f01fb21240fd5397f8",
+    "readonly.log": "dfc8726a37ac12fb9effb885085d4703b6bbb164b15b781b25f2b77d13878d86",
+    "after.json": "4f52faf428970649f5c9b04e5fac3a1419bd799160c51149ba4951a28c79e60e",
+    "rpc-before.sh": "60942cfaf5d1e8d190c851771a031c29883a92217b9eec59f0ceb46c33366872",
+    "cli-before.sh": "5e33960d60f2840e090bc80885f55e7fbdc8796c39b65b970b32316d8f0a0f3d",
+    "regressions.log": "0b997b233fc1483f76dec55ebd25799ce0e24c81ab4e7672afc16fbc442fe151",
+    "full-matrix.json": "accb7fb81eda1f23af41caaa83ab8f186fb1046d7721c3d2d6c380a3bf9c9eda"
+  }
+}

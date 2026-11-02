@@ -1,0 +1,24 @@
+{
+  "scope": "G5d actual UCI/netifd/procd/uhttpd LAN address changes; no synthetic event or network-policy fixture",
+  "baselineSource": "559070a8770548f3f44b1e36a7f0d70619639435",
+  "publisherSourceSha256": "18a86c0478df804e3deabaefcee195b26e5d7fda32963cee928a8dc1445a1912",
+  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/native-vm.EsMjO7/native-netifd-publisher",
+  "cases": [
+    "real initial LAN HTTP marker",
+    "UCI/netifd add auxiliary address and real event rebind",
+    "old-address listener closed while management address retained",
+    "real target-address loss removes publisher instance",
+    "real target-address restoration restarts through retained trigger",
+    "configuration hashes and single original LAN address restored",
+    "final publisher instances/listeners absent"
+  ],
+  "configBeforeAndRestoredSha256": "774ae2f4eba738207ad807f6dc108b83882184e77ae383ece2d40ee195f27f1d  /etc/config/network\nd4347c4f7c5f84e57b6deadb6d833b5ccbb86616c85eb8f3b78474e5d0eb7e6a  /etc/config/cf_ip\n",
+  "management": "10.0.2.15 retained throughout; no host network changes",
+  "watchdog": "independent 75-second guest restore fallback; explicit successful cleanup cancels it",
+  "limits": [
+    "requested auxiliary address loss, not full management LAN down",
+    "developer overlay, not rebuilt current package",
+    "port occupation/concurrent HTTP/resource/KILL gates separate",
+    "complete G4/G5/latest exact SHA qualification OPEN"
+  ]
+}

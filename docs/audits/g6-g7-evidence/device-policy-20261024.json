@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-24",
+  "timezone": "Asia/Shanghai",
+  "source": "Current user instruction in this chat",
+  "instruction": "现在不用把本地实机验证作为阻塞，可以完成实机验证，完成g6、g7",
+  "deviceValidation": {
+    "authorized": true,
+    "blocksG6G7Completion": false,
+    "candidateAcceptance": "NOT RUN",
+    "scope": "Available 192.168.2.1 OpenWrt deployment; report actual coverage separately",
+    "requiresBackupAndRecoveryBeforeMutation": true
+  },
+  "soak": {
+    "status": "NOT STARTED",
+    "blocksG6G7Preparation": false,
+    "resultMustNotBeInferredFromSoftwareTests": true
+  },
+  "softwareQualification": "Still required for the final exact candidate and dependency bytes",
+  "publication": "Separate concrete proposal approval remains required; no merge/tag/Release/feed authorization inferred"
+}

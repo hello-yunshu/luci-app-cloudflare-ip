@@ -1,0 +1,84 @@
+{
+  "scope": "G5c CFST update preimages and in-process recovery",
+  "baselineSha": "3d1139dae90b51d45548c8d14f6af295a311a39e",
+  "before": {
+    "status": "FAIL",
+    "cases": 22,
+    "failed": 10,
+    "sourceSha256": "9ae5bb3248d2322d80b3bda4a5dd40e87f0c4b41d7256c10b1621ebba95e7d92",
+    "failures": [
+      "snapshot-binary",
+      "snapshot-version",
+      "snapshot-archive",
+      "snapshot-metadata",
+      "version-write",
+      "rollback-failure",
+      "bad-digest",
+      "target-symlink",
+      "target-directory",
+      "bad-release-digest"
+    ]
+  },
+  "after": {
+    "status": "PASS",
+    "cases": 22,
+    "sourceSha256": "cb00c3d16767c86531f14b14d1c535f0ee15ecbf11ca8a6dc7cea8195025f031",
+    "caseNames": [
+      "success",
+      "bootstrap-success",
+      "cached-success",
+      "cached-metadata",
+      "snapshot-binary",
+      "snapshot-version",
+      "snapshot-archive",
+      "snapshot-metadata",
+      "version-write",
+      "commit-binary",
+      "commit-version",
+      "commit-archive",
+      "commit-metadata",
+      "rollback-failure",
+      "bootstrap",
+      "bad-digest",
+      "execution-check",
+      "unsafe-path",
+      "symlink",
+      "target-symlink",
+      "target-directory",
+      "bad-release-digest"
+    ],
+    "evidence": "raw after.json binds per-target hashes/modes and retained recovery preimage hashes/modes"
+  },
+  "regressions": [
+    "cached version fallback and later latest retry",
+    "CFST version observation",
+    "security contract",
+    "synthetic pre-execution CFST byte/archive/architecture negatives",
+    "Bash syntax/ShellCheck error/actionlint/diff"
+  ],
+  "hostShell": {
+    "binary": "/tmp/cfip-test-bash.kZIbqD/install/bin/bash",
+    "version": "GNU bash, version 5.3.0(1)-release (aarch64-apple-darwin27.0.0)",
+    "binarySha256": "aab3d4ca931520a730f8c2679a3d0521dd10d5eff6f52accf2817002fab6c0fd",
+    "sourceArchiveSha256": "0d5cd86965f869a26cf64f4b71be7b96f90a3ba8b3d74e27e8e9d9d5550f31ba",
+    "scope": "private host test interpreter; not shipped or installed as the system shell"
+  },
+  "nativeAndRealCfstInstaller": "NOT EVALUATED for this changed installer; tests use script executable fixtures and injected filesystem command faults",
+  "remaining": [
+    "native exact-source hosted verification",
+    "KILL/reboot and power-loss recovery",
+    "orphan and retained-preimage storage bounds",
+    "full download/timeout/architecture and concurrent installer matrix",
+    "full G4/G5 and current-SHA package/offline qualification"
+  ],
+  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/cfst-install-recovery",
+  "sha256": {
+    "fallback.log": "d329659b590142c5c190f6a4ce80bd0388026f1144e110278aa086c2a815ca7d",
+    "before.json": "41492edd01578038767f6dc01368680586ac5b05c9311ca709a388d337c19182",
+    "security.log": "de8767cb363c7193796a7a61344a74bd58a5bc81c72ed0003b6e4123e268b8f9",
+    "version.log": "bb7fbb95496da605445e00c922d4fe3ca2621d87b4e0215a308be04b9a5234bf",
+    "after.json": "ad819212a5e7ac315dc7c8b7d8278a5fbf2d51dbdeae400e784eaad5d8021212",
+    "smoke-bytes.log": "6276334ff8d666d3531ca30d18c4a8b1f3f86dac869f7d85c48e7622734978f4",
+    "host-shell.json": "e8a55491a4d0561c0d20b5dca23030414447b7d7004b60df8b0372ac261733f6"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "status": "CHECKPOINT_ONLY",
+  "baseCommit": "90a13febf280858aa6bd54975d98eda54123544e",
+  "initSha256": "b0847e202dfd981b219f69f04f60a8267b8fc906cf37856e2fd9c28bb181614b",
+  "before": [
+    "Actual OpenWrt shell start_service accepted a private address not owned by LAN (procd calls captured, no real foreign listener)",
+    "Exact pre-fix init lacks interface trigger; isolated real-procd event test fails to rebind"
+  ],
+  "after": [
+    "Strict IPv4 syntax and private-range check",
+    "Explicit bind must equal an address of the currently up LAN interface; auto chooses first qualified address",
+    "LAN interface trigger invokes native reload",
+    "Actual procd/uhttpd fixture rebinds between controlled loopback addresses, closes old listener, removes listener on interface loss, restores it on interface recovery",
+    "Clean-runtime comparison proves native default reload is sufficient; experimental explicit deletion/restart code was removed"
+  ],
+  "fixtureBoundary": "Dedicated non-privileged Docker rootfs, network none, no port bindings. Ubus network status and loopback private-policy fixtures; interface name rewritten at service-set RPC boundary to isolate events. Production trigger body, rc.common/procd reload and actual uhttpd/socket/HTTP run unmodified. Not real LAN/netifd/device evidence.",
+  "testEnvironmentNote": "Initial global LAN events woke default dnsmasq/sysntpd fixture callbacks blocked on unavailable netifd; these failed/interfered attempts are not PASS. Final proof uses separate minimal runtime with network service autostart removed before boot. Existing LuCI/business containers were not restarted.",
+  "limitations": [
+    "Physical LAN/netifd delivery not evaluated",
+    "Multi-file generation atomicity, disabled cleanup/status reconciliation and remaining G4/G5/final hosted qualification OPEN"
+  ],
+  "evidence": {
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-lan-rebind/foreign-bind-before.log": "28cee45ff4db90d413a467f630db86e8452d1de30b06ad132994b2e9778b0906",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-lan-rebind/foreign-bind-after.log": "23296cf4327a0e1983c179f4e7059b6f0b5e549c9bd4ea9d383fe48ad48a09b1",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-lan-rebind/rebind-counterfactual.log": "5edebcbe6f7d9a7c15d82acb7137e14ff4d7988d11e5ad882c99b6af92e40912",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-lan-rebind/rebind-after.log": "38213e4661eb2c622d74434c318fff47d3b0b3a2c0564fc4a854cae6f1174c8d",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-lan-rebind/default-reload-check.log": "38213e4661eb2c622d74434c318fff47d3b0b3a2c0564fc4a854cae6f1174c8d",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-lan-rebind/policy-host.log": "b689bca1be3c31cc4b4b2f60412b2f151b4cae7e31f04208c0a209e4a32d48de",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-lan-rebind/policy-openwrt.log": "b689bca1be3c31cc4b4b2f60412b2f151b4cae7e31f04208c0a209e4a32d48de",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-lan-rebind/http-regression.json": "398ef40130a7dae73c1f795c69f109d9ea6f25d777936ceec8c04b652112244f",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-lan-rebind/module-regression.log": "c588d21e1c7336dc6508c715dfa6ddb922fa42ed6cc88502da995d85936c4dc5",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-lan-rebind/package-regression.log": "7f6650de004d56a8c75b5350cea029bf322d09fea3f65d23be71164066e025bc",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-lan-rebind/fixture.json": "c69df7558f03012f6537ecc60b2053b60a76a45551768c62436ee6170d2f5f70",
+    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-lan-rebind/preceding-ci.json": "40c727ac6faba5be96ac62ce30fea616d4930b70cc6970ff234c1043c2ff67f4"
+  },
+  "precedingCI": {
+    "conclusion": "success",
+    "head_sha": "90a13febf280858aa6bd54975d98eda54123544e",
+    "html_url": "https://github.com/hello-yunshu/luci-app-cloudflare-ip/actions/runs/39143422601",
+    "id": 39143422601,
+    "run_attempt": 1
+  }
+}

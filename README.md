@@ -34,10 +34,10 @@
 
 ## 当前状态
 
-- 当前包版本：`2.6.0-r4`
-- 发布标签：`v2.6.0-4`
-- 发布渠道：`prerelease`
-- 2.x 仍属于 2.0 prerelease development line，不代表稳定版
+- 源码版本以 [PKG_VERSION / PKG_RELEASE](package/luci-app-cloudflare-ip/Makefile) 为准，可运行 `python3 scripts/package_identity.py` 查询。
+- 已发布版本和准确文件名以选定 Release 的 `qualification.json` 为准；源码候选可能尚未发布。
+- 当前源码渠道：`stable` 候选；不表示已经发布 Stable
+- `2.6.0-r6` 是当前审计修复候选，正在重新进行 exact-head CI 资格化与严格发布预检；`2.6.0-r5` 的 G6/G7 结论只对应旧字节，不再作为本版发布依据。自动 Stable 发布保持禁用，设备/Soak 与完整 workspace 的非 shipped 依赖边界待用户裁决，具体 SHA、同 run/attempt 安装包与支持范围须另行批准
 
 正式包只从 `main` 的成功 exact-head CI 资格化运行中发布。IPK/APK、`sha256sums.txt` 和 `qualification.json` 属于同一证据链；主机测试和 SDK 构建不能替代真实 OpenWrt 设备、硬件兼容性或长期 soak 验证。
 
@@ -47,8 +47,8 @@
 
 从 [Releases](../../releases) 选择与你的 OpenWrt 版本匹配的主包：
 
-- OpenWrt 24.10.x → 下载 `luci-app-cloudflare-ip_2.6.0-r4_all.ipk`
-- OpenWrt 25.12+ → 下载 `luci-app-cloudflare-ip-2.6.0-r4.apk`
+- OpenWrt 24.10.x → 下载该 Release 列出的 `luci-app-cloudflare-ip_*.ipk` 主包
+- OpenWrt 25.12+ → 下载该 Release 列出的 `luci-app-cloudflare-ip-*.apk` 主包
 
 不要同时安装 IPK 和 APK。Rill 集成代码已经包含在主包中。一个 `luci-app-cloudflare-ip` 主包已经包含 Native 优选、Adaptive Measurement 和 Operational Health；不包含 Rill Runtime binary。
 
@@ -132,6 +132,8 @@ sha256sum -c sha256sums.txt
 Adaptive Measurement 是 Native 预探测调度层，默认 `shadow`，只消费测速前字段。`guarded` 只有在完整、兼容且未过期的审计证据达到召回率、安全性和节省阈值后才会生效；状态损坏、证据过期或探测失败会回退到完整 Native 流程。
 
 Rill 默认关闭。普通用户不需要 Rill Runtime。只有希望使用 Candidate Rill Shadow / Assisted 时，才需要先安装主包，再从 [rill-openwrt-packages Releases](https://github.com/hello-yunshu/rill-openwrt-packages/releases) 安装与你的 OpenWrt 版本和 CPU 架构匹配的 `rill-runtime-preview`，然后在 LuCI Intelligence 页面启用 Rill。Rill 只作为候选辅助或 Shadow 观测，Native 排序和安全边界始终保留；Rill Runtime 不存在时页面会显示 `Rill Runtime: Not installed`，Native mode remains available。
+
+本包只支持 Preview Runtime；`rill-runtime`（Stable）与 `performance-manager-rill` 属于另一渠道，不能与本包的 Rill 功能同时使用。完整矩阵见 [RUNTIME_COMPATIBILITY.md](docs/RUNTIME_COMPATIBILITY.md)。升级时若检测到 Stable/unknown 渠道，迁移脚本会关闭 `rill.enabled` 而保留其余配置。
 
 不要要求新用户手工安装 `luci-app-cloudflare-ip-rill`。它已进入兼容迁移阶段，仅用于已有安装的依赖兼容。
 

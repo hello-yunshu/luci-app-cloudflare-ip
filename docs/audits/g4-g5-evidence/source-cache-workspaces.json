@@ -1,0 +1,107 @@
+{
+  "scope": "G5c cache publication candidate KILL recovery and admission",
+  "baselineSha": "3e015fff13a29ef0b8dc82063f6a4985f34de9aa",
+  "before": "three pre-switch KILLs followed by a successful publication retain three abandoned candidates",
+  "after": {
+    "status": "PASS",
+    "groups": 10,
+    "kills": {
+      "beforeSwitch": 3,
+      "afterSwitch": 3
+    },
+    "checks": [
+      "next-publication dead-owner reclamation",
+      "live/reused PID preservation",
+      "unknown and symlink preservation",
+      "old unmarked candidate preservation",
+      "admission refusal retains last-good",
+      "full fetch falls back to qualified cache on workspace refusal",
+      "released capacity reusable",
+      "unsafe namespace shapes refused",
+      "quarantine failure refuses work and retains bytes for retry"
+    ]
+  },
+  "regressions": {
+    "cachePublicationFaultAndKillAndConcurrentSnapshots": "PASS",
+    "cacheTrust": "PASS",
+    "runtimeOutputAndStatusFailure": "PASS",
+    "v2SourceEngine": "PASS",
+    "sourcePolicyDeadlineSize": "PASS",
+    "actualLocalHTTPS": {
+      "status": "PASS",
+      "transport": "actual curl + locally trusted TLS, no certificate bypass",
+      "sourceSha256": "2702e7676ddb3f53689047460d570ac19226748631411f008d6908a5cdd3fde2",
+      "cases": [
+        {
+          "endpoint": "valid",
+          "elapsedSeconds": 0.12,
+          "maxObservedTempBytes": 0,
+          "fromCache": false,
+          "lastError": null
+        },
+        {
+          "endpoint": "exact",
+          "elapsedSeconds": 0.118,
+          "maxObservedTempBytes": 0,
+          "fromCache": false,
+          "lastError": null
+        },
+        {
+          "endpoint": "over",
+          "elapsedSeconds": 0.107,
+          "maxObservedTempBytes": 2049,
+          "fromCache": true,
+          "lastError": "source_too_large"
+        },
+        {
+          "endpoint": "large",
+          "elapsedSeconds": 0.108,
+          "maxObservedTempBytes": 2049,
+          "fromCache": true,
+          "lastError": "source_too_large"
+        },
+        {
+          "endpoint": "slow",
+          "elapsedSeconds": 1.113,
+          "maxObservedTempBytes": 2049,
+          "fromCache": true,
+          "lastError": "fetch_failed"
+        },
+        {
+          "endpoint": "redirect",
+          "elapsedSeconds": 0.114,
+          "maxObservedTempBytes": 2049,
+          "fromCache": false,
+          "lastError": null
+        },
+        {
+          "endpoint": "downgrade",
+          "elapsedSeconds": 0.107,
+          "maxObservedTempBytes": 2049,
+          "fromCache": true,
+          "lastError": "fetch_failed"
+        }
+      ]
+    },
+    "bash": "3.2.57 arm64-apple-darwin26",
+    "syntaxShellcheckActionlintDiff": "PASS"
+  },
+  "nativeOpenWrt": "NOT EVALUATED locally: Docker socket unavailable; exact-source hosted gate still required",
+  "boundary": [
+    "cooperating publishers and trusted owner-marked namespace",
+    "sampled admission, not kernel-enforced global quota",
+    "unknown/legacy unmarked files preserved",
+    "fetch/parser/snapshot temporaries outside cache-publication namespace remain OPEN",
+    "no physical power-loss or full resource-exhaustion claim",
+    "full G4/G5 and exact-SHA package/offline qualification remain OPEN"
+  ],
+  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/source-cache-workspaces",
+  "sha256": {
+    "cache.log": "cbfda77d10c21dea7a2cf4dddf046631398d15ea86694988d37ba3541f897c73",
+    "publication.log": "eab35edf6a9e58a1f4b9683b47bacf7ff691a9e5acf7e6a5904e36cecb90afc1",
+    "https.log": "0306127675c21a3d0270b673c82cac1ac7734b423c41f2125b3ad88d9c12a22d",
+    "before.log": "44766a5a83330195cbac78658eda80939feebab7dd248963dda78ecb0f359be9",
+    "sources.log": "1df282947fa81d4ddbce76697519fd6881466099fad06ba578d2d394adf3d9fa",
+    "after.log": "6b2d7250f6068402e877a7a6f696e880915a7b5a1baabf265ec1c478c7124907"
+  }
+}

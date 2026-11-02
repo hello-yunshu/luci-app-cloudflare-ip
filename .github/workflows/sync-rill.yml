@@ -8,36 +8,50 @@ on:
     types: [rill-runtime-qualified]
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
+
+concurrency:
+  group: qualified-rill-sync
+  cancel-in-progress: false
 
 jobs:
   sync:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
       - uses: actions/checkout@v7
         with:
           repository: hello-yunshu/rill-openwrt-packages
           ref: main
           path: rill-openwrt-packages
+          persist-credentials: false
       - uses: actions/setup-python@v7
         with:
           python-version: '3.13'
       - name: Resolve latest qualified Stable 1.x
         run: python3 scripts/check_rill_dependency.py --sync --package-dir rill-openwrt-packages
+        env:
+          GH_TOKEN: ${{ github.token }}
       - name: Open update pull request
         shell: bash
         run: |
           set -euo pipefail
-          if git diff --quiet -- contracts/rill-runtime.json; then
-            echo 'No new qualified Stable 1.x Runtime is available.'
-            exit 0
-          fi
-          version=$(python3 -c 'import json; print(json.load(open("contracts/rill-runtime.json"))["resolved"]["version"])')
-          branch="chore/rill-${version}"
-          git switch -c "$branch"
-          git add contracts/rill-runtime.json
-          git commit -m "deps(rill): update runtime to v${version}"
-          git push origin "HEAD:${branch}"
-          gh pr create --base cloudflare-ip-2.0-dev --head "$branch" --title "deps(rill): update runtime to v${version}" --body "Updates the single immutable Rill Runtime contract after the matching rill-openwrt-packages qualification passed. The required consumer integration workflow must pass before merge."
+          cat > "$RUNNER_TEMP/rill-pr.md" <<'EOF'
+          Updates the immutable dependency contract only after package qualification.
+          Migration evidence and compatible extension fields must remain intact.
+          Required consumer CI must run on this exact candidate before merge;
+          Consumer CI is explicitly dispatched for this candidate; PR creation is not qualification.
+          EOF
+          python3 rill-openwrt-packages/scripts/open_sync_pr.py --base main --prefix automation/rill-qualified \
+            --title "deps(rill): sync qualified Runtime contract" --qualification-workflow ci.yml \
+            --body-file "$RUNNER_TEMP/rill-pr.md" contracts/rill-runtime.json
+        env:
+          GH_TOKEN: ${{ github.token }}
