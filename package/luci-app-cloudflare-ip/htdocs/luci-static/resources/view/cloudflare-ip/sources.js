@@ -10,15 +10,25 @@ var callRegistry = rpc.declare({object:'cf_ip', method:'source-registry', expect
 var callStatus = rpc.declare({object:'cf_ip', method:'source-status', expect:{'':{}}});
 var callRefresh = rpc.declare({object:'cf_ip', method:'source-refresh', expect:{'':{}}});
 
+function rpcFailure(error) {
+  return { _rpcError: true, error: (error && (error.message || error)) || _('Unknown') };
+}
+
 function statusMap(rows) {
   var out={}; (rows||[]).forEach(function(x){ out[x.id]=x; }); return out;
 }
 
 return view.extend({
-  load:function(){ return Promise.all([uci.load('cf_ip'),callRegistry().catch(function(){return{};}),callStatus().catch(function(){return{};})]); },
+  load:function(){ return Promise.all([uci.load('cf_ip'),callRegistry().catch(rpcFailure),callStatus().catch(rpcFailure)]); },
   render:function(data){
     utils.loadSharedCSS();
-    var reg=(data[1]&&data[1].presets)||[], st=statusMap((data[2]&&data[2].sources)||[]), m=new form.Map('cf_ip',_('Candidate Sources')),s,o;
+    var regData=data[1]||{}, stData=data[2]||{}, reg=regData.presets||[], st=statusMap(stData.sources||[]), m=new form.Map('cf_ip',_('Candidate Sources')),s,o;
+    if (regData._rpcError)
+      return E('div',{'class':'cbi-map cfi-form-map'}, E('div',{'class':'cbi-section cfi-empty-state'},[
+        E('h3',{},_('Unable to load source registry')),
+        E('p',{},_('The source registry RPC failed: %s').format(regData.error||_('Unknown'))),
+        E('button',{'class':'btn cbi-button','click':function(){location.reload();}},_('Retry'))
+      ]));
     s=m.section(form.TypedSection,'service',_('Candidate Budget'));
     s.anonymous=true;
     o=s.option(form.Value,'candidate_budget',_('CFST Candidate IP Count'),_('Maximum unique IPs supplied to one CFST run. Allocation is automatic: a small local-history share, a majority community share, and the remainder official-range exploration; unused quota flows to the other pools.'));
@@ -58,20 +68,24 @@ return view.extend({
         ])
       ]))
     ]), table=box.lastChild.firstChild;
+    if (stData._rpcError)
+      box.appendChild(E('div',{'class':'alert-message error'},_('Unable to load source status: %s').format(stData.error||_('Unknown'))));
     var seen={};
-    reg.forEach(function(x){ var q=st[x.id]||{}, state=q.success?(q.stale?_('Cached / stale'):_('Fresh')):_('Not fetched'); seen[x.id]=true; table.appendChild(E('div',{'class':'tr'},[
-      E('div',{'class':'td','data-label':_('Source')},x.name),
-      E('div',{'class':'td','data-label':_('State')},state),
-      E('div',{'class':'td','data-label':_('Candidates')},String(q.parsedCount||0)),
-      E('div',{'class':'td','data-label':_('Last Error')},q.lastError||'—')
-    ])); });
-    Object.keys(st).filter(function(id){return !seen[id];}).sort().forEach(function(id){var q=st[id],state=q.success?(q.stale?_('Cached / stale'):_('Fresh')):_('Error');table.appendChild(E('div',{'class':'tr'},[
-      E('div',{'class':'td','data-label':_('Source')},id),
-      E('div',{'class':'td','data-label':_('State')},state),
-      E('div',{'class':'td','data-label':_('Candidates')},String(q.parsedCount||0)),
-      E('div',{'class':'td','data-label':_('Last Error')},q.lastError||'—')
-    ]));});
-    box.appendChild(E('button',{'class':'btn cbi-button-action','click':function(){var btn=this;utils.setBusy(btn,_('Refreshing...'));return callRefresh().then(function(r){if(r.success){ui.addNotification(null,E('p',{},_('Sources refreshed; candidate pool prepared.')),'info');setTimeout(function(){location.reload();},500);}else{ui.addNotification(null,E('p',{},_('Unable to refresh sources: %s').format(r.error||_('Unknown'))),'error');}}).catch(function(e){ui.addNotification(null,E('p',{},_('Unable to refresh sources: %s').format(e.message||e)),'error');}).finally(function(){utils.resetBusy(btn);});}},_('Refresh Sources')));
+    if (!stData._rpcError) {
+      reg.forEach(function(x){ var q=st[x.id]||{}, state=q.success?(q.stale?_('Cached / stale'):_('Fresh')):_('Not fetched'); seen[x.id]=true; table.appendChild(E('div',{'class':'tr'},[
+        E('div',{'class':'td','data-label':_('Source')},x.name),
+        E('div',{'class':'td','data-label':_('State')},state),
+        E('div',{'class':'td','data-label':_('Candidates')},String(q.parsedCount||0)),
+        E('div',{'class':'td','data-label':_('Last Error')},q.lastError||'—')
+      ])); });
+      Object.keys(st).filter(function(id){return !seen[id];}).sort().forEach(function(id){var q=st[id],state=q.success?(q.stale?_('Cached / stale'):_('Fresh')):_('Error');table.appendChild(E('div',{'class':'tr'},[
+        E('div',{'class':'td','data-label':_('Source')},id),
+        E('div',{'class':'td','data-label':_('State')},state),
+        E('div',{'class':'td','data-label':_('Candidates')},String(q.parsedCount||0)),
+        E('div',{'class':'td','data-label':_('Last Error')},q.lastError||'—')
+      ]));});
+    }
+    box.appendChild(E('button',{'class':'btn cbi-button-action','click':function(){var btn=this;utils.setBusy(btn,_('Refreshing...'));return callRefresh().then(function(r){if(r&&r.success===true){ui.addNotification(null,E('p',{},_('Sources refreshed; candidate pool prepared. Unsaved edits were kept.')),'info');}else{ui.addNotification(null,E('p',{},_('Unable to refresh sources: %s').format((r&&r.error)||_('Unknown'))),'error');}}).catch(function(e){ui.addNotification(null,E('p',{},_('Unable to refresh sources: %s').format(e.message||e)),'error');}).finally(function(){utils.resetBusy(btn);});}},_('Refresh Sources')));
     utils.createHandleSave(m, this);
     utils.createHandleSaveApply(m, this);
     // Map.save() renders again before validation. Keep runtime controls on that render too.

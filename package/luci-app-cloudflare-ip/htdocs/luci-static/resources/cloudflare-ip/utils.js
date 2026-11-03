@@ -69,6 +69,19 @@ function resetBusy(button) {
 	button.removeAttribute('data-original-title');
 }
 
+function confirmAction(title, message, onConfirm, confirmLabel) {
+	ui.showModal(title, [
+		E('p', {}, message),
+		E('div', { 'class': 'right' }, [
+			E('button', { 'class': 'btn', 'click': function() { ui.hideModal(); } }, _('Cancel')),
+			E('button', {
+				'class': 'cbi-button cbi-button-reset',
+				'click': function() { ui.hideModal(); onConfirm(); }
+			}, confirmLabel || _('Confirm'))
+		])
+	]);
+}
+
 function reloadSoon(delay, isActive) {
 	window.setTimeout(function() {
 		if (isActive && !isActive()) return;
@@ -423,6 +436,7 @@ return baseclass.extend({
 	setBusy: setBusy,
 	resetBusy: resetBusy,
 	reloadSoon: reloadSoon,
+	confirmAction: confirmAction,
 	waitForServiceReady: waitForServiceReady,
 	waitForRunStatus: waitForRunStatus,
 	requireSuccess: requireSuccess,
