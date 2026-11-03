@@ -10,12 +10,12 @@
 | P1 | 4/5 关闭；P1-05 NOT RUN |
 | P2 | 5/9 修复；4 条记录保留 |
 | P3 | 1 条部分覆盖（术语翻译）；1 条不处理 |
-| i18n | 435/435 key 覆盖 POT/zh_Hans/en（100%）；阶段 A 88 条清单 88/88 在 POT/zh（66 条新增，22 条原有） |
+| i18n | 439/439 key 覆盖 POT/zh_Hans/en（100%）；阶段 A 88 条清单 88/88 在 POT/zh（66 条阶段 A 清单新增 + 22 条原有；Phase B 另新增 4 条错误文案） |
 | i18n 门禁 | `python3 tests/i18n-contract.py` PASS；负向用例 exit 1 |
 | 真实 UI 门禁 | `tests/real-luci-ui.cjs` 2/2 PASS |
-| 真实分支回归 | 5/5 PASS |
+| 真实分支回归 | 7/7 PASS |
 | 视觉矩阵 | 72 正常 + 6 边界 = 78/78；overflow 0；登录页 0 |
-| 代码提交 | 分支内 `e557f19` + `6e91903`（未 push） |
+| 代码提交 | 分支内 `e557f19` + `6e91903` + `20974eb`（未 push） |
 
 ## 2. 缺陷 red→green
 
@@ -29,7 +29,7 @@ node docs/audits/next-release-evidence/repro-2e28db4/repro-risks.cjs
 | 缺陷 | 根因 | 修复文件与行 | 红证据（2e28db4） | 绿证据（e557f19 内容） |
 |---|---|---|---|---|
 | P0-01 OpenClash 删除假成功 | 仅判断 `result.error`，`{success:false}` 无 error 仍提示成功并 reload | `openclash.js:183-190` 改为 `success !== true || error` 失败分支 | `false_success=true`, `reload_calls=1` | `false_success=false`, `reload_calls=0` |
-| P1-01 RPC 失败当未安装/空 | `catch` 丢弃错误，返回 `{}` | `openclash.js:13,30-31,39-47,105-111`；`sources.js:13,22,26-31,71-72` 保留 `_rpcError` 并渲染错误 + Retry | OpenClash 文本 `OpenClash Not Found`；Sources `rows=0,error=false` | OpenClash `error_visible=true,not_installed=false`；Sources `error_visible=true` |
+| P1-01 RPC 失败当未安装/空 | `catch` 丢弃错误，返回 `{}` | `openclash.js:13,30-31,39-47,105-111`；`sources.js:13,22,26-31,71-72`；`passwall.js:8-34`；`settings.js:8-25,66-74` 保留 `_rpcError` 并渲染错误 + Retry / 明确说明 | OpenClash `OpenClash Not Found`；Sources `rows=0,error=false`；PassWall `PassWall Not Found`；Settings `not_installed=true` | OpenClash `error_visible=true,not_installed=false`；Sources `error_visible=true`；PassWall `error_visible=true,not_installed=false`；Settings `error_visible=true,not_installed=false` |
 | P1-02 Sources 刷新丢草稿 | 成功即 `location.reload()` | `sources.js:88` 成功只提示，不 reload | `reload_calls=1, save_calls=0` | `reload_calls=0, draft=modified-but-unsaved` |
 | P1-03 Rill reset 不刷新 | 成功后只通知，无状态重读 | `intelligence.js:287-300` 成功 `location.reload()`；另修复 `form.Button` 事件参数 `ev.currentTarget`（`272,287`） | `reload_calls=0, stale_status=true` | `reload_calls=1, stale_status=false` |
 
@@ -37,8 +37,8 @@ node docs/audits/next-release-evidence/repro-2e28db4/repro-risks.cjs
 
 ## 3. i18n 与门禁
 
-- 当前 key：426 个 JS + 9 个菜单 = 435；POT/zh_Hans/en 各 443 条（含历史条目）。
-- 补入 66 条新 key（含 `Candidate IP Sources`、`Intelligence`、Phase B 新增错误/确认文案）；阶段 A 清单中的 22 条长句原已在 PO 中，阶段 A 单行解析造成误报，现已复核为 88/88 覆盖。
+- 当前 key：430 个 JS + 9 个菜单 = 439；POT/zh_Hans/en 各 447 条（含历史条目）。
+- 补入阶段 A 清单缺失的 66 条 key（含 `Candidate IP Sources`、`Intelligence`）以及 Phase B 新增错误/确认文案 4 条；阶段 A 清单中的 22 条长句原已在 PO 中，阶段 A 单行解析造成误报，现已复核为 88/88 覆盖。
 - 真实 zh_cn 菜单：`概览 / 设置 / OpenClash / 候选 IP 来源 / PassWall / 智能优选 / 高级 / 日志与记录`（78 张截图均记录该菜单）。
 - 门禁：`tests/i18n-contract.py` 做 JS/菜单抽取、`msgfmt -c`、POT/zh/en 覆盖、空 msgstr、fuzzy、重复 id 检查。
 - CI：`.github/workflows/ci.yml` 新增 `i18n-contract` job，并加入 `qualification-guard`/`evidence-manifest` 的 required needs；`scripts/qualification_jobs.py` 同步。
@@ -59,6 +59,8 @@ node docs/audits/next-release-evidence/repro-2e28db4/repro-risks.cjs
 | OpenClash 未安装分支（真实 check-env） | PASS |
 | PassWall 未安装分支（真实 check-env） | PASS |
 | OpenClash RPC 失败（对象缺失） | PASS，显式错误而非未安装 |
+| PassWall RPC 失败（对象缺失） | PASS，显式错误而非未安装 |
+| Settings RPC 失败（对象缺失） | PASS，显式环境错误而非“未安装代理” |
 | 备份删除失败（UI 真实点击 + `rm` 失败注入） | PASS，错误提示、无 reload、备份保留 |
 | Rill reset（真实 rill-reset + reload + `manual_reset` 元数据） | PASS |
 
@@ -87,7 +89,7 @@ P2 未修项：
 | `python3 tests/i18n-contract.py` | PASS |
 | i18n 负向用例 | FAIL（exit 1，符合预期） |
 | `node tests/real-luci-ui.cjs` | PASS（2/2） |
-| 分支回归 `regression.cjs` | PASS（5/5） |
+| 分支回归 `regression.cjs` | PASS（7/7） |
 | 视觉 78 张 | PASS，overflow 0 |
 | `node --check` 全部 JS | PASS |
 | `bash tests/security-contract.sh` | PASS |
@@ -107,7 +109,7 @@ P2 未修项：
 
 | 项 | 值 |
 |---|---|
-| OpenWrt | 24.10.8 x86_64，rootfs `openwrt-24.10.8-x86-64.tar.gz` sha256 `6c94190246a54088e3984fc0c4cbbb518972abb2b10a28e30a0c41554eea8b9d` |
+| OpenWrt | 24.10.8 x86_64，rootfs `openwrt-24.10.8-x86-64-rootfs.tar.gz`（最终重建 sha256 `c1d63240d9d2b421ed8f1c6f67883030615ffa7f4115acabbb83f1574b526da7`） |
 | LuCI | `26.205.85413~cac97ed` |
 | Aurora | `luci-theme-aurora 1.4.0-r20260920`，sha256 `5b3f2d669ef82e575498d1b99c4b9b498088540eeff7db989f214b63d3ef8a8e` |
 | 浏览器 | Microsoft Edge 156.0.0.0 headless（agent-browser）；Playwright Chromium for UI 门禁 |
@@ -133,6 +135,6 @@ P2 未修项：
 
 ## 10. 提交
 
-- 代码与门禁：`e557f19` + `6e91903`（`phase-b/next-release-fixes`，未 push）。
+- 代码与门禁：`e557f19` + `6e91903` + `20974eb`（`phase-b/next-release-fixes`，未 push）。
 - 证据与报告：本目录及 `docs/plans/`、`docs/audits/*.md`，随本分支文档提交。
 - 未创建 tag、未修改 Release、未 push main。
