@@ -406,7 +406,7 @@ msgstr "关闭"
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js:83
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js:132
 msgid "Shadow"
-msgstr "Shadow"
+msgstr "影子模式"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js:84
 msgid "Assisted (qualification-gated)"
@@ -535,7 +535,7 @@ msgstr "受保护 Assisted"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js:132
 msgid "Native"
-msgstr "Native"
+msgstr "原生排序"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js:134
 msgid "Qualification"
