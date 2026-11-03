@@ -33,31 +33,30 @@ return view.extend({
 	},
 
 	render: function(data) {
+		utils.loadSharedCSS();
 		var env = data[1] || {};
 		var backupData = data[2] || {};
 
 		if (env._rpcError) {
 			this.handleSave = this.handleSaveApply = this.handleReset = null;
-			return E('div', { 'class': 'cbi-map cfi-form-map' }, [
-				E('div', { 'class': 'cbi-section cfi-empty-state' },
+			return utils.renderWithFooter(E('div', { 'class': 'cbi-map cfi-form-map' }, [
+				E('div', { 'class': 'cbi-section cfi-empty-state' }, [
 					E('h3', {}, _('Unable to check OpenClash environment')),
 					E('p', {}, _('The OpenClash environment check failed: %s').format(env.error || _('Unknown'))),
 					E('button', { 'class': 'btn cbi-button', 'click': function() { location.reload(); } }, _('Retry'))
-				)
-			]);
+				])
+			]), utils.FOOTER_OPTIONS);
 		}
 
 		if (!env.openclash_installed) {
 			this.handleSave = this.handleSaveApply = this.handleReset = null;
-			return E('div', { 'class': 'cbi-map cfi-form-map' }, [
-				E('div', { 'class': 'cbi-section cfi-empty-state' },
+			return utils.renderWithFooter(E('div', { 'class': 'cbi-map cfi-form-map' }, [
+				E('div', { 'class': 'cbi-section cfi-empty-state' }, [
 					E('h3', {}, _('OpenClash Not Found')),
 					E('p', {}, _('OpenClash is not installed. Please install OpenClash before using this feature.'))
-				)
-			]);
+				])
+			]), utils.FOOTER_OPTIONS);
 		}
-
-		utils.loadSharedCSS();
 
 		var m = new form.Map('cf_ip', _('OpenClash'));
 
