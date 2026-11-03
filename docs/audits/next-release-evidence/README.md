@@ -47,7 +47,7 @@ node docs/audits/next-release-evidence/repro-2e28db4/repro-risks.cjs \
 | `ui-refinement-7c13b1d/baseline-compare/` | v1.8.3-1（`77a65a8`）与 2.x 同环境对照截图与 `report.md` |
 | `ui-refinement-7c13b1d/token-footer/` | token/footer 修复前后截图与 computed radius/shadow |
 
-结论：42/42 交互点 PASS；78/78 截图无横向溢出；200% 键盘 16/16 PASS；逐控件 Tab 焦点 312/312；WCAG 扫描 35 项不达标，均为 LuCI/Aurora 原生按钮/标签色，已在报告中说明不覆盖主题的原因。物理设备与 24h soak 仍 `NOT RUN`。
+结论：CI run 41703798493 success，Real LuCI UI Gate 41703798508 success；42/42 交互点 PASS；78/78 截图无横向溢出；200% 键盘 16/16 PASS；逐控件 Tab 焦点 312/312；WCAG 扫描 35 项不达标，均为 LuCI/Aurora 原生按钮/标签色，已在报告中说明不覆盖主题的原因。物理设备与 24h soak 仍 `NOT RUN`。
 
 ## 边界
 
