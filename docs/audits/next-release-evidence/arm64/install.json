@@ -1,0 +1,15 @@
+{
+  "arch": "aarch64_generic",
+  "openwrt": "24.10.8",
+  "container": "cfip-arm64",
+  "package": "luci-app-cloudflare-ip",
+  "packageVersion": "2.6.0-r7",
+  "packageFile": "luci-app-cloudflare-ip_2.6.0-r7_all.ipk",
+  "packageSha256": "03d4aaf14102a6a98bed488111dba1039756f2448ad1206c2323f6a681552fee",
+  "installed": true,
+  "opkgListInstalled": "luci-app-cloudflare-ip - 2.6.0-r7",
+  "uhttpdPort": 18081,
+  "pages": 8,
+  "pageOverflow": 0,
+  "loginRequiredSeen": 0
+}
