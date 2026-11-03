@@ -269,8 +269,8 @@ return view.extend({
 	o = s.option(form.Button, '_self_check', _('Shadow Self-check'));
 	o.inputtitle = _('Run self-check');
 	o.inputstyle = 'apply';
-	o.onclick = function() {
-		var button = this;
+	o.onclick = function(ev) {
+		var button = ev.currentTarget;
 		utils.setBusy(button, _('Checking...'));
 		return callSelfCheck().then(function(result) {
 			if (result && result.success)
@@ -284,19 +284,20 @@ return view.extend({
 	o = s.option(form.Button, '_reset', _('Reset Learning State'));
 	o.inputtitle = _('Reset learning state');
 	o.inputstyle = 'reset';
-	o.onclick = function() {
-		if (!confirm(_('Reset Rill learning state? Native configuration will not be changed.')))
-			return;
-		var button = this;
+	o.onclick = function(ev) {
+		var button = ev.currentTarget;
 		var generation = (status.intelligence || {}).stateGeneration || 0;
-		utils.setBusy(button, _('Resetting...'));
-		return callReset(generation).then(function(result) {
-			if (!result || result.success !== true)
-				throw new Error((result && result.error) || _('Reset rejected'));
-			ui.addNotification(null, E('p', _('Rill learning state was reset.')), 'info');
-		}).catch(function(error) {
-			ui.addNotification(null, E('p', _('Unable to reset learning state: %s').format(error.message || error)), 'error');
-		}).finally(function() { utils.resetBusy(button); });
+		return utils.confirmAction(_('Reset Learning State'), _('Reset Rill learning state? Native configuration will not be changed.'), function() {
+			utils.setBusy(button, _('Resetting...'));
+			return callReset(generation).then(function(result) {
+				if (!result || result.success !== true)
+					throw new Error((result && result.error) || _('Reset rejected'));
+				ui.addNotification(null, E('p', _('Rill learning state was reset. Reloading status.')), 'info');
+				setTimeout(function() { location.reload(); }, 500);
+			}).catch(function(error) {
+				ui.addNotification(null, E('p', _('Unable to reset learning state: %s').format(error.message || error)), 'error');
+			}).finally(function() { utils.resetBusy(button); });
+		}, _('Reset'));
 	};
 
 	utils.createHandleSave(m, this);

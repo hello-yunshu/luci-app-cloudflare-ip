@@ -143,23 +143,23 @@ return view.extend({
 		logBtnBar.appendChild(E('button', {
 			'class': 'cbi-button cbi-button-reset',
 			'click': function() {
-				if (!confirm(_('Clear log file?')))
-					return;
 				var btn = this;
-				utils.setBusy(btn, _('Loading...'));
-				return callClearLog().then(function(res) {
-					res = res || {};
-					if (res.success === true) {
-						logArea.className = 'cbi-input-textarea cfi-log-area is-empty';
-						setLogText(_('Log file cleared.'));
-					} else {
-						ui.addNotification(null, E('p', _('Unable to clear logs: %s').format(res.error || _('Unknown'))), 'error');
-					}
-				}).catch(function(e) {
-					ui.addNotification(null, E('p', _('Unable to clear logs: %s').format(e.message)), 'error');
-				}).finally(function() {
-					utils.resetBusy(btn);
-				});
+				return utils.confirmAction(_('Clear Logs'), _('Clear log file?'), function() {
+					utils.setBusy(btn, _('Loading...'));
+					return callClearLog().then(function(res) {
+						res = res || {};
+						if (res.success === true) {
+							logArea.className = 'cbi-input-textarea cfi-log-area is-empty';
+							setLogText(_('Log file cleared.'));
+						} else {
+							ui.addNotification(null, E('p', _('Unable to clear logs: %s').format(res.error || _('Unknown'))), 'error');
+						}
+					}).catch(function(e) {
+						ui.addNotification(null, E('p', _('Unable to clear logs: %s').format(e.message)), 'error');
+					}).finally(function() {
+						utils.resetBusy(btn);
+					});
+				}, _('Clear'));
 			}
 		}, '\u2716 ' + _('Clear Logs')));
 

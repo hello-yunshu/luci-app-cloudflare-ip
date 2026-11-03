@@ -268,6 +268,15 @@ jobs:
           jq -e '(.schemaVersion == 1) and (.timingMode == "replayed") and (.environment == "macbook-docker-replay") and ((.scenarios | length) == 7) and all(.scenarios[]; (has("estimatedWallClockSaving") | not))' docker/2.3/results/replay-evidence.json
           jq -e '(.schemaVersion == 1) and (.source.timingMode == "replayed") and (.aggregate | has("meanReplayProbeReductionRatio") and has("meanReplayWinnerRecall") and has("meanReplayTopNRecall") and has("replayFallbackRate") and has("meanReplayMeasurementDurationMs"))' docker/2.3/results/replay-evidence-summary.json
 
+  i18n-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install gettext
+        run: sudo apt-get update && sudo apt-get install -y gettext
+      - name: Verify translation syntax and key coverage
+        run: python3 -B tests/i18n-contract.py
+
   rootfs-contract:
     runs-on: ubuntu-latest
     steps:
@@ -829,7 +838,7 @@ jobs:
 
   qualification-guard:
     if: always()
-    needs: [package-identity, host-contract, legacy-contract, rpc-luci-contract, openwrt-package, package-migration, rill-runtime-integration, package-release-guard, workflow-lint, real-cfst-smoke, release-asset-contract, docker-replay, rootfs-contract]
+    needs: [package-identity, host-contract, legacy-contract, rpc-luci-contract, openwrt-package, package-migration, rill-runtime-integration, package-release-guard, workflow-lint, real-cfst-smoke, release-asset-contract, docker-replay, rootfs-contract, i18n-contract]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -843,7 +852,7 @@ jobs:
 
   evidence-manifest:
     if: always()
-    needs: [package-identity, host-contract, legacy-contract, rpc-luci-contract, openwrt-package, package-migration, rill-runtime-integration, package-release-guard, workflow-lint, real-cfst-smoke, release-asset-contract, docker-replay, rootfs-contract]
+    needs: [package-identity, host-contract, legacy-contract, rpc-luci-contract, openwrt-package, package-migration, rill-runtime-integration, package-release-guard, workflow-lint, real-cfst-smoke, release-asset-contract, docker-replay, rootfs-contract, i18n-contract]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
