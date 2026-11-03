@@ -25,12 +25,15 @@ jobs:
           set -euo pipefail
           docker run -d --name cfip-ui-gate --network host \
             openwrt/rootfs:x86_64-24.10.8 /sbin/init
-          for attempt in $(seq 1 30); do
-            if docker exec cfip-ui-gate true 2>/dev/null; then exit 0; fi
+          tries=0
+          until docker exec cfip-ui-gate true 2>/dev/null; do
+            tries=$((tries + 1))
+            if [ "$tries" -ge 30 ]; then
+              echo 'OpenWrt container did not start' >&2
+              exit 1
+            fi
             sleep 2
           done
-          echo 'OpenWrt container did not start' >&2
-          exit 1
       - name: Install real runtime tools inside OpenWrt
         run: |
           set -euo pipefail
