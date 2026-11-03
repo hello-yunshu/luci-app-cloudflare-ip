@@ -1,0 +1,63 @@
+name: Real LuCI UI Gate
+
+on:
+  pull_request:
+    paths:
+      - 'package/luci-app-cloudflare-ip/htdocs/**'
+      - 'package/luci-app-cloudflare-ip/root/usr/share/luci/**'
+      - 'package/luci-app-cloudflare-ip/root/usr/libexec/rpcd/**'
+      - 'package/luci-app-cloudflare-ip/root/etc/config/**'
+      - 'tests/real-luci-ui*'
+      - '.github/workflows/real-luci-ui.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  real-luci-ui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+      - name: Start a real OpenWrt + LuCI container
+        run: |
+          set -euo pipefail
+          docker run -d --name cfip-ui-gate --network host \
+            openwrt/rootfs:x86_64-24.10.8 /sbin/init
+          for attempt in $(seq 1 30); do
+            if docker exec cfip-ui-gate true 2>/dev/null; then exit 0; fi
+            sleep 2
+          done
+          echo 'OpenWrt container did not start' >&2
+          exit 1
+      - name: Install real runtime tools inside OpenWrt
+        run: |
+          set -euo pipefail
+          docker exec cfip-ui-gate sh -c '
+            opkg update
+            opkg install bash jq curl tar luci-base luci-theme-bootstrap uhttpd rpcd
+            for command in bash jq curl; do command -v "$command" >/dev/null; done
+          '
+      - name: Provision the current working tree into real LuCI
+        run: CFIP_UI_LANG=en bash tests/real-luci-ui-provision.sh cfip-ui-gate 18080
+      - name: Install Playwright
+        run: |
+          set -euo pipefail
+          npm install --prefix "$RUNNER_TEMP/ui" playwright@1.55.0
+          "$RUNNER_TEMP/ui/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Run real LuCI interaction assertions
+        run: |
+          set -euo pipefail
+          NODE_PATH="$RUNNER_TEMP/ui/node_modules" \
+            node tests/real-luci-ui.cjs \
+            --evidence "$GITHUB_WORKSPACE/real-luci-ui-evidence"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: real-luci-ui-evidence-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
+          path: real-luci-ui-evidence/
+          if-no-files-found: warn
+      - name: Remove the disposable container
+        if: always()
+        run: docker rm -f cfip-ui-gate || true
