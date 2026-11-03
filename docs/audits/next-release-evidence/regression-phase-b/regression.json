@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "sha": "fe43da2",
+  "sha": "e3634cf",
   "container": "cfip-ui-gate",
   "base": "http://127.0.0.1:18080",
   "scenarios": [
