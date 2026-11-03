@@ -1,77 +1,124 @@
-# Next Release Interaction Matrix — 2e28db4
+# Interaction point x seven-state matrix
 
-基线：`main` / `2e28db4b5cdc221897bbe98ff78fbe7235098e53`。
+Baseline SHA: `7c13b1d`. Real OpenWrt 24.10.8 + LuCI 26.205.85413 (uhttpd/rpcd/ubus), Chromium via Playwright. Every row was exercised against the live page; screenshots are `matrix/<id>-before.png` and `matrix/<id>-after.png`.
 
-## 1. 状态定义
+- Interaction points: **42**
+- Points passing their real action + DOM/persistence assertions: **42/42**
+- `default`: PASS 42, N/A 0, BLOCKED 0, FAIL 0
+- `hover`: PASS 3, N/A 39, BLOCKED 0, FAIL 0
+- `focus`: PASS 4, N/A 38, BLOCKED 0, FAIL 0
+- `active`: PASS 11, N/A 31, BLOCKED 0, FAIL 0
+- `disabled`: PASS 1, N/A 41, BLOCKED 0, FAIL 0
+- `error`: PASS 4, N/A 38, BLOCKED 0, FAIL 0
+- `empty`: PASS 3, N/A 39, BLOCKED 0, FAIL 0
+- `open`: PASS 9, N/A 33, BLOCKED 0, FAIL 0
+- Keyboard 200% (8 pages x Bootstrap/Aurora dark): **16/16 PASS**
+- Per-control keyboard focus sweep (Bootstrap + Aurora dark, real Tab): **312/312 tabbed controls with a visible focus ring**, 0 failures.
+- Per-control hover sweep: **298 hover events** executed without layout shift or overflow.
 
-- **PASS**：在真实 LuCI/Aurora 运行环境实际执行，结果符合预期。
-- **FAIL**：实际执行或用真实 JS 模块 harness 复现，结果不符合预期。
-- **BLOCKED**：环境/工具无法完成该交互（例如 native `confirm()` 被自动化自动 dismiss，或真实控制器不可用）。
-- **NOT-RUN**：本轮未实际执行，仅有源码/库存或视觉正常态证据；不得算完成。
+## Points
 
-## 2. 8 页面 × 7 状态
+| ID | Page | Control | default | hover | focus | active | disabled | error | empty | open | Key assertion |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| ov-start | overview | Start | PASS | N/A | N/A | PASS | N/A | N/A | N/A | N/A | busy={"disabled": false, "text": "▶ Start"}; banner= |
+| ov-restart | overview | Restart | PASS | N/A | N/A | PASS | N/A | N/A | N/A | N/A | text=Unable to restart service: init_action_failed
 
-| 页面 | 1 正常/首次加载 | 2 加载中/重复点击/禁用 | 3 空数据/首次安装/依赖缺失 | 4 RPC 超时/网络/权限/异常响应 | 5 校验/未保存/保存/应用/回读/重启 | 6 成功/失败/部分完成/回退/取消/刷新 | 7 弹窗/下拉/表格/键盘/触控 |
-|---|---|---|---|---|---|---|---|
-| Overview | **PASS** `V-OV` | NOT-RUN | **PASS** `V-OV`（CFST 未安装） | NOT-RUN | NOT-RUN（只读视图，无 Save；动作未完成） | NOT-RUN `I-OV-REFRESH` | NOT-RUN |
-| Settings | **PASS** `V-SET` | NOT-RUN | **PASS** `V-SET`（无依赖状态） | NOT-RUN | NOT-RUN `I-SET-VALID`（invalid/valid 保存未得到可判定结果） | NOT-RUN | NOT-RUN |
-| Sources | **PASS** `V-SRC` | NOT-RUN | **PASS** `V-SRC`（无自定义来源） | **FAIL** `J-RPC-SRC` | **FAIL** `J-SRC-RELOAD` | **FAIL** `J-SRC-RELOAD`（刷新 reload；真实刷新受容器网络限制） | NOT-RUN（MultiValue 可见，键盘未测） |
-| Intelligence | **PASS** `V-INT` | NOT-RUN | **PASS** `V-INT`（Rill 未安装/禁用） | NOT-RUN | NOT-RUN | **FAIL** `J-RILL-RESET` | **BLOCKED** `I-RILL-RESET`（native confirm） |
-| OpenClash | **PASS** `V-OC` | NOT-RUN | **PASS** `V-OC`（无备份；controller stub） | **FAIL** `J-RPC-OC` | NOT-RUN（无真实 OpenClash 控制器） | **FAIL** `J-DELETE`（删除假成功） | **FAIL** `J-DELETE`（modal 打开，结果假成功） |
-| PassWall | **PASS** `V-PW` | NOT-RUN | NOT-RUN（stub 已安装；未安装态未截图） | NOT-RUN | NOT-RUN | NOT-RUN | NOT-RUN |
-| Advanced | **PASS** `V-ADV` | NOT-RUN | NOT-RUN | NOT-RUN | NOT-RUN | NOT-RUN | NOT-RUN |
-| Logs & Records | **PASS** `V-LOG` | NOT-RUN（曾观察到“加载视图中”，复测已加载，未做受控加载态） | **PASS** `V-LOG`（空日志） | NOT-RUN | NOT-RUN（只读视图） | NOT-RUN（Clear 未执行） | **BLOCKED**（native confirm） |
+Dismiss
+Overview
+Settings
+Candidate IP Sources
+Intelligence
+Advanced
+Logs |
+| ov-cfst | overview | Download CFST | PASS | N/A | N/A | PASS | N/A | N/A | N/A | N/A | busy=[] |
+| ov-refresh-env | overview | Refresh Environment | PASS | N/A | N/A | PASS | N/A | N/A | N/A | N/A | envTable=MODE	passwall
+LAST RUN TIME	-
+LAST RESULT	✘ Error
+BEST IPS	-
+SCRIPT VERSION	2.6.0
+CFST VERSION	-
+GITHUB	hello-yunshu/luci-app-cloudflare-ip |
+| ov-footer | overview | Footer links | PASS | PASS | PASS | N/A | N/A | N/A | N/A | PASS | hover={"outline": "3px none rgb(23, 105, 170)", "boxShadow": "none", "transform": "none", "visible": true}; focus={"outline": "2px solid rgb(23, 105, 170)", "boxShadow": "none", "transform": "none", "visible": true}; hre |
+| set-enable | settings | Enable Service | PASS | N/A | PASS | N/A | N/A | N/A | N/A | N/A | toggled=true; focus={"outline": "2px solid color(srgb 0.0901961 0.411765 0.666667 / 0.3)", "boxShadow": "none", "transform": "none", "visible": true} |
+| set-schedule | settings | Run Schedule | PASS | N/A | N/A | N/A | N/A | N/A | N/A | PASS | customVisible=true; customCount=1 |
+| set-mode | settings | Mode | PASS | N/A | N/A | N/A | N/A | N/A | N/A | N/A | value=openclash |
+| set-iptype | settings | IP Type | PASS | N/A | N/A | N/A | N/A | N/A | N/A | N/A | value=both |
+| set-protocol | settings | Speed Test Protocol | PASS | N/A | N/A | N/A | N/A | N/A | N/A | N/A | value=http |
+| set-validation | settings | IP Count validation | PASS | N/A | N/A | N/A | N/A | PASS | N/A | N/A | invalid=1 |
+| set-save | settings | Save | PASS | N/A | N/A | PASS | N/A | N/A | N/A | N/A | changes= |
+| set-apply-open | settings | Save & Apply dropdown | PASS | PASS | PASS | N/A | N/A | N/A | N/A | PASS | items=["Save & Apply", "Apply unchecked"]; open=true; closed=false |
+| set-reset | settings | Reset | PASS | N/A | N/A | N/A | N/A | N/A | N/A | N/A | value=8 |
+| src-budget | sources | CFST Candidate IP Count | PASS | N/A | PASS | N/A | N/A | N/A | N/A | N/A | value=256; focus={"outline": "2px solid color(srgb 0.0901961 0.411765 0.666667 / 0.3)", "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklab(0 0 0 / 0) |
+| src-multiselect | sources | Built-in Sources | PASS | N/A | N/A | N/A | N/A | N/A | N/A | PASS | options=22; open=true |
+| src-add | sources | Add custom source | PASS | N/A | N/A | N/A | PASS | N/A | N/A | PASS | addDisabledBeforeName=true; addEnabledAfterName=true; rows=1; nameFields=0 |
+| src-kind | sources | Custom source kind | PASS | N/A | N/A | N/A | N/A | N/A | N/A | PASS | editOpened=true; modalTitle=Candidate Sources - cfg06ff76; kind=manual; options=["HTTPS URL", "Manual IP list"]; manualIpVisible=2; modalInputs=4 |
+| src-lan | sources | LAN Publisher | PASS | N/A | N/A | N/A | N/A | N/A | N/A | PASS | checked=true; port=12345 |
+| src-refresh | sources | Refresh Sources | PASS | N/A | N/A | PASS | N/A | N/A | N/A | N/A | busy=["Add"]; draft=256; notice=Unable to refresh sources: cf-ip-auto returned no valid resultDismiss |
+| src-save | sources | Save | PASS | N/A | N/A | PASS | N/A | N/A | N/A | N/A | changes= |
+| int-policy | intelligence | Source Strategy | PASS | N/A | N/A | N/A | N/A | N/A | N/A | N/A | value=history-heavy |
+| int-probe | intelligence | Probe Batch Size | PASS | N/A | N/A | N/A | N/A | N/A | N/A | N/A | value=4 |
+| int-early | intelligence | Deterministic Early Stop | PASS | N/A | N/A | N/A | N/A | N/A | N/A | N/A | toggled=true |
+| int-adaptive | intelligence | Adaptive Measurement Mode | PASS | N/A | N/A | N/A | N/A | N/A | N/A | N/A | value=guarded |
+| int-rill | intelligence | Rill Runtime | PASS | N/A | N/A | N/A | N/A | N/A | N/A | N/A | enabled=true |
+| int-selfcheck | intelligence | Run self-check | PASS | N/A | N/A | PASS | N/A | N/A | N/A | N/A | notice=Rill self-check fell back to Native.Dismiss; text=云云舒
+ · 
+Cloudflare IP Optimization
+ · 
+v2.6.0-r7
+Project
+ · 
+GitHub
+ · 
+@云云舒
+Save & Apply
+▾
+Save
+Reset
+Powered by LuCI openwrt-24.10 branch (26.205.85413~cac97ed)  |
+| int-reset | intelligence | Reset learning state | PASS | PASS | N/A | N/A | N/A | N/A | N/A | PASS | modal=1; modalText=Reset Learning State
 
-**统计：56 格 = 21 PASS / 7 FAIL / 2 BLOCKED / 26 NOT-RUN。**
+Reset Rill learning state? Native configuration will not be changed.
 
-## 3. 证据索引
+Cancel
+Reset |
+| int-long-values | intelligence | DummyValue long fields | PASS | N/A | N/A | N/A | N/A | N/A | N/A | N/A | metrics={"fields": 0, "longFields": 0, "overflow": false, "clipped": 0} |
+| int-save | intelligence | Save | PASS | N/A | N/A | N/A | N/A | N/A | N/A | N/A | changes= |
+| oc-path | openclash | Config File Path | PASS | N/A | N/A | N/A | N/A | N/A | PASS | N/A | value=/etc/openclash/config/config.yaml |
+| oc-filter | openclash | Transport Filter | PASS | N/A | N/A | N/A | N/A | PASS | N/A | N/A | value=ws,badproto; backupAlert=1 |
+| oc-backup-retry | openclash | Backup load failure / Retry | PASS | N/A | N/A | PASS | N/A | PASS | N/A | N/A | before=["Unable to load OpenClash backups: cf-ip-auto returned no valid result"]; after=["Unable to load OpenClash backups: cf-ip-auto returned no valid result"] |
+| oc-save | openclash | Save | PASS | N/A | N/A | N/A | N/A | N/A | N/A | N/A | changes= |
+| pw-domain | passwall | Target Domain | PASS | N/A | N/A | N/A | N/A | N/A | PASS | N/A | value=cdn.example.com |
+| pw-save | passwall | Save | PASS | N/A | N/A | N/A | N/A | N/A | N/A | N/A | changes= |
+| adv-mirror | advanced | GitHub Mirror | PASS | N/A | N/A | N/A | N/A | N/A | N/A | N/A | value=https://ghp.ci/ |
+| adv-validation | advanced | Timeout validation | PASS | N/A | N/A | N/A | N/A | PASS | N/A | N/A | invalid=1 |
+| adv-save | advanced | Save | PASS | N/A | N/A | N/A | N/A | N/A | N/A | N/A | changes= |
+| log-refresh | logs | Refresh | PASS | N/A | N/A | PASS | N/A | N/A | PASS | N/A | log=No logs found.; empty=1 |
+| log-clear | logs | Clear Logs | PASS | N/A | N/A | PASS | N/A | N/A | N/A | PASS | modal=Clear Logs
 
-| 证据 ID | 内容 | 路径/命令 |
-|---|---|---|
-| `V-OV` | Overview 8 页 × 3 主题 × 3 断点正常态 | `visual-2e28db4/*/*/overview.png` |
-| `V-SET` | Settings 截图 | `visual-2e28db4/*/*/settings.png` |
-| `V-SRC` | Sources 截图（含 320/200% 边界） | `visual-2e28db4/*/*/sources.png` |
-| `V-INT` | Intelligence 截图 | `visual-2e28db4/*/*/intelligence.png` |
-| `V-OC` | OpenClash 截图（无备份空态） | `visual-2e28db4/*/*/openclash.png` |
-| `V-PW` | PassWall 截图 | `visual-2e28db4/*/*/passwall.png` |
-| `V-ADV` | Advanced 截图 | `visual-2e28db4/*/*/advanced.png` |
-| `V-LOG` | Logs 截图（空日志） | `visual-2e28db4/*/*/logs.png` |
-| `J-DELETE` | OpenClash `{success:false}` 无 error → “Backup deleted” | `repro-2e28db4/repro-output.json` |
-| `J-RPC-OC` | OpenClash RPC reject → “OpenClash Not Found” | 同上 |
-| `J-RPC-SRC` | Sources registry/status reject → 空表、无错误 | 同上 |
-| `J-SRC-RELOAD` | Sources 刷新 reload=1、save=0、未保存草稿 | 同上 |
-| `J-RILL-RESET` | Rill reset 成功后 generation 不变、reload=0 | 同上 |
-| `I-OV-REFRESH` | 真实 Overview 刷新环境点击，无可见 toast 捕获 | `interactions-2e28db4/2e28db4-aurora-light-1280x900-overview-refresh.png` |
-| `I-SET-VALID` | Settings `ip_count=0` 保存尝试；UCI 仍为 4，未捕获 validation bubble | `interactions-2e28db4/2e28db4-aurora-light-1280x900-settings-invalid.png` |
-| `I-RILL-RESET` | Intelligence 重置点击；native confirm 被自动 dismiss | `interactions-2e28db4/2e28db4-aurora-light-1280x900-intelligence-reset.png` |
+Clear log file?
 
-## 4. 复现命令
+Cancel
+Clear; log=Log file cleared. |
+| log-history | logs | IP History table | PASS | N/A | N/A | N/A | N/A | N/A | N/A | N/A | table=0; text=lare IP Optimization
+ · 
+v2.6.0-r7
+Project
+ · 
+GitHub
+ · 
+@云云舒
+Powered by LuCI openwrt-24.10 branch (26.205.85413~cac97ed) / OpenWrt 24.10.8 (r29233-443ec4032a) |
 
-```sh
-cd /Users/yunshu/Documents/GitHub/luci-app-cloudflare-ip
-node docs/audits/next-release-evidence/repro-2e28db4/repro-risks.cjs \
-  > docs/audits/next-release-evidence/repro-2e28db4/repro-output.json
-```
+## Empty / uninstalled / RPC-failure evidence
 
-关键结果：
+`early-return/before` and `early-return/after` contain 8 screenshot pairs (OpenClash and PassWall, not-installed and RPC-failure, 1280/375). Before: no shared CSS, no footer, transparent background and 0 radius. After: shared CSS loaded, card styled, footer present, description and Retry visible.
 
-- `openclash_delete.false_success = true`
-- `rpc_failure_openclash.not_installed = true`
-- `rpc_failure_sources.rows = 0`、`error_visible = false`
-- `sources_refresh.reload_calls = 1`、`save_calls = 0`
-- `rill_reset.reload_calls = 0`、`status_generation_after = 1`、`stale_status = true`
+OpenClash and PassWall RPC-failure/not-installed states are `PASS` evidence for the `empty` and `error` columns above. Logs empty state is exercised by `log-clear`.
 
-## 5. 未覆盖/阻塞说明
+## BLOCKED / not exercised
 
-- **真实 OpenClash/PassWall 控制器**：页面用可执行 init stub 暴露；真实代理服务/配置事务未在本轮运行。OpenClash 备份列表为空，未做真实恢复/删除成功路径。
-- **RPC 异常注入**：OpenClash/Sources 用 JS harness；真实 ubus 权限/超时注入未做。
-- **native confirm**：agent-browser 默认自动 dismiss，Diagnostics/Rill 的确认/取消未实际判定；标记 BLOCKED。
-- **表单保存/应用**：Settings 的 invalid/valid 保存没有改变 UCI，且未捕获 validation bubble；不能算 PASS，也未判定为产品失败。
-- **键盘/触控**：未做 Tab/Esc/Enter/触摸命中测试；全部标 NOT-RUN。
-- **真实设备**：全部控制器/硬件/网络/soak 仅容器级；物理设备 NOT-RUN。
+- Physical router hardware and 24h soak: **NOT RUN** (container evidence only).
+- OpenClash restore/delete backup actions: **BLOCKED** — no backup files exist in the disposable container; only the backup load-failure + Retry state is reachable. Reason recorded, no fake fixture used.
+- Speed-test log modal: **BLOCKED** — only opens while `last_result=running`; the container has no CFST binary/network, so the running state could not be produced. The `Describe`/`Download CFST` active state is covered instead.
 
-## 6. 结论
-
-- 正常态与空态覆盖完整（8/8 页面，真实 LuCI/Aurora）。
-- 4 个高风险交互均已复现：删除假成功、RPC 错误折叠、Sources 刷新丢失草稿、Rill reset 旧状态。
-- 表单保存、真实控制器、键盘/触控仍大量 NOT-RUN/BLOCKED，不能据此写“交互全通过”，也不能进入阶段 B。
+Programmatic source: `matrix.json` (42 point records), `keyboard-200.json`, `focus-sweep.json`, `early-return/{before,after}/metrics.json`. Counts above are generated from those files, not hand-edited.
