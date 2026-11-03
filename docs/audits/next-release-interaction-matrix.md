@@ -1,6 +1,6 @@
 # Interaction point x seven-state matrix
 
-Baseline SHA: `7c13b1d`. Real OpenWrt 24.10.8 + LuCI 26.205.85413 (uhttpd/rpcd/ubus), Chromium via Playwright. Every row was exercised against the live page; screenshots are `matrix/<id>-before.png` and `matrix/<id>-after.png`.
+Baseline SHA: `7c13b1d` (interaction matrix). Final HEAD is `9adb2d5`; the only later change is the stat-card radius, which does not change any interaction result. Real OpenWrt 24.10.8 + LuCI 26.205.85413 (uhttpd/rpcd/ubus), Chromium via Playwright. Every row was exercised against the live page; screenshots are `matrix/<id>-before.png` and `matrix/<id>-after.png`.
 
 - Interaction points: **42**
 - Points passing their real action + DOM/persistence assertions: **42/42**
