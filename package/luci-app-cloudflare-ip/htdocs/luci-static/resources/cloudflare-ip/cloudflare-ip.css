@@ -4,13 +4,20 @@
 	--cfi-border-soft: color-mix(in srgb, var(--border-color, #d9e0e7) 72%, transparent);
 	--cfi-text: var(--text-color, var(--base-color, inherit));
 	--cfi-muted: var(--subtext-color, #586b7e);
+	--cfi-muted-strong: color-mix(in srgb, var(--cfi-muted) 82%, var(--cfi-text));
 	--cfi-link: var(--main-color, #1769aa);
 	--cfi-success-text: #176b31;
 	--cfi-danger-text: #a52020;
 	--cfi-warning-text: #805600;
 	--cfi-neutral-text: #4b5b6b;
 	--cfi-radius: 12px;
+	--cfi-radius-card: 8px;
+	--cfi-radius-chip: 4px;
 	--cfi-shadow: 0 5px 18px color-mix(in srgb, #132238 9%, transparent);
+	--cfi-shadow-hover: 0 3px 10px color-mix(in srgb, #132238 14%, transparent);
+	--cfi-footer-border: var(--border-color, #d9e0e7);
+	--cfi-footer-chip-bg: color-mix(in srgb, var(--cfi-link) 12%, transparent);
+	--cfi-footer-chip-bg-hover: color-mix(in srgb, var(--cfi-link) 18%, transparent);
 }
 
 :root[data-darkmode="true"] {
@@ -83,6 +90,11 @@
 		min-width: 0;
 }
 
+.cfi-form-map .cbi-value-field {
+		overflow-wrap: anywhere;
+		word-break: break-word;
+}
+
 /* MultiValue previews must fit their grid cell on narrow screens. */
 .cfi-form-map .cbi-dropdown:not(.btn):not(.cbi-button) {
 	max-width: 100%;
@@ -114,7 +126,7 @@
 		box-sizing: border-box;
 		width: 100%;
 		min-height: 2.35rem;
-		border-radius: 8px;
+		border-radius: var(--cfi-radius-card);
 	}
 
 .cfi-form-map .cbi-input-text:focus,
@@ -135,7 +147,7 @@
 .cfi-form-map .cbi-button,
 .cfi-dashboard .cbi-button {
 		min-height: 2.35rem;
-		border-radius: 8px;
+		border-radius: var(--cfi-radius-card);
 		font-weight: 600;
 		transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
 }
@@ -143,7 +155,7 @@
 .cfi-form-map .cbi-button:hover,
 .cfi-dashboard .cbi-button:hover {
 		transform: translateY(-1px);
-		box-shadow: 0 3px 10px color-mix(in srgb, #132238 14%, transparent);
+		box-shadow: var(--cfi-shadow-hover);
 }
 
 .cfi-form-map .cbi-button:focus-visible,
@@ -157,7 +169,7 @@
 	margin-bottom: 1.25rem;
 }
 .cfi-badge {
-	display: inline-block; padding: 0.15em 0.6em; border-radius: 4px;
+	display: inline-block; padding: 0.15em 0.6em; border-radius: var(--cfi-radius-chip);
 	font-size: 0.85em; font-weight: 500;
 }
 .cfi-badge.green { background: color-mix(in srgb, var(--success-color, #3aa657) 15%, transparent); color: var(--cfi-success-text); }
@@ -166,7 +178,7 @@
 .cfi-badge.gray { background: color-mix(in srgb, var(--cfi-muted) 15%, transparent); color: var(--cfi-neutral-text); }
 .cfi-btn-group { display: flex; flex-wrap: wrap; gap: 0.8em; }
 .cfi-cmd-box {
-	padding: 0.8em 1em; border-radius: 6px;
+	padding: 0.8em 1em; border-radius: var(--cfi-radius-card);
 	background: var(--background-color-low, color-mix(in srgb, var(--background-color-high, var(--background-color-a)) 85%, var(--main-color, #0069d9)));
 	border: 1px solid var(--border-color);
 	font-family: monospace; font-size: 0.9em;
@@ -192,12 +204,12 @@
 		border-collapse: separate;
 		border-spacing: 0;
 		border: 1px solid var(--cfi-border-soft);
-		border-radius: 9px;
+		border-radius: var(--cfi-radius-card);
 		overflow: hidden;
 }
 .cfi-table-wrap > .table th {
 		background: var(--cfi-surface-muted);
-		color: var(--cfi-muted);
+		color: var(--cfi-muted-strong);
 		font-size: 0.8rem;
 		font-weight: 700;
 		letter-spacing: 0.02em;
@@ -230,6 +242,12 @@
 .cfi-source-table > .tr > .td {
 	min-width: 0;
 }
+.cfi-source-table > .tr > .th {
+	color: var(--cfi-muted-strong);
+}
+.cfi-form-map .cbi-section-table th {
+	color: var(--cfi-muted-strong);
+}
 .cfi-kv-table th {
 	width: 12em;
 	white-space: nowrap;
@@ -256,7 +274,7 @@
 .cfi-empty-state {
 	padding: 1.4rem;
 	border: 1px dashed var(--cfi-border-soft);
-	border-radius: 10px;
+	border-radius: var(--cfi-radius);
 	background: var(--cfi-surface-muted);
 }
 
@@ -272,7 +290,7 @@
 .cfi-stat-card {
 	min-width: 0;
 	padding: 1em 1.2em;
-	border-radius: 8px;
+	border-radius: var(--cfi-radius-card);
 	text-align: center;
 }
 
@@ -302,9 +320,6 @@
 }
 
 .ys-tool-footer {
-	--ys-footer-blue: var(--cfi-link);
-	--ys-footer-blue-bg: color-mix(in srgb, var(--cfi-link) 12%, transparent);
-	--ys-footer-blue-bg-hover: color-mix(in srgb, var(--cfi-link) 18%, transparent);
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
@@ -312,7 +327,7 @@
 	gap: 0.8em 1em;
 	margin-top: 2em;
 	padding: 1em 0 0;
-	border-top: 1px solid var(--border-color);
+	border-top: 1px solid var(--cfi-footer-border);
 	color: var(--cfi-muted);
 	font-size: 0.875em;
 }
@@ -331,10 +346,9 @@
 }
 .ys-tool-footer-mark {
 	padding: 0.18em 0.5em;
-	border-radius: 4px;
-	background-color: var(--ys-footer-blue-bg);
-	background: color-mix(in srgb, var(--ys-footer-blue) 12%, transparent);
-	color: var(--ys-footer-blue);
+	border-radius: var(--cfi-radius-chip);
+	background: var(--cfi-footer-chip-bg);
+	color: var(--cfi-link);
 	font-size: 0.86em;
 	font-weight: 700;
 	line-height: 1.6;
@@ -357,10 +371,9 @@
 	gap: 0.35em;
 	padding: 0.18em 0.5em;
 	border: 0;
-	border-radius: 4px;
-	background-color: var(--ys-footer-blue-bg);
-	background: color-mix(in srgb, var(--ys-footer-blue) 12%, transparent);
-	color: var(--ys-footer-blue);
+	border-radius: var(--cfi-radius-chip);
+	background: var(--cfi-footer-chip-bg);
+	color: var(--cfi-link);
 	font-size: 0.86em;
 	font-weight: 700;
 	line-height: 1.6;
@@ -368,8 +381,7 @@
 }
 .ys-tool-footer-link:hover,
 .ys-tool-footer a.ys-tool-footer-link:hover {
-	background-color: var(--ys-footer-blue-bg-hover);
-	background: color-mix(in srgb, var(--ys-footer-blue) 18%, transparent);
+	background: var(--cfi-footer-chip-bg-hover);
 	text-decoration: none;
 }
 @media (prefers-reduced-motion: reduce) {
@@ -379,12 +391,22 @@
 }
 
 /* The theme tab row scrolls horizontally on narrow screens, clipping later
- * tabs. Wrap instead so every page label stays readable at 320px. */
-@media (max-width: 480px) {
+ * tabs. Wrap instead so every page label stays readable at 320px and at the
+ * 640px effective width of 1280px @ 200%. */
+@media (max-width: 900px) {
 	#tabmenu .tabs,
 	#tabmenu .cbi-tabmenu { flex-wrap: wrap; overflow-x: visible; }
 	#tabmenu .tabs > li,
 	#tabmenu .cbi-tabmenu > li { max-width: 100%; }
+}
+
+/* Bootstrap drops the focus ring on tab links; restore a visible one without
+ * changing the tab visual language. */
+#tabmenu .tabs a:focus-visible,
+#tabmenu .cbi-tabmenu a:focus-visible {
+	outline: 2px solid var(--cfi-link);
+	outline-offset: 2px;
+	border-radius: var(--cfi-radius-chip);
 }
 
 @media (max-width: 600px) {
@@ -478,7 +500,7 @@
 		margin-bottom: 0.7em;
 		padding: 0.7em;
 		border: 1px solid var(--border-color, #ddd);
-		border-radius: 6px;
+		border-radius: var(--cfi-radius-card);
 		width: 100%;
 		box-sizing: border-box;
 	}
@@ -535,5 +557,118 @@
 	.cfi-kv-table th {
 		color: var(--cfi-muted);
 		font-size: 0.86em;
+	}
+}
+
+/* The LuCI sidebar consumes viewport width, so a 768px viewport can leave less
+ * than 600px for the form. Container queries key the single-column layout to
+ * the actual content width; the media queries above remain the fallback for
+ * browsers without container query support. */
+@supports (container-type: inline-size) {
+	.cfi-dashboard,
+	.cfi-form-map { container-type: inline-size; }
+
+	@container (max-width: 600px) {
+		.cfi-stats-grid { grid-template-columns: repeat(2, 1fr); gap: 0.6em; }
+		.cfi-stat-card { padding: 0.8rem 0.55rem; }
+		.cfi-stat-card .cfi-stat-value { font-size: 1.4em; }
+		.cfi-stat-card .cfi-stat-label { font-size: 0.78em; }
+		.cfi-form-map .cbi-section { padding: 0.9rem; }
+		.cfi-form-map .cbi-value {
+			grid-template-columns: 1fr;
+			gap: 0.35rem;
+			padding: 0.75rem 0;
+		}
+		.cfi-form-map .cbi-value-title { padding-top: 0; }
+		.cfi-form-map .cbi-value-description { grid-column: 1; margin-top: 0; }
+		.ys-tool-footer { gap: 0.5em; }
+		.ys-tool-footer-title,
+		.ys-tool-footer-title-separator,
+		.ys-tool-footer-project-link,
+		.ys-tool-footer-project-separator { display: none; }
+		.ys-tool-footer-links { flex-wrap: wrap; white-space: normal; }
+		.ys-tool-footer-links .ys-tool-footer-link.github .ys-tool-footer-link-label,
+		.ys-tool-footer-links .ys-tool-footer-link.x .ys-tool-footer-link-label { display: none; }
+		.cfi-btn-group { gap: 0.5em; }
+		.cfi-btn-group .cbi-button { font-size: 0.85em; padding: 0.4em 0.8em; }
+		.cfi-log-area { font-size: 12px; }
+		.cfi-cmd-box { font-size: 0.8em; padding: 0.6em 0.8em; }
+		.cfi-table-wrap > .table th,
+		.cfi-table-wrap > .table td { padding: 0.55rem 0.6rem; }
+	}
+
+	@container (max-width: 900px) {
+		.cfi-table-wrap > .cfi-responsive-table { display: block; min-width: 0; overflow: visible; }
+		.cfi-source-table > .table-titles { display: none; }
+		.cfi-source-table > .tr:not(.table-titles) { display: block; width: 100%; box-sizing: border-box; }
+		.cfi-source-table > .tr:not(.table-titles) > .td {
+			display: flex;
+			align-items: flex-start;
+			gap: 0.75em;
+			min-width: 0;
+			padding: 0.28em 0;
+			border: 0;
+			text-align: left;
+			word-break: break-word;
+		}
+		.cfi-source-table > .tr:not(.table-titles) > .td::before {
+			content: attr(data-label);
+			flex: 0 0 7.2em;
+			font-size: 0.85em;
+			font-weight: 600;
+			white-space: normal;
+			word-break: break-word;
+		}
+		.cfi-responsive-table thead { display: none; }
+		.cfi-responsive-table tbody,
+		.cfi-responsive-table tr { display: block; }
+		.cfi-responsive-table tr {
+			margin-bottom: 0.7em;
+			padding: 0.7em;
+			border: 1px solid var(--border-color, #ddd);
+			border-radius: var(--cfi-radius-card);
+			width: 100%;
+			box-sizing: border-box;
+		}
+		.cfi-responsive-table td {
+			display: flex;
+			align-items: flex-start;
+			justify-content: flex-start;
+			gap: 0.75em;
+			padding: 0.28em 0;
+			border: 0;
+			text-align: left;
+			min-width: 0;
+		}
+		.cfi-responsive-table td::before {
+			content: attr(data-label);
+			flex: 0 0 7.2em;
+			color: var(--cfi-muted);
+			font-size: 0.85em;
+			font-weight: 600;
+			text-align: left;
+			white-space: normal;
+			word-break: break-word;
+		}
+		.cfi-responsive-table td[colspan] { display: block; text-align: left; }
+		.cfi-responsive-table td[colspan]::before { display: none; }
+		.cfi-responsive-table .cfi-actions { justify-content: flex-start; align-items: stretch; }
+		.cfi-responsive-table .cfi-actions::before { flex: 0 0 100%; margin: 0 0 0.25em; }
+		.cfi-kv-table tr {
+			display: block;
+			padding: 0.45em 0;
+			border-bottom: 1px solid color-mix(in srgb, var(--border-color, #ddd) 70%, transparent);
+		}
+		.table.cfi-kv-table th,
+		.table.cfi-kv-table td {
+			display: block;
+			width: 100%;
+			box-sizing: border-box;
+			border: 0;
+			padding: 0.12em 0;
+			text-align: left;
+			white-space: normal;
+		}
+		.cfi-kv-table th { color: var(--cfi-muted); font-size: 0.86em; }
 	}
 }

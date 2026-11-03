@@ -24,11 +24,11 @@ return view.extend({
     utils.loadSharedCSS();
     var regData=data[1]||{}, stData=data[2]||{}, reg=regData.presets||[], st=statusMap(stData.sources||[]), m=new form.Map('cf_ip',_('Candidate Sources')),s,o;
     if (regData._rpcError)
-      return E('div',{'class':'cbi-map cfi-form-map'}, E('div',{'class':'cbi-section cfi-empty-state'},[
+      return utils.renderWithFooter(E('div',{'class':'cbi-map cfi-form-map'}, E('div',{'class':'cbi-section cfi-empty-state'},[
         E('h3',{},_('Unable to load source registry')),
         E('p',{},_('The source registry RPC failed: %s').format(regData.error||_('Unknown'))),
         E('button',{'class':'btn cbi-button','click':function(){location.reload();}},_('Retry'))
-      ]));
+      ])), utils.FOOTER_OPTIONS);
     s=m.section(form.TypedSection,'service',_('Candidate Budget'));
     s.anonymous=true;
     o=s.option(form.Value,'candidate_budget',_('CFST Candidate IP Count'),_('Maximum unique IPs supplied to one CFST run. Allocation is automatic: a small local-history share, a majority community share, and the remainder official-range exploration; unused quota flows to the other pools.'));
