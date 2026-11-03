@@ -1,10 +1,10 @@
-# Visual matrix - current 2.6.0-r7 (7c13b1d)
+# Visual matrix - current 2.6.0-r7 (9adb2d5)
 
 Environment: OpenWrt 24.10.8 x86_64, LuCI 26.205.85413~cac97ed, uhttpd/rpcd in a disposable container; Chromium via Playwright. Themes: Bootstrap (original), Aurora light, Aurora dark.
 
 - Normal-state screenshots: **78** (8 pages x 3 themes x 3 viewports + 320px overview + 640px/200% sources boundary).
 - Horizontal overflow: **0/78**.
-- Screenshot index: `visual-index.csv` (368 rows, interaction/state columns, old `visual-phase-c` 78 files preserved).
+- Screenshot index: `visual-index.csv` (374 rows, interaction/state columns, old `visual-phase-c` 78 files preserved).
 - Keyboard 200%: **16/16 PASS** (Tab order, focus ring, no clipping, bottom controls and footer reachable).
 - WCAG AA scan: 24 page-theme combinations, 1105 text elements, 35 below threshold (all native LuCI/Aurora button/tab colours; report `contrast/after/report.md`).
 
@@ -38,5 +38,5 @@ v1.8.3-1 (`77a65a8`) was provisioned into the same real LuCI container. Navigati
 ## Fixed in this round
 
 - Early-return empty states: shared CSS + footer before return; description/Retry now render (array children).
-- Tokens: `--cfi-radius` 12px, `--cfi-radius-card` 8px, `--cfi-radius-chip` 4px, `--cfi-shadow`, `--cfi-shadow-hover`, footer chip/border tokens.
+- Tokens: `--cfi-radius` 12px (sections), `--cfi-radius-card` 8px (stat cards/controls/tables), `--cfi-radius-chip` 4px, `--cfi-shadow`, `--cfi-shadow-hover`, footer chip/border tokens. Measured bootstrap: section 12px, stat 8px, table 8px (before: stat 12px, table 9px).
 - Tabs: wrap <=900px and restore `:focus-visible` outline; table headers use `--cfi-muted-strong` to pass AA in Aurora light.
