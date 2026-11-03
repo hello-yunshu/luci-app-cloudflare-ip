@@ -1,0 +1,602 @@
+{
+  "schemaVersion": 1,
+  "commit": "e68af6240ee7e790cdbd0c7c9f74be7236419bb3",
+  "runId": 41666070486,
+  "runAttempt": 1,
+  "generatedAt": "2026-11-03T16:03:47Z",
+  "jobs": {
+    "package-identity": {
+      "result": "success",
+      "outputs": {
+        "matrix": "{\"include\": [{\"branch\": \"v24.10.5\", \"pkgtype\": \"ipk\", \"arch\": \"x86_64\", \"rust_target\": \"x86_64-unknown-linux-musl\", \"public\": true}, {\"branch\": \"v25.12.0\", \"pkgtype\": \"apk\", \"arch\": \"x86_64\", \"rust_target\": \"x86_64-unknown-linux-musl\", \"public\": true}, {\"branch\": \"v24.10.8\", \"pkgtype\": \"ipk\", \"arch\": \"x86_64\", \"rust_target\": \"x86_64-unknown-linux-musl\", \"public\": false}, {\"branch\": \"v25.12.5\", \"pkgtype\": \"apk\", \"arch\": \"x86_64\", \"rust_target\": \"x86_64-unknown-linux-musl\", \"public\": false}]}"
+      }
+    },
+    "host-contract": {
+      "result": "success",
+      "outputs": {}
+    },
+    "legacy-contract": {
+      "result": "success",
+      "outputs": {}
+    },
+    "rpc-luci-contract": {
+      "result": "success",
+      "outputs": {}
+    },
+    "openwrt-package": {
+      "result": "success",
+      "outputs": {}
+    },
+    "package-migration": {
+      "result": "success",
+      "outputs": {}
+    },
+    "rill-runtime-integration": {
+      "result": "success",
+      "outputs": {}
+    },
+    "package-release-guard": {
+      "result": "success",
+      "outputs": {}
+    },
+    "workflow-lint": {
+      "result": "success",
+      "outputs": {}
+    },
+    "real-cfst-smoke": {
+      "result": "success",
+      "outputs": {}
+    },
+    "release-asset-contract": {
+      "result": "success",
+      "outputs": {}
+    },
+    "docker-replay": {
+      "result": "success",
+      "outputs": {}
+    },
+    "rootfs-contract": {
+      "result": "success",
+      "outputs": {}
+    },
+    "i18n-contract": {
+      "result": "success",
+      "outputs": {}
+    }
+  },
+  "artifacts": [
+    {
+      "digest": "sha256:1d9b2be7d8102349048a3bd5e33df56bce27214845fa93350ddf91b9e4711f75",
+      "name": "package-migration-ipk-v24.10.8-run-41666070486-attempt-1",
+      "size": 393105
+    },
+    {
+      "digest": "sha256:a34071be88a3c555b779215522f9835034660f5bf0a4b662c07baf415ac51a4c",
+      "name": "writer-lock-v25.12.0-apk-run-41666070486-attempt-1",
+      "size": 2137
+    },
+    {
+      "digest": "sha256:72f68f5732b14cdf3af97b7f95f69f672f2bb77fa9447f9d22e96ddf653e2c3f",
+      "name": "writer-lock-v24.10.8-ipk-run-41666070486-attempt-1",
+      "size": 2137
+    },
+    {
+      "digest": "sha256:3fecb2abbf359390c83b9a93832496e3d10e2571bc1d083b24dd99a1e45dcc26",
+      "name": "luci-app-cloudflare-ip-apk-v25.12.5-run-41666070486-attempt-1",
+      "size": 3638377
+    },
+    {
+      "digest": "sha256:7a38efc65445130b21a994528e115301e26417449d71fd94f6259073494655aa",
+      "name": "writer-lock-v25.12.5-apk-run-41666070486-attempt-1",
+      "size": 2138
+    },
+    {
+      "digest": "sha256:ae5c53ce6229cf6f93b9c5f39cd7c65122400536e92f7652cb3ac549da44ce38",
+      "name": "rill-runtime-integration-evidence-run-41666070486-attempt-1",
+      "size": 708
+    },
+    {
+      "digest": "sha256:4a7c639d3d1a0416639d0d7a907f5de60d2a370faca0368a98f271b95ccb8ded",
+      "name": "luci-app-cloudflare-ip-ipk-v24.10.8-run-41666070486-attempt-1",
+      "size": 3620491
+    },
+    {
+      "digest": "sha256:542cbcd17203faeee499c863461ab2bf04ae4516cf7e62a90dce830e7f514922",
+      "name": "writer-lock-v24.10.5-ipk-run-41666070486-attempt-1",
+      "size": 2139
+    },
+    {
+      "digest": "sha256:ed16182cb90f4d8cdda0cbaf8f903586803a5aec93a72961bb68b208b23e02c2",
+      "name": "package-migration-apk-v25.12.5-run-41666070486-attempt-1",
+      "size": 316226
+    },
+    {
+      "digest": "sha256:f2a40d5be4b686befd3113c6a848743aaaee5bff5c2febe2cb765768c9bcb08e",
+      "name": "luci-app-cloudflare-ip-ipk-v24.10.5-run-41666070486-attempt-1",
+      "size": 3620603
+    },
+    {
+      "digest": "sha256:87b8e6ec7eef021d14053d1f3ac149f3b2429e837de7aa7bb87b93a149b45a30",
+      "name": "luci-app-cloudflare-ip-apk-v25.12.0-run-41666070486-attempt-1",
+      "size": 3638326
+    },
+    {
+      "digest": "sha256:7a6ed1351a0db083a100816aa805575001cc52a92e63dd66756811df72da1dcc",
+      "name": "cfst-byte-qualification-run-41666070486-attempt-1",
+      "size": 5829
+    }
+  ],
+  "assetFiles": [
+    {
+      "path": "luci-app-cloudflare-ip-apk-v25.12.0/luci-app-cloudflare-ip-2.6.0-r7.apk",
+      "sha256": "2ea47cf98956f56b958d0191b11ee28cb48e66115b5a9662828e898fad25b894",
+      "size": 175484,
+      "package": {
+        "architecture": "noarch",
+        "format": "apk",
+        "name": "luci-app-cloudflare-ip",
+        "packageVersion": "2.6.0-r7",
+        "release": 7,
+        "version": "2.6.0"
+      }
+    },
+    {
+      "path": "luci-app-cloudflare-ip-ipk-v24.10.5/luci-app-cloudflare-ip_2.6.0-r7_all.ipk",
+      "sha256": "5b83c48c2f2916e4f71a3713c012094b7e0bf2688e92bbee990e9ad203bd59b0",
+      "size": 175540,
+      "package": {
+        "architecture": "all",
+        "format": "ipk",
+        "name": "luci-app-cloudflare-ip",
+        "packageVersion": "2.6.0-r7",
+        "release": 7,
+        "version": "2.6.0"
+      }
+    }
+  ],
+  "rill": {
+    "schemaVersion": 1,
+    "consumer": "hello-yunshu/luci-app-cloudflare-ip",
+    "package": {
+      "repository": "hello-yunshu/rill-openwrt-packages",
+      "commit": "a1245c293605740db3bf49f143ba03f545a89922",
+      "qualificationRunId": 41497865089,
+      "qualificationManifestSha256": "f8e16c5ea5bdbd79f0b326249c230cfa05069e5eccadd8d06d69416d5839d0ba"
+    },
+    "stablePackageQualification": "PASS",
+    "previewRuntimeIntegration": "PASS",
+    "stableCommit": "b990cd7043d313b0ff29c9693f091a94a5bdaf47",
+    "previewCommit": "da8389fec7f879b826d8d17cbc6bb98c03ef8462",
+    "runtime": {
+      "version": "1.5.6",
+      "tag": "preview-exact-commit",
+      "commit": "da8389fec7f879b826d8d17cbc6bb98c03ef8462",
+      "sourceArchiveSha256": "not-applicable-preview",
+      "binarySha256": "f0c41e549e3467659b7c9cf3dfcba680a922c352f6317a5e5682fe55167ebc32"
+    },
+    "integration": {
+      "test": "tests/rill-feedback-integration.sh",
+      "status": "pass",
+      "sameRelease": true,
+      "sourcePackage": "rill-runtime-preview",
+      "packageBinary": "/usr/bin/rill-runtime"
+    }
+  },
+  "packageMigration": {
+    "schemaVersion": 1,
+    "currentMatrices": [
+      {
+        "schemaVersion": 1,
+        "packageManager": "ipk",
+        "offlineLifecycle": {
+          "status": "PASS",
+          "packagePayloadRemoved": true,
+          "dependenciesPreserved": true,
+          "userDataPreserved": true,
+          "reinstalled": true,
+          "evidenceDirectory": "ipk-uninstall-reinstall",
+          "scope": "offline package manager; online hooks not evaluated"
+        },
+        "ownershipConflict": {
+          "rawInitialInstallRecoveryVerified": false,
+          "guardedAdmission": false,
+          "admissionExitCode": 0,
+          "rawManagerStateMutated": true,
+          "id": "owner-conflict",
+          "status": "PASS",
+          "exitCode": 255,
+          "rejected": true,
+          "foreignOwnerPreserved": true,
+          "preexistingPayloadPreserved": true,
+          "installedStatePreserved": true,
+          "userDataPreserved": true,
+          "evidenceDirectory": "ipk-negative-owner-conflict"
+        },
+        "negativeInstalls": [
+          {
+            "id": "missing",
+            "status": "PASS",
+            "rejected": true,
+            "exitCode": 255,
+            "installedStatePreserved": true,
+            "payloadPreserved": true,
+            "userDataPreserved": true,
+            "evidenceDirectory": "ipk-negative-missing"
+          },
+          {
+            "id": "truncated",
+            "status": "PASS",
+            "rejected": true,
+            "exitCode": 255,
+            "installedStatePreserved": true,
+            "payloadPreserved": true,
+            "userDataPreserved": true,
+            "evidenceDirectory": "ipk-negative-truncated"
+          }
+        ],
+        "inputs": {
+          "legacyBase": {
+            "package": {
+              "architecture": "all",
+              "format": "ipk",
+              "name": "luci-app-cloudflare-ip",
+              "packageVersion": "2.6.0-r2",
+              "release": 2,
+              "version": "2.6.0"
+            },
+            "schemaVersion": 1,
+            "sha256": "0c5e527bfc272ebf72b81917807611b5949ed1311754c89b94bf31b964e5a130",
+            "size": 102647
+          },
+          "legacyAddon": {
+            "package": {
+              "architecture": "all",
+              "format": "ipk",
+              "name": "luci-app-cloudflare-ip-rill",
+              "packageVersion": "2.6.0-r2",
+              "release": 2,
+              "version": "2.6.0"
+            },
+            "schemaVersion": 1,
+            "sha256": "017a3662f90720d29a54bedd62e324d9e4f5fd36585207da502066c4b2b282f2",
+            "size": 19661
+          },
+          "currentBase": {
+            "package": {
+              "architecture": "all",
+              "format": "ipk",
+              "name": "luci-app-cloudflare-ip",
+              "packageVersion": "2.6.0-r7",
+              "release": 7,
+              "version": "2.6.0"
+            },
+            "schemaVersion": 1,
+            "sha256": "03d4aaf14102a6a98bed488111dba1039756f2448ad1206c2323f6a681552fee",
+            "size": 175523
+          },
+          "currentAddon": {
+            "package": {
+              "architecture": "all",
+              "format": "ipk",
+              "name": "luci-app-cloudflare-ip-rill",
+              "packageVersion": "2.6.0-r7",
+              "release": 7,
+              "version": "2.6.0"
+            },
+            "schemaVersion": 1,
+            "sha256": "2c06c073d8e2705aebc98d1d4b0d73e79e9f22f4a77313dffb734fca74bed7eb",
+            "size": 892
+          },
+          "recentBase": {
+            "package": {
+              "architecture": "all",
+              "format": "ipk",
+              "name": "luci-app-cloudflare-ip",
+              "packageVersion": "2.6.0-r3",
+              "release": 3,
+              "version": "2.6.0"
+            },
+            "schemaVersion": 1,
+            "sha256": "5de70a5bc001357e265b484e65061fb5af498463387ff3a96d26ec23a85e9749",
+            "size": 121493
+          }
+        },
+        "scenarios": [
+          {
+            "id": "a",
+            "from": [
+              "legacyBase"
+            ],
+            "to": [
+              "currentBase"
+            ],
+            "addon": "absent",
+            "status": "PASS",
+            "runtimeAbsent": true,
+            "runtimePresent": true,
+            "userDataPreserved": true,
+            "evidenceDirectory": "ipk-a"
+          },
+          {
+            "id": "b",
+            "from": [
+              "legacyBase",
+              "legacyAddon"
+            ],
+            "to": [
+              "currentBase"
+            ],
+            "addon": "retained",
+            "status": "PASS",
+            "runtimeAbsent": true,
+            "runtimePresent": true,
+            "userDataPreserved": true,
+            "evidenceDirectory": "ipk-b"
+          },
+          {
+            "id": "c",
+            "from": [
+              "legacyBase",
+              "legacyAddon"
+            ],
+            "to": [
+              "currentBase",
+              "currentAddon"
+            ],
+            "addon": "replaced",
+            "status": "PASS",
+            "runtimeAbsent": true,
+            "runtimePresent": true,
+            "userDataPreserved": true,
+            "evidenceDirectory": "ipk-c"
+          },
+          {
+            "id": "d",
+            "from": [
+              "legacyBase",
+              "legacyAddon"
+            ],
+            "to": [
+              "currentBase"
+            ],
+            "addon": "removed",
+            "status": "PASS",
+            "runtimeAbsent": true,
+            "runtimePresent": true,
+            "userDataPreserved": true,
+            "evidenceDirectory": "ipk-d"
+          },
+          {
+            "id": "e",
+            "from": [
+              "recentBase"
+            ],
+            "to": [
+              "currentBase"
+            ],
+            "addon": "absent",
+            "status": "PASS",
+            "runtimeAbsent": true,
+            "runtimePresent": true,
+            "userDataPreserved": true,
+            "evidenceDirectory": "ipk-e"
+          }
+        ]
+      },
+      {
+        "schemaVersion": 1,
+        "packageManager": "apk",
+        "offlineLifecycle": {
+          "status": "PASS",
+          "packagePayloadRemoved": true,
+          "dependenciesPreserved": true,
+          "userDataPreserved": true,
+          "reinstalled": true,
+          "evidenceDirectory": "apk-uninstall-reinstall",
+          "scope": "offline package manager; online hooks not evaluated"
+        },
+        "ownershipConflict": {
+          "rawInitialInstallRecoveryVerified": true,
+          "guardedAdmission": true,
+          "admissionExitCode": 65,
+          "rawManagerStateMutated": true,
+          "id": "owner-conflict",
+          "status": "PASS",
+          "exitCode": 1,
+          "rejected": true,
+          "foreignOwnerPreserved": true,
+          "preexistingPayloadPreserved": true,
+          "installedStatePreserved": true,
+          "userDataPreserved": true,
+          "evidenceDirectory": "apk-negative-owner-conflict"
+        },
+        "negativeInstalls": [
+          {
+            "id": "missing",
+            "status": "PASS",
+            "rejected": true,
+            "exitCode": 1,
+            "installedStatePreserved": true,
+            "payloadPreserved": true,
+            "userDataPreserved": true,
+            "evidenceDirectory": "apk-negative-missing"
+          },
+          {
+            "id": "truncated",
+            "status": "PASS",
+            "rejected": true,
+            "exitCode": 99,
+            "installedStatePreserved": true,
+            "payloadPreserved": true,
+            "userDataPreserved": true,
+            "evidenceDirectory": "apk-negative-truncated"
+          }
+        ],
+        "inputs": {
+          "legacyBase": {
+            "package": {
+              "architecture": "noarch",
+              "format": "apk",
+              "name": "luci-app-cloudflare-ip",
+              "packageVersion": "2.6.0-r2",
+              "release": 2,
+              "version": "2.6.0"
+            },
+            "schemaVersion": 1,
+            "sha256": "4fb8e34d1574aef42660fdab76faff404c2f85470e7c93596f81298bd25e75e0",
+            "size": 111373
+          },
+          "legacyAddon": {
+            "package": {
+              "architecture": "noarch",
+              "format": "apk",
+              "name": "luci-app-cloudflare-ip-rill",
+              "packageVersion": "2.6.0-r2",
+              "release": 2,
+              "version": "2.6.0"
+            },
+            "schemaVersion": 1,
+            "sha256": "9a6b5561e646cad1aed9a1ed8b0c39f5c43262e6bf06a856f2a3a4101acc8b86",
+            "size": 19465
+          },
+          "currentBase": {
+            "package": {
+              "architecture": "noarch",
+              "format": "apk",
+              "name": "luci-app-cloudflare-ip",
+              "packageVersion": "2.6.0-r7",
+              "release": 7,
+              "version": "2.6.0"
+            },
+            "schemaVersion": 1,
+            "sha256": "d9fb4ff24bcb63b710e893f202fcb2249424bafd9874ebcbb7e5765dc384c909",
+            "size": 175486
+          },
+          "currentAddon": {
+            "package": {
+              "architecture": "noarch",
+              "format": "apk",
+              "name": "luci-app-cloudflare-ip-rill",
+              "packageVersion": "2.6.0-r7",
+              "release": 7,
+              "version": "2.6.0"
+            },
+            "schemaVersion": 1,
+            "sha256": "4d609b32300ba5db04ebde3f585630fdcd21eceee85cebc7b87642bfa86f84b2",
+            "size": 707
+          },
+          "recentBase": {
+            "package": {
+              "architecture": "noarch",
+              "format": "apk",
+              "name": "luci-app-cloudflare-ip",
+              "packageVersion": "2.6.0-r3",
+              "release": 3,
+              "version": "2.6.0"
+            },
+            "schemaVersion": 1,
+            "sha256": "f710f6f4f5a214d0224daf0b7fc31c071d8b198084adc1780b68707f13de9164",
+            "size": 130135
+          }
+        },
+        "scenarios": [
+          {
+            "id": "a",
+            "from": [
+              "legacyBase"
+            ],
+            "to": [
+              "currentBase"
+            ],
+            "addon": "absent",
+            "status": "PASS",
+            "runtimeAbsent": true,
+            "runtimePresent": true,
+            "userDataPreserved": true,
+            "evidenceDirectory": "apk-a"
+          },
+          {
+            "id": "b",
+            "from": [
+              "legacyBase",
+              "legacyAddon"
+            ],
+            "to": [
+              "currentBase"
+            ],
+            "addon": "retained",
+            "status": "PASS",
+            "runtimeAbsent": true,
+            "runtimePresent": true,
+            "userDataPreserved": true,
+            "evidenceDirectory": "apk-b"
+          },
+          {
+            "id": "c",
+            "from": [
+              "legacyBase",
+              "legacyAddon"
+            ],
+            "to": [
+              "currentBase",
+              "currentAddon"
+            ],
+            "addon": "replaced",
+            "status": "PASS",
+            "runtimeAbsent": true,
+            "runtimePresent": true,
+            "userDataPreserved": true,
+            "evidenceDirectory": "apk-c"
+          },
+          {
+            "id": "d",
+            "from": [
+              "legacyBase",
+              "legacyAddon"
+            ],
+            "to": [
+              "currentBase"
+            ],
+            "addon": "removed",
+            "status": "PASS",
+            "runtimeAbsent": true,
+            "runtimePresent": true,
+            "userDataPreserved": true,
+            "evidenceDirectory": "apk-d"
+          },
+          {
+            "id": "e",
+            "from": [
+              "recentBase"
+            ],
+            "to": [
+              "currentBase"
+            ],
+            "addon": "absent",
+            "status": "PASS",
+            "runtimeAbsent": true,
+            "runtimePresent": true,
+            "userDataPreserved": true,
+            "evidenceDirectory": "apk-e"
+          }
+        ]
+      }
+    ],
+    "historicalR3ToR4Meaning": "legacy field retained; current from/to identity is in currentMatrix",
+    "legacyVersion": "2.6.0-r2",
+    "sourceTag": "v2.6.0-2",
+    "sourceSHA": "652476bd3cdc410bc16e3a47ee96b685c84acbbb",
+    "currentSHA": "e68af6240ee7e790cdbd0c7c9f74be7236419bb3",
+    "ipk": "PASS",
+    "apk": "PASS",
+    "baseOnlyUpgrade": true,
+    "baseAddonToBaseUpgrade": true,
+    "addonRemovalSafe": true,
+    "r3ToR4": true,
+    "runtimeAbsent": true,
+    "runtimePresent": true
+  },
+  "stableSourceArchiveSha256": "c06a792811d1f08aa7b640c10ee36047c44f825cf7272aa0f75c42ab60806a84",
+  "qualificationState": "automated-qualification",
+  "releaseEligible": true
+}

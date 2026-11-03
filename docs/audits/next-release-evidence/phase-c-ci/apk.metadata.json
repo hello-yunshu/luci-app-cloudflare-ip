@@ -1,0 +1,1 @@
+{"package": {"architecture": "noarch", "format": "apk", "name": "luci-app-cloudflare-ip", "packageVersion": "2.6.0-r7", "release": 7, "version": "2.6.0"}, "schemaVersion": 1, "sha256": "d9fb4ff24bcb63b710e893f202fcb2249424bafd9874ebcbb7e5765dc384c909", "size": 175486}
