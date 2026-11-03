@@ -46,8 +46,30 @@ def prepare(manifest_path, preflight_path, negatives_path, candidate, repository
         raise ValueError('tested merge tree differs from candidate tree')
     tag = identity['tag']
     refs = json.loads(subprocess.check_output(['gh', 'api', f'repos/{repository}/git/matching-refs/tags/{tag}'], text=True))
-    if not isinstance(refs, list) or any(r.get('ref') == 'refs/tags/' + tag for r in refs):
-        raise ValueError('candidate tag is already occupied or could not be checked')
+    if not isinstance(refs, list):
+        raise ValueError('candidate tag state could not be checked')
+    existing = next((r for r in refs if isinstance(r, dict) and r.get('ref') == 'refs/tags/' + tag), None)
+    tag_state = 'available'
+    tag_commit = None
+    if existing:
+        # A re-release may reuse the same tag only when it points at the exact
+        # candidate tree. Different content under the same tag stays fatal.
+        object_ref = existing.get('object')
+        if not isinstance(object_ref, dict):
+            raise ValueError('candidate tag state could not be checked')
+        sha, kind = object_ref.get('sha'), object_ref.get('type')
+        if kind == 'tag':
+            annotated = json.loads(subprocess.check_output(['gh', 'api', f'repos/{repository}/git/tags/{sha}'], text=True))
+            object_ref = annotated.get('object') if isinstance(annotated, dict) else None
+            sha, kind = (object_ref.get('sha'), object_ref.get('type')) if isinstance(object_ref, dict) else (None, None)
+        if kind != 'commit' or not isinstance(sha, str) or not re.fullmatch(r'[0-9a-f]{40}', sha):
+            raise ValueError('candidate tag state could not be checked')
+        commit = json.loads(subprocess.check_output(['gh', 'api', f'repos/{repository}/git/commits/{sha}'], text=True))
+        tag_tree = commit.get('tree', {}).get('sha') if isinstance(commit, dict) else None
+        if tag_tree != candidate_tree:
+            raise ValueError('candidate tag is already occupied by different content')
+        tag_state = 'existing-equivalent'
+        tag_commit = sha
     policy_path = ROOT / 'docs/audits/g6-g7-evidence/device-policy-20261024.json'
     policy = json.loads(policy_path.read_bytes())
     if policy['deviceValidation'].get('blocksG6G7Completion') is not False:
@@ -56,7 +78,8 @@ def prepare(manifest_path, preflight_path, negatives_path, candidate, repository
     return dict(schemaVersion=1, status='PREPARED_FOR_REVIEW', repository=repository,
         candidateCommit=candidate, testedCommit=tested, tree=candidate_tree,
         runId=manifest['runId'], runAttempt=manifest['runAttempt'],
-        qualificationManifestSha256=digest, identity=identity, tagAvailable=True,
+        qualificationManifestSha256=digest, identity=identity, tagAvailable=(tag_state == 'available'),
+        tagState=tag_state, tagCommit=tag_commit,
         assets=manifest['assetFiles'], runtimeContract=contract,
         devicePolicy=policy, actualDeviceCoverage='See separate candidate deployment receipt; software results do not imply device PASS',
         publication='NOT AUTHORIZED / NOT RUN', automaticStablePromotion='DISABLED',
