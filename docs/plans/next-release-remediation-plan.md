@@ -135,10 +135,10 @@ WP-01/02/03/04 可独立 PR；WP-05 可与 WP-06 并行；WP-07 可独立跨仓�
 ## 6. 当前结论（阶段 B 执行后）
 
 - WP-01（P0）已关闭：OpenClash 删除仅在 `success === true` 时提示成功。
-- WP-02（P1）已关闭：OpenClash/Sources RPC reject 显示显式错误与 Retry，不再误报未安装/空数据。
+- WP-02（P1）已关闭：OpenClash/Sources/PassWall/Settings 的 check-env 或注册表 RPC reject 显示显式错误与 Retry/说明，不再误报未安装/空数据。
 - WP-03（P1）已关闭：Sources 刷新不再整页 reload，保留未保存草稿。
 - WP-04（P1）已关闭：Rill reset 成功后真实 reload；真实 UI 另修复 `form.Button` 事件参数误用（`ev.currentTarget`）。
-- WP-05（P1）已完成：435 个 JS/菜单 key 100% 覆盖 POT/zh_Hans/en；`tests/i18n-contract.py` 接入 CI，并完成负向变红验证。
+- WP-05（P1）已完成：439 个 JS/菜单 key 100% 覆盖 POT/zh_Hans/en；`tests/i18n-contract.py` 接入 CI，并完成负向变红验证。
 - WP-06（P2）部分关闭：日志 12px、reduced-motion、320px 导航换行、确认框统一、README 状态；600/900 断点、Overview 内联 CSS、主题变量双来源按最小改动保留并记录。
 - WP-07（P2/跨仓）未执行：按用户口径 Rill pin 固定，不做跨仓 pin 变更/重新资格。
 - WP-08（P1/P2）真实 UI 门禁已落地：`tests/real-luci-ui.cjs` + 独立 workflow，真实容器覆盖草稿保护与 RPC 错误可见；分支回归覆盖未安装/RPC 失败/删除失败/Rill reset。
