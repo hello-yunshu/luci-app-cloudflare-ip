@@ -1955,3 +1955,19 @@ msgstr "不可用"
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/sources.js
 msgid "Sources refreshed; candidate pool prepared. Unsaved edits were kept."
 msgstr "来源已刷新，候选池已准备。未保存的编辑已保留。"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/passwall.js
+msgid "Unable to check PassWall environment"
+msgstr "无法检查 PassWall 环境"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/passwall.js
+msgid "The PassWall environment check failed: %s"
+msgstr "PassWall 环境检查失败：%s"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/settings.js
+msgid "Unknown (environment check failed)"
+msgstr "未知（环境检查失败）"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/settings.js
+msgid "Unable to check the proxy environment: %s"
+msgstr "无法检查代理环境：%s"
