@@ -1,0 +1,54 @@
+{
+  "openclash_delete": {
+    "row_delete_buttons": 1,
+    "modal_delete_buttons": 1,
+    "backend": {
+      "success": false
+    },
+    "notifications": [
+      {
+        "kind": null,
+        "text": "Backup deleted"
+      }
+    ],
+    "reload_calls": 1,
+    "false_success": true
+  },
+  "rpc_failure_openclash": {
+    "text": "OpenClash Not Found",
+    "error_visible": false,
+    "not_installed": true
+  },
+  "rpc_failure_sources": {
+    "text": "Runtime Source Status Each run allocates roughly 1/8 to fresh history champions, 5/8 to community seeds, and 1/4 to Cloudflare official range exploration. Missing pools flow to other sources. All candidates are deduplicated and measured locally in one CFST run; community ports are never reused. Source State Candidates Last Error Refresh Sources",
+    "rows": 0,
+    "error_visible": false
+  },
+  "sources_refresh": {
+    "buttons": 1,
+    "draft_before": "modified-but-unsaved",
+    "notifications": [
+      {
+        "kind": null,
+        "text": "Sources refreshed; candidate pool prepared."
+      }
+    ],
+    "reload_calls": 1,
+    "save_calls": 0,
+    "draft_after": "modified-but-unsaved"
+  },
+  "rill_reset": {
+    "reset_option": true,
+    "status_generation_before": 1,
+    "modal_confirm_buttons": 0,
+    "notifications": [
+      {
+        "kind": null,
+        "text": "Rill learning state was reset."
+      }
+    ],
+    "reload_calls": 0,
+    "status_generation_after": 1,
+    "stale_status": true
+  }
+}

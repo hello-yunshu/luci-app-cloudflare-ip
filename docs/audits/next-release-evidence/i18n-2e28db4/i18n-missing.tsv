@@ -1,0 +1,89 @@
+key	in_pot	in_zh	files
+Adaptive Measurement	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+Are you sure you want to restore this backup? A backup of the current configuration will be created first.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/openclash.js
+Assisted is qualification-gated and uses only the Native safe envelope; any Runtime problem falls back to Native.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+Audit Evidence	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+CFST measurement concurrency. This controls load, not the candidate budget.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/settings.js
+Candidate Assisted	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+Candidate Intelligence	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+Candidate Shadow	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+Cloudflare IP optimization service is not running. Click Start to begin.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/overview.js
+Concurrent target-domain probes, bounded to protect the proxy-off window.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/advanced.js
+Current Context Policy	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+Current Endpoint	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+Current State	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+Custom sources accept HTTPS text lists containing IP, IP:port, IPv6, bracketed IPv6:port, or CIDR. Only the IP/CIDR is retained; domains are rejected.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/sources.js
+Each run allocates roughly 1/8 to fresh history champions, 5/8 to community seeds, and 1/4 to Cloudflare official range exploration. Missing pools flow to other sources. All candidates are deduplicated and measured locally in one CFST run; community ports are never reused.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/sources.js
+Eligible Insufficiency Rate	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+Enable Adaptive Measurement	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+Enable the optional Rill consumer. Native ranking remains authoritative when Rill is disabled or unavailable.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+Filter by Cloudflare data center in HTTPing mode. Comma-separated, e.g. HKG,NRT,LAX. Only effective with HTTPing.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/settings.js
+Fixed package-managed Preview Runtime path; custom executable paths are rejected.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+Fixed to /usr/bin or /usr/share/cf-ip. CFST is downloaded and executed as root only from these directories.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/advanced.js
+Full Audit	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+GitHub download proxy URL. Leave empty for direct downloads. Must end with /.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/advanced.js
+Guarded (qualified only)	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+Independent fail-safe deadline for rollback, restoring service state and recovery health checks. Allowed: 10-120 seconds.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/advanced.js
+Install rill-runtime-preview matching your OpenWrt release and CPU architecture.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+K	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+Leave empty to use the current LAN IPv4 automatically. Public or 0.0.0.0 bindings are refused.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/sources.js
+Maximum unique IPs supplied to one CFST run. Allocation is automatic: a small local-history share, a majority community share, and the remainder official-range exploration; unused quota flows to the other pools.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/sources.js
+Measurement deadline for stop, CFST, probes, apply and normal restart. Recovery has a separate deadline.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/advanced.js
+Must stay under /etc/cf_ip. Paths outside the package state directory are rejected.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+Native measurement	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+Native mode remains available	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+Native only	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+Next Full Audit / Optimize	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+No backups available. Backups are created automatically when the config is updated.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/openclash.js
+No history	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+Number of CFST results to verify against every target domain before ranking.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/advanced.js
+Number of best IPs to keep. If fewer IPs qualify, the result reports degraded candidate count and never duplicates an IP.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/settings.js
+Official sources are authoritative ranges. Community sources are untrusted seed IPs and are always re-tested locally.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/sources.js
+Only OpenClash proxies whose server matches this domain will be updated. Comma-separated for multiple domains.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/openclash.js
+Only PassWall nodes whose address equals this domain will be updated. Comma-separated for multiple domains.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/passwall.js
+Only update proxies with the specified transport protocol. Comma-separated. Values: ws, grpc, xhttp, h2, http. Leave empty to update all supported proxies.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/openclash.js
+OpenClash is not installed. Please install OpenClash before using this feature.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/openclash.js
+Operational Health	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+Optional compatibility output for other LAN tools. PassWall/OpenClash still use direct modification and do not need this.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/sources.js
+PassWall is not installed. Please install PassWall before using this feature.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/passwall.js
+PassWall or OpenClash is not installed. Please install one before using this service.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/settings.js
+Preserve CFST binary during OpenWrt sysupgrade so it survives system upgrades.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/settings.js
+Product Intelligence Summary	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+Random delay upper bound (seconds). Empty/random = 0~300s, 0 = no delay.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/advanced.js
+Reason Codes	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+Recent Runs	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+Replay Probe Savings	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+Requested / Effective Mode	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+Retained only for migration compatibility; it is not used by the 2.x engine.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/advanced.js
+Rill Runtime: Not installed	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+Runtime installation	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+Runtime is optional; Native mode remains available without it.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+Scheduler Contract	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+Select how often the speed test runs. The service computes the next run time automatically.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/settings.js
+Selection	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+Service action completed, but the speed test is still in progress. Refreshing current status.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/overview.js
+Shadow records counterfactual evidence without changing production probe order. Guarded is enabled only after fresh, complete, real audit evidence.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+Skip IPs with average latency above this value. Leave empty for no upper limit.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/settings.js
+Stop the proxy service before speed testing to avoid interference, and restart after updating.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/settings.js
+Suffix appended to the original node name. Placeholders: {n} = sequence number, {ip} = IP address. Leave empty to keep original names.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/passwall.js
+Suffix appended to the original proxy name. Placeholders: {n} = sequence number, {ip} = IP address. Leave empty to keep original names.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/openclash.js
+System Health	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+The generic Rill Runtime is supplied by OpenWrt packaging. Cloudflare IP owns candidate validation, ranking policy, reward and proxy transactions.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+This snapshot explains fallback, qualification, delayed feedback, Prefix and Colo intelligence without exposing the internal model.	False	False	htdocs/luci-static/resources/view/cloudflare-ip/diagnostics.js
+Unavailable	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+Why This Run	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+Winner / Top-N Recall	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+conservative default	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+conservative-default	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+expansions	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+feature contract	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+fresh at	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+insufficient	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+last fallback	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+never	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+next in runs	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+off	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+policy current	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+runs	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+shadow	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+unavailable	False	False	htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js

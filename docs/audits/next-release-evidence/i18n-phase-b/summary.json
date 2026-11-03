@@ -1,0 +1,16 @@
+{
+  "js_keys": 426,
+  "menu_keys": 9,
+  "total_js_menu_keys": 435,
+  "pot_entries": 443,
+  "zh_entries": 443,
+  "en_entries": 443,
+  "missing": 0,
+  "menu_keys_translated": [
+    "Candidate IP Sources",
+    "Intelligence"
+  ],
+  "phase_a_list_covered": 88,
+  "phase_a_list_already_present": 22,
+  "newly_added": 66
+}

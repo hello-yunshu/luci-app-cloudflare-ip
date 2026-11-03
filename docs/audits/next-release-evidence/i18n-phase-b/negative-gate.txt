@@ -1,0 +1,5 @@
+FAIL: missing from POT: Candidate IP Sources, Intelligence
+FAIL: missing/empty zh_Hans: Candidate IP Sources, Intelligence
+FAIL: menu titles missing/empty: Candidate IP Sources, Intelligence
+i18n keys: 435 (JS 426 + menu 9)
+coverage: POT 441, zh_Hans 441, en 443
