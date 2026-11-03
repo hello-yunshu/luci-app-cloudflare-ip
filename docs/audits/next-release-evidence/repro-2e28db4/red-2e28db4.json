@@ -24,6 +24,16 @@
     "rows": 0,
     "error_visible": false
   },
+  "rpc_failure_passwall": {
+    "text": "PassWall Not Found",
+    "error_visible": false,
+    "not_installed": true
+  },
+  "rpc_failure_settings": {
+    "description": "PassWall or OpenClash is not installed. Please install one before using this service.",
+    "error_visible": false,
+    "not_installed": true
+  },
   "sources_refresh": {
     "buttons": 1,
     "draft_before": "modified-but-unsaved",

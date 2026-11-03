@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "sha": "2e28db4",
+  "sha": "fe43da2",
   "container": "cfip-ui-gate",
   "base": "http://127.0.0.1:18080",
   "scenarios": [
@@ -18,6 +18,16 @@
       "name": "openclash-rpc-error-visible",
       "status": "PASS",
       "details": "explicit error, not \"not installed\""
+    },
+    {
+      "name": "passwall-rpc-error-visible",
+      "status": "PASS",
+      "details": "explicit error, not \"not installed\""
+    },
+    {
+      "name": "settings-rpc-error-visible",
+      "status": "PASS",
+      "details": "explicit environment error, not \"no proxy detected\""
     },
     {
       "name": "openclash-delete-failure",

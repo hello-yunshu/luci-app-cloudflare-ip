@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "sha": "2e28db4",
+  "sha": "20974eb",
   "container": "cfip-ui-gate",
   "base": "http://127.0.0.1:18080",
   "evidence": "docs/audits/next-release-evidence/ui-gate-phase-b",

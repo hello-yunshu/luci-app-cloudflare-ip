@@ -24,6 +24,16 @@
     "rows": 0,
     "error_visible": true
   },
+  "rpc_failure_passwall": {
+    "text": "Unable to check PassWall environment",
+    "error_visible": true,
+    "not_installed": false
+  },
+  "rpc_failure_settings": {
+    "description": "Unable to check the proxy environment: ubus unavailable",
+    "error_visible": true,
+    "not_installed": false
+  },
   "sources_refresh": {
     "buttons": 1,
     "draft_before": "modified-but-unsaved",

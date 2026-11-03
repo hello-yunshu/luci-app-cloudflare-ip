@@ -112,7 +112,7 @@ function loadView(rel, env) {
   }, env.utils || {});
   const view = { extend(x) { return x; } };
   const factory = new Function('view', 'form', 'uci', 'rpc', 'ui', 'utils', 'E', '_', source);
-  const mod = factory(view, form, { load: async () => {} }, rpc, ui, utils, E, x => x);
+  const mod = factory(view, form, { load: async () => {}, get: () => undefined }, rpc, ui, utils, E, x => x);
   return { mod, E, form, ui, utils, notifications, rpcCalls, env };
 }
 
@@ -169,6 +169,25 @@ function loadView(rel, env) {
     const data = await ctx.mod.load();
     const tree = await ctx.mod.render(data);
     out.rpc_failure_sources = { text: textOf(tree).trim().slice(0, 500), rows: ctx.E.find(tree, n => n.attrs && n.attrs['class'] === 'tr').length, error_visible: textOf(tree).includes('Unable to load source registry') };
+  }
+
+  // 2c. PassWall environment RPC failure must not be reported as not-installed.
+  {
+    const env = { utils: { callCheckEnv: async () => { throw new Error('ubus unavailable'); } } };
+    const ctx = loadView('package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/passwall.js', env);
+    const data = await ctx.mod.load();
+    const tree = await ctx.mod.render(data);
+    out.rpc_failure_passwall = { text: textOf(tree).trim(), error_visible: textOf(tree).includes('Unable to check PassWall environment'), not_installed: textOf(tree).includes('PassWall Not Found') };
+  }
+
+  // 2d. Settings environment RPC failure must not claim no proxy is installed.
+  {
+    const env = { utils: { callCheckEnv: async () => { throw new Error('ubus unavailable'); } } };
+    const ctx = loadView('package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/settings.js', env);
+    const data = await ctx.mod.load();
+    await ctx.mod.render(data);
+    const mode = ctx.form.lastMap.options.mode;
+    out.rpc_failure_settings = { description: mode.description, error_visible: /Unable to check the proxy environment/.test(mode.description || ''), not_installed: /not installed/.test(mode.description || '') };
   }
 
   // 3. Sources refresh triggers reload without save; draft is discarded.
