@@ -71,6 +71,7 @@ jobs:
           bash tests/jq-portable-runtime.sh
           bash tests/v2-rill-shadow.sh
           bash tests/v2-source-engine.sh
+          bash tests/builtin-sources-list.sh
           bash tests/source-size-cap.sh
           bash tests/source-cache-trust.sh
           bash tests/source-cache-publication.sh
