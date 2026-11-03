@@ -1947,3 +1947,119 @@ msgstr ""
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/settings.js
 msgid "Unable to check the proxy environment: %s"
 msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Assisted"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Cold start"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Consumer not qualified"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Consumer unavailable"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Context changed"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Degraded"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Disabled"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Guarded"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Healthy"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "High"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Holdout censored"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Insufficient"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Insufficient feedback"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Insufficient samples"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Low"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Manual reset"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Medium"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Not installed"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Not qualified"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Pending"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Qualification missing"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Qualified"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Ready"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Runtime not installed"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Runtime unavailable"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Stale evidence"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Timeout"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Unhealthy"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Unknown (%s)"
+msgstr ""
