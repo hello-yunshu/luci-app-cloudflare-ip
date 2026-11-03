@@ -1,0 +1,48 @@
+{
+  "generatedAt": "2026-11-03T09:37:06.220812+00:00",
+  "baselineSha": "2e28db4b5cdc221897bbe98ff78fbe7235098e53",
+  "container": {
+    "name": "cfip-audit-luci",
+    "image": "openwrt/rootfs:x86_64-24.10.8",
+    "platform": "linux/amd64",
+    "openwrt": "24.10.8",
+    "pid1": "procd",
+    "network": "host",
+    "uhttpd": "127.0.0.1:18080"
+  },
+  "luci": {
+    "version": "26.205.85413~cac97ed",
+    "lang": "zh_cn"
+  },
+  "themes": {
+    "bootstrap": "/luci-static/bootstrap",
+    "aurora": {
+      "package": "luci-theme-aurora_1.4.0-r20260920_all.ipk",
+      "sha256": "5b3f2d669ef82e575498d1b99c4b9b498088540eeff7db989f214b63d3ef8a8e",
+      "mediaurlbase": "/luci-static/aurora",
+      "light": "localStorage aurora.theme=light",
+      "dark": "localStorage aurora.theme=dark"
+    }
+  },
+  "browser": {
+    "engine": "Microsoft Edge (Chromium) 156.0.0.0",
+    "mode": "headless",
+    "automation": "agent-browser"
+  },
+  "appPackage": {
+    "file": "luci-app-cloudflare-ip_2.6.0-r6_all.ipk",
+    "sha256": "a7c0c411d4be2784e196757bd9b1a2b31f9b6ea8ad520eb1649e6fb4d2d405d5"
+  },
+  "fixtures": {
+    "status": "/etc/cf_ip/status.json normal-state fixture",
+    "controllers": "/etc/init.d/openclash and /etc/init.d/passwall executable stubs",
+    "legacyLua": "/usr/lib/lua/luci/controller/cloudflare-ip.lua disabled to run ucode LuCI without Lua runtime"
+  },
+  "visual": {
+    "screenshots": 78,
+    "normal": 72,
+    "boundary": 6,
+    "overflow": 0,
+    "minTextLen": 212
+  }
+}
