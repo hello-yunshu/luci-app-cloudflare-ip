@@ -1,4 +1,4 @@
-# UI refinement round - 2.6.0-r7 / 7c13b1d
+# UI refinement round - 2.6.0-r7 / 9adb2d5
 
 Verdict: **COMPLETE for the requested interface items**, with physical-device and 24h soak still NOT RUN. Code: branch `phase-c/next-release-r7`, HEAD `9adb2d5`; no tag/Release/channel change.
 
