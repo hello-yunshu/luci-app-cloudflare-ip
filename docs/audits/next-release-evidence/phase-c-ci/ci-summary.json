@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "pr": 23,
+  "headSha": "402859c",
+  "ciRun": 41666070486,
+  "ciUrl": "https://github.com/hello-yunshu/luci-app-cloudflare-ip/actions/runs/41666070486",
+  "realLuciUiRun": 41666070508,
+  "realLuciUiUrl": "https://github.com/hello-yunshu/luci-app-cloudflare-ip/actions/runs/41666070508",
+  "requiredChecks": "SUCCESS",
+  "mergeState": "CLEAN",
+  "package": {"version": "2.6.0-r7", "ipkSha256": "03d4aaf14102a6a98bed488111dba1039756f2448ad1206c2323f6a681552fee", "ipkSize": 175523, "apkSha256": "d9fb4ff24bcb63b710e893f202fcb2249424bafd9874ebcbb7e5765dc384c909", "apkSize": 175486},
+  "migration": {"ipk": "PASS", "apk": "PASS", "legacyVersion": "2.6.0-r2", "sourceTag": "v2.6.0-2"},
+  "qualification": {"releaseEligible": true, "stableReview": "PREPARED_FOR_REVIEW"},
+  "tag": "none",
+  "release": "none",
+  "releaseChannel": "unchanged"
+}
