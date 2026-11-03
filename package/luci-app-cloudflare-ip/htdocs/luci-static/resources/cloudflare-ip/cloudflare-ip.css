@@ -57,6 +57,12 @@
 		box-shadow: var(--cfi-shadow);
 }
 
+/* Stat cards are nested sections; keep their compact 8px radius instead of
+ * inheriting the 12px surface radius. */
+.cfi-dashboard .cbi-section.cfi-stat-card {
+		border-radius: var(--cfi-radius-card);
+}
+
 .cfi-dashboard .cbi-section > h3,
 .cfi-form-map .cbi-section > h3 {
 		margin: 0 0 0.9rem;
