@@ -40,6 +40,20 @@ cfip_bool() {
     case "${1:-}" in 1|on|true|yes|enabled) printf true ;; *) printf false ;; esac
 }
 
+# UCI list rendering differs across implementations: `uci get` may return a
+# newline-separated list while `uci show` wraps each item in single quotes.
+# Normalize both before the source engine matches registry ids.
+cfip_configured_builtin_sources() {
+    local value list
+    value="$(uci -q get cf_ip.main.builtin_sources 2>/dev/null || true)"
+    list="$(uci -q show cf_ip.main.builtin_sources 2>/dev/null | sed -n 's/^cf_ip\.main\.builtin_sources=//p' | tr -d "'" | tr '\n' ' ')"
+    [[ -n "${list// /}" ]] && value="$list"
+    value="${value//$'\n'/ }"
+    value="${value#"${value%%[! ]*}"}"
+    value="${value%"${value##*[! ]}"}"
+    printf '%s' "$value"
+}
+
 cfip_atomic_write() {
     local output="$1" tmp
     mkdir -p "${output%/*}" 2>/dev/null || true
