@@ -22,7 +22,7 @@ function runtimeSummary(status) {
 	var fallbackReason = status.fallbackReason || intelligence.fallbackReason || '';
 
 	if (requestedMode === 'assisted' && effectiveMode === 'shadow')
-		return _('Assisted requested → Shadow fallback') + ' / ' + (fallbackReason || _('consumer not qualified'));
+		return _('Assisted requested → Shadow fallback') + ' / ' + (fallbackReason ? utils.statusLabel('reason', fallbackReason) : _('consumer not qualified'));
 
 	if (intelligence.available === true)
 		return _('Available') + ' / ' + (intelligence.runtimeVersion || _('version unknown'));
@@ -33,7 +33,7 @@ function runtimeSummary(status) {
 	if (intelligence.state === 'not-installed')
 		return _('Rill Runtime: Not installed') + ' / ' + _('Native mode remains available');
 
-	return _('Unavailable / Native fallback') + (intelligence.state ? ' / ' + intelligence.state : '');
+	return _('Unavailable / Native fallback') + (intelligence.state ? ' / ' + utils.statusLabel('runtime', intelligence.state) : '');
 }
 
 return view.extend({
@@ -92,9 +92,9 @@ return view.extend({
 		o.default = 'shadow';
 		o.description = _('Shadow records counterfactual evidence without changing production probe order. Guarded is enabled only after fresh, complete, real audit evidence.');
 		o = s.option(form.DummyValue, '_adaptive_state', _('Current State'));
-		o.cfgvalue = function() { return (adaptive.qualificationState || _('insufficient')) + ' / ' + (adaptive.effectiveMode || _('shadow')); };
+		o.cfgvalue = function() { return utils.statusLabel('qualification', adaptive.qualificationState || 'insufficient') + ' / ' + utils.statusLabel('mode', adaptive.effectiveMode || 'shadow'); };
 		o = s.option(form.DummyValue, '_adaptive_modes', _('Requested / Effective Mode'));
-		o.cfgvalue = function() { return (adaptive.requestedMode || _('unavailable')) + ' / ' + (adaptive.effectiveMode || _('unavailable')); };
+		o.cfgvalue = function() { return utils.statusLabel('mode', adaptive.requestedMode || 'unavailable') + ' / ' + utils.statusLabel('mode', adaptive.effectiveMode || 'unavailable'); };
 		o = s.option(form.DummyValue, '_adaptive_evidence', _('Audit Evidence'));
 		o.cfgvalue = function() { return (adaptive.evidenceCount || 0) + ' / ' + _('fresh at') + ': ' + (adaptive.freshAt || _('never')); };
 		o = s.option(form.DummyValue, '_adaptive_recall', _('Winner / Top-N Recall'));
@@ -108,27 +108,27 @@ return view.extend({
 		o = s.option(form.DummyValue, '_adaptive_scheduler', _('Scheduler Contract'));
 		o.cfgvalue = function() { return 'v' + (adaptive.schedulerVersion || '?') + ' / ' + _('feature contract') + ' v' + (adaptive.featureContractVersion || '?'); };
 		o = s.option(form.DummyValue, '_adaptive_selection', _('Selection'));
-		o.cfgvalue = function() { return _('K') + ': ' + (adaptive.selectedK || 0) + ', ' + _('expansions') + ': ' + (adaptive.lastExpansionCount || 0) + ', ' + _('last fallback') + ': ' + (adaptive.lastFallbackReason || _('none')); };
+		o.cfgvalue = function() { return _('K') + ': ' + (adaptive.selectedK || 0) + ', ' + _('expansions') + ': ' + (adaptive.lastExpansionCount || 0) + ', ' + _('last fallback') + ': ' + (adaptive.lastFallbackReason ? utils.statusLabel('reason', adaptive.lastFallbackReason) : _('none')); };
 
 		s = m.section(form.NamedSection, 'main', 'service', _('Product Intelligence Summary'));
 		s.anonymous = true;
 		o = s.option(form.DummyValue, '_endpoint', _('Current Endpoint'));
 		o.cfgvalue = function() { return (status.best_ips || []).join(', ') || _('Unavailable'); };
 		o = s.option(form.DummyValue, '_health_summary', _('System Health'));
-		o.cfgvalue = function() { var h = status.operationalHealth || {}; return h.state || _('Unknown'); };
+		o.cfgvalue = function() { var h = status.operationalHealth || {}; return utils.statusLabel('health', h.state); };
 		o = s.option(form.DummyValue, '_adaptive_summary', _('Adaptive Measurement'));
-		o.cfgvalue = function() { return (adaptive.requestedMode || _('off')) + ' → ' + (adaptive.effectiveMode || _('off')) + ' / ' + (adaptive.qualificationState || _('insufficient')); };
+		o.cfgvalue = function() { return utils.statusLabel('mode', adaptive.requestedMode || 'off') + ' → ' + utils.statusLabel('mode', adaptive.effectiveMode || 'off') + ' / ' + utils.statusLabel('qualification', adaptive.qualificationState || 'insufficient'); };
 		o = s.option(form.DummyValue, '_candidate_summary', _('Candidate Intelligence'));
-		o.cfgvalue = function() { var d = status.decision || {}; return (d.effectiveMode === 'assisted' ? _('Candidate Assisted') : (d.effectiveMode === 'shadow' ? _('Candidate Shadow') : _('Native only'))) + ' / ' + (d.confidenceLevel || _('unavailable')); };
+		o.cfgvalue = function() { var d = status.decision || {}; return (d.effectiveMode === 'assisted' ? _('Candidate Assisted') : (d.effectiveMode === 'shadow' ? _('Candidate Shadow') : _('Native only'))) + ' / ' + utils.statusLabel('confidence', d.confidenceLevel || 'unavailable'); };
 		o = s.option(form.DummyValue, '_next_audit_summary', _('Next Full Audit / Optimize'));
-		o.cfgvalue = function() { return (adaptive.nextAuditInRuns == null ? _('unavailable') : adaptive.nextAuditInRuns + ' ' + _('runs')) + ' / ' + ((status.reusePolicy || {}).reason || _('policy current')); };
+		o.cfgvalue = function() { var reason = (status.reusePolicy || {}).reason; return (adaptive.nextAuditInRuns == null ? _('unavailable') : adaptive.nextAuditInRuns + ' ' + _('runs')) + ' / ' + (reason ? utils.statusLabel('reason', reason) : _('policy current')); };
 
 		s = m.section(form.NamedSection, 'main', 'service', _('Operational Health'));
 		s.anonymous = true;
 		o = s.option(form.DummyValue, '_health_state', _('State'));
-		o.cfgvalue = function() { var h = status.operationalHealth || {}; return h.state || _('Unknown'); };
+		o.cfgvalue = function() { var h = status.operationalHealth || {}; return utils.statusLabel('health', h.state); };
 		o = s.option(form.DummyValue, '_health_reasons', _('Reason Codes'));
-		o.cfgvalue = function() { var h = status.operationalHealth || {}; return (h.reasonCodes || []).join(', ') || _('none'); };
+		o.cfgvalue = function() { var h = status.operationalHealth || {}; return utils.statusReasons(h.reasonCodes || []); };
 		o = s.option(form.DummyValue, '_why_run', _('Why This Run'));
 		o.cfgvalue = function() { return status.whyThisRun || _('Native measurement'); };
 		o = s.option(form.DummyValue, '_context_policy', _('Current Context Policy'));
@@ -213,7 +213,7 @@ return view.extend({
 		return status.effectiveMode === 'assisted' ? _('Guarded Assisted') : (status.effectiveMode === 'shadow' ? _('Shadow') : _('Native'));
 	};
 	o = s.option(form.DummyValue, '_qualification', _('Qualification'));
-	o.cfgvalue = function() { return (status.intelligence || {}).qualificationState || _('Unknown'); };
+	o.cfgvalue = function() { return utils.statusLabel('qualification', (status.intelligence || {}).qualificationState); };
 	o = s.option(form.DummyValue, '_context', _('Learning Context'));
 	o.cfgvalue = function() {
 		var c = status.learningContext || (status.intelligence || {}).learningContext || {};
@@ -223,12 +223,12 @@ return view.extend({
 	o = s.option(form.DummyValue, '_confidence', _('Decision Confidence'));
 	o.cfgvalue = function() {
 		var d = status.decision || {}, i = status.intelligence || {};
-		return d.confidenceLevel || i.confidenceLevel || _('Unavailable / Native fallback');
+		return utils.statusLabel('confidence', d.confidenceLevel || i.confidenceLevel || 'unavailable');
 	};
 	o = s.option(form.DummyValue, '_confidence_reasons', _('Confidence Reasons'));
 	o.cfgvalue = function() {
 		var d = status.decision || {}, reasons = d.confidenceReasons || status.confidenceReasons || [];
-		return reasons.length ? reasons.join(', ') : _('Unavailable / Native fallback');
+		return reasons.length ? utils.statusReasons(reasons) : _('Unavailable / Native fallback');
 	};
 	o = s.option(form.DummyValue, '_selection', _('Decision Selection'));
 	o.cfgvalue = function() {
@@ -246,11 +246,11 @@ return view.extend({
 		return _('performed') + ': ' + (e.holdoutCount || 0) + ', ' + _('failures') + ': ' + (e.holdoutFailures || 0) + ' / ' + _('non-blocking');
 	};
 	o = s.option(form.DummyValue, '_fallback', _('Fallback Reason'));
-	o.cfgvalue = function() { return status.fallbackReason || (status.intelligence || {}).lastResetReason || _('None'); };
+	o.cfgvalue = function() { var reason = status.fallbackReason || (status.intelligence || {}).lastResetReason; return reason ? utils.statusLabel('reason', reason) : _('None'); };
 	o = s.option(form.DummyValue, '_source_policy', _('Source Strategy Loop'));
 	o.cfgvalue = function() {
 		var p = status.sourcePolicy || diagnostics.sourcePolicy || {};
-		return _('deterministic') + ': ' + (p.deterministic ? _('yes') : _('no')) + ', ' + _('requested') + ': ' + (p.requested || '?') + ', ' + _('effective') + ': ' + (p.effective || '?');
+		return _('deterministic') + ': ' + (p.deterministic ? _('yes') : _('no')) + ', ' + _('requested') + ': ' + utils.statusLabel('mode', p.requested || '?') + ', ' + _('effective') + ': ' + utils.statusLabel('mode', p.effective || '?');
 	};
 	o = s.option(form.DummyValue, '_reuse_policy', _('Reuse / Full Optimize'));
 	o.cfgvalue = function() {

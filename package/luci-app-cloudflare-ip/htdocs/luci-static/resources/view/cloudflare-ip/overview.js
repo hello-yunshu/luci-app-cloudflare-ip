@@ -206,25 +206,6 @@ var css = `
 	.cfi-status-text h3.running-test { color: var(--cfi-link); }
 	@keyframes cfi-pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
 	.cfi-status-text p { margin: 0; color: var(--cfi-muted); font-size: 0.9em; }
-	.cfi-stats-grid {
-		display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-		gap: 1em; margin-bottom: 1.5em;
-	}
-	.cfi-stat-card {
-		padding: 1em 1.2em; border-radius: 8px;
-		text-align: center;
-	}
-	.cfi-stat-card .cfi-stat-value {
-		font-size: 1.8em; font-weight: bold; line-height: 1.2;
-		color: var(--cfi-link);
-	}
-	.cfi-stat-card .cfi-stat-value.green { color: var(--cfi-success-text); }
-	.cfi-stat-card .cfi-stat-value.red { color: var(--cfi-danger-text); }
-	.cfi-stat-card .cfi-stat-value.orange { color: var(--cfi-warning-text); }
-	.cfi-stat-card .cfi-stat-label {
-		font-size: 0.85em; color: var(--cfi-muted);
-		margin-top: 0.3em;
-	}
 	@media (max-width: 600px) {
 		.cfi-status-banner {
 			flex-wrap: wrap; gap: 0.6em; padding: 1em;
@@ -232,11 +213,6 @@ var css = `
 		.cfi-status-icon { font-size: 1.8em; }
 		.cfi-status-text h3 { font-size: 1.1em; }
 		.cfi-status-text p { font-size: 0.85em; }
-		.cfi-stats-grid {
-			grid-template-columns: repeat(2, 1fr); gap: 0.6em;
-		}
-		.cfi-stat-card .cfi-stat-value { font-size: 1.4em; }
-		.cfi-stat-card .cfi-stat-label { font-size: 0.78em; }
 	}
 	`;
 

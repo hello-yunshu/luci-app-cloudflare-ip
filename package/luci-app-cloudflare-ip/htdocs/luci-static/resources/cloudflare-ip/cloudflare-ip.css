@@ -23,18 +23,6 @@
 	--cfi-warning-text: #f2c96d;
 	--cfi-neutral-text: #c0cbd6;
 }
-@media (prefers-color-scheme: dark) {
-	:root:not([data-darkmode="false"]) {
-		--cfi-muted: var(--subtext-color, #aebcca);
-		--cfi-surface: var(--background-color-high, var(--background-color, #222));
-		--cfi-surface-muted: var(--background-color-low, #2c3440);
-		--cfi-link: #9ecbff;
-		--cfi-success-text: #8ce8ac;
-		--cfi-danger-text: #ffabab;
-		--cfi-warning-text: #f2c96d;
-		--cfi-neutral-text: #c0cbd6;
-	}
-}
 .cfi-dashboard a:not(.cbi-button),
 .cfi-form-map a:not(.cbi-button) {
 	color: var(--cfi-link);
@@ -276,29 +264,33 @@
 
 .cfi-stats-grid {
 	display: grid;
-	grid-template-columns: repeat(4, minmax(0, 1fr));
-	gap: 1rem;
-	margin-bottom: 1.25rem;
+	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+	gap: 1em;
+	margin-bottom: 1.5em;
 }
 
 .cfi-stat-card {
 	min-width: 0;
-	padding: 1rem 1.2rem;
-	border-radius: 10px;
+	padding: 1em 1.2em;
+	border-radius: 8px;
 	text-align: center;
 }
 
 .cfi-stat-card .cfi-stat-value {
-	font-size: 1.65rem;
-	font-weight: 750;
-	line-height: 1.25;
-	color: var(--main-color, #1769aa);
+	font-size: 1.8em;
+	font-weight: bold;
+	line-height: 1.2;
+	color: var(--cfi-link);
 }
 
+.cfi-stat-card .cfi-stat-value.green { color: var(--cfi-success-text); }
+.cfi-stat-card .cfi-stat-value.red { color: var(--cfi-danger-text); }
+.cfi-stat-card .cfi-stat-value.orange { color: var(--cfi-warning-text); }
+
 .cfi-stat-card .cfi-stat-label {
-	margin-top: 0.25rem;
+	margin-top: 0.3em;
 	color: var(--cfi-muted);
-	font-size: 0.82rem;
+	font-size: 0.85em;
 }
 
 .cfi-status-banner,
@@ -396,10 +388,10 @@
 }
 
 @media (max-width: 600px) {
-	.cfi-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem; }
+	.cfi-stats-grid { grid-template-columns: repeat(2, 1fr); gap: 0.6em; }
 	.cfi-stat-card { padding: 0.8rem 0.55rem; }
-	.cfi-stat-card .cfi-stat-value { font-size: 1.35rem; }
-	.cfi-stat-card .cfi-stat-label { font-size: 0.74rem; }
+	.cfi-stat-card .cfi-stat-value { font-size: 1.4em; }
+	.cfi-stat-card .cfi-stat-label { font-size: 0.78em; }
 	.cfi-form-map .cbi-section { padding: 0.9rem; }
 	.cfi-form-map .cbi-value {
 		grid-template-columns: 1fr;

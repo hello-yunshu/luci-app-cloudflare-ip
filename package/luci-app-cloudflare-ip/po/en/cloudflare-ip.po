@@ -1873,3 +1873,119 @@ msgstr "未知（环境检查失败）"
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/settings.js
 msgid "Unable to check the proxy environment: %s"
 msgstr "无法检查代理环境：%s"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Assisted"
+msgstr "辅助模式"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Cold start"
+msgstr "冷启动"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Consumer not qualified"
+msgstr "接入未通过资格校验"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Consumer unavailable"
+msgstr "接入不可用"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Context changed"
+msgstr "上下文已变化"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Degraded"
+msgstr "降级"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Disabled"
+msgstr "已禁用"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Guarded"
+msgstr "受保护"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Healthy"
+msgstr "健康"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "High"
+msgstr "高"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Holdout censored"
+msgstr "留出评估已截断"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Insufficient"
+msgstr "不足"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Insufficient feedback"
+msgstr "反馈不足"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Insufficient samples"
+msgstr "样本不足"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Low"
+msgstr "低"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Manual reset"
+msgstr "手动重置"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Medium"
+msgstr "中"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Not installed"
+msgstr "未安装"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Not qualified"
+msgstr "未通过资格校验"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Pending"
+msgstr "待处理"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Qualification missing"
+msgstr "缺少资格校验"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Qualified"
+msgstr "已通过资格校验"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Ready"
+msgstr "就绪"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Runtime not installed"
+msgstr "运行时未安装"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Runtime unavailable"
+msgstr "运行时不可用"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Stale evidence"
+msgstr "证据已过期"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Timeout"
+msgstr "超时"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Unhealthy"
+msgstr "不健康"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
+msgid "Unknown (%s)"
+msgstr "未知（%s）"
