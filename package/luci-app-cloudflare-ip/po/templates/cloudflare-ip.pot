@@ -1931,3 +1931,19 @@ msgstr ""
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/sources.js
 msgid "Sources refreshed; candidate pool prepared. Unsaved edits were kept."
 msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/passwall.js
+msgid "Unable to check PassWall environment"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/passwall.js
+msgid "The PassWall environment check failed: %s"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/settings.js
+msgid "Unknown (environment check failed)"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/settings.js
+msgid "Unable to check the proxy environment: %s"
+msgstr ""

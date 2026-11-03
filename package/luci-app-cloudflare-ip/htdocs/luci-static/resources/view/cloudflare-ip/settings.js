@@ -5,17 +5,22 @@
 'require uci';
 'require cloudflare-ip/utils as utils';
 
+function rpcFailure(error) {
+	return { _rpcError: true, error: (error && (error.message || error)) || _('Unknown') };
+}
+
 return view.extend({
 	load: function() {
 		return Promise.all([
 			uci.load('cf_ip'),
-			utils.callCheckEnv().catch(function() { return {}; })
+			utils.callCheckEnv().catch(rpcFailure)
 		]);
 	},
 
 	render: function(data) {
 		utils.loadSharedCSS();
 		var env = data[1] || {};
+		var envError = env._rpcError;
 		var passwallInstalled = env.passwall_installed || false;
 		var openclashInstalled = env.openclash_installed || false;
 
@@ -58,8 +63,11 @@ return view.extend({
 			o.value('passwall', 'PassWall');
 		if (openclashInstalled)
 			o.value('openclash', 'OpenClash');
-		if (!passwallInstalled && !openclashInstalled) {
-			var storedMode = uci.get('cf_ip', 'main', 'mode');
+		var storedMode = uci.get('cf_ip', 'main', 'mode');
+		if (envError) {
+			o.value(storedMode === 'openclash' ? 'openclash' : 'passwall', _('Unknown (environment check failed)'));
+			o.description = _('Unable to check the proxy environment: %s').format(env.error || _('Unknown'));
+		} else if (!passwallInstalled && !openclashInstalled) {
 			o.value(storedMode === 'openclash' ? 'openclash' : 'passwall', _('None (No proxy service detected)'));
 			o.readonly = true;
 			o.description = _('PassWall or OpenClash is not installed. Please install one before using this service.');
