@@ -39,11 +39,15 @@ if [ -n "${CFIP_UI_LMO:-}" ]; then
 	docker cp "$CFIP_UI_LMO" "$CONTAINER:/usr/lib/lua/luci/i18n/cloudflare-ip.zh-cn.lmo"
 fi
 
+PKG_VERSION="$(sed -n 's/^PKG_VERSION:=//p' "$PKG/Makefile" | head -n1)"
+PKG_RELEASE="$(sed -n 's/^PKG_RELEASE:=//p' "$PKG/Makefile" | head -n1)"
+PKG_FULL_VERSION="$PKG_VERSION-r$PKG_RELEASE"
+
 docker exec "$CONTAINER" sh -c "
 	set -eu
 	chmod +x /usr/bin/cf-ip-auto /usr/bin/cf-ip-auto-legacy /usr/libexec/rpcd/cf_ip /etc/init.d/cf_ip
 	for script in /usr/libexec/cf-ip/*.sh; do chmod +x \"\$script\"; done
-	sed -i 's|@PKG_VERSION@|2.6.0|g; s|@PKG_RELEASE@|6|g; s|@PKG_FULL_VERSION@|2.6.0-r6|g' \
+	sed -i 's|@PKG_VERSION@|$PKG_VERSION|g; s|@PKG_RELEASE@|$PKG_RELEASE|g; s|@PKG_FULL_VERSION@|$PKG_FULL_VERSION|g' \
 		/usr/bin/cf-ip-auto /usr/libexec/rpcd/cf_ip /www/luci-static/resources/cloudflare-ip/utils.js
 	uci set uhttpd.main.listen_http='127.0.0.1:$PORT'
 	uci set uhttpd.main.listen_https=''
