@@ -1,0 +1,369 @@
+sha,theme,viewport,page,state,interaction,w,h,scrollWidth,overflow,textLen,dark,login,file,evidence_level
+402859c,bootstrap,375x900,overview,normal,page,375,900,375,false,371,false,false,../visual-phase-c/bootstrap/375x900/overview.png,RUNTIME_VERIFIED
+402859c,bootstrap,375x900,settings,normal,page,375,900,375,false,789,false,false,../visual-phase-c/bootstrap/375x900/settings.png,RUNTIME_VERIFIED
+402859c,bootstrap,375x900,sources,normal,page,375,900,375,false,1039,false,false,../visual-phase-c/bootstrap/375x900/sources.png,RUNTIME_VERIFIED
+402859c,bootstrap,375x900,intelligence,normal,page,375,900,375,false,1618,false,false,../visual-phase-c/bootstrap/375x900/intelligence.png,RUNTIME_VERIFIED
+402859c,bootstrap,375x900,openclash,normal,page,375,900,375,false,388,false,false,../visual-phase-c/bootstrap/375x900/openclash.png,RUNTIME_VERIFIED
+402859c,bootstrap,375x900,passwall,normal,page,375,900,375,false,219,false,false,../visual-phase-c/bootstrap/375x900/passwall.png,RUNTIME_VERIFIED
+402859c,bootstrap,375x900,advanced,normal,page,375,900,375,false,618,false,false,../visual-phase-c/bootstrap/375x900/advanced.png,RUNTIME_VERIFIED
+402859c,bootstrap,375x900,logs,normal,page,375,900,375,false,2764,false,false,../visual-phase-c/bootstrap/375x900/logs.png,RUNTIME_VERIFIED
+402859c,bootstrap,768x900,overview,normal,page,768,900,768,false,411,false,false,../visual-phase-c/bootstrap/768x900/overview.png,RUNTIME_VERIFIED
+402859c,bootstrap,768x900,settings,normal,page,768,900,768,false,830,false,false,../visual-phase-c/bootstrap/768x900/settings.png,RUNTIME_VERIFIED
+402859c,bootstrap,768x900,sources,normal,page,768,900,768,false,1113,false,false,../visual-phase-c/bootstrap/768x900/sources.png,RUNTIME_VERIFIED
+402859c,bootstrap,768x900,intelligence,normal,page,768,900,768,false,1659,false,false,../visual-phase-c/bootstrap/768x900/intelligence.png,RUNTIME_VERIFIED
+402859c,bootstrap,768x900,openclash,normal,page,768,900,768,false,429,false,false,../visual-phase-c/bootstrap/768x900/openclash.png,RUNTIME_VERIFIED
+402859c,bootstrap,768x900,passwall,normal,page,768,900,768,false,260,false,false,../visual-phase-c/bootstrap/768x900/passwall.png,RUNTIME_VERIFIED
+402859c,bootstrap,768x900,advanced,normal,page,768,900,768,false,659,false,false,../visual-phase-c/bootstrap/768x900/advanced.png,RUNTIME_VERIFIED
+402859c,bootstrap,768x900,logs,normal,page,768,900,768,false,2804,false,false,../visual-phase-c/bootstrap/768x900/logs.png,RUNTIME_VERIFIED
+402859c,bootstrap,1280x900,overview,normal,page,1280,900,1280,false,411,false,false,../visual-phase-c/bootstrap/1280x900/overview.png,RUNTIME_VERIFIED
+402859c,bootstrap,1280x900,settings,normal,page,1280,900,1280,false,830,false,false,../visual-phase-c/bootstrap/1280x900/settings.png,RUNTIME_VERIFIED
+402859c,bootstrap,1280x900,sources,normal,page,1280,900,1280,false,1129,false,false,../visual-phase-c/bootstrap/1280x900/sources.png,RUNTIME_VERIFIED
+402859c,bootstrap,1280x900,intelligence,normal,page,1280,900,1280,false,1659,false,false,../visual-phase-c/bootstrap/1280x900/intelligence.png,RUNTIME_VERIFIED
+402859c,bootstrap,1280x900,openclash,normal,page,1280,900,1280,false,441,false,false,../visual-phase-c/bootstrap/1280x900/openclash.png,RUNTIME_VERIFIED
+402859c,bootstrap,1280x900,passwall,normal,page,1280,900,1280,false,260,false,false,../visual-phase-c/bootstrap/1280x900/passwall.png,RUNTIME_VERIFIED
+402859c,bootstrap,1280x900,advanced,normal,page,1280,900,1280,false,659,false,false,../visual-phase-c/bootstrap/1280x900/advanced.png,RUNTIME_VERIFIED
+402859c,bootstrap,1280x900,logs,normal,page,1280,900,1280,false,2804,false,false,../visual-phase-c/bootstrap/1280x900/logs.png,RUNTIME_VERIFIED
+402859c,bootstrap,320x900,overview,boundary-320,page,320,900,320,false,371,false,false,../visual-phase-c/bootstrap/320x900/overview.png,RUNTIME_VERIFIED
+402859c,bootstrap,1280x900-200pct-effective-640,sources,boundary-200pct-effective-640,page,640,900,640,false,1113,false,false,../visual-phase-c/bootstrap/1280x900-200pct-effective-640/sources.png,RUNTIME_VERIFIED
+402859c,aurora-light,375x900,overview,normal,page,375,900,375,false,469,false,false,../visual-phase-c/aurora-light/375x900/overview.png,RUNTIME_VERIFIED
+402859c,aurora-light,375x900,settings,normal,page,375,900,375,false,772,false,false,../visual-phase-c/aurora-light/375x900/settings.png,RUNTIME_VERIFIED
+402859c,aurora-light,375x900,sources,normal,page,375,900,375,false,1137,false,false,../visual-phase-c/aurora-light/375x900/sources.png,RUNTIME_VERIFIED
+402859c,aurora-light,375x900,intelligence,normal,page,375,900,375,false,1716,false,false,../visual-phase-c/aurora-light/375x900/intelligence.png,RUNTIME_VERIFIED
+402859c,aurora-light,375x900,openclash,normal,page,375,900,375,false,485,false,false,../visual-phase-c/aurora-light/375x900/openclash.png,RUNTIME_VERIFIED
+402859c,aurora-light,375x900,passwall,normal,page,375,900,375,false,317,false,false,../visual-phase-c/aurora-light/375x900/passwall.png,RUNTIME_VERIFIED
+402859c,aurora-light,375x900,advanced,normal,page,375,900,375,false,716,false,false,../visual-phase-c/aurora-light/375x900/advanced.png,RUNTIME_VERIFIED
+402859c,aurora-light,375x900,logs,normal,page,375,900,375,false,2862,false,false,../visual-phase-c/aurora-light/375x900/logs.png,RUNTIME_VERIFIED
+402859c,aurora-light,768x900,overview,normal,page,768,900,768,false,509,false,false,../visual-phase-c/aurora-light/768x900/overview.png,RUNTIME_VERIFIED
+402859c,aurora-light,768x900,settings,normal,page,768,900,768,false,812,false,false,../visual-phase-c/aurora-light/768x900/settings.png,RUNTIME_VERIFIED
+402859c,aurora-light,768x900,sources,normal,page,768,900,768,false,1209,false,false,../visual-phase-c/aurora-light/768x900/sources.png,RUNTIME_VERIFIED
+402859c,aurora-light,768x900,intelligence,normal,page,768,900,768,false,1756,false,false,../visual-phase-c/aurora-light/768x900/intelligence.png,RUNTIME_VERIFIED
+402859c,aurora-light,768x900,openclash,normal,page,768,900,768,false,525,false,false,../visual-phase-c/aurora-light/768x900/openclash.png,RUNTIME_VERIFIED
+402859c,aurora-light,768x900,passwall,normal,page,768,900,768,false,357,false,false,../visual-phase-c/aurora-light/768x900/passwall.png,RUNTIME_VERIFIED
+402859c,aurora-light,768x900,advanced,normal,page,768,900,768,false,756,false,false,../visual-phase-c/aurora-light/768x900/advanced.png,RUNTIME_VERIFIED
+402859c,aurora-light,768x900,logs,normal,page,768,900,768,false,2902,false,false,../visual-phase-c/aurora-light/768x900/logs.png,RUNTIME_VERIFIED
+402859c,aurora-light,1280x900,overview,normal,page,1280,900,1280,false,509,false,false,../visual-phase-c/aurora-light/1280x900/overview.png,RUNTIME_VERIFIED
+402859c,aurora-light,1280x900,settings,normal,page,1280,900,1280,false,812,false,false,../visual-phase-c/aurora-light/1280x900/settings.png,RUNTIME_VERIFIED
+402859c,aurora-light,1280x900,sources,normal,page,1280,900,1280,false,1225,false,false,../visual-phase-c/aurora-light/1280x900/sources.png,RUNTIME_VERIFIED
+402859c,aurora-light,1280x900,intelligence,normal,page,1280,900,1280,false,1756,false,false,../visual-phase-c/aurora-light/1280x900/intelligence.png,RUNTIME_VERIFIED
+402859c,aurora-light,1280x900,openclash,normal,page,1280,900,1280,false,536,false,false,../visual-phase-c/aurora-light/1280x900/openclash.png,RUNTIME_VERIFIED
+402859c,aurora-light,1280x900,passwall,normal,page,1280,900,1280,false,357,false,false,../visual-phase-c/aurora-light/1280x900/passwall.png,RUNTIME_VERIFIED
+402859c,aurora-light,1280x900,advanced,normal,page,1280,900,1280,false,756,false,false,../visual-phase-c/aurora-light/1280x900/advanced.png,RUNTIME_VERIFIED
+402859c,aurora-light,1280x900,logs,normal,page,1280,900,1280,false,2902,false,false,../visual-phase-c/aurora-light/1280x900/logs.png,RUNTIME_VERIFIED
+402859c,aurora-light,320x900,overview,boundary-320,page,320,900,320,false,469,false,false,../visual-phase-c/aurora-light/320x900/overview.png,RUNTIME_VERIFIED
+402859c,aurora-light,1280x900-200pct-effective-640,sources,boundary-200pct-effective-640,page,640,900,640,false,1177,false,false,../visual-phase-c/aurora-light/1280x900-200pct-effective-640/sources.png,RUNTIME_VERIFIED
+402859c,aurora-dark,375x900,overview,normal,page,375,900,375,false,469,true,false,../visual-phase-c/aurora-dark/375x900/overview.png,RUNTIME_VERIFIED
+402859c,aurora-dark,375x900,settings,normal,page,375,900,375,false,772,true,false,../visual-phase-c/aurora-dark/375x900/settings.png,RUNTIME_VERIFIED
+402859c,aurora-dark,375x900,sources,normal,page,375,900,375,false,1137,true,false,../visual-phase-c/aurora-dark/375x900/sources.png,RUNTIME_VERIFIED
+402859c,aurora-dark,375x900,intelligence,normal,page,375,900,375,false,1716,true,false,../visual-phase-c/aurora-dark/375x900/intelligence.png,RUNTIME_VERIFIED
+402859c,aurora-dark,375x900,openclash,normal,page,375,900,375,false,485,true,false,../visual-phase-c/aurora-dark/375x900/openclash.png,RUNTIME_VERIFIED
+402859c,aurora-dark,375x900,passwall,normal,page,375,900,375,false,317,true,false,../visual-phase-c/aurora-dark/375x900/passwall.png,RUNTIME_VERIFIED
+402859c,aurora-dark,375x900,advanced,normal,page,375,900,375,false,716,true,false,../visual-phase-c/aurora-dark/375x900/advanced.png,RUNTIME_VERIFIED
+402859c,aurora-dark,375x900,logs,normal,page,375,900,375,false,2862,true,false,../visual-phase-c/aurora-dark/375x900/logs.png,RUNTIME_VERIFIED
+402859c,aurora-dark,768x900,overview,normal,page,768,900,768,false,509,true,false,../visual-phase-c/aurora-dark/768x900/overview.png,RUNTIME_VERIFIED
+402859c,aurora-dark,768x900,settings,normal,page,768,900,768,false,812,true,false,../visual-phase-c/aurora-dark/768x900/settings.png,RUNTIME_VERIFIED
+402859c,aurora-dark,768x900,sources,normal,page,768,900,768,false,1209,true,false,../visual-phase-c/aurora-dark/768x900/sources.png,RUNTIME_VERIFIED
+402859c,aurora-dark,768x900,intelligence,normal,page,768,900,768,false,1756,true,false,../visual-phase-c/aurora-dark/768x900/intelligence.png,RUNTIME_VERIFIED
+402859c,aurora-dark,768x900,openclash,normal,page,768,900,768,false,525,true,false,../visual-phase-c/aurora-dark/768x900/openclash.png,RUNTIME_VERIFIED
+402859c,aurora-dark,768x900,passwall,normal,page,768,900,768,false,357,true,false,../visual-phase-c/aurora-dark/768x900/passwall.png,RUNTIME_VERIFIED
+402859c,aurora-dark,768x900,advanced,normal,page,768,900,768,false,756,true,false,../visual-phase-c/aurora-dark/768x900/advanced.png,RUNTIME_VERIFIED
+402859c,aurora-dark,768x900,logs,normal,page,768,900,768,false,2902,true,false,../visual-phase-c/aurora-dark/768x900/logs.png,RUNTIME_VERIFIED
+402859c,aurora-dark,1280x900,overview,normal,page,1280,900,1280,false,509,true,false,../visual-phase-c/aurora-dark/1280x900/overview.png,RUNTIME_VERIFIED
+402859c,aurora-dark,1280x900,settings,normal,page,1280,900,1280,false,812,true,false,../visual-phase-c/aurora-dark/1280x900/settings.png,RUNTIME_VERIFIED
+402859c,aurora-dark,1280x900,sources,normal,page,1280,900,1280,false,1225,true,false,../visual-phase-c/aurora-dark/1280x900/sources.png,RUNTIME_VERIFIED
+402859c,aurora-dark,1280x900,intelligence,normal,page,1280,900,1280,false,1756,true,false,../visual-phase-c/aurora-dark/1280x900/intelligence.png,RUNTIME_VERIFIED
+402859c,aurora-dark,1280x900,openclash,normal,page,1280,900,1280,false,536,true,false,../visual-phase-c/aurora-dark/1280x900/openclash.png,RUNTIME_VERIFIED
+402859c,aurora-dark,1280x900,passwall,normal,page,1280,900,1280,false,357,true,false,../visual-phase-c/aurora-dark/1280x900/passwall.png,RUNTIME_VERIFIED
+402859c,aurora-dark,1280x900,advanced,normal,page,1280,900,1280,false,756,true,false,../visual-phase-c/aurora-dark/1280x900/advanced.png,RUNTIME_VERIFIED
+402859c,aurora-dark,1280x900,logs,normal,page,1280,900,1280,false,2902,true,false,../visual-phase-c/aurora-dark/1280x900/logs.png,RUNTIME_VERIFIED
+402859c,aurora-dark,320x900,overview,boundary-320,page,320,900,320,false,469,true,false,../visual-phase-c/aurora-dark/320x900/overview.png,RUNTIME_VERIFIED
+402859c,aurora-dark,1280x900-200pct-effective-640,sources,boundary-200pct-effective-640,page,640,900,640,false,1177,true,false,../visual-phase-c/aurora-dark/1280x900-200pct-effective-640/sources.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,375x900,overview,normal,page,375,900,375,False,651,false,False,visual/bootstrap/375x900/overview.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,375x900,settings,normal,page,375,900,375,False,1749,false,False,visual/bootstrap/375x900/settings.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,375x900,sources,normal,page,375,900,375,False,1856,false,False,visual/bootstrap/375x900/sources.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,375x900,intelligence,normal,page,375,900,375,False,108,false,False,visual/bootstrap/375x900/intelligence.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,375x900,openclash,normal,page,375,900,375,False,821,false,False,visual/bootstrap/375x900/openclash.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,375x900,passwall,normal,page,375,900,375,False,429,false,False,visual/bootstrap/375x900/passwall.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,375x900,advanced,normal,page,375,900,375,False,1443,false,False,visual/bootstrap/375x900/advanced.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,375x900,logs,normal,page,375,900,375,False,547,false,False,visual/bootstrap/375x900/logs.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,768x900,overview,normal,page,768,900,768,False,706,false,False,visual/bootstrap/768x900/overview.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,768x900,settings,normal,page,768,900,768,False,1805,false,False,visual/bootstrap/768x900/settings.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,768x900,sources,normal,page,768,900,768,False,1960,false,False,visual/bootstrap/768x900/sources.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,768x900,intelligence,normal,page,768,900,768,False,108,false,False,visual/bootstrap/768x900/intelligence.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,768x900,openclash,normal,page,768,900,768,False,877,false,False,visual/bootstrap/768x900/openclash.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,768x900,passwall,normal,page,768,900,768,False,485,false,False,visual/bootstrap/768x900/passwall.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,768x900,advanced,normal,page,768,900,768,False,1499,false,False,visual/bootstrap/768x900/advanced.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,768x900,logs,normal,page,768,900,768,False,602,false,False,visual/bootstrap/768x900/logs.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,overview,normal,page,1280,900,1280,False,706,false,False,visual/bootstrap/1280x900/overview.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,settings,normal,page,1280,900,1280,False,1805,false,False,visual/bootstrap/1280x900/settings.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,sources,normal,page,1280,900,1280,False,1995,false,False,visual/bootstrap/1280x900/sources.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,intelligence,normal,page,1280,900,1280,False,108,false,False,visual/bootstrap/1280x900/intelligence.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,openclash,normal,page,1280,900,1280,False,877,false,False,visual/bootstrap/1280x900/openclash.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,passwall,normal,page,1280,900,1280,False,485,false,False,visual/bootstrap/1280x900/passwall.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,advanced,normal,page,1280,900,1280,False,1499,false,False,visual/bootstrap/1280x900/advanced.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,logs,normal,page,1280,900,1280,False,602,false,False,visual/bootstrap/1280x900/logs.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,320x900,overview,normal,narrow-boundary,320,900,320,False,651,false,False,visual/bootstrap/320x900/overview.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900-200pct-effective-640,sources,normal,zoom-200,640,900,640,False,1960,false,False,visual/bootstrap/1280x900-200pct-effective-640/sources.png,RUNTIME_VERIFIED
+7c13b1d,aurora-light,375x900,overview,normal,page,375,900,375,False,749,false,False,visual/aurora-light/375x900/overview.png,RUNTIME_VERIFIED
+7c13b1d,aurora-light,375x900,settings,normal,page,375,900,375,False,1638,false,False,visual/aurora-light/375x900/settings.png,RUNTIME_VERIFIED
+7c13b1d,aurora-light,375x900,sources,normal,page,375,900,375,False,1954,false,False,visual/aurora-light/375x900/sources.png,RUNTIME_VERIFIED
+7c13b1d,aurora-light,375x900,intelligence,normal,page,375,900,375,False,108,false,False,visual/aurora-light/375x900/intelligence.png,RUNTIME_VERIFIED
+7c13b1d,aurora-light,375x900,openclash,normal,page,375,900,375,False,919,false,False,visual/aurora-light/375x900/openclash.png,RUNTIME_VERIFIED
+7c13b1d,aurora-light,375x900,passwall,normal,page,375,900,375,False,527,false,False,visual/aurora-light/375x900/passwall.png,RUNTIME_VERIFIED
+7c13b1d,aurora-light,375x900,advanced,normal,page,375,900,375,False,1541,false,False,visual/aurora-light/375x900/advanced.png,RUNTIME_VERIFIED
+7c13b1d,aurora-light,375x900,logs,normal,page,375,900,375,False,645,false,False,visual/aurora-light/375x900/logs.png,RUNTIME_VERIFIED
+7c13b1d,aurora-light,768x900,overview,normal,page,768,900,768,False,804,false,False,visual/aurora-light/768x900/overview.png,RUNTIME_VERIFIED
+7c13b1d,aurora-light,768x900,settings,normal,page,768,900,768,False,1693,false,False,visual/aurora-light/768x900/settings.png,RUNTIME_VERIFIED
+7c13b1d,aurora-light,768x900,sources,normal,page,768,900,768,False,2056,false,False,visual/aurora-light/768x900/sources.png,RUNTIME_VERIFIED
+7c13b1d,aurora-light,768x900,intelligence,normal,page,768,900,768,False,108,false,False,visual/aurora-light/768x900/intelligence.png,RUNTIME_VERIFIED
+7c13b1d,aurora-light,768x900,openclash,normal,page,768,900,768,False,974,false,False,visual/aurora-light/768x900/openclash.png,RUNTIME_VERIFIED
+7c13b1d,aurora-light,768x900,passwall,normal,page,768,900,768,False,582,false,False,visual/aurora-light/768x900/passwall.png,RUNTIME_VERIFIED
+7c13b1d,aurora-light,768x900,advanced,normal,page,768,900,768,False,1596,false,False,visual/aurora-light/768x900/advanced.png,RUNTIME_VERIFIED
+7c13b1d,aurora-light,768x900,logs,normal,page,768,900,768,False,700,false,False,visual/aurora-light/768x900/logs.png,RUNTIME_VERIFIED
+7c13b1d,aurora-light,1280x900,overview,normal,page,1280,900,1280,False,804,false,False,visual/aurora-light/1280x900/overview.png,RUNTIME_VERIFIED
+7c13b1d,aurora-light,1280x900,settings,normal,page,1280,900,1280,False,1693,false,False,visual/aurora-light/1280x900/settings.png,RUNTIME_VERIFIED
+7c13b1d,aurora-light,1280x900,sources,normal,page,1280,900,1280,False,2091,false,False,visual/aurora-light/1280x900/sources.png,RUNTIME_VERIFIED
+7c13b1d,aurora-light,1280x900,intelligence,normal,page,1280,900,1280,False,108,false,False,visual/aurora-light/1280x900/intelligence.png,RUNTIME_VERIFIED
+7c13b1d,aurora-light,1280x900,openclash,normal,page,1280,900,1280,False,974,false,False,visual/aurora-light/1280x900/openclash.png,RUNTIME_VERIFIED
+7c13b1d,aurora-light,1280x900,passwall,normal,page,1280,900,1280,False,582,false,False,visual/aurora-light/1280x900/passwall.png,RUNTIME_VERIFIED
+7c13b1d,aurora-light,1280x900,advanced,normal,page,1280,900,1280,False,1596,false,False,visual/aurora-light/1280x900/advanced.png,RUNTIME_VERIFIED
+7c13b1d,aurora-light,1280x900,logs,normal,page,1280,900,1280,False,700,false,False,visual/aurora-light/1280x900/logs.png,RUNTIME_VERIFIED
+7c13b1d,aurora-light,320x900,overview,normal,narrow-boundary,320,900,320,False,749,false,False,visual/aurora-light/320x900/overview.png,RUNTIME_VERIFIED
+7c13b1d,aurora-light,1280x900-200pct-effective-640,sources,normal,zoom-200,640,900,640,False,2009,false,False,visual/aurora-light/1280x900-200pct-effective-640/sources.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,375x900,overview,normal,page,375,900,375,False,749,true,False,visual/aurora-dark/375x900/overview.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,375x900,settings,normal,page,375,900,375,False,1638,true,False,visual/aurora-dark/375x900/settings.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,375x900,sources,normal,page,375,900,375,False,1954,true,False,visual/aurora-dark/375x900/sources.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,375x900,intelligence,normal,page,375,900,375,False,108,true,False,visual/aurora-dark/375x900/intelligence.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,375x900,openclash,normal,page,375,900,375,False,919,true,False,visual/aurora-dark/375x900/openclash.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,375x900,passwall,normal,page,375,900,375,False,527,true,False,visual/aurora-dark/375x900/passwall.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,375x900,advanced,normal,page,375,900,375,False,1541,true,False,visual/aurora-dark/375x900/advanced.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,375x900,logs,normal,page,375,900,375,False,645,true,False,visual/aurora-dark/375x900/logs.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,768x900,overview,normal,page,768,900,768,False,804,true,False,visual/aurora-dark/768x900/overview.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,768x900,settings,normal,page,768,900,768,False,1693,true,False,visual/aurora-dark/768x900/settings.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,768x900,sources,normal,page,768,900,768,False,2056,true,False,visual/aurora-dark/768x900/sources.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,768x900,intelligence,normal,page,768,900,768,False,108,true,False,visual/aurora-dark/768x900/intelligence.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,768x900,openclash,normal,page,768,900,768,False,974,true,False,visual/aurora-dark/768x900/openclash.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,768x900,passwall,normal,page,768,900,768,False,582,true,False,visual/aurora-dark/768x900/passwall.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,768x900,advanced,normal,page,768,900,768,False,1596,true,False,visual/aurora-dark/768x900/advanced.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,768x900,logs,normal,page,768,900,768,False,700,true,False,visual/aurora-dark/768x900/logs.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,1280x900,overview,normal,page,1280,900,1280,False,804,true,False,visual/aurora-dark/1280x900/overview.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,1280x900,settings,normal,page,1280,900,1280,False,1693,true,False,visual/aurora-dark/1280x900/settings.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,1280x900,sources,normal,page,1280,900,1280,False,2091,true,False,visual/aurora-dark/1280x900/sources.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,1280x900,intelligence,normal,page,1280,900,1280,False,108,true,False,visual/aurora-dark/1280x900/intelligence.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,1280x900,openclash,normal,page,1280,900,1280,False,974,true,False,visual/aurora-dark/1280x900/openclash.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,1280x900,passwall,normal,page,1280,900,1280,False,582,true,False,visual/aurora-dark/1280x900/passwall.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,1280x900,advanced,normal,page,1280,900,1280,False,1596,true,False,visual/aurora-dark/1280x900/advanced.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,1280x900,logs,normal,page,1280,900,1280,False,700,true,False,visual/aurora-dark/1280x900/logs.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,320x900,overview,normal,narrow-boundary,320,900,320,False,749,true,False,visual/aurora-dark/320x900/overview.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,1280x900-200pct-effective-640,sources,normal,zoom-200,640,900,640,False,2009,true,False,visual/aurora-dark/1280x900-200pct-effective-640/sources.png,RUNTIME_VERIFIED
+402859c,bootstrap,1280x900,openclash,not-installed,early-return,1280,900,,False,,,,early-return/before/openclash-not-installed-1280.png,RUNTIME_VERIFIED
+402859c,bootstrap,375x900,openclash,not-installed,early-return,375,900,,False,,,,early-return/before/openclash-not-installed-375.png,RUNTIME_VERIFIED
+402859c,bootstrap,1280x900,passwall,not-installed,early-return,1280,900,,False,,,,early-return/before/passwall-not-installed-1280.png,RUNTIME_VERIFIED
+402859c,bootstrap,375x900,passwall,not-installed,early-return,375,900,,False,,,,early-return/before/passwall-not-installed-375.png,RUNTIME_VERIFIED
+402859c,bootstrap,1280x900,openclash,rpc-failure,early-return,1280,900,,False,,,,early-return/before/openclash-rpc-failure-1280.png,RUNTIME_VERIFIED
+402859c,bootstrap,375x900,openclash,rpc-failure,early-return,375,900,,False,,,,early-return/before/openclash-rpc-failure-375.png,RUNTIME_VERIFIED
+402859c,bootstrap,1280x900,passwall,rpc-failure,early-return,1280,900,,False,,,,early-return/before/passwall-rpc-failure-1280.png,RUNTIME_VERIFIED
+402859c,bootstrap,375x900,passwall,rpc-failure,early-return,375,900,,False,,,,early-return/before/passwall-rpc-failure-375.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,openclash,not-installed,early-return,1280,900,,False,,,,early-return/after/openclash-not-installed-1280.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,375x900,openclash,not-installed,early-return,375,900,,False,,,,early-return/after/openclash-not-installed-375.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,passwall,not-installed,early-return,1280,900,,False,,,,early-return/after/passwall-not-installed-1280.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,375x900,passwall,not-installed,early-return,375,900,,False,,,,early-return/after/passwall-not-installed-375.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,openclash,rpc-failure,early-return,1280,900,,False,,,,early-return/after/openclash-rpc-failure-1280.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,375x900,openclash,rpc-failure,early-return,375,900,,False,,,,early-return/after/openclash-rpc-failure-375.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,passwall,rpc-failure,early-return,1280,900,,False,,,,early-return/after/passwall-rpc-failure-1280.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,375x900,passwall,rpc-failure,early-return,375,900,,False,,,,early-return/after/passwall-rpc-failure-375.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,overview,before,ov-start,1280,900,,,,,,matrix/ov-start-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,overview,after,ov-start,1280,900,,,,,,matrix/ov-start-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,overview,before,ov-restart,1280,900,,,,,,matrix/ov-restart-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,overview,after,ov-restart,1280,900,,,,,,matrix/ov-restart-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,overview,before,ov-cfst,1280,900,,,,,,matrix/ov-cfst-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,overview,after,ov-cfst,1280,900,,,,,,matrix/ov-cfst-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,overview,before,ov-refresh-env,1280,900,,,,,,matrix/ov-refresh-env-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,overview,after,ov-refresh-env,1280,900,,,,,,matrix/ov-refresh-env-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,overview,before,ov-footer,1280,900,,,,,,matrix/ov-footer-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,overview,after,ov-footer,1280,900,,,,,,matrix/ov-footer-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,settings,before,set-enable,1280,900,,,,,,matrix/set-enable-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,settings,after,set-enable,1280,900,,,,,,matrix/set-enable-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,settings,before,set-schedule,1280,900,,,,,,matrix/set-schedule-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,settings,after,set-schedule,1280,900,,,,,,matrix/set-schedule-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,settings,before,set-mode,1280,900,,,,,,matrix/set-mode-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,settings,after,set-mode,1280,900,,,,,,matrix/set-mode-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,settings,before,set-iptype,1280,900,,,,,,matrix/set-iptype-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,settings,after,set-iptype,1280,900,,,,,,matrix/set-iptype-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,settings,before,set-protocol,1280,900,,,,,,matrix/set-protocol-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,settings,after,set-protocol,1280,900,,,,,,matrix/set-protocol-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,settings,before,set-validation,1280,900,,,,,,matrix/set-validation-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,settings,after,set-validation,1280,900,,,,,,matrix/set-validation-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,settings,before,set-save,1280,900,,,,,,matrix/set-save-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,settings,after,set-save,1280,900,,,,,,matrix/set-save-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,settings,before,set-apply-open,1280,900,,,,,,matrix/set-apply-open-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,settings,after,set-apply-open,1280,900,,,,,,matrix/set-apply-open-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,settings,before,set-reset,1280,900,,,,,,matrix/set-reset-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,settings,after,set-reset,1280,900,,,,,,matrix/set-reset-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,sources,before,src-budget,1280,900,,,,,,matrix/src-budget-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,sources,after,src-budget,1280,900,,,,,,matrix/src-budget-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,sources,before,src-multiselect,1280,900,,,,,,matrix/src-multiselect-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,sources,after,src-multiselect,1280,900,,,,,,matrix/src-multiselect-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,sources,before,src-add,1280,900,,,,,,matrix/src-add-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,sources,after,src-add,1280,900,,,,,,matrix/src-add-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,sources,before,src-kind,1280,900,,,,,,matrix/src-kind-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,sources,after,src-kind,1280,900,,,,,,matrix/src-kind-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,sources,before,src-lan,1280,900,,,,,,matrix/src-lan-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,sources,after,src-lan,1280,900,,,,,,matrix/src-lan-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,sources,before,src-refresh,1280,900,,,,,,matrix/src-refresh-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,sources,after,src-refresh,1280,900,,,,,,matrix/src-refresh-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,sources,before,src-save,1280,900,,,,,,matrix/src-save-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,sources,after,src-save,1280,900,,,,,,matrix/src-save-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,intelligence,before,int-policy,1280,900,,,,,,matrix/int-policy-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,intelligence,after,int-policy,1280,900,,,,,,matrix/int-policy-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,intelligence,before,int-probe,1280,900,,,,,,matrix/int-probe-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,intelligence,after,int-probe,1280,900,,,,,,matrix/int-probe-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,intelligence,before,int-early,1280,900,,,,,,matrix/int-early-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,intelligence,after,int-early,1280,900,,,,,,matrix/int-early-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,intelligence,before,int-adaptive,1280,900,,,,,,matrix/int-adaptive-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,intelligence,after,int-adaptive,1280,900,,,,,,matrix/int-adaptive-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,intelligence,before,int-rill,1280,900,,,,,,matrix/int-rill-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,intelligence,after,int-rill,1280,900,,,,,,matrix/int-rill-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,intelligence,before,int-selfcheck,1280,900,,,,,,matrix/int-selfcheck-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,intelligence,after,int-selfcheck,1280,900,,,,,,matrix/int-selfcheck-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,intelligence,before,int-reset,1280,900,,,,,,matrix/int-reset-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,intelligence,after,int-reset,1280,900,,,,,,matrix/int-reset-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,intelligence,before,int-long-values,1280,900,,,,,,matrix/int-long-values-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,intelligence,after,int-long-values,1280,900,,,,,,matrix/int-long-values-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,intelligence,before,int-save,1280,900,,,,,,matrix/int-save-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,intelligence,after,int-save,1280,900,,,,,,matrix/int-save-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,openclash,before,oc-path,1280,900,,,,,,matrix/oc-path-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,openclash,after,oc-path,1280,900,,,,,,matrix/oc-path-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,openclash,before,oc-filter,1280,900,,,,,,matrix/oc-filter-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,openclash,after,oc-filter,1280,900,,,,,,matrix/oc-filter-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,openclash,before,oc-backup-retry,1280,900,,,,,,matrix/oc-backup-retry-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,openclash,after,oc-backup-retry,1280,900,,,,,,matrix/oc-backup-retry-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,openclash,before,oc-save,1280,900,,,,,,matrix/oc-save-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,openclash,after,oc-save,1280,900,,,,,,matrix/oc-save-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,passwall,before,pw-domain,1280,900,,,,,,matrix/pw-domain-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,passwall,after,pw-domain,1280,900,,,,,,matrix/pw-domain-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,passwall,before,pw-save,1280,900,,,,,,matrix/pw-save-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,passwall,after,pw-save,1280,900,,,,,,matrix/pw-save-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,advanced,before,adv-mirror,1280,900,,,,,,matrix/adv-mirror-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,advanced,after,adv-mirror,1280,900,,,,,,matrix/adv-mirror-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,advanced,before,adv-validation,1280,900,,,,,,matrix/adv-validation-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,advanced,after,adv-validation,1280,900,,,,,,matrix/adv-validation-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,advanced,before,adv-save,1280,900,,,,,,matrix/adv-save-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,advanced,after,adv-save,1280,900,,,,,,matrix/adv-save-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,logs,before,log-refresh,1280,900,,,,,,matrix/log-refresh-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,logs,after,log-refresh,1280,900,,,,,,matrix/log-refresh-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,logs,before,log-clear,1280,900,,,,,,matrix/log-clear-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,logs,after,log-clear,1280,900,,,,,,matrix/log-clear-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,logs,before,log-history,1280,900,,,,,,matrix/log-history-before.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,logs,after,log-history,1280,900,,,,,,matrix/log-history-after.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,640x900 (1280@200%),overview,initial,keyboard-200,640,900,,,,,,keyboard-200/bootstrap-640x900-overview-initial.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,640x900 (1280@200%),overview,focus,keyboard-200,640,900,,,,,,keyboard-200/bootstrap-640x900-overview-focus.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,640x900 (1280@200%),overview,bottom,keyboard-200,640,900,,,,,,keyboard-200/bootstrap-640x900-overview-bottom.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,640x900 (1280@200%),settings,initial,keyboard-200,640,900,,,,,,keyboard-200/bootstrap-640x900-settings-initial.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,640x900 (1280@200%),settings,focus,keyboard-200,640,900,,,,,,keyboard-200/bootstrap-640x900-settings-focus.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,640x900 (1280@200%),settings,bottom,keyboard-200,640,900,,,,,,keyboard-200/bootstrap-640x900-settings-bottom.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,640x900 (1280@200%),sources,initial,keyboard-200,640,900,,,,,,keyboard-200/bootstrap-640x900-sources-initial.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,640x900 (1280@200%),sources,focus,keyboard-200,640,900,,,,,,keyboard-200/bootstrap-640x900-sources-focus.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,640x900 (1280@200%),sources,bottom,keyboard-200,640,900,,,,,,keyboard-200/bootstrap-640x900-sources-bottom.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,640x900 (1280@200%),intelligence,initial,keyboard-200,640,900,,,,,,keyboard-200/bootstrap-640x900-intelligence-initial.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,640x900 (1280@200%),intelligence,focus,keyboard-200,640,900,,,,,,keyboard-200/bootstrap-640x900-intelligence-focus.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,640x900 (1280@200%),intelligence,bottom,keyboard-200,640,900,,,,,,keyboard-200/bootstrap-640x900-intelligence-bottom.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,640x900 (1280@200%),openclash,initial,keyboard-200,640,900,,,,,,keyboard-200/bootstrap-640x900-openclash-initial.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,640x900 (1280@200%),openclash,focus,keyboard-200,640,900,,,,,,keyboard-200/bootstrap-640x900-openclash-focus.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,640x900 (1280@200%),openclash,bottom,keyboard-200,640,900,,,,,,keyboard-200/bootstrap-640x900-openclash-bottom.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,640x900 (1280@200%),passwall,initial,keyboard-200,640,900,,,,,,keyboard-200/bootstrap-640x900-passwall-initial.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,640x900 (1280@200%),passwall,focus,keyboard-200,640,900,,,,,,keyboard-200/bootstrap-640x900-passwall-focus.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,640x900 (1280@200%),passwall,bottom,keyboard-200,640,900,,,,,,keyboard-200/bootstrap-640x900-passwall-bottom.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,640x900 (1280@200%),advanced,initial,keyboard-200,640,900,,,,,,keyboard-200/bootstrap-640x900-advanced-initial.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,640x900 (1280@200%),advanced,focus,keyboard-200,640,900,,,,,,keyboard-200/bootstrap-640x900-advanced-focus.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,640x900 (1280@200%),advanced,bottom,keyboard-200,640,900,,,,,,keyboard-200/bootstrap-640x900-advanced-bottom.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,640x900 (1280@200%),logs,initial,keyboard-200,640,900,,,,,,keyboard-200/bootstrap-640x900-logs-initial.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,640x900 (1280@200%),logs,focus,keyboard-200,640,900,,,,,,keyboard-200/bootstrap-640x900-logs-focus.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,640x900 (1280@200%),logs,bottom,keyboard-200,640,900,,,,,,keyboard-200/bootstrap-640x900-logs-bottom.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,640x900 (1280@200%),overview,initial,keyboard-200,640,900,,,,,,keyboard-200/aurora-dark-640x900-overview-initial.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,640x900 (1280@200%),overview,focus,keyboard-200,640,900,,,,,,keyboard-200/aurora-dark-640x900-overview-focus.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,640x900 (1280@200%),overview,bottom,keyboard-200,640,900,,,,,,keyboard-200/aurora-dark-640x900-overview-bottom.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,640x900 (1280@200%),settings,initial,keyboard-200,640,900,,,,,,keyboard-200/aurora-dark-640x900-settings-initial.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,640x900 (1280@200%),settings,focus,keyboard-200,640,900,,,,,,keyboard-200/aurora-dark-640x900-settings-focus.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,640x900 (1280@200%),settings,bottom,keyboard-200,640,900,,,,,,keyboard-200/aurora-dark-640x900-settings-bottom.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,640x900 (1280@200%),sources,initial,keyboard-200,640,900,,,,,,keyboard-200/aurora-dark-640x900-sources-initial.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,640x900 (1280@200%),sources,focus,keyboard-200,640,900,,,,,,keyboard-200/aurora-dark-640x900-sources-focus.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,640x900 (1280@200%),sources,bottom,keyboard-200,640,900,,,,,,keyboard-200/aurora-dark-640x900-sources-bottom.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,640x900 (1280@200%),intelligence,initial,keyboard-200,640,900,,,,,,keyboard-200/aurora-dark-640x900-intelligence-initial.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,640x900 (1280@200%),intelligence,focus,keyboard-200,640,900,,,,,,keyboard-200/aurora-dark-640x900-intelligence-focus.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,640x900 (1280@200%),intelligence,bottom,keyboard-200,640,900,,,,,,keyboard-200/aurora-dark-640x900-intelligence-bottom.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,640x900 (1280@200%),openclash,initial,keyboard-200,640,900,,,,,,keyboard-200/aurora-dark-640x900-openclash-initial.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,640x900 (1280@200%),openclash,focus,keyboard-200,640,900,,,,,,keyboard-200/aurora-dark-640x900-openclash-focus.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,640x900 (1280@200%),openclash,bottom,keyboard-200,640,900,,,,,,keyboard-200/aurora-dark-640x900-openclash-bottom.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,640x900 (1280@200%),passwall,initial,keyboard-200,640,900,,,,,,keyboard-200/aurora-dark-640x900-passwall-initial.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,640x900 (1280@200%),passwall,focus,keyboard-200,640,900,,,,,,keyboard-200/aurora-dark-640x900-passwall-focus.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,640x900 (1280@200%),passwall,bottom,keyboard-200,640,900,,,,,,keyboard-200/aurora-dark-640x900-passwall-bottom.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,640x900 (1280@200%),advanced,initial,keyboard-200,640,900,,,,,,keyboard-200/aurora-dark-640x900-advanced-initial.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,640x900 (1280@200%),advanced,focus,keyboard-200,640,900,,,,,,keyboard-200/aurora-dark-640x900-advanced-focus.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,640x900 (1280@200%),advanced,bottom,keyboard-200,640,900,,,,,,keyboard-200/aurora-dark-640x900-advanced-bottom.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,640x900 (1280@200%),logs,initial,keyboard-200,640,900,,,,,,keyboard-200/aurora-dark-640x900-logs-initial.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,640x900 (1280@200%),logs,focus,keyboard-200,640,900,,,,,,keyboard-200/aurora-dark-640x900-logs-focus.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,640x900 (1280@200%),logs,bottom,keyboard-200,640,900,,,,,,keyboard-200/aurora-dark-640x900-logs-bottom.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,overview,normal,focus-sweep,1280,900,,,,,,focus-sweep/bootstrap-overview-normal.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,overview,focus,focus-sweep,1280,900,,,,,,focus-sweep/bootstrap-overview-focused.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,settings,normal,focus-sweep,1280,900,,,,,,focus-sweep/bootstrap-settings-normal.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,settings,focus,focus-sweep,1280,900,,,,,,focus-sweep/bootstrap-settings-focused.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,sources,normal,focus-sweep,1280,900,,,,,,focus-sweep/bootstrap-sources-normal.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,sources,focus,focus-sweep,1280,900,,,,,,focus-sweep/bootstrap-sources-focused.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,intelligence,normal,focus-sweep,1280,900,,,,,,focus-sweep/bootstrap-intelligence-normal.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,intelligence,focus,focus-sweep,1280,900,,,,,,focus-sweep/bootstrap-intelligence-focused.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,openclash,normal,focus-sweep,1280,900,,,,,,focus-sweep/bootstrap-openclash-normal.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,openclash,focus,focus-sweep,1280,900,,,,,,focus-sweep/bootstrap-openclash-focused.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,passwall,normal,focus-sweep,1280,900,,,,,,focus-sweep/bootstrap-passwall-normal.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,passwall,focus,focus-sweep,1280,900,,,,,,focus-sweep/bootstrap-passwall-focused.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,advanced,normal,focus-sweep,1280,900,,,,,,focus-sweep/bootstrap-advanced-normal.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,advanced,focus,focus-sweep,1280,900,,,,,,focus-sweep/bootstrap-advanced-focused.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,logs,normal,focus-sweep,1280,900,,,,,,focus-sweep/bootstrap-logs-normal.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,logs,focus,focus-sweep,1280,900,,,,,,focus-sweep/bootstrap-logs-focused.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,1280x900,overview,normal,focus-sweep,1280,900,,,,,,focus-sweep/aurora-dark-overview-normal.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,1280x900,overview,focus,focus-sweep,1280,900,,,,,,focus-sweep/aurora-dark-overview-focused.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,1280x900,settings,normal,focus-sweep,1280,900,,,,,,focus-sweep/aurora-dark-settings-normal.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,1280x900,settings,focus,focus-sweep,1280,900,,,,,,focus-sweep/aurora-dark-settings-focused.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,1280x900,sources,normal,focus-sweep,1280,900,,,,,,focus-sweep/aurora-dark-sources-normal.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,1280x900,sources,focus,focus-sweep,1280,900,,,,,,focus-sweep/aurora-dark-sources-focused.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,1280x900,intelligence,normal,focus-sweep,1280,900,,,,,,focus-sweep/aurora-dark-intelligence-normal.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,1280x900,intelligence,focus,focus-sweep,1280,900,,,,,,focus-sweep/aurora-dark-intelligence-focused.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,1280x900,openclash,normal,focus-sweep,1280,900,,,,,,focus-sweep/aurora-dark-openclash-normal.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,1280x900,openclash,focus,focus-sweep,1280,900,,,,,,focus-sweep/aurora-dark-openclash-focused.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,1280x900,passwall,normal,focus-sweep,1280,900,,,,,,focus-sweep/aurora-dark-passwall-normal.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,1280x900,passwall,focus,focus-sweep,1280,900,,,,,,focus-sweep/aurora-dark-passwall-focused.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,1280x900,advanced,normal,focus-sweep,1280,900,,,,,,focus-sweep/aurora-dark-advanced-normal.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,1280x900,advanced,focus,focus-sweep,1280,900,,,,,,focus-sweep/aurora-dark-advanced-focused.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,1280x900,logs,normal,focus-sweep,1280,900,,,,,,focus-sweep/aurora-dark-logs-normal.png,RUNTIME_VERIFIED
+7c13b1d,aurora-dark,1280x900,logs,focus,focus-sweep,1280,900,,,,,,focus-sweep/aurora-dark-logs-focused.png,RUNTIME_VERIFIED
+77a65a8,aurora-light,1280x900,advanced,normal,baseline-compare,1280,900,,,,,,baseline-compare/v183/aurora-light-1280x900-advanced.png,RUNTIME_VERIFIED
+77a65a8,aurora-light,1280x900,logs,normal,baseline-compare,1280,900,,,,,,baseline-compare/v183/aurora-light-1280x900-logs.png,RUNTIME_VERIFIED
+77a65a8,aurora-light,1280x900,overview,normal,baseline-compare,1280,900,,,,,,baseline-compare/v183/aurora-light-1280x900-overview.png,RUNTIME_VERIFIED
+77a65a8,aurora-light,1280x900,settings,normal,baseline-compare,1280,900,,,,,,baseline-compare/v183/aurora-light-1280x900-settings.png,RUNTIME_VERIFIED
+77a65a8,aurora-light,375x900,advanced,normal,baseline-compare,375,900,,,,,,baseline-compare/v183/aurora-light-375x900-advanced.png,RUNTIME_VERIFIED
+77a65a8,aurora-light,375x900,logs,normal,baseline-compare,375,900,,,,,,baseline-compare/v183/aurora-light-375x900-logs.png,RUNTIME_VERIFIED
+77a65a8,aurora-light,375x900,overview,normal,baseline-compare,375,900,,,,,,baseline-compare/v183/aurora-light-375x900-overview.png,RUNTIME_VERIFIED
+77a65a8,aurora-light,375x900,settings,normal,baseline-compare,375,900,,,,,,baseline-compare/v183/aurora-light-375x900-settings.png,RUNTIME_VERIFIED
+77a65a8,bootstrap,1280x900,advanced,normal,baseline-compare,1280,900,,,,,,baseline-compare/v183/bootstrap-1280x900-advanced.png,RUNTIME_VERIFIED
+77a65a8,bootstrap,1280x900,logs,normal,baseline-compare,1280,900,,,,,,baseline-compare/v183/bootstrap-1280x900-logs.png,RUNTIME_VERIFIED
+77a65a8,bootstrap,1280x900,overview,normal,baseline-compare,1280,900,,,,,,baseline-compare/v183/bootstrap-1280x900-overview.png,RUNTIME_VERIFIED
+77a65a8,bootstrap,1280x900,settings,normal,baseline-compare,1280,900,,,,,,baseline-compare/v183/bootstrap-1280x900-settings.png,RUNTIME_VERIFIED
+77a65a8,bootstrap,375x900,advanced,normal,baseline-compare,375,900,,,,,,baseline-compare/v183/bootstrap-375x900-advanced.png,RUNTIME_VERIFIED
+77a65a8,bootstrap,375x900,logs,normal,baseline-compare,375,900,,,,,,baseline-compare/v183/bootstrap-375x900-logs.png,RUNTIME_VERIFIED
+77a65a8,bootstrap,375x900,overview,normal,baseline-compare,375,900,,,,,,baseline-compare/v183/bootstrap-375x900-overview.png,RUNTIME_VERIFIED
+77a65a8,bootstrap,375x900,settings,normal,baseline-compare,375,900,,,,,,baseline-compare/v183/bootstrap-375x900-settings.png,RUNTIME_VERIFIED
+7c13b1d,aurora-light,1280x900,advanced,normal,baseline-compare,1280,900,,,,,,baseline-compare/current/aurora-light-1280x900-advanced.png,RUNTIME_VERIFIED
+7c13b1d,aurora-light,1280x900,logs,normal,baseline-compare,1280,900,,,,,,baseline-compare/current/aurora-light-1280x900-logs.png,RUNTIME_VERIFIED
+7c13b1d,aurora-light,1280x900,overview,normal,baseline-compare,1280,900,,,,,,baseline-compare/current/aurora-light-1280x900-overview.png,RUNTIME_VERIFIED
+7c13b1d,aurora-light,1280x900,settings,normal,baseline-compare,1280,900,,,,,,baseline-compare/current/aurora-light-1280x900-settings.png,RUNTIME_VERIFIED
+7c13b1d,aurora-light,375x900,advanced,normal,baseline-compare,375,900,,,,,,baseline-compare/current/aurora-light-375x900-advanced.png,RUNTIME_VERIFIED
+7c13b1d,aurora-light,375x900,logs,normal,baseline-compare,375,900,,,,,,baseline-compare/current/aurora-light-375x900-logs.png,RUNTIME_VERIFIED
+7c13b1d,aurora-light,375x900,overview,normal,baseline-compare,375,900,,,,,,baseline-compare/current/aurora-light-375x900-overview.png,RUNTIME_VERIFIED
+7c13b1d,aurora-light,375x900,settings,normal,baseline-compare,375,900,,,,,,baseline-compare/current/aurora-light-375x900-settings.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,advanced,normal,baseline-compare,1280,900,,,,,,baseline-compare/current/bootstrap-1280x900-advanced.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,logs,normal,baseline-compare,1280,900,,,,,,baseline-compare/current/bootstrap-1280x900-logs.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,overview,normal,baseline-compare,1280,900,,,,,,baseline-compare/current/bootstrap-1280x900-overview.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,1280x900,settings,normal,baseline-compare,1280,900,,,,,,baseline-compare/current/bootstrap-1280x900-settings.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,375x900,advanced,normal,baseline-compare,375,900,,,,,,baseline-compare/current/bootstrap-375x900-advanced.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,375x900,logs,normal,baseline-compare,375,900,,,,,,baseline-compare/current/bootstrap-375x900-logs.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,375x900,overview,normal,baseline-compare,375,900,,,,,,baseline-compare/current/bootstrap-375x900-overview.png,RUNTIME_VERIFIED
+7c13b1d,bootstrap,375x900,settings,normal,baseline-compare,375,900,,,,,,baseline-compare/current/bootstrap-375x900-settings.png,RUNTIME_VERIFIED
