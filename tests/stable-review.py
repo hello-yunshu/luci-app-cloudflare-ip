@@ -17,7 +17,7 @@ spec.loader.exec_module(review)
 
 
 class ReviewBoundary(unittest.TestCase):
-    def check_case(self, mutation=None, trees=None, refs=None):
+    def check_case(self, mutation=None, trees=None, refs=None, tag_tree=None):
         with tempfile.TemporaryDirectory() as temp:
             paths = [Path(temp) / name for name in ('manifest.json', 'preflight.json', 'negatives.json')]
             manifest = dict(commit='a' * 40, runId=123, runAttempt=1, releaseEligible=True, assetFiles=[])
@@ -31,7 +31,10 @@ class ReviewBoundary(unittest.TestCase):
             paths[1].write_text(json.dumps(receipt))
             paths[2].write_text(json.dumps(negatives))
             answers = trees or ['c' * 40, 'c' * 40]
-            with patch.object(review.subprocess, 'check_output', side_effect=answers + [json.dumps(refs or [])]):
+            extra = [json.dumps(refs or [])]
+            if (refs or []) and tag_tree:
+                extra.append(json.dumps({'tree': {'sha': tag_tree}}))
+            with patch.object(review.subprocess, 'check_output', side_effect=answers + extra):
                 return review.prepare(*paths, 'b' * 40, 'hello-yunshu/luci-app-cloudflare-ip')
 
     def test_prepared_receipt_never_grants_publication(self):
@@ -39,6 +42,15 @@ class ReviewBoundary(unittest.TestCase):
         self.assertEqual(result['status'], 'PREPARED_FOR_REVIEW')
         self.assertEqual(result['publication'], 'NOT AUTHORIZED / NOT RUN')
         self.assertEqual(result['automaticStablePromotion'], 'DISABLED')
+        self.assertEqual(result['tagState'], 'available')
+
+    def test_existing_tag_at_same_tree_is_release_reuse(self):
+        tag = [{'ref': 'refs/tags/' + review.source()['tag'],
+                'object': {'type': 'commit', 'sha': 'e' * 40}}]
+        result = self.check_case(refs=tag, tag_tree='c' * 40)
+        self.assertEqual(result['tagState'], 'existing-equivalent')
+        self.assertEqual(result['tagAvailable'], False)
+        self.assertEqual(result['tagCommit'], 'e' * 40)
 
     def test_stale_receipts_and_missing_or_failed_negatives_reject(self):
         changes = [lambda p, n: p.update(runAttempt=2), lambda p, n: p.update(manifestSha256='0' * 64),
@@ -50,8 +62,10 @@ class ReviewBoundary(unittest.TestCase):
     def test_tree_mismatch_and_occupied_tag_reject(self):
         with self.assertRaises(ValueError):
             self.check_case(trees=['c' * 40, 'd' * 40])
+        tag = [{'ref': 'refs/tags/' + review.source()['tag'],
+                'object': {'type': 'commit', 'sha': 'e' * 40}}]
         with self.assertRaises(ValueError):
-            self.check_case(refs=[{'ref': 'refs/tags/' + review.source()['tag']}])
+            self.check_case(refs=tag, tag_tree='d' * 40)
 
 
 if __name__ == '__main__':
