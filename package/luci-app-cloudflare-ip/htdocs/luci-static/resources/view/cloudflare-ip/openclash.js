@@ -105,8 +105,13 @@ return view.extend({
 		var backups = (backupData.success === true && backupData.backups) ? backupData.backups : [];
 
 		if (backupError) {
-			backupSection.appendChild(E('div', { 'class': 'alert-message error' },
-				_('Unable to load OpenClash backups: %s').format(backupData.error || _('Unknown'))));
+			backupSection.appendChild(E('div', { 'class': 'alert-message error' }, [
+				E('p', {}, _('Unable to load OpenClash backups. Retry, or check that OpenClash is installed and its configuration path is valid.')),
+				E('details', {}, [
+					E('summary', {}, _('Technical details')),
+					E('pre', { 'class': 'cfi-log-area', 'style': 'white-space:pre-wrap;max-height:12em;overflow:auto;margin:0.5em 0 0' }, String(backupData.error || _('Unknown')))
+				])
+			]));
 			backupSection.appendChild(E('button', { 'class': 'btn cbi-button', 'click': function() { location.reload(); } }, _('Retry')));
 		} else if (backups.length === 0) {
 			backupSection.appendChild(E('div', {
@@ -137,7 +142,7 @@ return view.extend({
 					'click': function() {
 						ui.showModal(_('Confirm Restore'), [
 							E('div', { 'class': 'alert-message warning' },
-								_('Are you sure you want to restore this backup? A backup of the current configuration will be created first.')),
+								_('Restore the backup from %s? A backup of the current configuration will be created first.').format(backup.timestamp || backup.id)),
 							E('div', { 'class': 'right' }, [
 								E('button', { 'class': 'btn', 'click': function() { ui.hideModal(); } }, _('Cancel')),
 								E('button', {
@@ -171,7 +176,7 @@ return view.extend({
 					'class': 'cbi-button cbi-button-reset',
 					'click': function() {
 						ui.showModal(_('Confirm Delete'), [
-							E('p', {}, _('Are you sure you want to delete this backup?')),
+							E('p', {}, _('Delete the backup from %s? This cannot be undone.').format(backup.timestamp || backup.id)),
 							E('div', { 'class': 'right' }, [
 								E('button', { 'class': 'btn', 'click': function() { ui.hideModal(); } }, _('Cancel')),
 								E('button', {

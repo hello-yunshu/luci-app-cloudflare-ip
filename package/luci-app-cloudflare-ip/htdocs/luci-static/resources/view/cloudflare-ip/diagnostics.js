@@ -69,8 +69,13 @@ return view.extend({
 		intelligenceSection.appendChild(E('p', { 'class': 'cfi-inline-link' },
 			E('a', { 'class': 'cbi-button cfi-link-button', 'href': L.url('admin/services/cf_ip/intelligence') }, _('Open Intelligence'))));
 		if (diagnostics.success !== true) {
-			intelligenceSection.appendChild(E('div', { 'class': 'alert-message danger', 'role': 'alert' },
-				E('p', {}, [ _('Diagnostics unavailable'), ': ', diagnostics.error || _('Unknown') ])));
+			intelligenceSection.appendChild(E('div', { 'class': 'alert-message danger', 'role': 'alert' }, [
+				E('p', {}, _('Diagnostics unavailable. Refresh the page or check the service status, then try again.')),
+				E('details', {}, [
+					E('summary', {}, _('Technical details')),
+					E('pre', { 'class': 'cfi-log-area', 'style': 'white-space:pre-wrap;max-height:12em;overflow:auto;margin:0.5em 0 0' }, diagnostics.error || _('Unknown'))
+				])
+			]));
 		} else {
 			var diagnosticsPre = E('pre', { 'class': 'cfi-log-area', 'style': 'white-space:pre-wrap;max-height:28em;overflow:auto' }, JSON.stringify({
 				runtime: diagnostics.runtime || {},

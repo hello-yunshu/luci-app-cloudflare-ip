@@ -866,12 +866,6 @@ msgstr "大小"
 msgid "Confirm Restore"
 msgstr "确认恢复"
 
-#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js:120
-msgid ""
-"Are you sure you want to restore this backup? A backup of the current "
-"configuration will be created first."
-msgstr "确定要恢复此备份吗？恢复前会先创建当前配置的备份。"
-
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js:122
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js:153
 msgid "Cancel"
@@ -903,10 +897,6 @@ msgstr "恢复"
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js:150
 msgid "Confirm Delete"
 msgstr "确认删除"
-
-#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js:151
-msgid "Are you sure you want to delete this backup?"
-msgstr "确定要删除此备份吗？"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js:160
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js:166
@@ -1872,10 +1862,6 @@ msgstr "来源注册表 RPC 调用失败：%s"
 msgid "Unable to check OpenClash environment"
 msgstr "无法检查 OpenClash 环境"
 
-#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js
-msgid "Unable to load OpenClash backups: %s"
-msgstr "无法加载 OpenClash 备份：%s"
-
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/sources.js
 msgid "Unable to load source registry"
 msgstr "无法加载来源注册表"
@@ -2119,3 +2105,30 @@ msgstr "打开日志与记录"
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
 msgid "Open Intelligence"
 msgstr "打开智能优选"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js
+msgid "Not run yet"
+msgstr "尚未运行"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/diagnostics.js
+msgid "Diagnostics unavailable. Refresh the page or check the service status, then try again."
+msgstr "诊断信息暂不可用。请刷新页面或检查服务状态后重试。"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js
+msgid "Unable to load OpenClash backups. Retry, or check that OpenClash is installed and its configuration path is valid."
+msgstr "无法加载 OpenClash 备份。请重试，或检查 OpenClash 是否已安装且配置路径有效。"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/diagnostics.js
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js
+msgid "Technical details"
+msgstr "技术详情"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js
+#, javascript-format
+msgid "Restore the backup from %s? A backup of the current configuration will be created first."
+msgstr "从 %s 恢复备份？恢复前会先创建当前配置的备份。"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js
+#, javascript-format
+msgid "Delete the backup from %s? This cannot be undone."
+msgstr "删除 %s 的备份？此操作无法撤销。"
