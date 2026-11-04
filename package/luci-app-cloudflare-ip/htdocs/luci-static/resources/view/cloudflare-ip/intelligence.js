@@ -349,7 +349,9 @@ return view.extend({
 	o.inputtitle = _('Run self-check');
 	o.inputstyle = 'apply';
 	o.onclick = function(ev) {
-		var button = ev.currentTarget;
+		var button = ev && ev.currentTarget && ev.currentTarget.tagName === 'BUTTON' ? ev.currentTarget :
+			(ev && ev.target && ev.target.tagName === 'BUTTON' ? ev.target : null);
+		if (!button && this && this.node) button = this.node.querySelector('button');
 		utils.setBusy(button, _('Checking...'));
 		return callSelfCheck().then(function(result) {
 			if (result && result.success)
@@ -368,7 +370,9 @@ return view.extend({
 	o.inputtitle = _('Reset learning state');
 	o.inputstyle = 'reset';
 	o.onclick = function(ev) {
-		var button = ev.currentTarget;
+		var button = ev && ev.currentTarget && ev.currentTarget.tagName === 'BUTTON' ? ev.currentTarget :
+			(ev && ev.target && ev.target.tagName === 'BUTTON' ? ev.target : null);
+		if (!button && this && this.node) button = this.node.querySelector('button');
 		var generation = (status.intelligence || {}).stateGeneration || 0;
 		return utils.confirmAction(_('Reset Learning State'), _('Reset Rill learning state? Native configuration will not be changed.'), function() {
 			utils.setBusy(button, _('Resetting...'));
