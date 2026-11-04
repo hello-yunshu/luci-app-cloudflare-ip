@@ -38,7 +38,7 @@ Evidence: `intelligence/intelligence.json` and 6 screenshots.
 - New keys: Copy, Copied, Copy command was rejected, Unable to copy: %s, Show/Hide advanced diagnostics, Open Logs & Records, Open Intelligence.
 - i18n contract: 473 keys (JS 464 + menu 9), POT/zh/en 484 entries, PASS. Negative gate with a removed POT/zh key fails as expected.
 - View-bindings fixture PASS; `node --check` PASS.
-- `tests/luci-refresh-error.cjs`: the diagnostics fixture now binds the real LuCI `L` global required by the new Intelligence cross-link; both assertions still run and PASS.
+- `tests/luci-refresh-error.cjs`: the diagnostics fixture now binds the real LuCI `L` global required by the new Intelligence cross-link. Local red -> green: pre-fix `ReferenceError: L is not defined` (rc 1), post-fix rc 0 with both original assertions PASS.
 - Physical device / 24h soak: NOT RUN. Required: exact router model + firmware + arch, real OpenClash/PassWall service and proxy network, and a 24h wall-clock run bound to the exact code SHA (`a8f89e8`). Container results are not a substitute.
 
 ## Validation boundary (private repository)
