@@ -37,17 +37,17 @@ node docs/audits/next-release-evidence/repro-2e28db4/repro-risks.cjs \
 | 路径 | 内容 |
 |---|---|
 | `ui-refinement-7c13b1d/visual/` | 78 张 3 主题 × 3 断点 × 8 页面正常态 + 320/200% 边界截图；`captures.json` |
-| `ui-refinement-7c13b1d/visual-index.csv` | 374 行，含 `interaction`/`state`/`sha`；既有 `visual-phase-c` 78 张全部保留 |
+| `ui-refinement-7c13b1d/visual-index.csv` | 396 行，含 `interaction`/`state`/`sha`；既有 `visual-phase-c` 78 张全部保留 |
 | `ui-refinement-7c13b1d/matrix/` | 42 个交互点的七态矩阵、BEFORE/AFTER 截图、DOM/持久化断言；`matrix.json` |
 | `ui-refinement-7c13b1d/early-return/` | OpenClash/PassWall 未安装 + RPC 失败，修复前后 16 张截图与 computed style |
-| `ui-refinement-7c13b1d/contrast/` | 3 主题 × 8 页面 1105 个文本元素 WCAG AA 扫描；`report.md` |
+| `ui-refinement-7c13b1d/contrast/` | 3 主题 × 8 页面 1389 个文本元素 WCAG AA 扫描；`audit/report.md` |
 | `ui-refinement-7c13b1d/width-matrix/` | 320/375/640/768/900/1280 × 3 主题 × 3 页面内容宽度矩阵（修复前后） |
 | `ui-refinement-7c13b1d/keyboard-200/` | 640 CSS px（1280@200%）Tab/焦点/底部可达性 |
 | `ui-refinement-7c13b1d/focus-sweep/` | Bootstrap + Aurora dark 逐控件真实 Tab 焦点与 hover |
 | `ui-refinement-7c13b1d/baseline-compare/` | v1.8.3-1（`77a65a8`）与 2.x 同环境对照截图与 `report.md` |
 | `ui-refinement-7c13b1d/token-footer/` | token/footer 修复前后截图与 computed radius/shadow |
 
-结论：CI run 41703798493 success，Real LuCI UI Gate 41703798508 success；42/42 交互点 PASS；78/78 截图无横向溢出；200% 键盘 16/16 PASS；逐控件 Tab 焦点 312/312；WCAG 扫描 35 项不达标，均为 LuCI/Aurora 原生按钮/标签色，已在报告中说明不覆盖主题的原因。物理设备与 24h soak 仍 `NOT RUN`。
+结论：CI run 41703798493 success，Real LuCI UI Gate 41703798508 success；43/43 检查 PASS（41 交互 + 2 只读）；78/78 截图无横向溢出；200% 键盘 16/16 PASS；逐控件 Tab 焦点 312/312；WCAG 扫描 41 项不达标，均为 LuCI/Aurora 原生按钮/标签色，已在报告中说明不覆盖主题的原因。物理设备与 24h soak 仍 `NOT RUN`。
 
 ## 边界
 

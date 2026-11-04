@@ -218,7 +218,7 @@
       "sectionShadow": "color(srgb 0.0745098 0.133333 0.219608 / 0.09) 0px 5px 18px 0px",
       "badgeRadius": null,
       "cmdRadius": null,
-      "logFont": "16px",
+      "logFont": "12px",
       "footerFont": "11.375px",
       "footerBorder": "rgb(217, 224, 231)",
       "bodyColor": "rgb(64, 64, 64)",

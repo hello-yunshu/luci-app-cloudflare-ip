@@ -1,42 +1,39 @@
-# Visual matrix - current 2.6.0-r7 (9adb2d5)
+# Visual matrix - fresh audit corrected (9adb2d5)
 
-Environment: OpenWrt 24.10.8 x86_64, LuCI 26.205.85413~cac97ed, uhttpd/rpcd in a disposable container; Chromium via Playwright. Themes: Bootstrap (original), Aurora light, Aurora dark.
+Real OpenWrt 24.10.8 + LuCI 26.205.85413 in a disposable container; Chromium via Playwright. Bootstrap / Aurora light / Aurora dark.
 
-- Normal-state screenshots: **78** (8 pages x 3 themes x 3 viewports + 320px overview + 640px/200% sources boundary).
+- Normal-state screenshots: **78** (8 pages x 3 themes x 3 viewports + 320px overview + 640px/200% sources).
 - Horizontal overflow: **0/78**.
-- Screenshot index: `visual-index.csv` (374 rows, interaction/state columns, old `visual-phase-c` 78 files preserved).
-- Keyboard 200%: **16/16 PASS** (Tab order, focus ring, no clipping, bottom controls and footer reachable).
-- WCAG AA scan: 24 page-theme combinations, 1105 text elements, 35 below threshold (all native LuCI/Aurora button/tab colours; report `contrast/after/report.md`).
+- Screenshot index: `visual-index.csv`, **396 rows**, 0 duplicate paths, 0 missing files; old `visual-phase-c` 78 files preserved.
+- Keyboard 200%: **16/16 PASS**.
+- WCAG AA re-scan: 24 page-theme combinations, 1389 elements, 41 below threshold (all native LuCI/Aurora buttons/tabs).
+- Token/footer audit: 24 page-theme measurements, all with shared CSS + footer; section radius 12px, stat 8px, table 8px where present.
 
-## Per-theme coverage
+## Audit corrections
 
-- `bootstrap`: 26 screenshots, overflow 0.
-- `aurora-light`: 26 screenshots, overflow 0.
-- `aurora-dark`: 26 screenshots, overflow 0.
+- Intelligence had been captured while `Loading view...`; 9 screenshots were recaptured after the view rendered (textLen 3277-3430, footer/css true).
+- The previous contrast scan therefore missed Intelligence (0 text elements); re-scan now includes it and reports 41 failures across all 8 pages.
+- The token/footer audit initially sampled the same Loading view and reported `css=false/footer=0`; with a proper view wait, all 8 pages x 3 themes report `css=true/footer=1`, no overflow.
+- Current v1.8.3 comparison screenshots were recaptured at `9adb2d5`.
 
-## 320px and 200% boundaries
+## Container query + old-browser fallback (executed)
 
-- 320x900 / bootstrap / overview: scrollWidth=320, overflow=False, dark=false.
-- 1280x900-200pct-effective-640 / bootstrap / sources: scrollWidth=640, overflow=False, dark=false.
-- 320x900 / aurora-light / overview: scrollWidth=320, overflow=False, dark=false.
-- 1280x900-200pct-effective-640 / aurora-light / sources: scrollWidth=640, overflow=False, dark=false.
-- 320x900 / aurora-dark / overview: scrollWidth=320, overflow=False, dark=true.
-- 1280x900-200pct-effective-640 / aurora-dark / sources: scrollWidth=640, overflow=False, dark=true.
+`@supports` block was stripped from a copy of the served CSS to emulate a browser without container queries, then the same real LuCI page was measured with both stylesheets:
 
-## 600/900 content-width matrix
+| Width | Full CSS | Stripped (media-only) |
+|---|---|---|
+| 375 | map=365 cols=1 media600=True | map=365 cols=1 media600=True |
+| 375 | map=365 cols=1 media600=True | map=365 cols=1 media600=True |
+| 640 | map=630 cols=2 media600=False | map=630 cols=2 media600=False |
+| 640 | map=630 cols=2 media600=False | map=630 cols=2 media600=False |
+| 768 | map=758 cols=2 media600=False | map=758 cols=2 media600=False |
+| 768 | map=758 cols=2 media600=False | map=758 cols=2 media600=False |
+| 768 synthetic500 | map=500 cols=1 media600=False | map=500 cols=1 media600=False |
+| 768 synthetic500 | map=500 cols=2 media600=False | map=500 cols=2 media600=False |
 
-Measured `#maincontent` and `.cfi-form-map` widths at 320/375/640/768/900/1280 in all three themes (settings/sources/intelligence). Before and after match exactly:
-- Rows compared: 54; layout/width differences before vs after: **0**.
-- Cases where content width <=600px while viewport >600px: **0** (measured matrix in `width-matrix/after/matrix.json`).
-- Because no mismatch case exists in Bootstrap/Aurora at the tested widths, the 600px media query is not wrong today. A container-query block was still added under `@supports (container-type: inline-size)` for the real sidebar/content-width case; all original media-query blocks remain unchanged as the fallback for browsers without container-query support.
-- 640px (1280 @ 200%) effective width: map width 616 (Aurora) / 630 (Bootstrap); both stay two-column by design, no overflow.
+- At real widths 375/640/768 the two paths are identical (1/2/2 columns, no overflow).
+- With a synthetic 500px content container at 768, the full CSS switches to 1 column through `@container`; the stripped CSS keeps the old media-only 2-column behavior. This proves both paths run and that unsupported browsers keep the previous media-query behavior.
 
 ## Original style comparison
 
-v1.8.3-1 (`77a65a8`) was provisioned into the same real LuCI container. Navigation, title/section type scale, radii, shadow, colours and footer are compared in `baseline-compare/report.md`; matched screenshots are `baseline-compare/v183` and `baseline-compare/current`.
-
-## Fixed in this round
-
-- Early-return empty states: shared CSS + footer before return; description/Retry now render (array children).
-- Tokens: `--cfi-radius` 12px (sections), `--cfi-radius-card` 8px (stat cards/controls/tables), `--cfi-radius-chip` 4px, `--cfi-shadow`, `--cfi-shadow-hover`, footer chip/border tokens. Measured bootstrap: section 12px, stat 8px, table 8px (before: stat 12px, table 9px).
-- Tabs: wrap <=900px and restore `:focus-visible` outline; table headers use `--cfi-muted-strong` to pass AA in Aurora light.
+v1.8.3-1 (`77a65a8`) vs current `9adb2d5`, same container: navigation 4 -> 6 static + 2 conditional, section radius 0 -> 12px, shadow none -> themed, body/footer type unchanged, log 10/9px -> 12px, stat card 8px. Full table: `baseline-compare/report.md`.
