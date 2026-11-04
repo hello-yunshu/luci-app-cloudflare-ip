@@ -218,6 +218,7 @@ Docker replay 证据会明确标记为 `replayed`，不能证明真实设备表�
 
 ## 相关文档
 
+- [Next-release 审计索引（当前候选 ffa73f6）](docs/audits/next-release-INDEX.md)
 - [真实设备验证](docs/REAL_DEVICE_VALIDATION.md)
 - [2.2 Adaptive Measurement](docs/2.2_ADAPTIVE_MEASUREMENT.md)
 - [2.3–2.6 收口记录](docs/2.3_TO_2.6_CLOSEOUT.md)
