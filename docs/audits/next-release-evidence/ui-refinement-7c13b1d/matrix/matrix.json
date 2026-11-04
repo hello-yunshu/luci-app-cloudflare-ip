@@ -25,7 +25,8 @@
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 4146
+      "ms": 4146,
+      "kind": "interactive"
     },
     {
       "id": "ov-restart",
@@ -46,7 +47,8 @@
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 3448
+      "ms": 3448,
+      "kind": "interactive"
     },
     {
       "id": "ov-cfst",
@@ -63,11 +65,20 @@
         "open": "N/A"
       },
       "assertions": {
-        "busy": []
+        "busy": {
+          "text": "Downloading...",
+          "disabled": true
+        },
+        "notice": "Downloading CFST, please wait...",
+        "rpc": "cf_ip.download-cfst via /ubus",
+        "beforeBytes": 75919,
+        "afterBytes": 78731
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 2951
+      "ms": 2951,
+      "kind": "interactive",
+      "sha": "9adb2d5"
     },
     {
       "id": "ov-refresh-env",
@@ -88,7 +99,8 @@
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 3950
+      "ms": 3950,
+      "kind": "interactive"
     },
     {
       "id": "ov-footer",
@@ -121,7 +133,8 @@
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 1479
+      "ms": 1479,
+      "kind": "interactive"
     },
     {
       "id": "set-enable",
@@ -148,7 +161,8 @@
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 1458
+      "ms": 1458,
+      "kind": "interactive"
     },
     {
       "id": "set-schedule",
@@ -170,7 +184,8 @@
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 1731
+      "ms": 1731,
+      "kind": "interactive"
     },
     {
       "id": "set-mode",
@@ -191,7 +206,8 @@
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 1430
+      "ms": 1430,
+      "kind": "interactive"
     },
     {
       "id": "set-iptype",
@@ -212,7 +228,8 @@
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 1431
+      "ms": 1431,
+      "kind": "interactive"
     },
     {
       "id": "set-protocol",
@@ -233,7 +250,8 @@
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 1403
+      "ms": 1403,
+      "kind": "interactive"
     },
     {
       "id": "set-validation",
@@ -254,7 +272,8 @@
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 2753
+      "ms": 2753,
+      "kind": "interactive"
     },
     {
       "id": "set-save",
@@ -271,11 +290,15 @@
         "open": "N/A"
       },
       "assertions": {
-        "changes": ""
+        "browserValue": "16",
+        "changes": 1,
+        "formValue": "16"
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 3855
+      "ms": 3855,
+      "kind": "interactive",
+      "sha": "9adb2d5"
     },
     {
       "id": "set-apply-open",
@@ -301,7 +324,8 @@
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 1794
+      "ms": 1794,
+      "kind": "interactive"
     },
     {
       "id": "set-reset",
@@ -322,7 +346,8 @@
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 2240
+      "ms": 2240,
+      "kind": "interactive"
     },
     {
       "id": "src-budget",
@@ -349,7 +374,8 @@
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 1433
+      "ms": 1433,
+      "kind": "interactive"
     },
     {
       "id": "src-multiselect",
@@ -371,7 +397,8 @@
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 1764
+      "ms": 1764,
+      "kind": "interactive"
     },
     {
       "id": "src-add",
@@ -395,7 +422,8 @@
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 2704
+      "ms": 2704,
+      "kind": "interactive"
     },
     {
       "id": "src-kind",
@@ -424,7 +452,8 @@
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 31385
+      "ms": 31385,
+      "kind": "interactive"
     },
     {
       "id": "src-lan",
@@ -446,7 +475,8 @@
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 1460
+      "ms": 1460,
+      "kind": "interactive"
     },
     {
       "id": "src-refresh",
@@ -471,7 +501,8 @@
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 4784
+      "ms": 4784,
+      "kind": "interactive"
     },
     {
       "id": "src-save",
@@ -488,11 +519,15 @@
         "open": "N/A"
       },
       "assertions": {
-        "changes": ""
+        "browserValue": "256",
+        "changes": 1,
+        "formValue": "256"
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 3465
+      "ms": 3465,
+      "kind": "interactive",
+      "sha": "9adb2d5"
     },
     {
       "id": "int-policy",
@@ -513,7 +548,8 @@
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 1680
+      "ms": 1680,
+      "kind": "interactive"
     },
     {
       "id": "int-probe",
@@ -534,7 +570,8 @@
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 1593
+      "ms": 1593,
+      "kind": "interactive"
     },
     {
       "id": "int-early",
@@ -555,7 +592,8 @@
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 1615
+      "ms": 1615,
+      "kind": "interactive"
     },
     {
       "id": "int-adaptive",
@@ -576,7 +614,8 @@
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 1685
+      "ms": 1685,
+      "kind": "interactive"
     },
     {
       "id": "int-rill",
@@ -597,7 +636,8 @@
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 1909
+      "ms": 1909,
+      "kind": "interactive"
     },
     {
       "id": "int-selfcheck",
@@ -619,7 +659,8 @@
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 4132
+      "ms": 4132,
+      "kind": "interactive"
     },
     {
       "id": "int-reset",
@@ -641,7 +682,8 @@
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 2317
+      "ms": 2317,
+      "kind": "interactive"
     },
     {
       "id": "int-long-values",
@@ -658,16 +700,16 @@
         "open": "N/A"
       },
       "assertions": {
-        "metrics": {
-          "fields": 0,
-          "longFields": 0,
-          "overflow": false,
-          "clipped": 0
-        }
+        "fields": 57,
+        "longFields": 5,
+        "overflow": false,
+        "clipped": 0
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 1409
+      "ms": 1409,
+      "kind": "read-only",
+      "sha": "9adb2d5"
     },
     {
       "id": "int-save",
@@ -684,11 +726,15 @@
         "open": "N/A"
       },
       "assertions": {
-        "changes": ""
+        "browserValue": "5",
+        "changes": 1,
+        "formValue": "5"
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 3268
+      "ms": 3268,
+      "kind": "interactive",
+      "sha": "9adb2d5"
     },
     {
       "id": "oc-path",
@@ -709,7 +755,8 @@
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 1389
+      "ms": 1389,
+      "kind": "interactive"
     },
     {
       "id": "oc-filter",
@@ -731,7 +778,8 @@
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 1411
+      "ms": 1411,
+      "kind": "interactive"
     },
     {
       "id": "oc-backup-retry",
@@ -748,16 +796,16 @@
         "open": "N/A"
       },
       "assertions": {
-        "before": [
-          "Unable to load OpenClash backups: cf-ip-auto returned no valid result"
-        ],
-        "after": [
-          "Unable to load OpenClash backups: cf-ip-auto returned no valid result"
-        ]
+        "alertBefore": "Unable to load OpenClash backups: fixture: backup listing unavailable",
+        "alertAfter": [],
+        "tableRowsAfterRetry": 1,
+        "note": "controlled fixture failed the first listing; Retry re-queried and rendered the backup table"
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 3050
+      "ms": 3050,
+      "kind": "interactive",
+      "sha": "9adb2d5"
     },
     {
       "id": "oc-save",
@@ -774,11 +822,15 @@
         "open": "N/A"
       },
       "assertions": {
-        "changes": ""
+        "browserValue": "3",
+        "changes": 1,
+        "formValue": "3"
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 3164
+      "ms": 3164,
+      "kind": "interactive",
+      "sha": "9adb2d5"
     },
     {
       "id": "pw-domain",
@@ -799,7 +851,8 @@
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 1374
+      "ms": 1374,
+      "kind": "interactive"
     },
     {
       "id": "pw-save",
@@ -816,11 +869,15 @@
         "open": "N/A"
       },
       "assertions": {
-        "changes": ""
+        "browserValue": " [CF-{n}]",
+        "changes": 1,
+        "formValue": " [CF-{n}]"
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 2880
+      "ms": 2880,
+      "kind": "interactive",
+      "sha": "9adb2d5"
     },
     {
       "id": "adv-mirror",
@@ -841,7 +898,8 @@
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 1418
+      "ms": 1418,
+      "kind": "interactive"
     },
     {
       "id": "adv-validation",
@@ -862,7 +920,8 @@
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 2524
+      "ms": 2524,
+      "kind": "interactive"
     },
     {
       "id": "adv-save",
@@ -879,11 +938,15 @@
         "open": "N/A"
       },
       "assertions": {
-        "changes": ""
+        "browserValue": "3",
+        "changes": 1,
+        "formValue": "3"
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 3160
+      "ms": 3160,
+      "kind": "interactive",
+      "sha": "9adb2d5"
     },
     {
       "id": "log-refresh",
@@ -905,7 +968,8 @@
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 3210
+      "ms": 3210,
+      "kind": "interactive"
     },
     {
       "id": "log-clear",
@@ -927,7 +991,8 @@
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 3065
+      "ms": 3065,
+      "kind": "interactive"
     },
     {
       "id": "log-history",
@@ -949,7 +1014,31 @@
       },
       "evidence": {},
       "status": "PASS",
-      "ms": 1395
+      "ms": 1395,
+      "kind": "read-only"
+    },
+    {
+      "id": "set-apply",
+      "page": "settings",
+      "control": "Save & Apply",
+      "kind": "interactive",
+      "sha": "9adb2d5",
+      "status": "PASS",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "PASS",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "N/A",
+        "open": "PASS"
+      },
+      "assertions": {
+        "serverValue": "8",
+        "formValue": "8"
+      },
+      "evidence": {}
     }
   ]
 }

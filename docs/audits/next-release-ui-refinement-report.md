@@ -15,12 +15,13 @@ Verdict: **COMPLETE for the requested interface items**, with physical-device an
 
 ## Numbers
 
-- Interaction matrix: **42/42 PASS**, 0 FAIL. State PASS counts: default 42, hover 3, focus 4, active 11, disabled 1, error 4, empty 3, open 9; remaining cells are N/A with reasons in the matrix.
+- Interaction matrix: **43/43 PASS** (41 interactive + 2 read-only), 0 FAIL. State PASS counts: default 43, hover 3, focus 4, active 12, disabled 1, error 4, empty 3, open 10; remaining cells are N/A with reasons in the matrix.
 - Keyboard 200%: **16/16 PASS**; per-control real-Tab focus: **312/312 PASS**; 0 focus failures.
-- WCAG AA: 24 page-theme combinations, 1105 text elements, **35 below threshold**, all native LuCI/Aurora control colours (Bootstrap save/reset, Aurora primary teal); none are plugin-authored literals, so they are reported and deliberately not overridden.
-- Visual: **78/78** normal-state screenshots, 0 horizontal overflow; old 78 `visual-phase-c` screenshots preserved in `visual-index.csv` (374 rows).
+- WCAG AA: 24 page-theme combinations, 1389 text elements, **41 below threshold**, all native LuCI/Aurora control colours (Bootstrap save/reset, Aurora primary teal); none are plugin-authored literals, so they are reported and deliberately not overridden.
+- Visual: **78/78** normal-state screenshots, 0 horizontal overflow; old 78 `visual-phase-c` screenshots preserved in `visual-index.csv` (396 rows).
 - v1.8.3-1 comparison: navigation 4 -> 6 static + 2 conditional pages, section radius 0 -> 12px, shadow none -> themed, body font 13px unchanged, footer font unchanged, log 10/9px -> 12px. Deviations are documented with rationale.
 - CI: `CI` run **41703798493** success at `9adb2d5`; `Real LuCI UI Gate` run **41703798508** success; PR #23 OPEN / MERGEABLE.
+- Fresh-eyes audit: 7 evidence issues found and fixed (Intelligence Loading view, 3 identical matrix screenshots, 2 read-only points, unproven Save points, unexecuted fallback path, missing scripts).
 - Intelligence IA: 57 read-only fields in 6 sections (Live State 27). Only wrapping/contrast/focus fixes applied; 4 structural suggestions await approval.
 
 ## Not closed
@@ -29,6 +30,6 @@ Verdict: **COMPLETE for the requested interface items**, with physical-device an
 - OpenClash restore/delete backup: **BLOCKED** (no backup fixtures in the disposable container); backup load-failure + Retry is covered.
 - Speed-test log modal: **BLOCKED** (requires `last_result=running` with CFST; no CFST/network in container).
 
-Evidence root: `docs/audits/next-release-evidence/ui-refinement-7c13b1d/`.
+Evidence root: `docs/audits/next-release-evidence/ui-refinement-7c13b1d/`; audit record: `docs/audits/next-release-fresh-eyes-audit.md`.
 
 SHA binding: visual/token screenshots are at final HEAD `9adb2d5`; interaction matrix, contrast, keyboard, focus and width-matrix evidence is at `7c13b1d` (the only later change is the stat-card radius override, which does not alter any interaction assertion). Matrix screenshots keep their `sha` column in `visual-index.csv`.
