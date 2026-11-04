@@ -34,8 +34,8 @@ OPENCLASH_TARGET_DOMAIN=""
 OPENCLASH_NAME_SUFFIX=" [CF-{n}]"
 OPENCLASH_TRANSPORT_FILTER=""
 OPENCLASH_BACKUP_COUNT="3"
-AUTO_UPDATE="true"
-SELF_UPDATE_URL="https://raw.githubusercontent.com/hello-yunshu/luci-app-cloudflare-ip/main/package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto"
+AUTO_UPDATE="false"
+SELF_UPDATE_URL=""
 DOWNLOAD_RETRIES="3"
 DOWNLOAD_RETRY_DELAY="5"
 VERBOSE="false"
@@ -379,57 +379,10 @@ valid_version() {
 }
 
 self_update() {
-	local tmp remote_version
-
-	[[ "$AUTO_UPDATE" == "true" ]] || return 0
-	[[ -n "$SELF_UPDATE_URL" ]] || return 0
-	command -v curl >/dev/null 2>&1 || {
-		log "skip self update: curl not found"
-		return 0
-	}
-
-	tmp="$(mktemp "${TMPDIR:-/tmp}/cf-ip-auto.XXXXXX")" || return 0
-	log "checking script update: $SELF_UPDATE_URL"
-	if ! curl_fetch "$tmp" "$(mirror_url "$SELF_UPDATE_URL")"; then
-		rm -f "$tmp"
-		log "skip self update: failed to fetch $SELF_UPDATE_URL"
-		return 0
-	fi
-
-	remote_version="$(extract_script_version "$tmp")"
-	if [[ -z "$remote_version" ]]; then
-		rm -f "$tmp"
-		log "skip self update: remote script has no version"
-		return 0
-	fi
-
-	if ! version_gt "$remote_version" "$SCRIPT_VERSION"; then
-		rm -f "$tmp"
-		return 0
-	fi
-
-	if ! bash -n "$tmp"; then
-		rm -f "$tmp"
-		die "downloaded update has invalid shell syntax"
-	fi
-
-	chmod +x "$tmp"
-	if ! mv "$tmp" "$SCRIPT_PATH"; then
-		rm -f "$tmp"
-		die "failed to replace script with version $remote_version"
-	fi
-
-	log "updated script from $SCRIPT_VERSION to $remote_version"
-
-	# In JSON mode or daemon mode, don't exec - just return
-	if [[ "$JSON_MODE" == "true" || "$DAEMON_MODE" == "true" ]]; then
-		return 0
-	fi
-
-	if [[ "$CLI_VERBOSE" == "true" ]]; then
-		exec "$SCRIPT_PATH" --verbose
-	fi
-	exec "$SCRIPT_PATH"
+	# 2.x is package-managed. A mutable main URL plus syntax-only validation
+	# is not an integrity boundary, so the legacy self-update path is disabled.
+	log "self-update disabled: 2.x engine is package-managed; upgrade via IPK/APK"
+	return 0
 }
 
 ensure_jq() {
@@ -2132,49 +2085,8 @@ cmd_download_cfst() {
 cmd_self_update() {
 	JSON_MODE=true
 	load_uci_config
-	[[ "$CLI_VERBOSE" == "true" ]] && VERBOSE="true"
-
-	local tmp remote_version
-
-	[[ "$AUTO_UPDATE" == "true" ]] || { json_result "updated" "false" "reason" "auto_update disabled"; return 0; }
-	[[ -n "$SELF_UPDATE_URL" ]] || { json_result "updated" "false" "reason" "no update url"; return 0; }
-	command -v curl >/dev/null 2>&1 || { json_error "curl not found"; return 1; }
-
-	tmp="$(mktemp "${TMPDIR:-/tmp}/cf-ip-auto.XXXXXX")" || { json_error "failed to create temp file"; return 1; }
-	log "checking script update: $SELF_UPDATE_URL"
-	if ! curl_fetch "$tmp" "$(mirror_url "$SELF_UPDATE_URL")"; then
-		rm -f "$tmp"
-		json_error "failed to fetch update"
-		return 1
-	fi
-
-	remote_version="$(extract_script_version "$tmp")"
-	if [[ -z "$remote_version" ]]; then
-		rm -f "$tmp"
-		json_result "updated" "false" "reason" "remote script has no version"
-		return 0
-	fi
-
-	if ! version_gt "$remote_version" "$SCRIPT_VERSION"; then
-		rm -f "$tmp"
-		json_result "updated" "false" "current_version" "$SCRIPT_VERSION" "remote_version" "$remote_version"
-		return 0
-	fi
-
-	if ! bash -n "$tmp"; then
-		rm -f "$tmp"
-		json_error "downloaded update has invalid shell syntax"
-		return 1
-	fi
-
-	chmod +x "$tmp"
-	if ! mv "$tmp" "$SCRIPT_PATH"; then
-		rm -f "$tmp"
-		json_error "failed to replace script"
-		return 1
-	fi
-
-	json_result "updated" "true" "old_version" "$SCRIPT_VERSION" "new_version" "$remote_version"
+	json_error "legacy self-update is disabled; upgrade via the package manager"
+	return 1
 }
 
 cron_interval_seconds() {
