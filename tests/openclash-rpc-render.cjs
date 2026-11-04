@@ -9,7 +9,16 @@ function E(tag, attrs = {}, children = []) {
     appendChild(child) { this.children.push(child); return child; } };
 }
 const source = fs.readFileSync(path.join(__dirname, '../package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js'), 'utf8');
-const utils = { loadSharedCSS() {}, waitForServiceReady: () => new Promise(() => {}), appendFooter: x => x, FOOTER_OPTIONS: {} };
+const utils = {
+  loadSharedCSS() {},
+  waitForServiceReady: () => new Promise(() => {}),
+  appendFooter: x => x,
+  FOOTER_OPTIONS: {},
+  technicalDetails: raw => E('details', {}, [
+    E('summary', {}, 'Technical details'),
+    E('pre', {}, String(raw))
+  ])
+};
 const view = new Function('view','ui','rpc','uci','form','utils','E','_','setTimeout', source)(
   { extend: x => x }, {}, { declare: () => () => Promise.resolve({}) },
   { get: () => undefined }, {}, utils, E, x => x, () => {});
