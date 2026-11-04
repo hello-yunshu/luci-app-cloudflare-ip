@@ -38,6 +38,7 @@
 - 已发布版本和准确文件名以选定 Release 的 `qualification.json` 为准；源码候选可能尚未发布。
 - 当前源码渠道：`stable` 候选；不表示已经发布 Stable
 - `2.6.0-r6` 已作为 pre-release 发布，其字节对应审计修复前基线；当前源码为 `2.6.0-r8` 发布候选，尚未创建 tag/Release。自动 Stable 发布保持禁用，设备/Soak 与完整 workspace 的非 shipped 依赖边界待用户裁决，具体 SHA、同 run/attempt 安装包与支持范围须另行批准
+- r8 发布收口材料已准备（CHANGELOG、Release notes、资产 SHA256、回滚步骤）；merge、tag、Release 与 channel 变更均等待用户单独授权，详见 [2.6.0-r8 发布准备](docs/2.6.0-r8-RELEASE-READY.md)
 
 正式包只从 `main` 的成功 exact-head CI 资格化运行中发布。IPK/APK、`sha256sums.txt` 和 `qualification.json` 属于同一证据链；主机测试和 SDK 构建不能替代真实 OpenWrt 设备、硬件兼容性或长期 soak 验证。
 
@@ -218,7 +219,7 @@ Docker replay 证据会明确标记为 `replayed`，不能证明真实设备表�
 
 ## 相关文档
 
-- [Next-release 审计索引（当前候选 ffa73f6）](docs/audits/next-release-INDEX.md)
+- [Next-release 审计索引（当前候选 90dfc13）](docs/audits/next-release-INDEX.md)
 - [真实设备验证](docs/REAL_DEVICE_VALIDATION.md)
 - [2.2 Adaptive Measurement](docs/2.2_ADAPTIVE_MEASUREMENT.md)
 - [2.3–2.6 收口记录](docs/2.3_TO_2.6_CLOSEOUT.md)

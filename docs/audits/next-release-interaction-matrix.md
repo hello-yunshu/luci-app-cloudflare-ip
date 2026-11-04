@@ -1,6 +1,6 @@
 # Interaction matrix - seven-state candidate matrix
 
-> 当前候选：`ffa73f6`。本轮新建的 51 点七态矩阵在 `phase-f/matrix/matrix.json`，报告见 `next-release-phase-f-report.md`；下文的 43 点旧矩阵保留为阶段 C/refinement 历史证据。
+> 当前候选：`90dfc13`。本轮新建的 51 点七态矩阵在 `phase-f/matrix/matrix.json`，报告见 `next-release-phase-f-report.md`；下文的 43 点旧矩阵保留为阶段 C/refinement 历史证据。
 
 Baseline SHA: `9adb2d5` for the corrected points; the remaining points were exercised at `7c13b1d`, and the only later code change was the stat-card radius override, which does not alter control behavior. Evidence was re-opened and corrected after the fresh-eyes audit.
 

@@ -80,7 +80,9 @@ node docs/audits/next-release-evidence/repro-2e28db4/repro-risks.cjs \
 
 结论：6 条发布前必须做全部闭合；本地门禁与 exact-SHA CI `41841999414` / `41841991191` / `41841999512` 全绿；详见 `docs/audits/next-release-phase-e-report.md`。
 
-## Phase F（`ffa73f6`）
+## Phase F（证据采集 SHA `ffa73f6`；发布候选 `90dfc13`）
+
+证据在 `ffa73f6` 上采集；`90dfc13` 是随后的 docs-only 证据归档提交，代码树不变。阶段 G 收口只增加 CHANGELOG/Release notes/发布检查清单，不改变包内容。
 
 | 路径 | 内容 |
 |---|---|

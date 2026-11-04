@@ -1,6 +1,6 @@
 # Next Release Remediation Plan — 2e28db4 baseline
 
-> 当前候选：`ffa73f6`。阶段 B–F 已按本计划执行；本轮新增门禁↔CI 一致性检查与七态矩阵。最新状态见 `docs/audits/next-release-phase-f-report.md`。
+> 当前候选：`90dfc13`。阶段 B–F 已按本计划执行；本轮新增门禁↔CI 一致性检查与七态矩阵。最新状态见 `docs/audits/next-release-phase-f-report.md`。
 
 > 本文件是阶段 A 的计划，不包含任何已执行的产品代码修改。阶段 B 需用户批准后启动；阶段 C 的 stable/tag/Release 需另行明确授权。
 

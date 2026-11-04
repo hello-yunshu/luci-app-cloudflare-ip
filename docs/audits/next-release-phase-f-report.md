@@ -1,6 +1,6 @@
 # Phase F - remaining evidence and gate-drift closure
 
-Result: **PASS（第 4/7/9/10 条闭合；门禁↔CI 漂移已治理）**。代码候选 `ffa73f6`（PR #25），docs 随同一 PR 提交；未合并、未打 tag、未建 Release、未改 release-channel。
+Result: **PASS（第 4/7/9/10 条闭合；门禁↔CI 漂移已治理）**。代码证据采集于 `ffa73f6`，当前代码候选 `90dfc13`（docs-only 提交，代码树相同；PR #25）；未合并、未打 tag、未建 Release、未改 release-channel。
 
 ## 0. 结论与计数
 
@@ -8,7 +8,7 @@ Result: **PASS（第 4/7/9/10 条闭合；门禁↔CI 漂移已治理）**。代
   - 覆盖率算法：`reachable = PASS + FAIL`；`coverage = PASS / (PASS + FAIL)` = **121/121 = 100%**。
   - 矩阵单元覆盖率（含物理不可达态）：`PASS / 总单元` = `121/357 = 33.9%`。
   - 证据索引：**225** 个状态文件条目（含 BEFORE/AFTER、跨状态复用），每项带 sha256；矩阵截图 **210** 张。
-- 第 7 条：7 份 docs 绑定 `ffa73f6`；P0/P1 全部 CLOSED；P2-07/P2-08 也已关闭；docs 放主仓库，README + INDEX 双入口。
+- 第 7 条：7 份 docs 绑定当前候选 `90dfc13`（证据采集 SHA `ffa73f6`，代码树相同）；P0/P1 全部 CLOSED；P2-07/P2-08 也已关闭；docs 放主仓库，README + INDEX 双入口。
 - 第 9 条：真实 Chrome 页面缩放 125/150/200%（设置页“网页缩放”，非 CDP emulate）+ 320 reflow；三档 8 页全部 0 横向溢出、0 文字截断、0 焦点环缺失、0 主内容焦点离屏、0 console error。
 - 第 10 条：zh_cn 真实渲染 375/1280 共 16 页；英文残留、msgid 泄漏、菜单缺失、期望文案缺失、横向溢出、截断、console error 全部为 0。
 - 门禁漂移：`openclash-rpc-contract.sh` 等 5 个脚本纳入 CI；新增 `tests/ci-test-inventory.py` 逐文件一致性检查；254 个本地测试中 247 个在 CI、7 个登记理由排除、0 个遗漏。
@@ -64,11 +64,11 @@ N/A 原因分类（逐点写入 `note`，无空白 N/A）：
 
 ## 2. 第 7 条：docs 归位与 SHA 绑定
 
-- 7 份 docs 文首统一绑定 `ffa73f6`：full audit、issue register、i18n、interaction matrix、visual matrix、remediation plan、phase reports；历史 `2e28db4`/`9adb2d5` 正文保留为基线，不再被当作当前状态。
+- 7 份 docs 文首统一绑定当前候选 `90dfc13`（证据采集于 `ffa73f6`；`90dfc13` 为 docs-only 证据归档提交，代码树不变）：full audit、issue register、i18n、interaction matrix、visual matrix、remediation plan、phase reports；历史 `2e28db4`/`9adb2d5` 正文保留为基线，不再被当作当前状态。
 - 证据元数据：
   - `matrix.json` 每点记录 `environment.sha/theme/viewport/locale/dark`、`evidenceIndex`（文件 + sha256）、`consoleErrors`、`assertions.dom/focus/persistence`。
   - `zoom-zh.json` 每张截图记录 `sha`、`level`/`width`、`page`、`viewportCss`、`interaction`（zoom/reflow/zh）、`consoleErrors`；48 张截图哈希全部不同。
-- issue register：P0-01、P1-01/02/03/04 为 **CLOSED — FIXED（ffa73f6）** 并附证据；P1-05 为 **PASS-BY-USER-DECISION**；P2-07（320 tab）与 P2-08（README r6 口径）本轮也已关闭。P2 汇总从 0 closed 变为 3 closed。
+- issue register：P0-01、P1-01/02/03/04 为 **CLOSED — FIXED（90dfc13）** 并附证据；P1-05 为 **PASS-BY-USER-DECISION**；P2-07（320 tab）与 P2-08（README r6 口径）本轮也已关闭。P2 汇总从 0 closed 变为 3 closed。
 - 存放决定：**主仓库 `docs/` 树**，不另建独立 docs 仓库。理由：结论必须与代码 SHA、CI run、包哈希同仓绑定；干净检出即可复核；docs 与代码共用 PR/CI 门禁。`cfip-docs-evidence` 是同一 `.git` 的 linked worktree，不是独立远端。
 - 入口：主仓库 `README.md` “相关文档”链接 `docs/audits/next-release-INDEX.md`；INDEX 再列 7 份 docs、phase-f 证据、phase-d/e 与基线截图。
 - 归档边界：`ui-refinement-7c13b1d/`（28 MB）、`ui-skill-audit/`（21 MB）、`visual-phase-b/`、`visual-phase-c/`（合计 11.6 MB）保留在 linked worktree；它们不是当前候选证据。当前候选的矩阵、真实缩放、zh 截图全部在主仓库。
@@ -167,12 +167,16 @@ N/A 原因分类（逐点写入 `note`，无空白 N/A）：
 
 ## 6. CI 与分支
 
-- 代码候选：`ffa73f6`（`fix(ui): show busy state on Rill action buttons` + `ci: inventory local tests and run OpenClash contracts`）。
-- exact-SHA CI（`ffa73f6`）：
+- 代码候选：`90dfc13`（`ffa73f6` + docs 证据归档提交；代码树与 `ffa73f6` 相同）。
+- 代码证据 SHA `ffa73f6` 的 exact-SHA CI：
   - PR CI **41865842245**：success（全部 20 个 job success）
   - push CI **41865829195**：success
   - Real LuCI UI Gate **41865842265**：success
-- docs-only 提交在本报告之后追加；其 exact-SHA CI 结果以最终交付消息为准。
+- 当前候选 `90dfc13` 的 exact-SHA CI：
+  - PR CI **41883367845**：success
+  - push CI **41883717485**：success
+  - Real LuCI UI Gate **41883367585**：success
+- 阶段 G 收口提交为 docs-only，其 exact-SHA CI 见阶段 G 报告与交付消息。
 - 未合并、未打 tag、未建 Release、未改 release-channel。
 
 ## 7. 仍开放

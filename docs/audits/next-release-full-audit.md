@@ -1,6 +1,6 @@
 # Next Release Full Audit — 2e28db4 baseline
 
-> 当前候选：`audit/ui-skill-review` / `ffa73f6`（PR #25）。本文保留阶段 A 的 2e28db4 审计正文与复现；缺陷状态与修复证据以 `next-release-issue-register.md`（已更新到 ffa73f6）和 `next-release-phase-f-report.md` 为准。
+> 当前候选：`audit/ui-skill-review` / `90dfc13`（PR #25）。本文保留阶段 A 的 2e28db4 审计正文与复现；缺陷状态与修复证据以 `next-release-issue-register.md`（已更新到 90dfc13）和 `next-release-phase-f-report.md` 为准。
 
 ## 1. 审计基线
 
