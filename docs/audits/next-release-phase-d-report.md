@@ -1,6 +1,6 @@
 # Phase D - blocked interactions and Intelligence affordances
 
-Result: **阶段 D PARTIAL** - OpenClash delete success/failure and restore failure ran against the real LuCI/rpcd path; restore success remains BLOCKED because the product requires Ruby/Psych and the OpenWrt 24.10 Ruby package segfaults in this container. Speed-test modal and Intelligence affordances are PASS.
+Result: **阶段 D PARTIAL (historical)** - OpenClash delete success/failure and restore failure ran against the real LuCI/rpcd path; restore success was BLOCKED at the time because the x86_64 Rosetta container could not run the OpenWrt Ruby package. **2026-11-04 follow-up closed restore success on aarch64** and added the Ruby/Psych precheck; see §Follow-up and `next-release-evidence/phase-d/openclash-ruby/RESULTS.md`. Speed-test modal and Intelligence affordances are PASS.
 
 ## OpenClash backup paths (real LuCI + real rpcd)
 
@@ -9,7 +9,7 @@ Controller environment: real mihomo/`clash` 1.19.33 core, real uhttpd `/group` c
 - **Delete success**: real UI Delete -> confirm; notification `Backup deleted`; `reloadCount=1`; backup file missing. PASS
 - **Delete failure**: `/bin/rm` fault injection; notification `Unable to delete backup: failed to delete backup`; no reload; backup file present. PASS
 - **Restore failure**: real backup present; click Restore -> confirm; backend refused with `OpenClash candidate or backup is not a supported YAML document; nothing was published`; notification `Unable to restore backup...`; no reload; config sha256 unchanged. PASS
-- **Restore success**: BLOCKED. The backup controller is present, but `cf-ip-auto` validates candidate YAML with `ruby -rpsych`; OpenWrt 24.10 `ruby`/`ruby-psych` were installed offline and `ruby -v` exits 139 (segmentation fault), so every restore is rejected before write. Attempted: real mihomo core + controller, real config/backup, Ruby 3.3.10 + Psych 5.x packages, direct `ruby3.3-bin` and `--disable-gems`. Unlock: a real OpenWrt device/VM where Ruby/Psych runs, or a rebuilt Ruby package for this container CPU. Evidence: `openclash/openclash.json`, `delete-success.json`, screenshots.
+- **Restore success**: BLOCKED at phase D (x86_64 Rosetta container, `ruby -v` rc 139). **Closed on 2026-11-04**: real restore passed on OpenWrt 24.10.8 aarch64 with Ruby 3.3.10/Psych 5.1.2 and mihomo 1.19.33; see `next-release-evidence/phase-d/openclash-ruby/RESULTS.md`. Evidence: `openclash/openclash.json`, `delete-success.json`, screenshots.
 
 ## Speed-test log modal (real LuCI status/log read path)
 
@@ -39,7 +39,19 @@ Evidence: `intelligence/intelligence.json` and 6 screenshots.
 - i18n contract: 473 keys (JS 464 + menu 9), POT/zh/en 484 entries, PASS. Negative gate with a removed POT/zh key fails as expected.
 - View-bindings fixture PASS; `node --check` PASS.
 - `tests/luci-refresh-error.cjs`: the diagnostics fixture now binds the real LuCI `L` global required by the new Intelligence cross-link. Local red -> green: pre-fix `ReferenceError: L is not defined` (rc 1), post-fix rc 0 with both original assertions PASS.
-- Physical device / 24h soak: NOT RUN. Required: exact router model + firmware + arch, real OpenClash/PassWall service and proxy network, and a 24h wall-clock run bound to the exact code SHA (`a8f89e8`). Container results are not a substitute.
+- Physical device / 24h soak: **PASS-BY-USER-DECISION** on 2026-11-04. User stated "真机 + 24h soak 之前已经做过了，直接 pass". No new 24h record was fabricated. Historical device acceptance exists for OpenWrt 25.12.5 x86_64 Microsoft VM at `3bf0ec1` (`docs/audits/g6-g7-evidence/device-acceptance-3bf0ec1.json`); historical soak records are SKIPPED / NOT STARTED, so this status rests on the user decision alone, not on a new exact-SHA run.
+
+## Follow-up 2026-11-04 (device/external-environment ledger)
+
+Code branch `audit/ui-skill-review`, local HEAD `44677a4` (not pushed).
+
+| 对账项 | 状态 | 证据 | 判定 |
+|---|---|---|---|
+| 真机 + 24h soak | PASS-BY-USER-DECISION | 用户原话；历史设备验收 `g6-g7-evidence/device-acceptance-3bf0ec1.json`；无新 24h 记录 | 关闭（不计入剩余） |
+| OpenClash 恢复成功 + Ruby/Psych 前置 | PASS | `openclash-ruby/RESULTS.md`、`direct-restore.txt`、`openclash-ruby-restore.json`、三态截图；真实 aarch64 恢复，x86 Rosetta 边界已写清 | 关闭（不计入剩余） |
+| 跨仓 Rill / PM | PARTIAL | `cross-repo.md`；pin/冲突/本地验证完成；真实 PR 创建必须触发 Actions，标“需用户裁决” | 仍计 1 条 |
+
+NO-GO 硬要求计数：**14 → 12**（两条关闭，跨仓因 PR 路径保留 1 条）。若用户裁决接受 `sync-rill.yml` 本地等价验证、不再要求真实 PR 创建证据，则跨仓可转 PASS，计数为 **11**。
 
 ## Validation boundary (private repository)
 

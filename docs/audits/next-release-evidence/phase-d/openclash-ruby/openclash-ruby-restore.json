@@ -1,0 +1,30 @@
+{
+  "container": "cfip-openclash-arm",
+  "restore": {
+    "before": {
+      "configSha": "fe6bbacea4aad3d92a16e7f5b4f7381a4f8f2302b740ce9547129ddab15b0159",
+      "backupSha": "47f7286fff1665cb0affbc789bc09db5ee0a7b94b52c0854b517516a30c7e9f1",
+      "group": "ui-restored-node"
+    },
+    "after": {
+      "configSha": "47f7286fff1665cb0affbc789bc09db5ee0a7b94b52c0854b517516a30c7e9f1",
+      "backupSha": "47f7286fff1665cb0affbc789bc09db5ee0a7b94b52c0854b517516a30c7e9f1",
+      "group": "ui-final-node",
+      "clashPid": "44561"
+    }
+  },
+  "rubyStates": {
+    "ruby-missing": {
+      "warning": "OpenClash is installed, but restoring a backup needs Ruby and the Psych YAML module.\n\nRuby is not installed.\n\nNext step: opkg install ruby ruby-psych\n\nBackup creation, download and delete still work; only Restore is disabled.",
+      "restoreDisabled": true
+    },
+    "psych-missing": {
+      "warning": "OpenClash is installed, but restoring a backup needs Ruby and the Psych YAML module.\n\nRuby is installed, but the Psych YAML module is missing.\n\nNext step: opkg install ruby-psych\n\nBackup creation, download and delete still work; only Restore is disabled.",
+      "restoreDisabled": true
+    },
+    "ruby-unusable": {
+      "warning": "OpenClash is installed, but restoring a backup needs Ruby and the Psych YAML module.\n\nRuby is installed but cannot run on this device (it exits with a segmentation fault).\n\nNext step: Use firmware with a working Ruby/Psych, or restore this backup on another device.\n\nBackup creation, download and delete still work; only Restore is disabled.",
+      "restoreDisabled": true
+    }
+  }
+}

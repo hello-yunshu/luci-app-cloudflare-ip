@@ -1,0 +1,50 @@
+# Local sync-rill validation (no remote mutation, no Actions)
+
+## 1. Real no-change path
+
+$ cd /tmp/cfip-sync-wt
+$ GH_TOKEN="$(gh auth token)" python3 scripts/check_rill_dependency.py --sync --package-dir /tmp/rill-pin-wt
+No qualified Runtime contract change.
+rc=0
+$ git status --short
+?? scripts/__pycache__/
+
+## 2. Contract validation against pinned package tree
+
+$ python3 scripts/check_rill_dependency.py --package-dir /tmp/rill-pin-wt
+PASS: qualified rill-runtime 1.5.6 from a1245c293605740db3bf49f143ba03f545a89922
+
+## 3. open_sync_pr.py dry run with fake gh (local bare origin)
+
+$ PATH="/tmp/sync-pr-test/bin:$PATH" python3 open_sync_pr.py \
+    --base main --prefix automation/test \
+    --title 'deps(rill): test' --body-file /tmp/sync-pr-test/body.md \
+    contracts/rill-runtime.json
+https://example.invalid/pull/1
+Dependency PR prepared. Required qualification/consumer checks must run before merge.
+PR creation/dispatch is not qualification; the exact-SHA checks must reach success before merge.
+rc=0
+
+$ git --git-dir=/tmp/sync-pr-test/origin.git branch -a
+  automation/test-b6288eee997bcd1adee6
+* main
+
+$ cat /tmp/sync-pr-test/gh.log
+GH pr list --base main --head automation/test-b6288eee997bcd1adee6 --state all --json number,state,mergedAt
+GH pr create --base main --head automation/test-b6288eee997bcd1adee6 --title deps(rill): test --body-file /tmp/sync-pr-test/body.md
+
+## 4. Read-only repository metadata
+
+$ gh api repos/hello-yunshu/luci-app-cloudflare-ip/actions/permissions
+{"enabled":true,"allowed_actions":"all","sha_pinning_required":false}
+
+$ gh api repos/hello-yunshu/luci-app-cloudflare-ip/actions/permissions/workflow
+{"default_workflow_permissions":"write","can_approve_pull_request_reviews":true}
+
+$ gh api repos/hello-yunshu/luci-app-cloudflare-ip/branches/main/protection
+{"message":"Branch not protected", ... status 404}
+
+## 5. Real PR creation is not locally equivalent
+
+Creating the PR triggers pull_request CI; open_sync_pr.py may also dispatch ci.yml.
+Both create Actions runs, so this path is marked "needs user decision" and was not executed.

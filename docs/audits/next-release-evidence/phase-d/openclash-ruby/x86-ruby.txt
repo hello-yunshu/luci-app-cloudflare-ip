@@ -1,0 +1,17 @@
+# OpenWrt 24.10.8 x86_64 rootfs on Apple Silicon (Docker/OrbStack amd64 emulation)
+x86_64
+vendor_id	: VirtualApple
+	/lib/ld-musl-x86_64.so.1 (0x7ffffff7e000)
+	libruby.so.3.3 => /usr/lib/libruby.so.3.3 (0x7fffff41c000)
+	libz.so.1 => /usr/lib/libz.so.1 (0x7fffff407000)
+	libgmp.so.10 => /usr/lib/libgmp.so.10 (0x7fffff39e000)
+	libgcc_s.so.1 => /lib/libgcc_s.so.1 (0x7fffff384000)
+	libc.so => /lib/ld-musl-x86_64.so.1 (0x7ffffff7e000)
+ruby-v:
+ruby_v_rc=139
+ruby-disable-gems-v:
+disable_gems_rc=139
+psych:
+psych_rc=139
+-rwxr-xr-x    1 root     root        106619 Oct 31 09:50 /usr/lib/libyaml-0.so.2.0.9
+-rwxr-xr-x    1 root     root         28674 Oct 31 09:50 /usr/lib/ruby/3.3/x86_64-linux-gnu/psych.so

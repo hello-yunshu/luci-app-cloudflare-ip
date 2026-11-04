@@ -22,7 +22,7 @@
 | P1-02 | P1 | Sources 刷新丢失未保存编辑 | OPEN — REPRODUCED (JS) | 同上 |
 | P1-03 | P1 | Rill reset 不刷新状态 | OPEN — REPRODUCED (JS) | 同上 |
 | P1-04 | P1 | 简体中文 88 个 key + 2 个菜单缺失 | OPEN — MEASURED | `i18n-2e28db4/` |
-| P1-05 | P1 | 真实设备/硬件/24h soak 证据缺失 | NOT_RUN | `docs/REAL_DEVICE_VALIDATION.md` |
+| P1-05 | P1 | 真实设备/硬件/24h soak 证据缺失 | PASS-BY-USER-DECISION (2026-11-04) | `next-release-phase-d-report.md` §Follow-up |
 | P2-01 | P2 | 600/900px media query 与容器宽度风险 | OPEN — SOURCE_CONFIRMED | `cloudflare-ip.css` |
 | P2-02 | P2 | Overview 内联 CSS 重复 | OPEN — SOURCE_CONFIRMED | `overview.js` |
 | P2-03 | P2 | 深色主题变量双来源/硬编码 | OPEN — SOURCE_CONFIRMED | `cloudflare-ip.css` |
@@ -31,7 +31,7 @@
 | P2-06 | P2 | 缺少 reduced-motion 处理 | OPEN — SOURCE_CONFIRMED | `cloudflare-ip.css` |
 | P2-07 | P2 | 320px 顶部导航 tab 裁切 | OPEN — RUNTIME_VERIFIED | `visual-2e28db4/*/320x900/overview.png` |
 | P2-08 | P2 | README 仍称 r6“正在重新资格化” | OPEN — DOC | `README.md` |
-| P2-09 | P2 | rill-ml pin 落后 main，存在未合并 PR | OPEN — HYPOTHESIS/待审计 | `cross-repo-2e28db4.json` |
+| P2-09 | P2 | rill-ml pin 落后 main，存在未合并 PR | CLOSED — 保持 `da8389f`，理由见 `phase-d/openclash-ruby/cross-repo.md` | `cross-repo.md` |
 | P3-01 | P3 | 缺少统一中文术语表 | OPEN — SOURCE_CONFIRMED | `i18n-2e28db4/` |
 | P3-02 | P3 | 设计 token/footer 一致性待收口 | OPEN — RUNTIME/视觉 | 78 张截图 |
 
@@ -104,7 +104,7 @@
 - **证据**：`docs/REAL_DEVICE_VALIDATION.md` 明确物理设备未执行；历史设备候选 `3bf0ec1` 不是 `2e28db4`。
 - **影响**：最终 GO 条件不满足；不能把容器当硬件。
 - **期望**：用户提供设备或明确接受边界；记录 firmware/arch/package/proxy/rollback。
-- **状态**：NOT_RUN。
+- **状态**：PASS-BY-USER-DECISION（2026-11-04）。用户确认“真机 + 24h soak 之前已经做过了，直接 pass”；未补造新记录。历史设备验收见 `g6-g7-evidence/device-acceptance-3bf0ec1.json`，历史 soak 记录为 SKIPPED/NOT STARTED，故本状态仅依据用户裁定。
 
 ## 5. P2
 
@@ -158,6 +158,7 @@
 - **证据**：`cross-repo-2e28db4.json`；contract preview `da8389f`，rill-ml main `9602750`；PR #50/#51；Performance Manager #13。
 - **风险**：Runtime/Protocol/schema 可能漂移；直接跟随 main 会绕过资格。
 - **建议**：逐项比较 pin 与 main 的 API/schema；确认 PR #50 的安全依赖合并与重新资格；用户决定是否跟随。
+- **结论（2026-11-04）**：保持 `da8389f`。`da8389f..9602750` 仅 3 个提交、只改 `Cargo.lock`（rand bump），无 API/schema 变化；`a1245c2` 的 Preview 包已通过 `040-wasm-engine-advisory-20261029.patch` 将 Wasmtime 升至 49.0.5，资格 run `41497865089` 绑定该组合；跟随 main 会丢失已资格补丁并需重新资格。证据见 `phase-d/openclash-ruby/cross-repo.md`。
 
 ## 6. P3
 
