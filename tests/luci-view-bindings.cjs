@@ -25,6 +25,13 @@ function E(tag, attrs, children) {
   const utils={loadSharedCSS(){},renderWithFooter:x=>x,
    statusLabel(kind,value){return value==null||value===''?'Unknown':String(value);},
    statusReasons(values){return values&&values.length?values.join(', '):'None';},
+   collectUnknownStatusCodes(){return [];},
+   sourceStateLabel(entry){return entry&&entry.success===true?'Fresh':'Not fetched';},
+   sourceErrorNode(code){return code||'—';},
+   errorPanel:(title,message,error)=>E('div',{},[title,message||'',String(error||'')]),
+   errorText:error=>String(error==null?'':error),
+   copyButton:()=>E('button',{}),
+   noticeError(){},
    createHandleSave(map,owner){calls.push(['save',owner]);},createHandleSaveApply(map,owner){calls.push(['apply',owner]);}};
   const form={Map,TypedSection:'typed',NamedSection:'named'};
   const source=fs.readFileSync(path.join(root,'package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip',name+'.js'),'utf8');

@@ -36,27 +36,6 @@ function runtimeSummary(status) {
 	return _('Unavailable / Native fallback') + (intelligence.state ? ' / ' + utils.statusLabel('runtime', intelligence.state) : '');
 }
 
-function execCommandCopy(text) {
-	return Promise.resolve().then(function() {
-		var area = E('textarea', { 'class': 'cfi-copy-source' }, text);
-		document.body.appendChild(area);
-		try {
-			area.select();
-			if (!document.execCommand('copy'))
-				throw new Error(_('Copy command was rejected'));
-			return true;
-		} finally {
-			document.body.removeChild(area);
-		}
-	});
-}
-
-function copyText(text) {
-	if (navigator.clipboard && navigator.clipboard.writeText)
-		return navigator.clipboard.writeText(text).catch(function() { return execCommandCopy(text); });
-	return execCommandCopy(text);
-}
-
 function addCopyButton(field, text) {
 	if (!field || field.querySelector('.cfi-copy-btn'))
 		return;
@@ -66,7 +45,7 @@ function addCopyButton(field, text) {
 		'aria-label': _('Copy'),
 		'click': function() {
 			var self = this;
-			copyText(text).then(function() {
+			utils.copyText(text).then(function() {
 				self.textContent = _('Copied');
 				self.setAttribute('aria-label', _('Copied'));
 				window.setTimeout(function() {
@@ -74,14 +53,14 @@ function addCopyButton(field, text) {
 					self.setAttribute('aria-label', _('Copy'));
 				}, 1500);
 			}).catch(function(error) {
-				ui.addNotification(null, E('p', {}, _('Unable to copy: %s').format(error.message || error)), 'error');
+				utils.noticeError(_('Unable to copy.'), _('The clipboard is unavailable and the copy fallback was rejected.'), error);
 			});
 		}
 	}, _('Copy'));
 	field.appendChild(button);
 }
 
-function decorateIntelligence(node) {
+function decorateIntelligence(node, status) {
 	if (!node || typeof node.querySelectorAll !== 'function')
 		return node;
 	var copyTargets = ['-_endpoint', '-_run_history', '-_runtime_path', '-_context_policy', '-_resource'];
@@ -123,6 +102,15 @@ function decorateIntelligence(node) {
 		liveSection.appendChild(toggle);
 		liveSection.appendChild(body);
 		apply(open);
+	}
+	var unknownCodes = utils.collectUnknownStatusCodes(status);
+	if (unknownCodes.length) {
+		var target = liveSection || node;
+		target.appendChild(E('details', { 'class': 'cfi-raw-codes' }, [
+			E('summary', {}, _('Unknown state codes')),
+			E('pre', { 'class': 'cfi-log-area' }, unknownCodes.join('\n')),
+			utils.copyButton(unknownCodes.join('\n'))
+		]));
 	}
 	return node;
 }
@@ -291,14 +279,14 @@ return view.extend({
 			return _('Valid feedback') + ': ' + (i.validFeedback || 0) + ', ' + _('delayed pending') + ': ' + (i.pendingDelayedFeedback || 0) + ', ' + _('completed') + ': ' + (i.delayedCompleted || 0) + ', Δ ' + (i.rewardDelta == null ? '?' : i.rewardDelta.toFixed(3));
 		};
 	o = s.option(form.DummyValue, '_health', _('Runtime Health'));
-	o.cfgvalue = function() { var i = status.intelligence || {}; return (i.health || _('Unknown')) + (i.resourcePressure ? ' / ' + _('Resource pressure') : ''); };
+	o.cfgvalue = function() { var i = status.intelligence || {}; return utils.statusLabel('health', i.health) + (i.resourcePressure ? ' / ' + _('Resource pressure') : ''); };
 	o = s.option(form.DummyValue, '_resource', _('Resource Guard'));
 	o.cfgvalue = function() {
 		var i = status.intelligence || {}, x = i.inspect || {}, u = x.resourceUtilization || {}, p = x.resourceProfile || {};
 		return _('pressure') + ': ' + (i.resourcePressure ? _('yes') : _('no')) + ', ' + _('state bytes') + ': ' + (u.stateBytes || 0) + ' / ' + (p.maxModelStateBytes || '?') + ', ' + _('pending') + ': ' + (u.pendingDecisions || 0) + ' / ' + (p.maxPendingDecisions || '?');
 	};
 		o = s.option(form.DummyValue, '_inspect', _('Runtime Inspect'));
-		o.cfgvalue = function() { var i = status.intelligence || {}, x = i.inspect || {}; return _('pending') + ': ' + (x.pendingDecisions || i.pendingDelayedFeedback || 0) + ', ' + _('completed') + ': ' + (x.completedDecisions || i.delayedCompleted || 0) + ', ' + _('last error') + ': ' + (x.lastError || _('None')); };
+		o.cfgvalue = function() { var i = status.intelligence || {}, x = i.inspect || {}; return _('pending') + ': ' + (x.pendingDecisions || i.pendingDelayedFeedback || 0) + ', ' + _('completed') + ': ' + (x.completedDecisions || i.delayedCompleted || 0) + ', ' + _('last error') + ': ' + utils.statusLabel('error', x.lastError || 'none'); };
 	o = s.option(form.DummyValue, '_authority', _('Current Authority'));
 	o.cfgvalue = function() {
 		return status.effectiveMode === 'assisted' ? _('Guarded Assisted') : (status.effectiveMode === 'shadow' ? _('Shadow') : _('Native'));
@@ -367,9 +355,13 @@ return view.extend({
 			if (result && result.success)
 				ui.addNotification(null, E('p', _('Rill self-check passed.')));
 			else
-				ui.addNotification(null, E('p', _('Rill self-check fell back to Native.')), 'warning');
+				ui.addNotification(null, utils.errorNotice(
+					_('Rill self-check fell back to Native.'),
+					_('Native ranking remains authoritative; inspect the technical details before enabling Assisted mode.'),
+					result && result.error
+				), 'warning');
 		}).catch(function(error) {
-			ui.addNotification(null, E('p', _('Unable to complete self-check: %s').format(error.message || error)), 'error');
+			utils.noticeError(_('Unable to complete self-check.'), _('Native ranking remains available.'), error);
 		}).finally(function() { utils.resetBusy(button); });
 	};
 	o = s.option(form.Button, '_reset', _('Reset Learning State'));
@@ -386,7 +378,7 @@ return view.extend({
 				ui.addNotification(null, E('p', _('Rill learning state was reset. Reloading status.')), 'info');
 				setTimeout(function() { location.reload(); }, 500);
 			}).catch(function(error) {
-				ui.addNotification(null, E('p', _('Unable to reset learning state: %s').format(error.message || error)), 'error');
+				utils.noticeError(_('Unable to reset learning state.'), _('The previous learning state was preserved.'), error);
 			}).finally(function() { utils.resetBusy(button); });
 		}, _('Reset'));
 	};
@@ -394,7 +386,7 @@ return view.extend({
 	utils.createHandleSave(m, this);
 	utils.createHandleSaveApply(m, this);
 	var renderContents = m.renderContents.bind(m);
-	m.renderContents = function() { return renderContents().then(decorateIntelligence); };
+	m.renderContents = function() { return renderContents().then(function(node) { return decorateIntelligence(node, status); }); };
 	return utils.renderWithFooter(m.render(), utils.FOOTER_OPTIONS);
 	}
 });

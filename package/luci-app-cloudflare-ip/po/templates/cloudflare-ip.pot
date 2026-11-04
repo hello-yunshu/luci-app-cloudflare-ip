@@ -2137,3 +2137,174 @@ msgstr ""
 #, javascript-format
 msgid "Delete the backup from %s? This cannot be undone."
 msgstr ""
+
+msgid "Check the service status and logs before starting another run."
+msgstr ""
+
+msgid "Copy technical details"
+msgstr ""
+
+msgid "Deprecated and read-only. The 2.x engine is updated only through IPK/APK package upgrades."
+msgstr ""
+
+msgid "Download failed"
+msgstr ""
+
+msgid "Invalid response"
+msgstr ""
+
+msgid "List could not be parsed"
+msgstr ""
+
+msgid "Native ranking remains authoritative; inspect the technical details before enabling Assisted mode."
+msgstr ""
+
+msgid "Native ranking remains available."
+msgstr ""
+
+msgid "Open the log below and check the service status before retrying."
+msgstr ""
+
+msgid "Permission denied"
+msgstr ""
+
+msgid "Refresh and try again; the previous rows are unchanged."
+msgstr ""
+
+msgid "Retry the environment check. If it keeps failing, open Logs & Records for the service state."
+msgstr ""
+
+msgid "Retry the page; the source rows below are unavailable until the RPC succeeds."
+msgstr ""
+
+msgid "Retry the source registry check. If it keeps failing, open Logs & Records."
+msgstr ""
+
+msgid "Retry, or check that OpenClash is installed and its configuration path is valid."
+msgstr ""
+
+msgid "Source URL is invalid or insecure"
+msgstr ""
+
+msgid "Source error"
+msgstr ""
+
+msgid "Source is disabled"
+msgstr ""
+
+msgid "Source request timed out"
+msgstr ""
+
+msgid "Source returned an HTTP error"
+msgstr ""
+
+msgid "Source returned an unsupported list"
+msgstr ""
+
+msgid "Source returned no usable addresses"
+msgstr ""
+
+msgid "The backup file is still present."
+msgstr ""
+
+msgid "The backup was not applied; the current configuration is unchanged."
+msgstr ""
+
+msgid "The clipboard is unavailable and the copy fallback was rejected."
+msgstr ""
+
+msgid "The existing CFST binary, if any, was left unchanged."
+msgstr ""
+
+msgid "The last service run reported an error."
+msgstr ""
+
+msgid "The previous applied configuration was preserved."
+msgstr ""
+
+msgid "The previous candidate pool is unchanged; unsaved edits are still kept."
+msgstr ""
+
+msgid "The previous environment detection is still shown."
+msgstr ""
+
+msgid "The previous learning state was preserved."
+msgstr ""
+
+msgid "The previous log file was preserved."
+msgstr ""
+
+msgid "The previous service state was preserved."
+msgstr ""
+
+msgid "The proxy selection may be incomplete until the environment check succeeds."
+msgstr ""
+
+msgid "The service state was not changed."
+msgstr ""
+
+msgid "Unable to apply configuration."
+msgstr ""
+
+msgid "Unable to check the proxy environment."
+msgstr ""
+
+msgid "Unable to check the proxy environment. Retry from Overview and expand the technical details there."
+msgstr ""
+
+msgid "Unable to clear logs."
+msgstr ""
+
+msgid "Unable to complete self-check."
+msgstr ""
+
+msgid "Unable to confirm speed test status."
+msgstr ""
+
+msgid "Unable to copy technical details."
+msgstr ""
+
+msgid "Unable to copy."
+msgstr ""
+
+msgid "Unable to delete backup."
+msgstr ""
+
+msgid "Unable to load"
+msgstr ""
+
+msgid "Unable to load IP history."
+msgstr ""
+
+msgid "Unable to load OpenClash backups."
+msgstr ""
+
+msgid "Unable to load source status."
+msgstr ""
+
+msgid "Unable to refresh environment."
+msgstr ""
+
+msgid "Unable to refresh sources."
+msgstr ""
+
+msgid "Unable to reset learning state."
+msgstr ""
+
+msgid "Unable to restart service."
+msgstr ""
+
+msgid "Unable to restore backup."
+msgstr ""
+
+msgid "Unable to start service."
+msgstr ""
+
+msgid "Unable to stop service."
+msgstr ""
+
+msgid "Unable to update CFST."
+msgstr ""
+
+msgid "Unknown state codes"
+msgstr ""

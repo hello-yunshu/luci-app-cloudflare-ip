@@ -62,7 +62,8 @@ return view.extend({
 			return utils.renderWithFooter(E('div', { 'class': 'cbi-map cfi-form-map' }, [
 				E('div', { 'class': 'cbi-section cfi-empty-state' }, [
 					E('h3', {}, _('Unable to check OpenClash environment')),
-					E('p', {}, _('The OpenClash environment check failed: %s').format(env.error || _('Unknown'))),
+					E('p', {}, _('Retry the environment check. If it keeps failing, open Logs & Records for the service state.')),
+					utils.technicalDetails(env.error),
 					E('button', { 'class': 'btn cbi-button', 'click': function() { location.reload(); } }, _('Retry'))
 				])
 			]), utils.FOOTER_OPTIONS);
@@ -136,13 +137,11 @@ return view.extend({
 		var backups = (backupData.success === true && backupData.backups) ? backupData.backups : [];
 
 		if (backupError) {
-			backupSection.appendChild(E('div', { 'class': 'alert-message error' }, [
-				E('p', {}, _('Unable to load OpenClash backups. Retry, or check that OpenClash is installed and its configuration path is valid.')),
-				E('details', {}, [
-					E('summary', {}, _('Technical details')),
-					E('pre', { 'class': 'cfi-log-area', 'style': 'white-space:pre-wrap;max-height:12em;overflow:auto;margin:0.5em 0 0' }, String(backupData.error || _('Unknown')))
-				])
-			]));
+			backupSection.appendChild(utils.errorPanel(
+				_('Unable to load OpenClash backups.'),
+				_('Retry, or check that OpenClash is installed and its configuration path is valid.'),
+				backupData.error || backupData._rpcError
+			));
 			backupSection.appendChild(E('button', { 'class': 'btn cbi-button', 'click': function() { location.reload(); } }, _('Retry')));
 		} else if (backups.length === 0) {
 			backupSection.appendChild(E('div', {
@@ -186,7 +185,7 @@ return view.extend({
 										callOcRestoreBackup(backup.id).then(function(result) {
 											ui.hideModal();
 											if (!result || result.success !== true || result.error) {
-												ui.addNotification(null, E('p', {}, _('Unable to restore backup: %s').format((result && result.error) || _('Unknown'))), 'error');
+												utils.noticeError(_('Unable to restore backup.'), _('The backup was not applied; the current configuration is unchanged.'), (result && result.error) || _('Unknown'));
 											} else if (result.deferredUntilServiceStart || result.last_result === 'warning') {
 												ui.addNotification(null, E('p', {}, _('Nodes updated; OpenClash is disabled and the changes will take effect after it is started')), 'warning');
 												setTimeout(function() { location.reload(); }, 500);
@@ -196,7 +195,7 @@ return view.extend({
 											}
 										}).catch(function(e) {
 											ui.hideModal();
-											ui.addNotification(null, E('p', {}, _('Unable to restore backup: %s').format(e.message)), 'error');
+											utils.noticeError(_('Unable to restore backup.'), _('The backup was not applied; the current configuration is unchanged.'), e);
 										});
 									}
 								}, '\u21A9 ' + _('Restore'))
@@ -218,13 +217,13 @@ return view.extend({
 										ui.hideModal();
 										callOcDeleteBackup(backup.id).then(function(result) {
 											if (!result || result.success !== true || result.error) {
-												ui.addNotification(null, E('p', {}, _('Unable to delete backup: %s').format((result && result.error) || _('Unknown'))), 'error');
+												utils.noticeError(_('Unable to delete backup.'), _('The backup file is still present.'), (result && result.error) || _('Unknown'));
 											} else {
 												ui.addNotification(null, E('p', {}, _('Backup deleted')), 'info');
 												setTimeout(function() { location.reload(); }, 500);
 											}
 										}).catch(function(e) {
-											ui.addNotification(null, E('p', {}, _('Unable to delete backup: %s').format(e.message)), 'error');
+											utils.noticeError(_('Unable to delete backup.'), _('The backup file is still present.'), e);
 										});
 									}
 								}, _('Delete'))
