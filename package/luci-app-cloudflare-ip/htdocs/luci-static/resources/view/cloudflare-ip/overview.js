@@ -475,10 +475,18 @@ return view.extend({
 			E('td', { 'class': 'td' }, lastResultBadge)
 		]));
 		if (data.service && data.service.target === 'openclash') {
-			var serviceMessage = data.service.deferredUntilServiceStart ?
-				_('Nodes updated; OpenClash is disabled and the changes will take effect after it is started') :
-				(data.service.error || error || (data.service.serviceApplied ? _('OpenClash service applied and health verified.') :
-					(data.service.recoveryVerified ? _('OpenClash service restored and health verified; new nodes were not applied.') : '')));
+			var serviceMessage;
+			if (data.service.deferredUntilServiceStart) {
+				serviceMessage = _('Nodes updated; OpenClash is disabled and the changes will take effect after it is started');
+			} else if (data.service.error || error) {
+				serviceMessage = E('div', {}, [
+					E('p', {}, _('OpenClash apply failed.')),
+					utils.technicalDetails(data.service.error || error)
+				]);
+			} else {
+				serviceMessage = data.service.serviceApplied ? _('OpenClash service applied and health verified.') :
+					(data.service.recoveryVerified ? _('OpenClash service restored and health verified; new nodes were not applied.') : '');
+			}
 			if (serviceMessage)
 				infoTable.appendChild(E('tr', { 'class': 'tr' }, [
 					E('th', { 'class': 'th' }, _('OpenClash Apply Status')),

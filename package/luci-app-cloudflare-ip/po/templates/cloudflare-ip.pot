@@ -2308,3 +2308,6 @@ msgstr ""
 
 msgid "Unknown state codes"
 msgstr ""
+
+msgid "OpenClash apply failed."
+msgstr ""

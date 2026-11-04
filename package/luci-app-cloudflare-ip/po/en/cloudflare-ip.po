@@ -2229,3 +2229,6 @@ msgstr "无法更新 CFST。"
 
 msgid "Unknown state codes"
 msgstr "未知状态码"
+
+msgid "OpenClash apply failed."
+msgstr "OpenClash apply failed."
