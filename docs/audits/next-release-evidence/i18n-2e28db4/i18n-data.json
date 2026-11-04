@@ -1,0 +1,1184 @@
+{
+  "unique_js_keys": 423,
+  "js_files": 9,
+  "pot_msgids": 340,
+  "zh_entries": 341,
+  "pot_missing": 88,
+  "zh_missing": 88,
+  "menu": {
+    "Cloudflare IP Optimization": "present",
+    "Candidate IP Sources": "missing",
+    "Intelligence": "missing",
+    "Overview": "present",
+    "Settings": "present",
+    "Advanced": "present",
+    "Logs & Records": "present"
+  },
+  "missing_keys": [
+    {
+      "key": "Adaptive Measurement",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Are you sure you want to restore this backup? A backup of the current configuration will be created first.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/openclash.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Assisted is qualification-gated and uses only the Native safe envelope; any Runtime problem falls back to Native.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Audit Evidence",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "CFST measurement concurrency. This controls load, not the candidate budget.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/settings.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Candidate Assisted",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Candidate Intelligence",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Candidate Shadow",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Cloudflare IP optimization service is not running. Click Start to begin.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/overview.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Concurrent target-domain probes, bounded to protect the proxy-off window.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/advanced.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Current Context Policy",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Current Endpoint",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Current State",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Custom sources accept HTTPS text lists containing IP, IP:port, IPv6, bracketed IPv6:port, or CIDR. Only the IP/CIDR is retained; domains are rejected.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/sources.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Each run allocates roughly 1/8 to fresh history champions, 5/8 to community seeds, and 1/4 to Cloudflare official range exploration. Missing pools flow to other sources. All candidates are deduplicated and measured locally in one CFST run; community ports are never reused.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/sources.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Eligible Insufficiency Rate",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Enable Adaptive Measurement",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Enable the optional Rill consumer. Native ranking remains authoritative when Rill is disabled or unavailable.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Filter by Cloudflare data center in HTTPing mode. Comma-separated, e.g. HKG,NRT,LAX. Only effective with HTTPing.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/settings.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Fixed package-managed Preview Runtime path; custom executable paths are rejected.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Fixed to /usr/bin or /usr/share/cf-ip. CFST is downloaded and executed as root only from these directories.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/advanced.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Full Audit",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "GitHub download proxy URL. Leave empty for direct downloads. Must end with /.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/advanced.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Guarded (qualified only)",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Independent fail-safe deadline for rollback, restoring service state and recovery health checks. Allowed: 10-120 seconds.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/advanced.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Install rill-runtime-preview matching your OpenWrt release and CPU architecture.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "K",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Leave empty to use the current LAN IPv4 automatically. Public or 0.0.0.0 bindings are refused.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/sources.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Maximum unique IPs supplied to one CFST run. Allocation is automatic: a small local-history share, a majority community share, and the remainder official-range exploration; unused quota flows to the other pools.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/sources.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Measurement deadline for stop, CFST, probes, apply and normal restart. Recovery has a separate deadline.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/advanced.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Must stay under /etc/cf_ip. Paths outside the package state directory are rejected.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Native measurement",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Native mode remains available",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Native only",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Next Full Audit / Optimize",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "No backups available. Backups are created automatically when the config is updated.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/openclash.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "No history",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Number of CFST results to verify against every target domain before ranking.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/advanced.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Number of best IPs to keep. If fewer IPs qualify, the result reports degraded candidate count and never duplicates an IP.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/settings.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Official sources are authoritative ranges. Community sources are untrusted seed IPs and are always re-tested locally.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/sources.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Only OpenClash proxies whose server matches this domain will be updated. Comma-separated for multiple domains.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/openclash.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Only PassWall nodes whose address equals this domain will be updated. Comma-separated for multiple domains.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/passwall.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Only update proxies with the specified transport protocol. Comma-separated. Values: ws, grpc, xhttp, h2, http. Leave empty to update all supported proxies.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/openclash.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "OpenClash is not installed. Please install OpenClash before using this feature.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/openclash.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Operational Health",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Optional compatibility output for other LAN tools. PassWall/OpenClash still use direct modification and do not need this.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/sources.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "PassWall is not installed. Please install PassWall before using this feature.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/passwall.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "PassWall or OpenClash is not installed. Please install one before using this service.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/settings.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Preserve CFST binary during OpenWrt sysupgrade so it survives system upgrades.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/settings.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Product Intelligence Summary",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Random delay upper bound (seconds). Empty/random = 0~300s, 0 = no delay.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/advanced.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Reason Codes",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Recent Runs",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Replay Probe Savings",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Requested / Effective Mode",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Retained only for migration compatibility; it is not used by the 2.x engine.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/advanced.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Rill Runtime: Not installed",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Runtime installation",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Runtime is optional; Native mode remains available without it.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Scheduler Contract",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Select how often the speed test runs. The service computes the next run time automatically.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/settings.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Selection",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Service action completed, but the speed test is still in progress. Refreshing current status.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/overview.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Shadow records counterfactual evidence without changing production probe order. Guarded is enabled only after fresh, complete, real audit evidence.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Skip IPs with average latency above this value. Leave empty for no upper limit.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/settings.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Stop the proxy service before speed testing to avoid interference, and restart after updating.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/settings.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Suffix appended to the original node name. Placeholders: {n} = sequence number, {ip} = IP address. Leave empty to keep original names.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/passwall.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Suffix appended to the original proxy name. Placeholders: {n} = sequence number, {ip} = IP address. Leave empty to keep original names.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/openclash.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "System Health",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "The generic Rill Runtime is supplied by OpenWrt packaging. Cloudflare IP owns candidate validation, ranking policy, reward and proxy transactions.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "This snapshot explains fallback, qualification, delayed feedback, Prefix and Colo intelligence without exposing the internal model.",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/diagnostics.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Unavailable",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Why This Run",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "Winner / Top-N Recall",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "conservative default",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "conservative-default",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "expansions",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "feature contract",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "fresh at",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "insufficient",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "last fallback",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "never",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "next in runs",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "off",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "policy current",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "runs",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "shadow",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    },
+    {
+      "key": "unavailable",
+      "files": [
+        "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js"
+      ],
+      "in_pot": false,
+      "in_zh": false
+    }
+  ],
+  "keys_by_file": {
+    "htdocs/luci-static/resources/cloudflare-ip/utils.js": [
+      "Applied configuration does not match the saved settings. Reload and review the configuration.",
+      "Applying configuration...",
+      "Cloudflare IP Optimization",
+      "Configuration applied and service is ready.",
+      "Configuration saved and applied.",
+      "Configuration saved. Restarting service...",
+      "Configuration still has uncommitted changes. Apply it again before restarting.",
+      "Error",
+      "Project",
+      "Service did not become ready before the timeout. Check service status and logs.",
+      "Service readiness check was cancelled.",
+      "Task startup was not confirmed. Check status and logs before retrying.",
+      "The started task has not published its status. Check status and logs before retrying.",
+      "Unable to apply configuration: %s",
+      "Unable to verify the applied configuration. Reload and try again.",
+      "service action failed"
+    ],
+    "htdocs/luci-static/resources/view/cloudflare-ip/advanced.js": [
+      "Advanced",
+      "Auto Update Script",
+      "Concurrent target-domain probes, bounded to protect the proxy-off window.",
+      "Deprecated / package-managed",
+      "Deprecated in 2.x. Package upgrades are required to update the engine.",
+      "Download",
+      "Download Retries",
+      "Fixed to /usr/bin or /usr/share/cf-ip. CFST is downloaded and executed as root only from these directories.",
+      "GitHub Mirror",
+      "GitHub download proxy URL. Leave empty for direct downloads. Must end with /.",
+      "Independent fail-safe deadline for rollback, restoring service state and recovery health checks. Allowed: 10-120 seconds.",
+      "Measurement Deadline (seconds)",
+      "Measurement deadline for stop, CFST, probes, apply and normal restart. Recovery has a separate deadline.",
+      "Number of CFST results to verify against every target domain before ranking.",
+      "Number of retry attempts for GitHub downloads.",
+      "Output detailed progress logs.",
+      "Per-domain probe timeout; the global hard limit still wins.",
+      "Probe Concurrency",
+      "Probe Timeout (seconds)",
+      "Probe Top Candidates",
+      "Random delay upper bound (seconds). Empty/random = 0~300s, 0 = no delay.",
+      "Recovery Deadline (seconds)",
+      "Retained only for migration compatibility; it is not used by the 2.x engine.",
+      "Retry Delay (seconds)",
+      "Script Update URL",
+      "Script Updates",
+      "Seconds to wait between download retries.",
+      "Startup",
+      "Startup Delay",
+      "Update policy",
+      "Verbose Logging",
+      "Work Directory"
+    ],
+    "htdocs/luci-static/resources/view/cloudflare-ip/diagnostics.js": [
+      "(latest 10)",
+      "Clear Logs",
+      "Clear log file?",
+      "Diagnostics unavailable",
+      "IP Address",
+      "IP History",
+      "Last error: %s",
+      "Loading...",
+      "Log file cleared.",
+      "Logs & Records",
+      "No IP history available",
+      "No logs found.",
+      "Recent Logs",
+      "Refresh",
+      "Rill Diagnostics",
+      "This snapshot explains fallback, qualification, delayed feedback, Prefix and Colo intelligence without exposing the internal model.",
+      "Unable to clear logs: %s",
+      "Unable to load IP history. Refresh and try again.",
+      "Unable to read logs. Check the service status and try again.",
+      "Unable to read logs: %s",
+      "Unknown"
+    ],
+    "htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js": [
+      "Adaptive Measurement",
+      "Assisted (qualification-gated)",
+      "Assisted is qualification-gated and uses only the Native safe envelope; any Runtime problem falls back to Native.",
+      "Assisted requested → Shadow fallback",
+      "Audit Evidence",
+      "Available",
+      "Balanced",
+      "Candidate Assisted",
+      "Candidate Intelligence",
+      "Candidate Shadow",
+      "Checking...",
+      "Colo Intelligence",
+      "Community-heavy",
+      "Confidence Reasons",
+      "Current Authority",
+      "Current Context Policy",
+      "Current Endpoint",
+      "Current State",
+      "Decision Confidence",
+      "Decision Evidence",
+      "Decision Selection",
+      "Deterministic Early Stop",
+      "Disabled / Native ranking",
+      "Diversity-heavy",
+      "Eligible Insufficiency Rate",
+      "Enable Adaptive Measurement",
+      "Enable Rill Intelligence",
+      "Enable the optional Rill consumer. Native ranking remains authoritative when Rill is disabled or unavailable.",
+      "Fallback Reason",
+      "Feature Schema",
+      "Fixed package-managed Preview Runtime path; custom executable paths are rejected.",
+      "Full Audit",
+      "Guarded (qualified only)",
+      "Guarded Assisted",
+      "History-heavy",
+      "Install rill-runtime-preview matching your OpenWrt release and CPU architecture.",
+      "K",
+      "Learning",
+      "Learning Context",
+      "Live State",
+      "Maximum Probes",
+      "Measurement Policy",
+      "Mode",
+      "Must stay under /etc/cf_ip. Paths outside the package state directory are rejected.",
+      "Native",
+      "Native Holdout",
+      "Native hard gate",
+      "Native measurement",
+      "Native mode remains available",
+      "Native only",
+      "Native top1",
+      "Native vs Rill",
+      "Next Full Audit / Optimize",
+      "No history",
+      "None",
+      "Off",
+      "Official-heavy",
+      "Operational Health",
+      "Prefix Intelligence",
+      "Probe Batch Size",
+      "Probe Efficiency",
+      "Product Intelligence Summary",
+      "Qualification",
+      "Reason Codes",
+      "Recent Runs",
+      "Replay Probe Savings",
+      "Requested / Effective Mode",
+      "Reset Learning State",
+      "Reset Rill learning state? Native configuration will not be changed.",
+      "Reset learning state",
+      "Reset rejected",
+      "Resetting...",
+      "Resource Guard",
+      "Resource pressure",
+      "Reuse / Full Optimize",
+      "Rill",
+      "Rill Intelligence",
+      "Rill Runtime Consumer",
+      "Rill Runtime: Not installed",
+      "Rill learning state was reset.",
+      "Rill self-check fell back to Native.",
+      "Rill self-check passed.",
+      "Rill top1",
+      "Run self-check",
+      "Runtime",
+      "Runtime API",
+      "Runtime Channel",
+      "Runtime Health",
+      "Runtime Inspect",
+      "Runtime Path",
+      "Runtime Timeout (ms)",
+      "Runtime installation",
+      "Runtime is optional; Native mode remains available without it.",
+      "Scheduler Contract",
+      "Selection",
+      "Shadow",
+      "Shadow Self-check",
+      "Shadow records counterfactual evidence without changing production probe order. Guarded is enabled only after fresh, complete, real audit evidence.",
+      "Source Strategy",
+      "Source Strategy Loop",
+      "State",
+      "State / Model Generation",
+      "State File",
+      "Status unavailable / Native fallback",
+      "System Health",
+      "The generic Rill Runtime is supplied by OpenWrt packaging. Cloudflare IP owns candidate validation, ranking policy, reward and proxy transactions.",
+      "Unable to complete self-check: %s",
+      "Unable to reset learning state: %s",
+      "Unavailable",
+      "Unavailable / Native fallback",
+      "Unknown",
+      "Valid feedback",
+      "Why This Run",
+      "Winner / Top-N Recall",
+      "agreement",
+      "avoided",
+      "changed",
+      "comparable",
+      "completed",
+      "conservative default",
+      "conservative-default",
+      "consumer not qualified",
+      "delayed pending",
+      "deterministic",
+      "early stop",
+      "effective",
+      "expansions",
+      "failures",
+      "feature contract",
+      "final",
+      "fresh at",
+      "high quality",
+      "insufficient",
+      "last changed",
+      "last error",
+      "last fallback",
+      "latest",
+      "losses",
+      "low quality",
+      "native",
+      "never",
+      "next in runs",
+      "no",
+      "non-blocking",
+      "none",
+      "observed",
+      "off",
+      "pending",
+      "performed",
+      "policy current",
+      "pressure",
+      "probed",
+      "reason",
+      "regret",
+      "requested",
+      "runs",
+      "shadow",
+      "state bytes",
+      "ties",
+      "tracked",
+      "unavailable",
+      "version unknown",
+      "wins",
+      "yes"
+    ],
+    "htdocs/luci-static/resources/view/cloudflare-ip/openclash.js": [
+      "Actions",
+      "Are you sure you want to delete this backup?",
+      "Are you sure you want to restore this backup? A backup of the current configuration will be created first.",
+      "Backup Count",
+      "Backup Time",
+      "Backup deleted",
+      "Backup restored successfully.",
+      "Cancel",
+      "Config Backups",
+      "Config File Path",
+      "Confirm Delete",
+      "Confirm Restore",
+      "Delete",
+      "No backups available. Backups are created automatically when the config is updated.",
+      "Nodes updated; OpenClash is disabled and the changes will take effect after it is started",
+      "Number of OpenClash config backups to keep.",
+      "Only OpenClash proxies whose server matches this domain will be updated. Comma-separated for multiple domains.",
+      "Only update proxies with the specified transport protocol. Comma-separated. Values: ws, grpc, xhttp, h2, http. Leave empty to update all supported proxies.",
+      "OpenClash",
+      "OpenClash Not Found",
+      "OpenClash Settings",
+      "OpenClash is not installed. Please install OpenClash before using this feature.",
+      "Path to the OpenClash YAML configuration file.",
+      "Please wait...",
+      "Proxy Name Suffix",
+      "Restore",
+      "Restoring...",
+      "Size",
+      "Suffix appended to the original proxy name. Placeholders: {n} = sequence number, {ip} = IP address. Leave empty to keep original names.",
+      "Target Domain",
+      "Transport Filter",
+      "Unable to delete backup: %s",
+      "Unable to restore backup: %s",
+      "Unknown"
+    ],
+    "htdocs/luci-static/resources/view/cloudflare-ip/overview.js": [
+      "Best IP Count",
+      "Best IPs",
+      "CFST",
+      "CFST Version",
+      "CFST updated successfully.",
+      "Checking...",
+      "Close",
+      "Cloudflare IP optimization service is enabled and scheduled.",
+      "Cloudflare IP optimization service is not running. Click Start to begin.",
+      "Cloudflare IP speed test is in progress. Please wait.",
+      "Download CFST",
+      "Downloading CFST, please wait...",
+      "Downloading...",
+      "Environment Detection",
+      "Environment detection refreshed.",
+      "Error",
+      "GitHub",
+      "IP Type",
+      "Installed",
+      "Installed (Status Unknown)",
+      "Installed (Stopped)",
+      "Last Result",
+      "Last Run Time",
+      "Loading...",
+      "Log",
+      "Missing",
+      "Missing Dependencies & Fix Commands",
+      "Missing dependencies: ",
+      "Mode",
+      "No log output yet.",
+      "Nodes updated; OpenClash is disabled and the changes will take effect after it is started",
+      "Not Installed",
+      "OpenClash",
+      "OpenClash Apply Status",
+      "OpenClash service applied and health verified.",
+      "OpenClash service restored and health verified; new nodes were not applied.",
+      "Overview",
+      "PassWall",
+      "Refresh",
+      "Refresh Environment",
+      "Restart",
+      "Run Speed Test",
+      "Running",
+      "Running...",
+      "Scheduled",
+      "Script Version",
+      "Service Control",
+      "Service Enabled",
+      "Service Information",
+      "Service Stopped",
+      "Service action completed, but the speed test is still in progress. Refreshing current status.",
+      "Service restarted.",
+      "Service started.",
+      "Service stopped.",
+      "Speed Test Log",
+      "Speed Test Protocol",
+      "Speed Test Running",
+      "Start",
+      "Status",
+      "Stop",
+      "Stopped",
+      "Success",
+      "Unable to confirm speed test status: %s",
+      "Unable to load status: %s",
+      "Unable to refresh environment: %s",
+      "Unable to restart service: %s",
+      "Unable to start service: %s",
+      "Unable to stop service: %s",
+      "Unable to update CFST: %s",
+      "Unknown",
+      "Update CFST",
+      "Updating CFST, please wait...",
+      "Updating...",
+      "Warning",
+      "jq",
+      "tar"
+    ],
+    "htdocs/luci-static/resources/view/cloudflare-ip/passwall.js": [
+      "Node Name Suffix",
+      "Only PassWall nodes whose address equals this domain will be updated. Comma-separated for multiple domains.",
+      "PassWall",
+      "PassWall Not Found",
+      "PassWall Settings",
+      "PassWall is not installed. Please install PassWall before using this feature.",
+      "Suffix appended to the original node name. Placeholders: {n} = sequence number, {ip} = IP address. Leave empty to keep original names.",
+      "Target Domain"
+    ],
+    "htdocs/luci-static/resources/view/cloudflare-ip/settings.js": [
+      "Average Latency Ceiling (ms)",
+      "Average Latency Floor (ms)",
+      "Both",
+      "CFST measurement concurrency. This controls load, not the candidate budget.",
+      "Cron duration (e.g. 6h, 30m) or 5-field crontab expression.",
+      "Custom Schedule",
+      "Custom...",
+      "Daily at 3:00 AM",
+      "Daily at 3:00 AM & 3:00 PM",
+      "Data Center Filter",
+      "Download Seconds per IP",
+      "Download Test Count",
+      "Enable Service",
+      "Every 15 minutes",
+      "Every 30 minutes",
+      "Every 6 hours (recommended)",
+      "Every 6 hours at :00",
+      "Every hour",
+      "Filter by Cloudflare data center in HTTPing mode. Comma-separated, e.g. HKG,NRT,LAX. Only effective with HTTPing.",
+      "HTTPing supports data center filtering; TCPing does not.",
+      "IP Count",
+      "IP Type",
+      "Keep CFST Across Upgrades",
+      "Mode",
+      "None (No proxy service detected)",
+      "Number of IPs to test download speed.",
+      "Number of best IPs to keep. If fewer IPs qualify, the result reports degraded candidate count and never duplicates an IP.",
+      "Number of latency samples per candidate.",
+      "PassWall or OpenClash is not installed. Please install one before using this service.",
+      "Ping Count",
+      "Preserve CFST binary during OpenWrt sysupgrade so it survives system upgrades.",
+      "Run Schedule",
+      "Run the background service to periodically optimize Cloudflare IPs.",
+      "Seconds spent on the download measurement for each shortlisted IP.",
+      "Select how often the speed test runs. The service computes the next run time automatically.",
+      "Select which IP addresses to test.",
+      "Select which proxy service to update.",
+      "Service",
+      "Settings",
+      "Skip IPs with average latency above this value. Leave empty for no upper limit.",
+      "Skip IPs with average latency below this value.",
+      "Speed Test",
+      "Speed Test Protocol",
+      "Speed Test Threads",
+      "Stop Service Before Test",
+      "Stop the proxy service before speed testing to avoid interference, and restart after updating."
+    ],
+    "htdocs/luci-static/resources/view/cloudflare-ip/sources.js": [
+      "Auto",
+      "Bind IPv4",
+      "Built-in Sources",
+      "CFST Candidate IP Count",
+      "Cached / stale",
+      "Candidate Budget",
+      "Candidate Sources",
+      "Candidates",
+      "Carrier-specific",
+      "Custom Sources",
+      "Custom sources accept HTTPS text lists containing IP, IP:port, IPv6, bracketed IPv6:port, or CIDR. Only the IP/CIDR is retained; domains are rejected.",
+      "Each run allocates roughly 1/8 to fresh history champions, 5/8 to community seeds, and 1/4 to Cloudflare official range exploration. Missing pools flow to other sources. All candidates are deduplicated and measured locally in one CFST run; community ports are never reused.",
+      "Enable LAN Publisher",
+      "Enabled",
+      "Error",
+      "Family",
+      "Fresh",
+      "HTTP Port",
+      "HTTPS URL",
+      "Kind",
+      "LAN Result Publisher",
+      "LAN auto-detect",
+      "Last Error",
+      "Leave empty to use the current LAN IPv4 automatically. Public or 0.0.0.0 bindings are refused.",
+      "Manual IP / CIDR",
+      "Manual IP list",
+      "Maximum unique IPs supplied to one CFST run. Allocation is automatic: a small local-history share, a majority community share, and the remainder official-range exploration; unused quota flows to the other pools.",
+      "Measured Seeds",
+      "Name",
+      "Not fetched",
+      "Official",
+      "Official sources are authoritative ranges. Community sources are untrusted seed IPs and are always re-tested locally.",
+      "Optional compatibility output for other LAN tools. PassWall/OpenClash still use direct modification and do not need this.",
+      "Published Paths",
+      "Recommended Community",
+      "Refresh Sources",
+      "Refreshing...",
+      "Runtime Source Status",
+      "Source",
+      "Sources refreshed; candidate pool prepared.",
+      "State",
+      "URL",
+      "Unable to refresh sources: %s",
+      "Unknown"
+    ]
+  }
+}

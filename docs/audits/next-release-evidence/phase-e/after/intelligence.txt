@@ -1,0 +1,108 @@
+59e2d967e017
+Status
+Overview
+Routing
+Firewall
+System Log
+Processes
+Realtime Graphs
+System
+System
+Administration
+Software
+Startup
+Scheduled Tasks
+Backup / Flash Firmware
+Reboot
+Services
+Cloudflare IP Optimization
+Network
+Interfaces
+Routing
+DHCP and DNS
+Diagnostics
+Firewall
+Log out
+Overview
+Settings
+Candidate IP Sources
+Intelligence
+Advanced
+Logs & Records
+Rill Intelligence
+The generic Rill Runtime is supplied by OpenWrt packaging. Cloudflare IP owns candidate validation, ranking policy, reward and proxy transactions.
+Measurement Policy
+Source Strategy
+Balanced
+Official-heavy
+History-heavy
+Diversity-heavy
+Community-heavy
+Probe Batch Size
+Maximum Probes
+Deterministic Early Stop
+Adaptive Measurement
+Enable Adaptive Measurement
+Mode
+Off
+Shadow
+Guarded (qualified only)
+Shadow records counterfactual evidence without changing production probe order. Guarded is enabled only after fresh, complete, real audit evidence.
+Current State
+Insufficient / Shadow
+Requested / Effective Mode
+Shadow / Shadow
+Audit Evidence
+0 / fresh at: never
+Winner / Top-N Recall
+unavailable / unavailable
+Eligible Insufficiency Rate
+unavailable
+Replay Probe Savings
+unavailable
+Full Audit
+never / next in runs: 0
+Scheduler Contract
+v1 / feature contract v1
+Selection
+K: 0, expansions: 0, last fallback: none
+Product Intelligence Summary
+Current Endpoint
+UnavailableCopy
+System Health
+Healthy
+Adaptive Measurement
+Shadow → Shadow / Insufficient
+Candidate Intelligence
+Native only / Unknown
+Next Full Audit / Optimize
+0 runs / Unknown
+Operational Health
+State
+Healthy
+Reason Codes
+Unknown
+Why This Run
+Native measurement
+Current Context Policy
+conservative-default / conservative defaultCopy
+Recent Runs
+No historyCopy
+
+Open Logs & Records
+
+Rill Runtime Consumer
+Enable Rill Intelligence
+Enable the optional Rill consumer. Native ranking remains authoritative when Rill is disabled or unavailable.
+Mode
+Off
+Shadow
+Assisted (qualification-gated)
+Assisted is qualification-gated and uses only the Native safe envelope; any Runtime problem falls back to Native.
+Runtime Timeout (ms)
+Runtime Path
+/usr/bin/rill-runtime
+Fixed package-managed Preview Runtime path; custom executable paths are rejected.
+Copy
+State File
+Must stay 

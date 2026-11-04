@@ -1,0 +1,8 @@
+# OpenWrt 24.10.8 armsr/armv8 aarch64 container (native)
+aarch64
+ruby 3.3.10 (2025-10-23 revision 343ea05002) [aarch64-linux-gnu]
+5.1.2
+{"a"=>1}
+uid=0(root) gid=0(root) groups=0(root)
+openclash-running
+50976

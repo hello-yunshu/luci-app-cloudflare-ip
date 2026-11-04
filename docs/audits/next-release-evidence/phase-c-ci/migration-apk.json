@@ -1,0 +1,215 @@
+{
+  "schemaVersion": 1,
+  "currentMatrix": {
+    "schemaVersion": 1,
+    "packageManager": "apk",
+    "offlineLifecycle": {
+      "status": "PASS",
+      "packagePayloadRemoved": true,
+      "dependenciesPreserved": true,
+      "userDataPreserved": true,
+      "reinstalled": true,
+      "evidenceDirectory": "apk-uninstall-reinstall",
+      "scope": "offline package manager; online hooks not evaluated"
+    },
+    "ownershipConflict": {
+      "rawInitialInstallRecoveryVerified": true,
+      "guardedAdmission": true,
+      "admissionExitCode": 65,
+      "rawManagerStateMutated": true,
+      "id": "owner-conflict",
+      "status": "PASS",
+      "exitCode": 1,
+      "rejected": true,
+      "foreignOwnerPreserved": true,
+      "preexistingPayloadPreserved": true,
+      "installedStatePreserved": true,
+      "userDataPreserved": true,
+      "evidenceDirectory": "apk-negative-owner-conflict"
+    },
+    "negativeInstalls": [
+      {
+        "id": "missing",
+        "status": "PASS",
+        "rejected": true,
+        "exitCode": 1,
+        "installedStatePreserved": true,
+        "payloadPreserved": true,
+        "userDataPreserved": true,
+        "evidenceDirectory": "apk-negative-missing"
+      },
+      {
+        "id": "truncated",
+        "status": "PASS",
+        "rejected": true,
+        "exitCode": 99,
+        "installedStatePreserved": true,
+        "payloadPreserved": true,
+        "userDataPreserved": true,
+        "evidenceDirectory": "apk-negative-truncated"
+      }
+    ],
+    "inputs": {
+      "legacyBase": {
+        "package": {
+          "architecture": "noarch",
+          "format": "apk",
+          "name": "luci-app-cloudflare-ip",
+          "packageVersion": "2.6.0-r2",
+          "release": 2,
+          "version": "2.6.0"
+        },
+        "schemaVersion": 1,
+        "sha256": "4fb8e34d1574aef42660fdab76faff404c2f85470e7c93596f81298bd25e75e0",
+        "size": 111373
+      },
+      "legacyAddon": {
+        "package": {
+          "architecture": "noarch",
+          "format": "apk",
+          "name": "luci-app-cloudflare-ip-rill",
+          "packageVersion": "2.6.0-r2",
+          "release": 2,
+          "version": "2.6.0"
+        },
+        "schemaVersion": 1,
+        "sha256": "9a6b5561e646cad1aed9a1ed8b0c39f5c43262e6bf06a856f2a3a4101acc8b86",
+        "size": 19465
+      },
+      "currentBase": {
+        "package": {
+          "architecture": "noarch",
+          "format": "apk",
+          "name": "luci-app-cloudflare-ip",
+          "packageVersion": "2.6.0-r7",
+          "release": 7,
+          "version": "2.6.0"
+        },
+        "schemaVersion": 1,
+        "sha256": "d9fb4ff24bcb63b710e893f202fcb2249424bafd9874ebcbb7e5765dc384c909",
+        "size": 175486
+      },
+      "currentAddon": {
+        "package": {
+          "architecture": "noarch",
+          "format": "apk",
+          "name": "luci-app-cloudflare-ip-rill",
+          "packageVersion": "2.6.0-r7",
+          "release": 7,
+          "version": "2.6.0"
+        },
+        "schemaVersion": 1,
+        "sha256": "4d609b32300ba5db04ebde3f585630fdcd21eceee85cebc7b87642bfa86f84b2",
+        "size": 707
+      },
+      "recentBase": {
+        "package": {
+          "architecture": "noarch",
+          "format": "apk",
+          "name": "luci-app-cloudflare-ip",
+          "packageVersion": "2.6.0-r3",
+          "release": 3,
+          "version": "2.6.0"
+        },
+        "schemaVersion": 1,
+        "sha256": "f710f6f4f5a214d0224daf0b7fc31c071d8b198084adc1780b68707f13de9164",
+        "size": 130135
+      }
+    },
+    "scenarios": [
+      {
+        "id": "a",
+        "from": [
+          "legacyBase"
+        ],
+        "to": [
+          "currentBase"
+        ],
+        "addon": "absent",
+        "status": "PASS",
+        "runtimeAbsent": true,
+        "runtimePresent": true,
+        "userDataPreserved": true,
+        "evidenceDirectory": "apk-a"
+      },
+      {
+        "id": "b",
+        "from": [
+          "legacyBase",
+          "legacyAddon"
+        ],
+        "to": [
+          "currentBase"
+        ],
+        "addon": "retained",
+        "status": "PASS",
+        "runtimeAbsent": true,
+        "runtimePresent": true,
+        "userDataPreserved": true,
+        "evidenceDirectory": "apk-b"
+      },
+      {
+        "id": "c",
+        "from": [
+          "legacyBase",
+          "legacyAddon"
+        ],
+        "to": [
+          "currentBase",
+          "currentAddon"
+        ],
+        "addon": "replaced",
+        "status": "PASS",
+        "runtimeAbsent": true,
+        "runtimePresent": true,
+        "userDataPreserved": true,
+        "evidenceDirectory": "apk-c"
+      },
+      {
+        "id": "d",
+        "from": [
+          "legacyBase",
+          "legacyAddon"
+        ],
+        "to": [
+          "currentBase"
+        ],
+        "addon": "removed",
+        "status": "PASS",
+        "runtimeAbsent": true,
+        "runtimePresent": true,
+        "userDataPreserved": true,
+        "evidenceDirectory": "apk-d"
+      },
+      {
+        "id": "e",
+        "from": [
+          "recentBase"
+        ],
+        "to": [
+          "currentBase"
+        ],
+        "addon": "absent",
+        "status": "PASS",
+        "runtimeAbsent": true,
+        "runtimePresent": true,
+        "userDataPreserved": true,
+        "evidenceDirectory": "apk-e"
+      }
+    ]
+  },
+  "historicalR3ToR4Meaning": "legacy field retained; current from/to identity is in currentMatrix",
+  "kind": "apk",
+  "sourceTag": "v2.6.0-2",
+  "sourceSHA": "652476bd3cdc410bc16e3a47ee96b685c84acbbb",
+  "currentSHA": "e68af6240ee7e790cdbd0c7c9f74be7236419bb3",
+  "legacyVersion": "2.6.0-r2",
+  "ipk": "NOT_APPLICABLE",
+  "apk": "PASS",
+  "baseOnlyUpgrade": true,
+  "baseAddonToBaseUpgrade": true,
+  "addonRemovalSafe": true,
+  "r3ToR4": true,
+  "runtimeAbsent": true,
+  "runtimePresent": true
+}

@@ -1,0 +1,8 @@
+before_config=47f7286fff1665cb0affbc789bc09db5ee0a7b94b52c0854b517516a30c7e9f1
+backup=/etc/openclash/config/config.yaml.bak.20261104105022.pre-restore.pKElMj
+before_backup=fe6bbacea4aad3d92a16e7f5b4f7381a4f8f2302b740ce9547129ddab15b0159
+result={"success":true,"restored_from":"/etc/openclash/config/config.yaml.bak.20261104105022.pre-restore.pKElMj","pre_restore_backup":"/etc/openclash/config/config.yaml.bak.20261104110251.pre-restore","nodeFileWritten":true,"serviceApplied":true,"last_result":"success","deferredUntilServiceStart":false}
+after_config=fe6bbacea4aad3d92a16e7f5b4f7381a4f8f2302b740ce9547129ddab15b0159
+pid_before=47284
+pid_after=50976
+group=ui-restored-node
