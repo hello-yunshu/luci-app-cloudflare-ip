@@ -32,7 +32,7 @@ node docs/audits/next-release-evidence/repro-2e28db4/repro-risks.cjs \
 
 结果：`openclash_delete.false_success=true`、`rpc_failure_openclash.not_installed=true`、`rpc_failure_sources.rows=0/error_visible=false`、`sources_refresh.reload_calls=1/save_calls=0`、`rill_reset.reload_calls=0/stale_status=true`。
 
-## UI skill audit（`audit/ui-skill-review`，基于 `a8f89e8`）
+## UI skill audit（`audit/ui-skill-review`，基于 `a8f89e8`，修复提交 `7a08814`）
 
 | 路径 | 内容 |
 |---|---|

@@ -4,7 +4,7 @@ Result: **新发现 14 条（P1 2 / P2 7 / P3 5），已修 9 条。**
 
 Method: `ui-ux-pro-max`（层级/间距/排版/一致性）、`impeccable`（critique/audit 状态完整性）、`uicraft`（生产级 Web 审计）、`ux-writing-audit`（按钮/标签/错误/空态/toast 四透镜）。与 LuCI/Aurora 冲突处按约束取舍：不引入新设计系统、不改主题配色、不改信息架构。
 
-Environment: OpenWrt 24.10.8 x86_64 rootfs，LuCI `26.301.70438~aa4865e`，真实 uhttpd/rpcd/LuCI 登录；Bootstrap、Aurora light、Aurora dark（`luci-theme-aurora 1.4.0-r20260920`）。基线为 `main b556334` 之后的 `a8f89e8`，本轮分支 `audit/ui-skill-review`。
+Environment: OpenWrt 24.10.8 x86_64 rootfs，LuCI `26.301.70438~aa4865e`，真实 uhttpd/rpcd/LuCI 登录；Bootstrap、Aurora light、Aurora dark（`luci-theme-aurora 1.4.0-r20260920`）。基线为 `main b556334` 之后的 `a8f89e8`；本轮分支 `audit/ui-skill-review`，修复提交 `7a08814`。
 
 Coverage: 8 页（Overview / Settings / OpenClash / Candidate IP Sources / PassWall / Intelligence / Advanced / Logs & Records）× 3 主题 × 375/768/1280，外加 320 与 1280@200%（640 CSS px 等效）。共 120 张真实浏览器截图；0 页面级横向溢出；432 个 Tab 焦点采样，0 个无可见焦点指示。前几轮覆盖的 43 项交互与七态矩阵复核未见回归。
 
