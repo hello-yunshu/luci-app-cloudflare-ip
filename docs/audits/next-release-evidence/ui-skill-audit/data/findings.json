@@ -1,0 +1,28 @@
+{
+  "result": "14 findings: P1=2, P2=7, P3=5; fixed=9",
+  "matrix": {
+    "pages": 8,
+    "themes": ["bootstrap", "aurora-light", "aurora-dark"],
+    "viewports": ["375x900", "768x900", "1280x900", "320x900", "1280x900-200pct-effective-640"],
+    "screenshots": 120,
+    "page_horizontal_overflow": 0
+  },
+  "focus": {"tab_stops": 432, "missing_indicator": 0},
+  "i18n": {"keys": 476, "entries": 487, "positive": "PASS", "negative": "FAIL as expected"},
+  "findings": [
+    {"id":"P1-1","severity":"P1","page":"Settings / Sources / OpenClash / PassWall / Advanced / Intelligence","problem":"Bootstrap mobile single-column form labels stay right-aligned above left-aligned controls; label and control are visually disconnected.","basis":"UICraft spatial/hierarchy; Nielsen #4 consistency; WCAG 3.3.2 labels","status":"fixed","evidence":"before/before-375-settings.png / after/after-375-settings.png"},
+    {"id":"P1-2","severity":"P1","page":"All form pages","problem":"Input focus ring is a 30% alpha brand tint; focus state is too faint against light/dark backgrounds.","basis":"WCAG 2.4.11 focus appearance (3:1); Impeccable a11y","status":"fixed","evidence":"data/focus-before.json / after/after-focus-input.png"},
+    {"id":"P2-1","severity":"P2","page":"Overview / Logs","problem":"At 375/320 the KV table cells start outside the scroll wrapper, cutting the first character of row labels and values.","basis":"UICraft responsive/table readability; visible truncation","status":"fixed","evidence":"before/before-375-overview.png / after/after-320-overview.png"},
+    {"id":"P2-2","severity":"P2","page":"Intelligence","problem":"Copy button changes visible text to Copied but leaves aria-label=Copy; screen readers get no success confirmation.","basis":"WCAG 4.1.2 name/role/value; UX writing feedback","status":"fixed","evidence":"data/before-aria.json / after/after-copy.png"},
+    {"id":"P2-3","severity":"P2","page":"Overview","problem":"Empty Last Result renders a gray warning glyph plus dash (⚠ -), reading as a warning instead of not-run-yet.","basis":"Impeccable state completeness; UX writing empty state","status":"fixed","evidence":"before/before-375-overview.png / after/after-320-overview.png"},
+    {"id":"P2-4","severity":"P2","page":"Logs & Records","problem":"Diagnostics failure exposes the internal command name and gives no next step.","basis":"UX writing error formula (what happened / why / what to do); Nielsen #9","status":"fixed","evidence":"before/before-375-logs-error.png / after/after-logs-error.png"},
+    {"id":"P2-5","severity":"P2","page":"OpenClash","problem":"Backup load failure exposes the internal command error and gives no recovery guidance beyond Retry.","basis":"UX writing error formula; Nielsen #9","status":"fixed","evidence":"before/before-375-openclash-error.png / after/after-openclash-error.png"},
+    {"id":"P2-6","severity":"P2","page":"Candidate IP Sources","problem":"Official options repeat “Official · Cloudflare Official” and the MultiValue summary hard-clips both labels at 375/320.","basis":"UX writing consistency; UICraft long-text/overflow","status":"fixed","evidence":"before/before-375-sources.png / after/after-375-sources.png"},
+    {"id":"P2-7","severity":"P2","page":"OpenClash","problem":"Delete/restore confirmations say “this backup” without identifying it or stating that delete cannot be undone.","basis":"UX writing destructive confirmation; Nielsen #5 error prevention","status":"fixed","evidence":"before/before-delete-modal.png / after/after-delete-modal.png"},
+    {"id":"P3-1","severity":"P3","page":"Aurora dark (native controls)","problem":"Theme-owned primary/secondary buttons measure about 3.7:1 white-on-blue, below WCAG AA 4.5:1.","basis":"WCAG 1.4.3 contrast","status":"report only","evidence":"data/contrast-failures.json"},
+    {"id":"P3-2","severity":"P3","page":"Logs & Records","problem":"“No logs found.” does not tell the user how to create logs.","basis":"UX writing empty-state actionability","status":"not fixed","evidence":"matrix/bootstrap/375x900/logs.png"},
+    {"id":"P3-3","severity":"P3","page":"Intelligence","problem":"Copy/collapse buttons are 32px tall, below the 44px comfortable touch target (WCAG 2.5.8 minimum 24px still passes).","basis":"UICraft touch/interaction; WCAG 2.5.8","status":"not fixed","evidence":"after/after-copy.png"},
+    {"id":"P3-4","severity":"P3","page":"Advanced","problem":"Deprecated Script Update URL remains editable while Auto Update is read-only and the note says 2.x ignores it.","basis":"Nielsen #5 error prevention; UX writing consistency","status":"not fixed","evidence":"matrix/bootstrap/375x900/advanced.png"},
+    {"id":"P3-5","severity":"P3","page":"Candidate IP Sources","problem":"The Custom Sources GridSection keeps seven columns at 768; headers wrap and the empty grid is hard to scan.","basis":"UICraft responsive table hierarchy","status":"not fixed","evidence":"matrix/aurora-light/768x900/sources.png"}
+  ]
+}

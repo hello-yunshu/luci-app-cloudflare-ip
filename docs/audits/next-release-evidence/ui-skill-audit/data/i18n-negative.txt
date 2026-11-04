@@ -1,0 +1,5 @@
+negative control: removed one key from temp POT/zh copies
+FAIL: missing from POT: Not run yet
+FAIL: missing/empty zh_Hans: Not run yet
+coverage: POT 486, zh_Hans 486, en 487
+expected failure confirmed
