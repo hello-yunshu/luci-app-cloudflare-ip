@@ -2087,3 +2087,35 @@ msgstr "不健康"
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
 msgid "Unknown (%s)"
 msgstr "未知（%s）"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Copy"
+msgstr "复制"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Copied"
+msgstr "已复制"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Copy command was rejected"
+msgstr "复制命令被拒绝"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Unable to copy: %s"
+msgstr "无法复制：%s"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Show advanced diagnostics"
+msgstr "展开高级诊断"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Hide advanced diagnostics"
+msgstr "收起高级诊断"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Open Logs & Records"
+msgstr "打开日志与记录"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Open Intelligence"
+msgstr "打开智能优选"

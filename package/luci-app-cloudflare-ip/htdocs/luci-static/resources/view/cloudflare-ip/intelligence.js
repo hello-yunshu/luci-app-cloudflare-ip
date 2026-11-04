@@ -36,6 +36,89 @@ function runtimeSummary(status) {
 	return _('Unavailable / Native fallback') + (intelligence.state ? ' / ' + utils.statusLabel('runtime', intelligence.state) : '');
 }
 
+function copyText(text) {
+	if (navigator.clipboard && navigator.clipboard.writeText)
+		return navigator.clipboard.writeText(text);
+	return Promise.resolve().then(function() {
+		var area = E('textarea', { 'class': 'cfi-copy-source' }, text);
+		document.body.appendChild(area);
+		try {
+			area.select();
+			if (!document.execCommand('copy'))
+				throw new Error(_('Copy command was rejected'));
+			return true;
+		} finally {
+			document.body.removeChild(area);
+		}
+	});
+}
+
+function addCopyButton(field, text) {
+	if (!field || field.querySelector('.cfi-copy-btn'))
+		return;
+	var button = E('button', {
+		'class': 'cbi-button cfi-copy-btn',
+		'type': 'button',
+		'aria-label': _('Copy'),
+		'click': function() {
+			var self = this;
+			copyText(text).then(function() {
+				self.textContent = _('Copied');
+				window.setTimeout(function() { self.textContent = _('Copy'); }, 1500);
+			}).catch(function(error) {
+				ui.addNotification(null, E('p', {}, _('Unable to copy: %s').format(error.message || error)), 'error');
+			});
+		}
+	}, _('Copy'));
+	field.appendChild(button);
+}
+
+function decorateIntelligence(node) {
+	if (!node || typeof node.querySelectorAll !== 'function')
+		return node;
+	var copyTargets = ['-_endpoint', '-_run_history', '-_runtime_path', '-_context_policy', '-_resource'];
+	node.querySelectorAll('.cbi-value').forEach(function(row) {
+		if (!copyTargets.some(function(suffix) { return row.id && row.id.endsWith(suffix); }))
+			return;
+		var field = row.querySelector('.cbi-value-field');
+		if (field)
+			addCopyButton(field, field.textContent.trim());
+	});
+	var runRow = node.querySelector('.cbi-value[id$="-_run_history"]');
+	if (runRow && !runRow.querySelector('.cfi-link-button')) {
+		runRow.querySelector('.cbi-value-field').appendChild(E('p', { 'class': 'cfi-inline-link' },
+			E('a', { 'class': 'cbi-button cfi-link-button', 'href': L.url('admin/services/cf_ip/logs') }, _('Open Logs & Records'))));
+	}
+	var liveRow = node.querySelector('.cbi-value[id="cbi-cf_ip-rill-_state"]');
+	var liveSection = liveRow ? liveRow.closest('.cbi-section') : null;
+	if (liveSection && !liveSection.querySelector('.cfi-collapse-toggle')) {
+		var body = E('div', { 'class': 'cfi-collapse-body', 'id': 'cfi-live-state-body' });
+		Array.prototype.slice.call(liveSection.children, 1).forEach(function(child) { body.appendChild(child); });
+		var toggle = E('button', {
+			'class': 'cbi-button cfi-collapse-toggle',
+			'type': 'button',
+			'aria-expanded': 'false',
+			'aria-controls': 'cfi-live-state-body'
+		}, _('Show advanced diagnostics'));
+		function apply(open) {
+			body.hidden = !open;
+			toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+			toggle.textContent = open ? _('Hide advanced diagnostics') : _('Show advanced diagnostics');
+		}
+		var open = false;
+		try { open = window.localStorage.getItem('cfi.intelligence.liveState') === '1'; } catch (e) {}
+		toggle.addEventListener('click', function() {
+			open = !open;
+			try { window.localStorage.setItem('cfi.intelligence.liveState', open ? '1' : '0'); } catch (e) {}
+			apply(open);
+		});
+		liveSection.appendChild(toggle);
+		liveSection.appendChild(body);
+		apply(open);
+	}
+	return node;
+}
+
 return view.extend({
 	title: _('Rill Intelligence'),
 
@@ -302,6 +385,8 @@ return view.extend({
 
 	utils.createHandleSave(m, this);
 	utils.createHandleSaveApply(m, this);
+	var renderContents = m.renderContents.bind(m);
+	m.renderContents = function() { return renderContents().then(decorateIntelligence); };
 	return utils.renderWithFooter(m.render(), utils.FOOTER_OPTIONS);
 	}
 });

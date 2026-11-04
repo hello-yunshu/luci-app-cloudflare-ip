@@ -286,6 +286,33 @@
 
 .cfi-empty-state h3 { margin-top: 0; }
 
+/* Intelligence copy/collapse/link affordances. */
+.cfi-form-map .cfi-copy-btn,
+.cfi-form-map .cfi-collapse-toggle,
+.cfi-form-map .cfi-link-button {
+	min-height: 2rem;
+	padding: 0.25rem 0.7rem;
+	font-size: 0.82rem;
+	font-weight: 600;
+	line-height: 1.35;
+}
+.cfi-copy-btn {
+	margin-left: 0.6em;
+	vertical-align: middle;
+}
+.cfi-inline-link {
+	margin: 0.6em 0 0;
+}
+.cfi-collapse-body {
+	margin-top: 0.6em;
+}
+.cfi-copy-source {
+	position: fixed;
+	left: -9999px;
+	top: 0;
+	opacity: 0;
+}
+
 .cfi-stats-grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
