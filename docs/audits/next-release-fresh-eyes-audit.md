@@ -30,6 +30,7 @@
 - Visual: 78/78 normal screenshots, 0 overflow; index 396/396 rows 1:1, no duplicates.
 - WCAG: 24 page-theme combinations, 1389 elements, 41 below AA; all native LuCI/Aurora button/tab colours, no plugin colour literal.
 - Tokens/footer: 24/24 page-theme rows shared CSS + footer; section 12px, stat 8px, table 8px.
+- Merge: PR #23 MERGED to `main` as `b556334`; exact-head `CI` run **41768014149 success** (all jobs, 0 failures).
 - Regressions on `9adb2d5`: OpenClash delete-failure PASS, OpenClash/PassWall/Settings RPC-error PASS, Sources draft PASS, Rill reset PASS.
 
 ## Not closed

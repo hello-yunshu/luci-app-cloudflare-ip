@@ -20,7 +20,8 @@ Verdict: **COMPLETE for the requested interface items**, with physical-device an
 - WCAG AA: 24 page-theme combinations, 1389 text elements, **41 below threshold**, all native LuCI/Aurora control colours (Bootstrap save/reset, Aurora primary teal); none are plugin-authored literals, so they are reported and deliberately not overridden.
 - Visual: **78/78** normal-state screenshots, 0 horizontal overflow; old 78 `visual-phase-c` screenshots preserved in `visual-index.csv` (396 rows).
 - v1.8.3-1 comparison: navigation 4 -> 6 static + 2 conditional pages, section radius 0 -> 12px, shadow none -> themed, body font 13px unchanged, footer font unchanged, log 10/9px -> 12px. Deviations are documented with rationale.
-- CI: `CI` run **41703798493** success at `9adb2d5`; `Real LuCI UI Gate` run **41703798508** success; PR #23 OPEN / MERGEABLE.
+- CI before merge: `CI` run **41703798493** success at `9adb2d5`; `Real LuCI UI Gate` run **41703798508** success.
+- Landed: PR #23 merged to `main` as **b556334**; exact-head `CI` run **41768014149 success**.
 - Fresh-eyes audit: 7 evidence issues found and fixed (Intelligence Loading view, 3 identical matrix screenshots, 2 read-only points, unproven Save points, unexecuted fallback path, missing scripts).
 - Intelligence IA: 57 read-only fields in 6 sections (Live State 27). Only wrapping/contrast/focus fixes applied; 4 structural suggestions await approval.
 
