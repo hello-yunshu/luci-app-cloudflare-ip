@@ -101,17 +101,35 @@ return view.extend({
 			'rows': 20,
 			'readonly': 'readonly'
 		}, '');
+		var logDetails = E('details', { 'class': 'cfi-error-details', 'hidden': true });
 
 		function setLogText(text) {
 			logArea.value = text;
 		}
 
+		function setLogError(message, error) {
+			logArea.className = 'cbi-input-textarea cfi-log-area is-error';
+			setLogText(message);
+			while (logDetails.firstChild)
+				logDetails.removeChild(logDetails.firstChild);
+			logDetails.appendChild(E('summary', {}, _('Technical details')));
+			logDetails.appendChild(E('pre', { 'class': 'cfi-log-area' }, utils.errorText(error)));
+			logDetails.appendChild(utils.copyButton(utils.errorText(error)));
+			logDetails.hidden = false;
+		}
+
+		function clearLogError() {
+			logDetails.hidden = true;
+			while (logDetails.firstChild)
+				logDetails.removeChild(logDetails.firstChild);
+		}
+
 		function renderLogResult(res) {
 			res = res || {};
 			if (res.success !== true) {
-				logArea.className = 'cbi-input-textarea cfi-log-area is-error';
-				setLogText(res.error || _('Unable to read logs. Check the service status and try again.'));
+				setLogError(_('Unable to read logs. Check the service status and try again.'), res.error);
 			} else if (res.logs) {
+				clearLogError();
 				logArea.className = 'cbi-input-textarea cfi-log-area';
 				setLogText(res.logs);
 				if (!res.logs.trim())
@@ -119,6 +137,7 @@ return view.extend({
 				else
 					logArea.scrollTop = logArea.scrollHeight;
 			} else {
+				clearLogError();
 				logArea.className = 'cbi-input-textarea cfi-log-area is-empty';
 				setLogText(_('No logs found.'));
 			}
@@ -130,8 +149,7 @@ return view.extend({
 			logArea.className = 'cbi-input-textarea cfi-log-area is-loading';
 			setLogText(_('Loading...'));
 			return callReadLog().then(renderLogResult).catch(function(e) {
-				logArea.className = 'cbi-input-textarea cfi-log-area is-error';
-				setLogText(_('Unable to read logs: %s').format(e.message || e));
+				setLogError(_('Unable to read logs. Check the service status and try again.'), e);
 			}).finally(function() {
 				if (btn)
 					utils.resetBusy(btn);
@@ -159,10 +177,10 @@ return view.extend({
 							logArea.className = 'cbi-input-textarea cfi-log-area is-empty';
 							setLogText(_('Log file cleared.'));
 						} else {
-							ui.addNotification(null, E('p', _('Unable to clear logs: %s').format(res.error || _('Unknown'))), 'error');
+							utils.noticeError(_('Unable to clear logs.'), _('The previous log file was preserved.'), res.error);
 						}
 					}).catch(function(e) {
-						ui.addNotification(null, E('p', _('Unable to clear logs: %s').format(e.message)), 'error');
+						utils.noticeError(_('Unable to clear logs.'), _('The previous log file was preserved.'), e);
 					}).finally(function() {
 						utils.resetBusy(btn);
 					});
@@ -173,11 +191,15 @@ return view.extend({
 		logSection.appendChild(logBtnBar);
 		setLogText(_('Loading...'));
 		logSection.appendChild(logArea);
+		logSection.appendChild(logDetails);
 		window.setTimeout(refreshLogs, 0);
 
 		if (status.error && status.error !== 'Status file not found') {
-			logSection.appendChild(E('div', { 'class': 'alert-message danger', 'style': 'margin-top:1em' },
-				E('p', {}, '\u2718 ' + _('Last error: %s').format(status.error))));
+			logSection.appendChild(utils.errorPanel(
+				_('The last service run reported an error.'),
+				_('Open the log below and check the service status before retrying.'),
+				status.error
+			));
 		}
 		container.appendChild(logSection);
 
@@ -193,7 +215,9 @@ return view.extend({
 
 			res = res || {};
 			if (res.success !== true) {
-				ipTableBody.appendChild(E('tr', { 'class': 'tr' }, E('td', { 'class': 'td', 'colspan': '2', 'style': 'color:var(--danger-color)' }, res.error || _('Unable to load IP history. Refresh and try again.'))));
+				ipTableBody.appendChild(E('tr', { 'class': 'tr' }, E('td', { 'class': 'td', 'colspan': '2' },
+						utils.errorPanel(_('Unable to load IP history.'), _('Refresh and try again; the previous rows are unchanged.'), res.error)
+					)));
 				return;
 			}
 

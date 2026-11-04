@@ -61,6 +61,15 @@ var STATUS_LABELS = {
 		error: _('Error'),
 		unavailable: _('Unavailable')
 	},
+	error: {
+		none: _('None'),
+		timeout: _('Timeout'),
+		unavailable: _('Unavailable'),
+		not_installed: _('Not installed'),
+		invalid_response: _('Invalid response'),
+		permission_denied: _('Permission denied'),
+		error: _('Error')
+	},
 	reason: {
 		disabled: _('Disabled'),
 		manual_reset: _('Manual reset'),
@@ -81,12 +90,35 @@ var STATUS_LABELS = {
 	}
 };
 
+var SOURCE_STATE_LABELS = {
+	fresh: _('Fresh'),
+	stale: _('Cached / stale'),
+	missing: _('Not fetched'),
+	error: _('Error')
+};
+
+var SOURCE_ERROR_LABELS = {
+	fetch_failed: _('Download failed'),
+	parse_failed: _('List could not be parsed'),
+	timeout: _('Source request timed out'),
+	http_error: _('Source returned an HTTP error'),
+	invalid_url: _('Source URL is invalid or insecure'),
+	unsupported_content: _('Source returned an unsupported list'),
+	empty: _('Source returned no usable addresses'),
+	disabled: _('Source is disabled')
+};
+
 function statusLabel(kind, value) {
 	if (value === undefined || value === null || value === '')
 		return _('Unknown');
 	var code = String(value);
 	var table = STATUS_LABELS[kind] || {};
-	return table[code] || _('Unknown (%s)').format(code);
+	return table[code] || _('Unknown');
+}
+
+function statusKnown(kind, value) {
+	var code = String(value == null ? '' : value);
+	return !!((STATUS_LABELS[kind] || {})[code]);
 }
 
 function statusReasons(values) {
@@ -95,6 +127,139 @@ function statusReasons(values) {
 	return values.map(function(value) {
 		return statusLabel('reason', value);
 	}).join(', ');
+}
+
+function collectUnknownStatusCodes(status) {
+	status = status || {};
+	var intelligence = status.intelligence || {};
+	var adaptive = status.adaptiveMeasurement || {};
+	var decision = status.decision || {};
+	var health = status.operationalHealth || {};
+	var sourcePolicy = status.sourcePolicy || {};
+	var reuse = status.reusePolicy || {};
+	var found = [];
+	function add(kind, field, value) {
+		if (value === undefined || value === null || value === '') return;
+		if (!statusKnown(kind, value)) found.push(field + '=' + String(value));
+	}
+	add('mode', 'requestedMode', status.requestedMode || intelligence.requestedMode);
+	add('mode', 'effectiveMode', status.effectiveMode || intelligence.effectiveMode);
+	add('reason', 'fallbackReason', status.fallbackReason || intelligence.fallbackReason);
+	add('health', 'operationalHealth.state', health.state);
+	add('confidence', 'confidenceLevel', decision.confidenceLevel || intelligence.confidenceLevel);
+	add('runtime', 'intelligence.state', intelligence.state);
+	add('qualification', 'qualificationState', intelligence.qualificationState || adaptive.qualificationState);
+	add('mode', 'adaptive.requestedMode', adaptive.requestedMode);
+	add('mode', 'adaptive.effectiveMode', adaptive.effectiveMode);
+	add('reason', 'adaptive.lastFallbackReason', adaptive.lastFallbackReason);
+	add('mode', 'sourcePolicy.requested', sourcePolicy.requested);
+	add('mode', 'sourcePolicy.effective', sourcePolicy.effective);
+	add('reason', 'reusePolicy.reason', reuse.reason);
+	add('error', 'intelligence.inspect.lastError', (intelligence.inspect || {}).lastError);
+	(health.reasonCodes || []).forEach(function(code, index) {
+		if (code !== undefined && code !== null && code !== '' && !statusKnown('reason', code))
+			found.push('health.reasonCodes[' + index + ']=' + String(code));
+	});
+	(decision.confidenceReasons || status.confidenceReasons || []).forEach(function(code, index) {
+		if (code !== undefined && code !== null && code !== '' && !statusKnown('reason', code))
+			found.push('confidenceReasons[' + index + ']=' + String(code));
+	});
+	return found;
+}
+
+function sourceStateLabel(entry) {
+	entry = entry || {};
+	if (entry._rpcError) return _('Unable to load');
+	if (entry.success === true) return entry.stale ? _('Cached / stale') : _('Fresh');
+	if (entry.lastError && SOURCE_ERROR_LABELS[entry.lastError]) return SOURCE_ERROR_LABELS[entry.lastError];
+	return _('Error');
+}
+
+function sourceErrorNode(code) {
+	if (!code) return '\u2014';
+	if (SOURCE_ERROR_LABELS[code]) return SOURCE_ERROR_LABELS[code];
+	return E('div', { 'class': 'cfi-source-error' }, [
+		E('span', {}, _('Source error')),
+		E('details', {}, [
+			E('summary', {}, _('Technical details')),
+			E('pre', { 'class': 'cfi-log-area' }, String(code))
+		])
+	]);
+}
+
+function errorText(error) {
+	if (error === undefined || error === null || error === '') return _('Unknown');
+	if (typeof error === 'string') return error;
+	if (error.message) return error.message;
+	try { return JSON.stringify(error); } catch (e) { return String(error); }
+}
+
+function copyText(text) {
+	if (navigator.clipboard && navigator.clipboard.writeText)
+		return navigator.clipboard.writeText(text).catch(function() { return copyTextFallback(text); });
+	return copyTextFallback(text);
+}
+
+function copyTextFallback(text) {
+	return Promise.resolve().then(function() {
+		var area = E('textarea', { 'class': 'cfi-copy-source' }, text);
+		document.body.appendChild(area);
+		try {
+			area.select();
+			if (!document.execCommand('copy'))
+				throw new Error(_('Copy command was rejected'));
+			return true;
+		} finally {
+			document.body.removeChild(area);
+		}
+	});
+}
+
+function copyButton(text, label) {
+	var button = E('button', {
+		'class': 'cbi-button cfi-copy-btn',
+		'type': 'button',
+		'aria-label': label || _('Copy technical details')
+	}, label || _('Copy technical details'));
+	if (button && typeof button.addEventListener === 'function') button.addEventListener('click', function() {
+		copyText(text).then(function() {
+			button.textContent = _('Copied');
+			window.setTimeout(function() { button.textContent = label || _('Copy technical details'); }, 1500);
+		}).catch(function(error) {
+			noticeError(_('Unable to copy technical details.'), error);
+		});
+	});
+	return button;
+}
+
+function technicalDetails(error) {
+	var raw = errorText(error);
+	return E('details', { 'class': 'cfi-error-details' }, [
+		E('summary', {}, _('Technical details')),
+		E('pre', { 'class': 'cfi-log-area', 'style': 'white-space:pre-wrap;max-height:12em;overflow:auto;margin:0.5em 0' }, raw),
+		copyButton(raw)
+	]);
+}
+
+function errorNotice(title, message, error) {
+	return E('div', { 'class': 'cfi-error-notice' }, [
+		E('p', {}, title),
+		message ? E('p', {}, message) : '',
+		technicalDetails(error)
+	]);
+}
+
+function errorPanel(title, message, error) {
+	return E('div', { 'class': 'alert-message error', 'role': 'alert' }, [
+		E('p', {}, title),
+		message ? E('p', {}, message) : '',
+		technicalDetails(error)
+	]);
+}
+
+function noticeError(title, message, error) {
+	if (arguments.length < 3) { error = message; message = ''; }
+	ui.addNotification(null, errorNotice(title, message, error), 'error');
 }
 
 function isUciNoData(error) {
@@ -489,7 +654,7 @@ function createHandleSaveApply(m, view) {
 			});
 		}).catch(function(e) {
 			if (!isActive() || (e && e.code === 'SaveApplyCancelled')) return;
-			ui.addNotification(null, E('p', _('Unable to apply configuration: %s').format(e.message)), 'error');
+			noticeError(_('Unable to apply configuration.'), _('The previous applied configuration was preserved.'), e);
 		});
 		function cleanup() {
 			if (button && button.getAttribute('data-cfi-apply-owner') === buttonOwner) {
@@ -513,7 +678,18 @@ return baseclass.extend({
 	reloadSoon: reloadSoon,
 	confirmAction: confirmAction,
 	statusLabel: statusLabel,
+	statusKnown: statusKnown,
 	statusReasons: statusReasons,
+	collectUnknownStatusCodes: collectUnknownStatusCodes,
+	sourceStateLabel: sourceStateLabel,
+	sourceErrorNode: sourceErrorNode,
+	errorText: errorText,
+	errorNotice: errorNotice,
+	errorPanel: errorPanel,
+	noticeError: noticeError,
+	technicalDetails: technicalDetails,
+	copyText: copyText,
+	copyButton: copyButton,
 	waitForServiceReady: waitForServiceReady,
 	waitForRunStatus: waitForRunStatus,
 	requireSuccess: requireSuccess,
