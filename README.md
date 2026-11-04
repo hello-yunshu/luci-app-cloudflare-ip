@@ -72,7 +72,7 @@ sha256sum -c sha256sums.txt
 | `.ipk` | OpenWrt 24.10.x | `opkg install ./luci-app-cloudflare-ip_*.ipk` |
 | `.apk` | OpenWrt 25.12+ | `apk add ./luci-app-cloudflare-ip-*.apk` |
 
-依赖由软件包声明，主要包括：`luci-base`、`rpcd`、`uhttpd`、`bash`、`curl`、`tar`、`jq`、`ca-bundle` 和 `ca-certificates`。
+依赖由软件包声明，主要包括：`luci-base`、`bash`、`curl`、`tar`、`jq`、`ca-bundle` 和 `ca-certificates`。`uhttpd` 不是硬依赖：只有启用 LAN Result Publisher 时才需要本机存在 `/usr/sbin/uhttpd`；在 nginx/lighttpd 系统上不会额外安装第二套 Web 服务，发布器会 fail-closed 并报告缺失的运行时。
 
 安装后刷新 LuCI 页面，在 **服务 → Cloudflare IP 优选** 打开插件。
 
