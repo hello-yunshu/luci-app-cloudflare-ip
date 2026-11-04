@@ -36,6 +36,85 @@ function runtimeSummary(status) {
 	return _('Unavailable / Native fallback') + (intelligence.state ? ' / ' + utils.statusLabel('runtime', intelligence.state) : '');
 }
 
+function addCopyButton(field, text) {
+	if (!field || field.querySelector('.cfi-copy-btn'))
+		return;
+	var button = E('button', {
+		'class': 'cbi-button cfi-copy-btn',
+		'type': 'button',
+		'aria-label': _('Copy'),
+		'click': function() {
+			var self = this;
+			utils.copyText(text).then(function() {
+				self.textContent = _('Copied');
+				self.setAttribute('aria-label', _('Copied'));
+				window.setTimeout(function() {
+					self.textContent = _('Copy');
+					self.setAttribute('aria-label', _('Copy'));
+				}, 1500);
+			}).catch(function(error) {
+				utils.noticeError(_('Unable to copy.'), _('The clipboard is unavailable and the copy fallback was rejected.'), error);
+			});
+		}
+	}, _('Copy'));
+	field.appendChild(button);
+}
+
+function decorateIntelligence(node, status) {
+	if (!node || typeof node.querySelectorAll !== 'function')
+		return node;
+	var copyTargets = ['-_endpoint', '-_run_history', '-_runtime_path', '-_context_policy', '-_resource'];
+	node.querySelectorAll('.cbi-value').forEach(function(row) {
+		if (!copyTargets.some(function(suffix) { return row.id && row.id.endsWith(suffix); }))
+			return;
+		var field = row.querySelector('.cbi-value-field');
+		if (field)
+			addCopyButton(field, field.textContent.trim());
+	});
+	var runRow = node.querySelector('.cbi-value[id$="-_run_history"]');
+	if (runRow && !runRow.querySelector('.cfi-link-button')) {
+		runRow.querySelector('.cbi-value-field').appendChild(E('p', { 'class': 'cfi-inline-link' },
+			E('a', { 'class': 'cbi-button cfi-link-button', 'href': L.url('admin/services/cf_ip/logs') }, _('Open Logs & Records'))));
+	}
+	var liveRow = node.querySelector('.cbi-value[id="cbi-cf_ip-rill-_state"]');
+	var liveSection = liveRow ? liveRow.closest('.cbi-section') : null;
+	if (liveSection && !liveSection.querySelector('.cfi-collapse-toggle')) {
+		var body = E('div', { 'class': 'cfi-collapse-body', 'id': 'cfi-live-state-body' });
+		Array.prototype.slice.call(liveSection.children, 1).forEach(function(child) { body.appendChild(child); });
+		var toggle = E('button', {
+			'class': 'cbi-button cfi-collapse-toggle',
+			'type': 'button',
+			'aria-expanded': 'false',
+			'aria-controls': 'cfi-live-state-body'
+		}, _('Show advanced diagnostics'));
+		function apply(open) {
+			body.hidden = !open;
+			toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+			toggle.textContent = open ? _('Hide advanced diagnostics') : _('Show advanced diagnostics');
+		}
+		var open = false;
+		try { open = window.localStorage.getItem('cfi.intelligence.liveState') === '1'; } catch (e) {}
+		toggle.addEventListener('click', function() {
+			open = !open;
+			try { window.localStorage.setItem('cfi.intelligence.liveState', open ? '1' : '0'); } catch (e) {}
+			apply(open);
+		});
+		liveSection.appendChild(toggle);
+		liveSection.appendChild(body);
+		apply(open);
+	}
+	var unknownCodes = utils.collectUnknownStatusCodes(status);
+	if (unknownCodes.length) {
+		var target = liveSection || node;
+		target.appendChild(E('details', { 'class': 'cfi-raw-codes' }, [
+			E('summary', {}, _('Unknown state codes')),
+			E('pre', { 'class': 'cfi-log-area' }, unknownCodes.join('\n')),
+			utils.copyButton(unknownCodes.join('\n'))
+		]));
+	}
+	return node;
+}
+
 return view.extend({
 	title: _('Rill Intelligence'),
 
@@ -200,14 +279,14 @@ return view.extend({
 			return _('Valid feedback') + ': ' + (i.validFeedback || 0) + ', ' + _('delayed pending') + ': ' + (i.pendingDelayedFeedback || 0) + ', ' + _('completed') + ': ' + (i.delayedCompleted || 0) + ', Δ ' + (i.rewardDelta == null ? '?' : i.rewardDelta.toFixed(3));
 		};
 	o = s.option(form.DummyValue, '_health', _('Runtime Health'));
-	o.cfgvalue = function() { var i = status.intelligence || {}; return (i.health || _('Unknown')) + (i.resourcePressure ? ' / ' + _('Resource pressure') : ''); };
+	o.cfgvalue = function() { var i = status.intelligence || {}; return utils.statusLabel('health', i.health) + (i.resourcePressure ? ' / ' + _('Resource pressure') : ''); };
 	o = s.option(form.DummyValue, '_resource', _('Resource Guard'));
 	o.cfgvalue = function() {
 		var i = status.intelligence || {}, x = i.inspect || {}, u = x.resourceUtilization || {}, p = x.resourceProfile || {};
 		return _('pressure') + ': ' + (i.resourcePressure ? _('yes') : _('no')) + ', ' + _('state bytes') + ': ' + (u.stateBytes || 0) + ' / ' + (p.maxModelStateBytes || '?') + ', ' + _('pending') + ': ' + (u.pendingDecisions || 0) + ' / ' + (p.maxPendingDecisions || '?');
 	};
 		o = s.option(form.DummyValue, '_inspect', _('Runtime Inspect'));
-		o.cfgvalue = function() { var i = status.intelligence || {}, x = i.inspect || {}; return _('pending') + ': ' + (x.pendingDecisions || i.pendingDelayedFeedback || 0) + ', ' + _('completed') + ': ' + (x.completedDecisions || i.delayedCompleted || 0) + ', ' + _('last error') + ': ' + (x.lastError || _('None')); };
+		o.cfgvalue = function() { var i = status.intelligence || {}, x = i.inspect || {}; return _('pending') + ': ' + (x.pendingDecisions || i.pendingDelayedFeedback || 0) + ', ' + _('completed') + ': ' + (x.completedDecisions || i.delayedCompleted || 0) + ', ' + _('last error') + ': ' + utils.statusLabel('error', x.lastError || 'none'); };
 	o = s.option(form.DummyValue, '_authority', _('Current Authority'));
 	o.cfgvalue = function() {
 		return status.effectiveMode === 'assisted' ? _('Guarded Assisted') : (status.effectiveMode === 'shadow' ? _('Shadow') : _('Native'));
@@ -270,22 +349,30 @@ return view.extend({
 	o.inputtitle = _('Run self-check');
 	o.inputstyle = 'apply';
 	o.onclick = function(ev) {
-		var button = ev.currentTarget;
+		var button = ev && ev.currentTarget && ev.currentTarget.tagName === 'BUTTON' ? ev.currentTarget :
+			(ev && ev.target && ev.target.tagName === 'BUTTON' ? ev.target : null);
+		if (!button && this && this.node) button = this.node.querySelector('button');
 		utils.setBusy(button, _('Checking...'));
 		return callSelfCheck().then(function(result) {
 			if (result && result.success)
 				ui.addNotification(null, E('p', _('Rill self-check passed.')));
 			else
-				ui.addNotification(null, E('p', _('Rill self-check fell back to Native.')), 'warning');
+				ui.addNotification(null, utils.errorNotice(
+					_('Rill self-check fell back to Native.'),
+					_('Native ranking remains authoritative; inspect the technical details before enabling Assisted mode.'),
+					result && result.error
+				), 'warning');
 		}).catch(function(error) {
-			ui.addNotification(null, E('p', _('Unable to complete self-check: %s').format(error.message || error)), 'error');
+			utils.noticeError(_('Unable to complete self-check.'), _('Native ranking remains available.'), error);
 		}).finally(function() { utils.resetBusy(button); });
 	};
 	o = s.option(form.Button, '_reset', _('Reset Learning State'));
 	o.inputtitle = _('Reset learning state');
 	o.inputstyle = 'reset';
 	o.onclick = function(ev) {
-		var button = ev.currentTarget;
+		var button = ev && ev.currentTarget && ev.currentTarget.tagName === 'BUTTON' ? ev.currentTarget :
+			(ev && ev.target && ev.target.tagName === 'BUTTON' ? ev.target : null);
+		if (!button && this && this.node) button = this.node.querySelector('button');
 		var generation = (status.intelligence || {}).stateGeneration || 0;
 		return utils.confirmAction(_('Reset Learning State'), _('Reset Rill learning state? Native configuration will not be changed.'), function() {
 			utils.setBusy(button, _('Resetting...'));
@@ -295,13 +382,15 @@ return view.extend({
 				ui.addNotification(null, E('p', _('Rill learning state was reset. Reloading status.')), 'info');
 				setTimeout(function() { location.reload(); }, 500);
 			}).catch(function(error) {
-				ui.addNotification(null, E('p', _('Unable to reset learning state: %s').format(error.message || error)), 'error');
+				utils.noticeError(_('Unable to reset learning state.'), _('The previous learning state was preserved.'), error);
 			}).finally(function() { utils.resetBusy(button); });
 		}, _('Reset'));
 	};
 
 	utils.createHandleSave(m, this);
 	utils.createHandleSaveApply(m, this);
+	var renderContents = m.renderContents.bind(m);
+	m.renderContents = function() { return renderContents().then(function(node) { return decorateIntelligence(node, status); }); };
 	return utils.renderWithFooter(m.render(), utils.FOOTER_OPTIONS);
 	}
 });

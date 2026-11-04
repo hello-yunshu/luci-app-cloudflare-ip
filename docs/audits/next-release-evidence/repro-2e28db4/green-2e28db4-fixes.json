@@ -1,0 +1,64 @@
+{
+  "openclash_delete": {
+    "row_delete_buttons": 1,
+    "modal_delete_buttons": 1,
+    "backend": {
+      "success": false
+    },
+    "notifications": [
+      {
+        "kind": null,
+        "text": "Unable to delete backup: Unknown"
+      }
+    ],
+    "reload_calls": 0,
+    "false_success": false
+  },
+  "rpc_failure_openclash": {
+    "text": "Unable to check OpenClash environment",
+    "error_visible": true,
+    "not_installed": false
+  },
+  "rpc_failure_sources": {
+    "text": "Unable to load source registry The source registry RPC failed: ubus unavailable Retry",
+    "rows": 0,
+    "error_visible": true
+  },
+  "rpc_failure_passwall": {
+    "text": "Unable to check PassWall environment",
+    "error_visible": true,
+    "not_installed": false
+  },
+  "rpc_failure_settings": {
+    "description": "Unable to check the proxy environment: ubus unavailable",
+    "error_visible": true,
+    "not_installed": false
+  },
+  "sources_refresh": {
+    "buttons": 1,
+    "draft_before": "modified-but-unsaved",
+    "notifications": [
+      {
+        "kind": null,
+        "text": "Sources refreshed; candidate pool prepared. Unsaved edits were kept."
+      }
+    ],
+    "reload_calls": 0,
+    "save_calls": 0,
+    "draft_after": "modified-but-unsaved"
+  },
+  "rill_reset": {
+    "reset_option": true,
+    "status_generation_before": 1,
+    "modal_confirm_buttons": 1,
+    "notifications": [
+      {
+        "kind": null,
+        "text": "Rill learning state was reset. Reloading status."
+      }
+    ],
+    "reload_calls": 1,
+    "status_generation_after": 1,
+    "stale_status": false
+  }
+}

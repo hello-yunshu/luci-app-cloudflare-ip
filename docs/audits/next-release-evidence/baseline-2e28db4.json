@@ -1,0 +1,88 @@
+{
+  "generatedAt": "2026-11-03T09:27:04.954884+00:00",
+  "repository": "hello-yunshu/luci-app-cloudflare-ip",
+  "branch": "main",
+  "headSha": "2e28db4b5cdc221897bbe98ff78fbe7235098e53",
+  "worktreeStatus": "?? docs/audits/next-release-evidence/",
+  "tag": "2e28db4b5cdc221897bbe98ff78fbe7235098e53\trefs/tags/v2.6.0-6",
+  "release": {
+    "assets": [
+      {
+        "apiUrl": "https://api.github.com/repos/hello-yunshu/luci-app-cloudflare-ip/releases/assets/704577919",
+        "contentType": "application/vnd.android.package-archive",
+        "createdAt": "2026-11-03T06:29:40Z",
+        "digest": "sha256:63c5ab16030f8544d14349a15e90df66f8c2be02ebf8f2ff8a325e9fed920b11",
+        "downloadCount": 0,
+        "id": "RA_kwDOGwmrG84p_wF_",
+        "label": "",
+        "name": "luci-app-cloudflare-ip-2.6.0-r6.apk",
+        "size": 172054,
+        "state": "uploaded",
+        "updatedAt": "2026-11-03T06:29:49Z",
+        "url": "https://github.com/hello-yunshu/luci-app-cloudflare-ip/releases/download/v2.6.0-6/luci-app-cloudflare-ip-2.6.0-r6.apk"
+      },
+      {
+        "apiUrl": "https://api.github.com/repos/hello-yunshu/luci-app-cloudflare-ip/releases/assets/704577855",
+        "contentType": "application/vnd.shana.informed.package",
+        "createdAt": "2026-11-03T06:29:38Z",
+        "digest": "sha256:a7c0c411d4be2784e196757bd9b1a2b31f9b6ea8ad520eb1649e6fb4d2d405d5",
+        "downloadCount": 1,
+        "id": "RA_kwDOGwmrG84p_wE_",
+        "label": "",
+        "name": "luci-app-cloudflare-ip_2.6.0-r6_all.ipk",
+        "size": 172082,
+        "state": "uploaded",
+        "updatedAt": "2026-11-03T06:29:43Z",
+        "url": "https://github.com/hello-yunshu/luci-app-cloudflare-ip/releases/download/v2.6.0-6/luci-app-cloudflare-ip_2.6.0-r6_all.ipk"
+      },
+      {
+        "apiUrl": "https://api.github.com/repos/hello-yunshu/luci-app-cloudflare-ip/releases/assets/704577917",
+        "contentType": "application/json",
+        "createdAt": "2026-11-03T06:29:40Z",
+        "digest": "sha256:26b8f913f1b7d786ae711c5a075f3363cb4dedb98bfadbc5883ee3020b8e2d88",
+        "downloadCount": 0,
+        "id": "RA_kwDOGwmrG84p_wF9",
+        "label": "",
+        "name": "qualification.json",
+        "size": 19047,
+        "state": "uploaded",
+        "updatedAt": "2026-11-03T06:29:48Z",
+        "url": "https://github.com/hello-yunshu/luci-app-cloudflare-ip/releases/download/v2.6.0-6/qualification.json"
+      },
+      {
+        "apiUrl": "https://api.github.com/repos/hello-yunshu/luci-app-cloudflare-ip/releases/assets/704577920",
+        "contentType": "application/json",
+        "createdAt": "2026-11-03T06:29:40Z",
+        "digest": "sha256:3f4f7bd7a225f50612546eed9d83f1d3ee3c2e759d5c9dc14c2d9f40506dfa9e",
+        "downloadCount": 0,
+        "id": "RA_kwDOGwmrG84p_wGA",
+        "label": "",
+        "name": "release-manifest.json",
+        "size": 1650,
+        "state": "uploaded",
+        "updatedAt": "2026-11-03T06:29:48Z",
+        "url": "https://github.com/hello-yunshu/luci-app-cloudflare-ip/releases/download/v2.6.0-6/release-manifest.json"
+      },
+      {
+        "apiUrl": "https://api.github.com/repos/hello-yunshu/luci-app-cloudflare-ip/releases/assets/704577918",
+        "contentType": "text/plain; charset=utf-8",
+        "createdAt": "2026-11-03T06:29:40Z",
+        "digest": "sha256:882c31d1fc49671d76ca564644ecc398d040add065084effeffd77282627d397",
+        "downloadCount": 1,
+        "id": "RA_kwDOGwmrG84p_wF-",
+        "label": "",
+        "name": "sha256sums.txt",
+        "size": 208,
+        "state": "uploaded",
+        "updatedAt": "2026-11-03T06:29:40Z",
+        "url": "https://github.com/hello-yunshu/luci-app-cloudflare-ip/releases/download/v2.6.0-6/sha256sums.txt"
+      }
+    ],
+    "isPrerelease": true,
+    "tagName": "v2.6.0-6",
+    "targetCommitish": "2e28db4b5cdc221897bbe98ff78fbe7235098e53"
+  },
+  "basePolicy": "main HEAD used as actual latest; PR #18 head becb327 recorded as alternate baseline",
+  "ciMainRun": 41586123833,
+  "syncRillRun": 41593205753
+}

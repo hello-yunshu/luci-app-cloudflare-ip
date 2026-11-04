@@ -31,9 +31,10 @@ return view.extend({
 		o.readonly = true;
 
 		o = s.option(form.Value, 'self_update_url', _('Script Update URL'),
-			_('Retained only for migration compatibility; it is not used by the 2.x engine.'));
-		o.placeholder = 'https://raw.githubusercontent.com/...';
-		o.rmempty = false;
+			_('Deprecated and read-only. The 2.x engine is updated only through IPK/APK package upgrades.'));
+		o.placeholder = _('Deprecated / package-managed');
+		o.rmempty = true;
+		o.readonly = true;
 		o.datatype = 'string';
 		o = s.option(form.DummyValue, '_self_update_note', _('Update policy'));
 		o.cfgvalue = function() { return _('Deprecated / package-managed'); };

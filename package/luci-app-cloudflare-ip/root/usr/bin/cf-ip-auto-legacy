@@ -34,8 +34,8 @@ OPENCLASH_TARGET_DOMAIN=""
 OPENCLASH_NAME_SUFFIX=" [CF-{n}]"
 OPENCLASH_TRANSPORT_FILTER=""
 OPENCLASH_BACKUP_COUNT="3"
-AUTO_UPDATE="true"
-SELF_UPDATE_URL="https://raw.githubusercontent.com/hello-yunshu/luci-app-cloudflare-ip/main/package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto"
+AUTO_UPDATE="false"
+SELF_UPDATE_URL=""
 DOWNLOAD_RETRIES="3"
 DOWNLOAD_RETRY_DELAY="5"
 VERBOSE="false"
@@ -379,57 +379,10 @@ valid_version() {
 }
 
 self_update() {
-	local tmp remote_version
-
-	[[ "$AUTO_UPDATE" == "true" ]] || return 0
-	[[ -n "$SELF_UPDATE_URL" ]] || return 0
-	command -v curl >/dev/null 2>&1 || {
-		log "skip self update: curl not found"
-		return 0
-	}
-
-	tmp="$(mktemp "${TMPDIR:-/tmp}/cf-ip-auto.XXXXXX")" || return 0
-	log "checking script update: $SELF_UPDATE_URL"
-	if ! curl_fetch "$tmp" "$(mirror_url "$SELF_UPDATE_URL")"; then
-		rm -f "$tmp"
-		log "skip self update: failed to fetch $SELF_UPDATE_URL"
-		return 0
-	fi
-
-	remote_version="$(extract_script_version "$tmp")"
-	if [[ -z "$remote_version" ]]; then
-		rm -f "$tmp"
-		log "skip self update: remote script has no version"
-		return 0
-	fi
-
-	if ! version_gt "$remote_version" "$SCRIPT_VERSION"; then
-		rm -f "$tmp"
-		return 0
-	fi
-
-	if ! bash -n "$tmp"; then
-		rm -f "$tmp"
-		die "downloaded update has invalid shell syntax"
-	fi
-
-	chmod +x "$tmp"
-	if ! mv "$tmp" "$SCRIPT_PATH"; then
-		rm -f "$tmp"
-		die "failed to replace script with version $remote_version"
-	fi
-
-	log "updated script from $SCRIPT_VERSION to $remote_version"
-
-	# In JSON mode or daemon mode, don't exec - just return
-	if [[ "$JSON_MODE" == "true" || "$DAEMON_MODE" == "true" ]]; then
-		return 0
-	fi
-
-	if [[ "$CLI_VERBOSE" == "true" ]]; then
-		exec "$SCRIPT_PATH" --verbose
-	fi
-	exec "$SCRIPT_PATH"
+	# 2.x is package-managed. A mutable main URL plus syntax-only validation
+	# is not an integrity boundary, so the legacy self-update path is disabled.
+	log "self-update disabled: 2.x engine is package-managed; upgrade via IPK/APK"
+	return 0
 }
 
 ensure_jq() {
@@ -1892,6 +1845,31 @@ cmd_run() {
 	json_result "mode" "$MODE" "ip_type" "$IP_TYPE" "ip_count" "$IP_COUNT" "best_ips" "$best_ips_json"
 }
 
+detect_ruby_psych() {
+	CFIP_RUBY_INSTALLED=false
+	CFIP_RUBY_USABLE=false
+	CFIP_RUBY_PSYCH=false
+	CFIP_RUBY_STATUS="ruby_missing"
+	CFIP_RUBY_VERSION=""
+	command -v ruby >/dev/null 2>&1 || return 0
+	CFIP_RUBY_INSTALLED=true
+	# A package can install Ruby but still be unusable on this CPU (for
+	# example a SIGSEGV before the interpreter starts). Distinguish that from
+	# a missing Psych module so the UI can give the right remedy.
+	if ! ruby -v >/dev/null 2>&1; then
+		CFIP_RUBY_STATUS="ruby_unusable"
+		return 0
+	fi
+	CFIP_RUBY_USABLE=true
+	CFIP_RUBY_VERSION="$(ruby -e 'print RUBY_VERSION' 2>/dev/null | tr -cd '0-9A-Za-z._-')" || CFIP_RUBY_VERSION=""
+	if ruby -rpsych -e 'exit 0' >/dev/null 2>&1; then
+		CFIP_RUBY_PSYCH=true
+		CFIP_RUBY_STATUS="available"
+	else
+		CFIP_RUBY_STATUS="psych_missing"
+	fi
+}
+
 cmd_check_env() {
 	JSON_MODE=true
 	# Real-time detection without writing cache (like upnp-bridge-relay's do_check_env)
@@ -1932,8 +1910,8 @@ cmd_check_env() {
 
 	local openclash_installed=false
 	local openclash_running=false
-	[[ -x /etc/init.d/openclash ]] && openclash_installed=true
-	$openclash_installed && /etc/init.d/openclash running >/dev/null 2>&1 && openclash_running=true
+	[[ -x "${INIT_DIR}/openclash" ]] && openclash_installed=true
+	$openclash_installed && "${INIT_DIR}/openclash" running >/dev/null 2>&1 && openclash_running=true
 
 	local cfst_installed=false
 		load_uci_config_if_available 2>/dev/null || true
@@ -1942,8 +1920,13 @@ cmd_check_env() {
 		cfst_installed=true
 	fi
 
-	printf '{"success":true,%s,"missing_deps":%s,"package_manager":"%s","passwall_installed":%s,"passwall_running":%s,"openclash_installed":%s,"openclash_running":%s,"cfst_installed":%s}\n' \
-		"$deps" "$missing_deps" "$package_manager" "$passwall_installed" "$passwall_running" "$openclash_installed" "$openclash_running" "$cfst_installed"
+	detect_ruby_psych
+	local openclash_restore_available=false
+	[[ "$openclash_installed" == true && "$CFIP_RUBY_PSYCH" == true ]] && openclash_restore_available=true
+
+	printf '{"success":true,%s,"missing_deps":%s,"package_manager":"%s","passwall_installed":%s,"passwall_running":%s,"openclash_installed":%s,"openclash_running":%s,"cfst_installed":%s,"ruby_installed":%s,"ruby_usable":%s,"ruby_psych":%s,"ruby_status":"%s","ruby_version":"%s","openclash_restore_available":%s}\n' \
+		"$deps" "$missing_deps" "$package_manager" "$passwall_installed" "$passwall_running" "$openclash_installed" "$openclash_running" "$cfst_installed" \
+		"$CFIP_RUBY_INSTALLED" "$CFIP_RUBY_USABLE" "$CFIP_RUBY_PSYCH" "$CFIP_RUBY_STATUS" "$CFIP_RUBY_VERSION" "$openclash_restore_available"
 }
 
 cmd_refresh_env() {
@@ -1988,8 +1971,8 @@ cmd_refresh_env() {
 
 	local openclash_installed=false
 	local openclash_running=false
-	[[ -x /etc/init.d/openclash ]] && openclash_installed=true
-	$openclash_installed && /etc/init.d/openclash running >/dev/null 2>&1 && openclash_running=true
+	[[ -x "${INIT_DIR}/openclash" ]] && openclash_installed=true
+	$openclash_installed && "${INIT_DIR}/openclash" running >/dev/null 2>&1 && openclash_running=true
 
 	local cfst_installed=false
 	local cfst_ver=""
@@ -2003,9 +1986,14 @@ cmd_refresh_env() {
 	local updated_at
 	updated_at="$(date '+%Y-%m-%d %H:%M:%S' 2>/dev/null || echo '')"
 
+	detect_ruby_psych
+	local openclash_restore_available=false
+	[[ "$openclash_installed" == true && "$CFIP_RUBY_PSYCH" == true ]] && openclash_restore_available=true
+
 	local result
-	printf -v result '{"success":true,%s,"missing_deps":%s,"package_manager":"%s","arch":"%s","passwall_installed":%s,"passwall_running":%s,"openclash_installed":%s,"openclash_running":%s,"cfst_installed":%s,"cfst_version":"%s","updated_at":"%s"}\n' \
-		"$deps" "$missing_deps" "$package_manager" "$arch" "$passwall_installed" "$passwall_running" "$openclash_installed" "$openclash_running" "$cfst_installed" "$cfst_ver" "$updated_at"
+	printf -v result '{"success":true,%s,"missing_deps":%s,"package_manager":"%s","arch":"%s","passwall_installed":%s,"passwall_running":%s,"openclash_installed":%s,"openclash_running":%s,"cfst_installed":%s,"cfst_version":"%s","updated_at":"%s","ruby_installed":%s,"ruby_usable":%s,"ruby_psych":%s,"ruby_status":"%s","ruby_version":"%s","openclash_restore_available":%s}\n' \
+		"$deps" "$missing_deps" "$package_manager" "$arch" "$passwall_installed" "$passwall_running" "$openclash_installed" "$openclash_running" "$cfst_installed" "$cfst_ver" "$updated_at" \
+		"$CFIP_RUBY_INSTALLED" "$CFIP_RUBY_USABLE" "$CFIP_RUBY_PSYCH" "$CFIP_RUBY_STATUS" "$CFIP_RUBY_VERSION" "$openclash_restore_available"
 
 	# Write to cache
 	mkdir -p "$STATUS_DIR"
@@ -2097,49 +2085,8 @@ cmd_download_cfst() {
 cmd_self_update() {
 	JSON_MODE=true
 	load_uci_config
-	[[ "$CLI_VERBOSE" == "true" ]] && VERBOSE="true"
-
-	local tmp remote_version
-
-	[[ "$AUTO_UPDATE" == "true" ]] || { json_result "updated" "false" "reason" "auto_update disabled"; return 0; }
-	[[ -n "$SELF_UPDATE_URL" ]] || { json_result "updated" "false" "reason" "no update url"; return 0; }
-	command -v curl >/dev/null 2>&1 || { json_error "curl not found"; return 1; }
-
-	tmp="$(mktemp "${TMPDIR:-/tmp}/cf-ip-auto.XXXXXX")" || { json_error "failed to create temp file"; return 1; }
-	log "checking script update: $SELF_UPDATE_URL"
-	if ! curl_fetch "$tmp" "$(mirror_url "$SELF_UPDATE_URL")"; then
-		rm -f "$tmp"
-		json_error "failed to fetch update"
-		return 1
-	fi
-
-	remote_version="$(extract_script_version "$tmp")"
-	if [[ -z "$remote_version" ]]; then
-		rm -f "$tmp"
-		json_result "updated" "false" "reason" "remote script has no version"
-		return 0
-	fi
-
-	if ! version_gt "$remote_version" "$SCRIPT_VERSION"; then
-		rm -f "$tmp"
-		json_result "updated" "false" "current_version" "$SCRIPT_VERSION" "remote_version" "$remote_version"
-		return 0
-	fi
-
-	if ! bash -n "$tmp"; then
-		rm -f "$tmp"
-		json_error "downloaded update has invalid shell syntax"
-		return 1
-	fi
-
-	chmod +x "$tmp"
-	if ! mv "$tmp" "$SCRIPT_PATH"; then
-		rm -f "$tmp"
-		json_error "failed to replace script"
-		return 1
-	fi
-
-	json_result "updated" "true" "old_version" "$SCRIPT_VERSION" "new_version" "$remote_version"
+	json_error "legacy self-update is disabled; upgrade via the package manager"
+	return 1
 }
 
 cron_interval_seconds() {

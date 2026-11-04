@@ -2,7 +2,7 @@
 // Actual Overview click handler + utils polling, isolated DOM/RPC; not browser proof.
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
 String.prototype.format=function(...args){let i=0;return this.replace(/%s/g,()=>args[i++]);};
-function E(tag,attrs={},children=[]){return {tag,attrs,children:Array.isArray(children)?children:[children],isConnected:true,appendChild(c){this.children.push(c);return c;},getAttribute(k){return this.attrs[k]??null;},setAttribute(k,v){this.attrs[k]=v;},removeAttribute(k){delete this.attrs[k];},get textContent(){return this.children.map(c=>typeof c==='string'?c:c.textContent||'').join('');},set textContent(v){this.children=[v];}};}
+function E(tag,attrs={},children=[]){return {tag,attrs,children:Array.isArray(children)?children:[children],isConnected:true,appendChild(c){this.children.push(c);return c;},getAttribute(k){return this.attrs[k]??null;},setAttribute(k,v){this.attrs[k]=v;},removeAttribute(k){delete this.attrs[k];},addEventListener(){},get textContent(){return this.children.map(c=>typeof c==='string'?c:c.textContent||'').join('');},set textContent(v){this.children=[v];}};}
 function find(n,p){if(n&&typeof n==='object'){if(p(n))return n;for(const c of n.children||[]){const r=find(c,p);if(r)return r;}}}
 const base=path.join(__dirname,'../package/luci-app-cloudflare-ip/htdocs/luci-static/resources');
 const utilsSource=fs.readFileSync(path.join(base,'cloudflare-ip/utils.js'),'utf8');
@@ -12,7 +12,8 @@ const viewSource=fs.readFileSync(path.join(base,'view/cloudflare-ip/overview.js'
  const ack={success:true,accepted:true,acknowledged:true,running:true,runId:'new-run',requestId:'new-request'};
  for(const scenario of ['old then matching active','matching early failure','old cache only','wrong request','unconfirmed startup','navigation cancellation','network failure','hanging status','incomplete acknowledgement','matching completed task']){
   let polls=0,reloads=0;const notices=[];
-  const utils=new Function('uci','rpc','ui','dom','baseclass','_','window',utilsSource)({}, {declare:()=>()=>Promise.resolve({})},{},{},{extend:x=>x},x=>x,{setTimeout,clearTimeout});
+  const utils=new Function('uci','rpc','ui','dom','baseclass','_','window','E',utilsSource)({}, {declare:()=>()=>Promise.resolve({})},
+   {addNotification:(a,n,k)=>notices.push({text:n&&n.textContent||'',kind:k})},{},{extend:x=>x},x=>x,{setTimeout,clearTimeout},E);
   utils.loadSharedCSS=()=>{};utils.appendFooter=x=>x;utils.reloadSoon=()=>{reloads++;};
   const realWait=utils.waitForRunStatus;
   if(realWait)utils.waitForRunStatus=(fetch,a,o)=>realWait(fetch,a,Object.assign({},o,{interval:2,timeout:30}));

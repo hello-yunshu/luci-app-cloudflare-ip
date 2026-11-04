@@ -28,7 +28,8 @@ return view.extend({
 			return utils.renderWithFooter(E('div', { 'class': 'cbi-map cfi-form-map' }, [
 				E('div', { 'class': 'cbi-section cfi-empty-state' }, [
 					E('h3', {}, _('Unable to check PassWall environment')),
-					E('p', {}, _('The PassWall environment check failed: %s').format(env.error || _('Unknown'))),
+					E('p', {}, _('Retry the environment check. If it keeps failing, open Logs & Records for the service state.')),
+					utils.technicalDetails(env.error),
 					E('button', { 'class': 'btn cbi-button', 'click': function() { location.reload(); } }, _('Retry'))
 				])
 			]), utils.FOOTER_OPTIONS);

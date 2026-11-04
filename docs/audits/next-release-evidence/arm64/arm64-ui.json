@@ -1,0 +1,189 @@
+{
+  "schemaVersion": 1,
+  "arch": "aarch64_generic",
+  "openwrt": "24.10.8",
+  "packageVersion": "2.6.0-r7",
+  "pages": [
+    {
+      "page": "overview",
+      "title": "orbstack - LuCI",
+      "path": "/cgi-bin/luci/admin/services/cf_ip/overview",
+      "innerWidth": 1280,
+      "innerHeight": 900,
+      "scrollWidth": 1280,
+      "overflow": false,
+      "textLen": 682,
+      "login": false
+    },
+    {
+      "page": "settings",
+      "title": "orbstack - LuCI",
+      "path": "/cgi-bin/luci/admin/services/cf_ip/settings",
+      "innerWidth": 1280,
+      "innerHeight": 900,
+      "scrollWidth": 1280,
+      "overflow": false,
+      "textLen": 1862,
+      "login": false
+    },
+    {
+      "page": "sources",
+      "title": "orbstack - LuCI",
+      "path": "/cgi-bin/luci/admin/services/cf_ip/sources",
+      "innerWidth": 1280,
+      "innerHeight": 900,
+      "scrollWidth": 1280,
+      "overflow": false,
+      "textLen": 1990,
+      "login": false
+    },
+    {
+      "page": "intelligence",
+      "title": "orbstack - LuCI",
+      "path": "/cgi-bin/luci/admin/services/cf_ip/intelligence",
+      "innerWidth": 1280,
+      "innerHeight": 900,
+      "scrollWidth": 1280,
+      "overflow": false,
+      "textLen": 3313,
+      "login": false
+    },
+    {
+      "page": "openclash",
+      "title": "orbstack - LuCI",
+      "path": "/cgi-bin/luci/admin/services/cf_ip/openclash",
+      "innerWidth": 1280,
+      "innerHeight": 900,
+      "scrollWidth": 1280,
+      "overflow": false,
+      "textLen": 682,
+      "login": false
+    },
+    {
+      "page": "passwall",
+      "title": "orbstack - LuCI",
+      "path": "/cgi-bin/luci/admin/services/cf_ip/passwall",
+      "innerWidth": 1280,
+      "innerHeight": 900,
+      "scrollWidth": 1280,
+      "overflow": false,
+      "textLen": 682,
+      "login": false
+    },
+    {
+      "page": "advanced",
+      "title": "orbstack - LuCI",
+      "path": "/cgi-bin/luci/admin/services/cf_ip/advanced",
+      "innerWidth": 1280,
+      "innerHeight": 900,
+      "scrollWidth": 1280,
+      "overflow": false,
+      "textLen": 1494,
+      "login": false
+    },
+    {
+      "page": "logs",
+      "title": "orbstack - LuCI",
+      "path": "/cgi-bin/luci/admin/services/cf_ip/logs",
+      "innerWidth": 1280,
+      "innerHeight": 900,
+      "scrollWidth": 1280,
+      "overflow": false,
+      "textLen": 485,
+      "login": false
+    }
+  ],
+  "keyboard": {
+    "tab": {
+      "steps": [
+        {
+          "tag": "INPUT",
+          "id": "cb5e778a6f",
+          "type": "checkbox",
+          "outline": "solid",
+          "focusVisible": true
+        },
+        {
+          "tag": "SELECT",
+          "id": "widget.cbid.cf_ip.main.cron_interval",
+          "type": "select-one",
+          "outline": "solid",
+          "focusVisible": true
+        },
+        {
+          "tag": "INPUT",
+          "id": "widget.cbid.cf_ip.main.cron_custom",
+          "type": "text",
+          "outline": "solid",
+          "focusVisible": true
+        },
+        {
+          "tag": "INPUT",
+          "id": "widget.cbid.cf_ip.main.ip_count",
+          "type": "text",
+          "outline": "solid",
+          "focusVisible": true
+        },
+        {
+          "tag": "SELECT",
+          "id": "widget.cbid.cf_ip.main.ip_type",
+          "type": "select-one",
+          "outline": "solid",
+          "focusVisible": true
+        },
+        {
+          "tag": "SELECT",
+          "id": "widget.cbid.cf_ip.main.speedtest_protocol",
+          "type": "select-one",
+          "outline": "solid",
+          "focusVisible": true
+        },
+        {
+          "tag": "INPUT",
+          "id": "widget.cbid.cf_ip.main.speedtest_cfcolo",
+          "type": "text",
+          "outline": "solid",
+          "focusVisible": true
+        },
+        {
+          "tag": "INPUT",
+          "id": "widget.cbid.cf_ip.main.speedtest_dn",
+          "type": "text",
+          "outline": "solid",
+          "focusVisible": true
+        }
+      ],
+      "reachedInput": true,
+      "reachedSelect": true
+    },
+    "escapeClosesModal": true,
+    "enterConfirms": true
+  },
+  "touch": {
+    "tapNavigated": true,
+    "tappedRefresh": true,
+    "path": "/cgi-bin/luci/admin/services/cf_ip/sources"
+  },
+  "zoom": {
+    "method": "CDP device metrics 640x450 CSS + DPR2 (physical 1280x900)",
+    "before": {
+      "innerWidth": 1280,
+      "devicePixelRatio": 1,
+      "scale": 1
+    },
+    "afterKeyboard": {
+      "innerWidth": 1280,
+      "devicePixelRatio": 1,
+      "scale": 1
+    },
+    "afterMetrics": {
+      "innerWidth": 640,
+      "innerHeight": 450,
+      "devicePixelRatio": 2,
+      "scale": 1,
+      "scrollWidth": 640,
+      "overflow": false
+    },
+    "keyboardZoomChanged": false
+  }
+}

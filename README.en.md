@@ -37,7 +37,8 @@ It does not replace either proxy service and does not rewrite unrelated nodes. M
 - Source version: [PKG_VERSION / PKG_RELEASE](package/luci-app-cloudflare-ip/Makefile); inspect with `python3 scripts/package_identity.py`.
 - Published version and exact asset names: use the selected Release and its `qualification.json`; the source candidate may be newer than the published package.
 - Source channel: `stable` candidate; this does not announce a published Stable release
-- `2.6.0-r6` is the current audit-repair candidate and is being re-qualified by exact-head CI and strict release preflight. The `2.6.0-r5` G6/G7 conclusions apply only to the old bytes and no longer authorize this version. Automatic Stable publication remains disabled; device/soak coverage and the non-shipped full-workspace dependency boundary require a user decision, and the exact SHA, same-run/attempt packages and support scope require separate approval
+- `2.6.0-r6` has been published as a pre-release and its bytes correspond to the pre-audit baseline; the current source is the `2.6.0-r8` release candidate, which has no tag/Release yet. Automatic Stable publication remains disabled; device/soak coverage and the non-shipped full-workspace dependency boundary require a user decision, and the exact SHA, same-run/attempt packages and support scope require separate approval
+- r8 release-closeout material is prepared (CHANGELOG, release notes, asset SHA256, rollback steps); merge, tag, Release and channel changes await separate user authorization. See [2.6.0-r8 release readiness](docs/2.6.0-r8-RELEASE-READY.md)
 
 Packages are promoted only from a successful exact-head qualification run on `main`. IPK/APK files, `sha256sums.txt`, and `qualification.json` belong to one evidence chain; host tests and SDK builds do not replace live OpenWrt, hardware-compatibility, or long-running soak validation.
 

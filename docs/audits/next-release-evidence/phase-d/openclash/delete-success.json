@@ -1,0 +1,7 @@
+{
+  "path": "delete-success",
+  "notification": "Backup deleted",
+  "reloadCount": 1,
+  "sentinelAfter": false,
+  "fileAfter": "missing"
+}

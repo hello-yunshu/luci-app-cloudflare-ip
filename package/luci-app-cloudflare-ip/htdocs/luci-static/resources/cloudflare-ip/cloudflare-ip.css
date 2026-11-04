@@ -139,7 +139,7 @@
 .cfi-form-map .cbi-input-select:focus,
 .cfi-form-map select:focus,
 .cfi-form-map input:focus {
-		outline: 2px solid color-mix(in srgb, var(--main-color, #1769aa) 30%, transparent);
+		outline: 2px solid var(--cfi-link);
 		outline-offset: 1px;
 }
 
@@ -286,6 +286,33 @@
 
 .cfi-empty-state h3 { margin-top: 0; }
 
+/* Intelligence copy/collapse/link affordances. */
+.cfi-form-map .cfi-copy-btn,
+.cfi-form-map .cfi-collapse-toggle,
+.cfi-form-map .cfi-link-button {
+	min-height: 2rem;
+	padding: 0.25rem 0.7rem;
+	font-size: 0.82rem;
+	font-weight: 600;
+	line-height: 1.35;
+}
+.cfi-copy-btn {
+	margin-left: 0.6em;
+	vertical-align: middle;
+}
+.cfi-inline-link {
+	margin: 0.6em 0 0;
+}
+.cfi-collapse-body {
+	margin-top: 0.6em;
+}
+.cfi-copy-source {
+	position: fixed;
+	left: -9999px;
+	top: 0;
+	opacity: 0;
+}
+
 .cfi-stats-grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -426,7 +453,7 @@
 		gap: 0.35rem;
 		padding: 0.75rem 0;
 	}
-	.cfi-form-map .cbi-value-title { padding-top: 0; }
+	.cfi-form-map .cbi-value label.cbi-value-title { padding-top: 0; text-align: left; }
 	.cfi-form-map .cbi-value-description { grid-column: 1; margin-top: 0; }
 	.ys-tool-footer {
 		gap: 0.5em;
@@ -556,7 +583,7 @@
 		width: 100%;
 		box-sizing: border-box;
 		border: 0;
-		padding: 0.12em 0;
+		padding: 0.12em 0.6rem;
 		text-align: left;
 		white-space: normal;
 	}
@@ -585,7 +612,7 @@
 			gap: 0.35rem;
 			padding: 0.75rem 0;
 		}
-		.cfi-form-map .cbi-value-title { padding-top: 0; }
+		.cfi-form-map .cbi-value label.cbi-value-title { padding-top: 0; text-align: left; }
 		.cfi-form-map .cbi-value-description { grid-column: 1; margin-top: 0; }
 		.ys-tool-footer { gap: 0.5em; }
 		.ys-tool-footer-title,
@@ -671,7 +698,7 @@
 			width: 100%;
 			box-sizing: border-box;
 			border: 0;
-			padding: 0.12em 0;
+			padding: 0.12em 0.6rem;
 			text-align: left;
 			white-space: normal;
 		}

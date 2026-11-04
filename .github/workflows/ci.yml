@@ -209,6 +209,14 @@ jobs:
           node tests/luci-refresh-error.cjs
           node tests/luci-status-observation.cjs
           node tests/luci-view-bindings.cjs
+          node tests/luci-raw-error-contract.cjs
+          bash tests/openclash-rpc-contract.sh
+          bash tests/openclash-legacy-service-guard.sh
+          bash tests/openclash-url-migration.sh
+          bash tests/openclash-ruby-precheck.sh
+          node tests/openclash-ruby-precheck.cjs
+          bash tests/legacy-self-update-disabled.sh
+          bash tests/package-uhttpd-boundary.sh
           python3 tests/writer-lock-recovery.py
           bash tests/shared-writer-lock.sh
           bash tests/status-stop-contract.sh
@@ -276,6 +284,10 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y gettext
       - name: Verify translation syntax and key coverage
         run: python3 -B tests/i18n-contract.py
+      - name: Verify dynamic status mappings and raw-error notices
+        run: |
+          python3 -B tests/i18n-dynamic-contract.py
+          python3 -B tests/i18n-dynamic-contract.py --self-test
 
   rootfs-contract:
     runs-on: ubuntu-latest
@@ -788,6 +800,8 @@ jobs:
           curl -fsSL https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash | bash -s -- latest "$RUNNER_TEMP/bin"
       - name: Lint workflows
         run: "${{ runner.temp }}/bin/actionlint"
+      - name: Verify every local test is wired into CI
+        run: python3 -B tests/ci-test-inventory.py
 
   real-cfst-smoke:
     runs-on: ubuntu-latest
