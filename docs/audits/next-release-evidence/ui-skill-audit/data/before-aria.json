@@ -1,0 +1,8 @@
+{
+  "copy_before": {"text": "Copied", "aria": "Copy"},
+  "focus_before": {"outline": "color(srgb 0.0901961 0.411765 0.666667 / 0.3) solid 2px", "outlineColor": "color(srgb 0.0901961 0.411765 0.666667 / 0.3)"},
+  "copy_after": {"text": "Copied", "aria": "Copied"},
+  "focus_after": {"outline": "rgb(23, 105, 170) solid 2px", "outlineColor": "rgb(23, 105, 170)"},
+  "last_result_after": "Not run yet",
+  "sources_label_after": "Cloudflare Official IPv4"
+}

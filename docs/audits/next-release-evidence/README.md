@@ -32,6 +32,17 @@ node docs/audits/next-release-evidence/repro-2e28db4/repro-risks.cjs \
 
 结果：`openclash_delete.false_success=true`、`rpc_failure_openclash.not_installed=true`、`rpc_failure_sources.rows=0/error_visible=false`、`sources_refresh.reload_calls=1/save_calls=0`、`rill_reset.reload_calls=0/stale_status=true`。
 
+## UI skill audit（`audit/ui-skill-review`，基于 `a8f89e8`）
+
+| 路径 | 内容 |
+|---|---|
+| `ui-skill-audit/matrix/` | 8 页 × 3 主题 × 375/768/1280 + 320/200% 共 120 张真实 LuCI 截图；`data/metrics-final.jsonl` |
+| `ui-skill-audit/before/`、`after/` | 9 条修复的 BEFORE/AFTER 对照（移动端标签、KV 表格截断、焦点环、复制 aria、空态、错误态、来源重复、确认弹窗） |
+| `ui-skill-audit/data/` | findings.json、焦点 432 次采样、对比度失败、i18n 正反日志 |
+| `ui-skill-audit/scripts/` | 本地 Playwright 审计、对比度/焦点、错误态、长文本与确认弹窗脚本 |
+
+结论：新发现 14 条（P1 2 / P2 7 / P3 5），已修 9 条；0 页面横向溢出；i18n 476 keys / 487 entries PASS。未创建 PR、未触发 Actions；主题自身按钮对比度仅报告不改。
+
 ## Phase D（`de5c4e6` / `6d3f3b6` / `a8f89e8`）
 
 | 路径 | 内容 |
