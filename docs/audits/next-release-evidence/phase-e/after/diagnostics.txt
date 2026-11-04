@@ -1,0 +1,107 @@
+59e2d967e017
+Status
+Overview
+Routing
+Firewall
+System Log
+Processes
+Realtime Graphs
+System
+System
+Administration
+Software
+Startup
+Scheduled Tasks
+Backup / Flash Firmware
+Reboot
+Services
+Cloudflare IP Optimization
+Network
+Interfaces
+Routing
+DHCP and DNS
+Diagnostics
+Firewall
+Log out
+Overview
+Settings
+Candidate IP Sources
+Intelligence
+Advanced
+Logs & Records
+Logs & Records
+Rill Diagnostics
+
+This snapshot explains fallback, qualification, delayed feedback, Prefix and Colo intelligence without exposing the internal model.
+
+Open Intelligence
+
+{
+  "runtime": {
+    "available": false,
+    "state": "disabled",
+    "mode": "off",
+    "channel": "preview",
+    "partitionKey": "candidate",
+    "featureSchemaVersion": 2,
+    "modelGeneration": 2
+  },
+  "qualification": {
+    "state": "cold",
+    "validFeedback": 0,
+    "attributedFeedback": 0,
+    "delayedCompleted": 0,
+    "delayedExpired": 0,
+    "delayedRejected": 0,
+    "disagreements": 0,
+    "disagreementWin": 0,
+    "disagreementLoss": 0,
+    "disagreementTie": 0,
+    "disagreementWinRate": null,
+    "errors": 0,
+    "candidateFailures": 0,
+    "recentRewards": [],
+    "window": [],
+    "trainingWindow": [],
+    "evaluationWindow": [],
+    "legacyEvaluationCompatibility": true,
+    "lastReward": null,
+    "rollingReward": null,
+    "nativeReward": null,
+    "rillReward": null,
+    "rewardDelta": null,
+    "shadowRegret": 0,
+    "minFeedbackSamples": 30,
+    "minDisagreementSamples": 10,
+    "trainingHealth": "cold",
+    "evaluationHealth": "insufficient",
+    "evaluationFreshAt": null,
+    "lastDecisionConfidenceLevel": null,
+    "lastDecisionConfidenceReasons": [],
+    "updatedAt": null
+  },
+  "sourcePolicy": {
+    "requested": "balanced",
+    "effective": "balanced",
+    "registry": [
+      {
+        "id": "balanced",
+        "official": 0.5,
+        "community": 0.3,
+        "carrier": 0.1,
+        "measured": 0.1
+      },
+      {
+        "id": "official-heavy",
+        "official": 0.75,
+        "community": 0.1,
+        "carrier": 0.05,
+        "measured": 0.1
+      },
+      {
+        "id": "history-heavy",
+        "official": 0.35,
+        "community": 0.35,
+        "carrier": 0.1,
+        "measured": 0.2
+      },

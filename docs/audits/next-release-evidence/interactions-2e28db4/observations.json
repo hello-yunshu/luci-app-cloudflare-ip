@@ -1,0 +1,38 @@
+[
+  {
+    "id": "I-OV-REFRESH",
+    "sha": "2e28db4",
+    "theme": "aurora-light",
+    "viewport": "1280x900",
+    "page": "overview",
+    "state": "refresh-env",
+    "action": "click 刷新环境检测",
+    "observed": "page stayed on overview; env cards remained; no visible toast captured in DOM selector",
+    "status": "NOT-RUN",
+    "evidence": "interactions-2e28db4/2e28db4-aurora-light-1280x900-overview-refresh.png"
+  },
+  {
+    "id": "I-SET-VALID",
+    "sha": "2e28db4",
+    "theme": "aurora-light",
+    "viewport": "1280x900",
+    "page": "settings",
+    "state": "invalid-ip-count",
+    "action": "fill 保留 IP 数量=0; click 保存",
+    "observed": "UCI remained ip_count=4; no visible validation text found; browser-native validation bubble not captured",
+    "status": "NOT-RUN",
+    "evidence": "interactions-2e28db4/2e28db4-aurora-light-1280x900-settings-invalid.png"
+  },
+  {
+    "id": "I-RILL-RESET",
+    "sha": "2e28db4",
+    "theme": "aurora-light",
+    "viewport": "1280x900",
+    "page": "intelligence",
+    "state": "reset-confirm",
+    "action": "click 重置学习状态",
+    "observed": "native confirm auto-dismissed by agent-browser; no notification captured; harness separately reproduces stale status",
+    "status": "BLOCKED",
+    "evidence": "interactions-2e28db4/2e28db4-aurora-light-1280x900-intelligence-reset.png"
+  }
+]

@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "sha": "402859c",
+  "container": "cfip-ui-gate",
+  "base": "http://127.0.0.1:18080",
+  "scenarios": [
+    {
+      "name": "openclash-not-installed",
+      "status": "PASS",
+      "details": "real view + real check-env"
+    },
+    {
+      "name": "passwall-not-installed",
+      "status": "PASS",
+      "details": "real view + real check-env"
+    },
+    {
+      "name": "openclash-rpc-error-visible",
+      "status": "PASS",
+      "details": "explicit error, not \"not installed\""
+    },
+    {
+      "name": "passwall-rpc-error-visible",
+      "status": "PASS",
+      "details": "explicit error, not \"not installed\""
+    },
+    {
+      "name": "settings-rpc-error-visible",
+      "status": "PASS",
+      "details": "explicit environment error, not \"no proxy detected\""
+    },
+    {
+      "name": "openclash-delete-failure",
+      "status": "PASS",
+      "details": "error notification, no reload, backup retained"
+    },
+    {
+      "name": "rill-reset-refreshes-status",
+      "status": "PASS",
+      "details": "real rill-reset + page reload"
+    }
+  ],
+  "status": "PASS"
+}

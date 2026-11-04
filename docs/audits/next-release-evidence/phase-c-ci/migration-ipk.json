@@ -1,0 +1,215 @@
+{
+  "schemaVersion": 1,
+  "currentMatrix": {
+    "schemaVersion": 1,
+    "packageManager": "ipk",
+    "offlineLifecycle": {
+      "status": "PASS",
+      "packagePayloadRemoved": true,
+      "dependenciesPreserved": true,
+      "userDataPreserved": true,
+      "reinstalled": true,
+      "evidenceDirectory": "ipk-uninstall-reinstall",
+      "scope": "offline package manager; online hooks not evaluated"
+    },
+    "ownershipConflict": {
+      "rawInitialInstallRecoveryVerified": false,
+      "guardedAdmission": false,
+      "admissionExitCode": 0,
+      "rawManagerStateMutated": true,
+      "id": "owner-conflict",
+      "status": "PASS",
+      "exitCode": 255,
+      "rejected": true,
+      "foreignOwnerPreserved": true,
+      "preexistingPayloadPreserved": true,
+      "installedStatePreserved": true,
+      "userDataPreserved": true,
+      "evidenceDirectory": "ipk-negative-owner-conflict"
+    },
+    "negativeInstalls": [
+      {
+        "id": "missing",
+        "status": "PASS",
+        "rejected": true,
+        "exitCode": 255,
+        "installedStatePreserved": true,
+        "payloadPreserved": true,
+        "userDataPreserved": true,
+        "evidenceDirectory": "ipk-negative-missing"
+      },
+      {
+        "id": "truncated",
+        "status": "PASS",
+        "rejected": true,
+        "exitCode": 255,
+        "installedStatePreserved": true,
+        "payloadPreserved": true,
+        "userDataPreserved": true,
+        "evidenceDirectory": "ipk-negative-truncated"
+      }
+    ],
+    "inputs": {
+      "legacyBase": {
+        "package": {
+          "architecture": "all",
+          "format": "ipk",
+          "name": "luci-app-cloudflare-ip",
+          "packageVersion": "2.6.0-r2",
+          "release": 2,
+          "version": "2.6.0"
+        },
+        "schemaVersion": 1,
+        "sha256": "0c5e527bfc272ebf72b81917807611b5949ed1311754c89b94bf31b964e5a130",
+        "size": 102647
+      },
+      "legacyAddon": {
+        "package": {
+          "architecture": "all",
+          "format": "ipk",
+          "name": "luci-app-cloudflare-ip-rill",
+          "packageVersion": "2.6.0-r2",
+          "release": 2,
+          "version": "2.6.0"
+        },
+        "schemaVersion": 1,
+        "sha256": "017a3662f90720d29a54bedd62e324d9e4f5fd36585207da502066c4b2b282f2",
+        "size": 19661
+      },
+      "currentBase": {
+        "package": {
+          "architecture": "all",
+          "format": "ipk",
+          "name": "luci-app-cloudflare-ip",
+          "packageVersion": "2.6.0-r7",
+          "release": 7,
+          "version": "2.6.0"
+        },
+        "schemaVersion": 1,
+        "sha256": "03d4aaf14102a6a98bed488111dba1039756f2448ad1206c2323f6a681552fee",
+        "size": 175523
+      },
+      "currentAddon": {
+        "package": {
+          "architecture": "all",
+          "format": "ipk",
+          "name": "luci-app-cloudflare-ip-rill",
+          "packageVersion": "2.6.0-r7",
+          "release": 7,
+          "version": "2.6.0"
+        },
+        "schemaVersion": 1,
+        "sha256": "2c06c073d8e2705aebc98d1d4b0d73e79e9f22f4a77313dffb734fca74bed7eb",
+        "size": 892
+      },
+      "recentBase": {
+        "package": {
+          "architecture": "all",
+          "format": "ipk",
+          "name": "luci-app-cloudflare-ip",
+          "packageVersion": "2.6.0-r3",
+          "release": 3,
+          "version": "2.6.0"
+        },
+        "schemaVersion": 1,
+        "sha256": "5de70a5bc001357e265b484e65061fb5af498463387ff3a96d26ec23a85e9749",
+        "size": 121493
+      }
+    },
+    "scenarios": [
+      {
+        "id": "a",
+        "from": [
+          "legacyBase"
+        ],
+        "to": [
+          "currentBase"
+        ],
+        "addon": "absent",
+        "status": "PASS",
+        "runtimeAbsent": true,
+        "runtimePresent": true,
+        "userDataPreserved": true,
+        "evidenceDirectory": "ipk-a"
+      },
+      {
+        "id": "b",
+        "from": [
+          "legacyBase",
+          "legacyAddon"
+        ],
+        "to": [
+          "currentBase"
+        ],
+        "addon": "retained",
+        "status": "PASS",
+        "runtimeAbsent": true,
+        "runtimePresent": true,
+        "userDataPreserved": true,
+        "evidenceDirectory": "ipk-b"
+      },
+      {
+        "id": "c",
+        "from": [
+          "legacyBase",
+          "legacyAddon"
+        ],
+        "to": [
+          "currentBase",
+          "currentAddon"
+        ],
+        "addon": "replaced",
+        "status": "PASS",
+        "runtimeAbsent": true,
+        "runtimePresent": true,
+        "userDataPreserved": true,
+        "evidenceDirectory": "ipk-c"
+      },
+      {
+        "id": "d",
+        "from": [
+          "legacyBase",
+          "legacyAddon"
+        ],
+        "to": [
+          "currentBase"
+        ],
+        "addon": "removed",
+        "status": "PASS",
+        "runtimeAbsent": true,
+        "runtimePresent": true,
+        "userDataPreserved": true,
+        "evidenceDirectory": "ipk-d"
+      },
+      {
+        "id": "e",
+        "from": [
+          "recentBase"
+        ],
+        "to": [
+          "currentBase"
+        ],
+        "addon": "absent",
+        "status": "PASS",
+        "runtimeAbsent": true,
+        "runtimePresent": true,
+        "userDataPreserved": true,
+        "evidenceDirectory": "ipk-e"
+      }
+    ]
+  },
+  "historicalR3ToR4Meaning": "legacy field retained; current from/to identity is in currentMatrix",
+  "kind": "ipk",
+  "sourceTag": "v2.6.0-2",
+  "sourceSHA": "652476bd3cdc410bc16e3a47ee96b685c84acbbb",
+  "currentSHA": "e68af6240ee7e790cdbd0c7c9f74be7236419bb3",
+  "legacyVersion": "2.6.0-r2",
+  "ipk": "PASS",
+  "apk": "NOT_APPLICABLE",
+  "baseOnlyUpgrade": true,
+  "baseAddonToBaseUpgrade": true,
+  "addonRemovalSafe": true,
+  "r3ToR4": true,
+  "runtimeAbsent": true,
+  "runtimePresent": true
+}
