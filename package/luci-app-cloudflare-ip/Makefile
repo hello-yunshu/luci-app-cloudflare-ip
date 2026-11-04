@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-cloudflare-ip
 PKG_VERSION:=2.6.0
-PKG_RELEASE:=7
+PKG_RELEASE:=8
 
 PKG_MAINTAINER:=yunshu
 PKG_LICENSE:=GPL-3.0
@@ -13,7 +13,10 @@ define Package/luci-app-cloudflare-ip
   SECTION:=luci
   CATEGORY:=LuCI
   TITLE:=Cloudflare IP - Safe endpoint orchestration for PassWall/OpenClash on OpenWrt
-  DEPENDS:=+luci-base +bash +flock +curl +tar +jq +ca-bundle +ca-certificates +uhttpd
+  # uhttpd is only used by the optional LAN Result Publisher. Do not install a
+  # second web server on nginx/lighttpd systems; the publisher fails closed and
+  # reports a missing runtime when it is enabled without uhttpd.
+  DEPENDS:=+luci-base +bash +flock +curl +tar +jq +ca-bundle +ca-certificates
   PKGARCH:=all
 endef
 

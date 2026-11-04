@@ -804,6 +804,28 @@ msgstr "Number of OpenClash config backups to keep."
 msgid "Config Backups"
 msgstr "Config Backups"
 
+msgid "OpenClash is installed, but restoring a backup needs Ruby and the Psych YAML module."
+msgstr "OpenClash is installed, but restoring a backup needs Ruby and the Psych YAML module."
+
+msgid "Ruby is not installed."
+msgstr "Ruby is not installed."
+
+msgid "Ruby is installed but cannot run on this device (it exits with a segmentation fault)."
+msgstr "Ruby is installed but cannot run on this device (it exits with a segmentation fault)."
+
+msgid "Ruby is installed, but the Psych YAML module is missing."
+msgstr "Ruby is installed, but the Psych YAML module is missing."
+
+#, javascript-format
+msgid "Next step: %s"
+msgstr "Next step: %s"
+
+msgid "Use firmware with a working Ruby/Psych, or restore this backup on another device."
+msgstr "Use firmware with a working Ruby/Psych, or restore this backup on another device."
+
+msgid "Backup creation, download and delete still work; only Restore is disabled."
+msgstr "Backup creation, download and delete still work; only Restore is disabled."
+
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js:94
 msgid "No backups available. Backups are created automatically when the config is updated."
 msgstr "No backups available. Backups are created automatically when the config is updated."
@@ -823,10 +845,6 @@ msgstr "Size"
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js:118
 msgid "Confirm Restore"
 msgstr "Confirm Restore"
-
-#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js:120
-msgid "Are you sure you want to restore this backup? A backup of the current configuration will be created first."
-msgstr "Are you sure you want to restore this backup? A backup of the current configuration will be created first."
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js:122
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js:153
@@ -859,10 +877,6 @@ msgstr "Restore"
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js:150
 msgid "Confirm Delete"
 msgstr "Confirm Delete"
-
-#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js:151
-msgid "Are you sure you want to delete this backup?"
-msgstr "Are you sure you want to delete this backup?"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js:160
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js:166
@@ -1774,10 +1788,6 @@ msgstr "The source registry RPC failed: %s"
 msgid "Unable to check OpenClash environment"
 msgstr "Unable to check OpenClash environment"
 
-#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js
-msgid "Unable to load OpenClash backups: %s"
-msgstr "Unable to load OpenClash backups: %s"
-
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/sources.js
 msgid "Unable to load source registry"
 msgstr "Unable to load source registry"
@@ -1989,3 +1999,236 @@ msgstr "不健康"
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
 msgid "Unknown (%s)"
 msgstr "未知（%s）"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Copy"
+msgstr "Copy"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Copied"
+msgstr "Copied"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Copy command was rejected"
+msgstr "Copy command was rejected"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Unable to copy: %s"
+msgstr "Unable to copy: %s"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Show advanced diagnostics"
+msgstr "Show advanced diagnostics"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Hide advanced diagnostics"
+msgstr "Hide advanced diagnostics"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Open Logs & Records"
+msgstr "Open Logs & Records"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Open Intelligence"
+msgstr "Open Intelligence"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js
+msgid "Not run yet"
+msgstr "Not run yet"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/diagnostics.js
+msgid "Diagnostics unavailable. Refresh the page or check the service status, then try again."
+msgstr "Diagnostics unavailable. Refresh the page or check the service status, then try again."
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js
+msgid "Unable to load OpenClash backups. Retry, or check that OpenClash is installed and its configuration path is valid."
+msgstr "Unable to load OpenClash backups. Retry, or check that OpenClash is installed and its configuration path is valid."
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/diagnostics.js
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js
+msgid "Technical details"
+msgstr "Technical details"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js
+#, javascript-format
+msgid "Restore the backup from %s? A backup of the current configuration will be created first."
+msgstr "Restore the backup from %s? A backup of the current configuration will be created first."
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js
+#, javascript-format
+msgid "Delete the backup from %s? This cannot be undone."
+msgstr "Delete the backup from %s? This cannot be undone."
+
+msgid "Check the service status and logs before starting another run."
+msgstr "启动另一次运行前，请先检查服务状态与日志。"
+
+msgid "Copy technical details"
+msgstr "复制技术详情"
+
+msgid "Deprecated and read-only. The 2.x engine is updated only through IPK/APK package upgrades."
+msgstr "已弃用且只读。2.x 引擎仅通过 IPK/APK 软件包升级更新。"
+
+msgid "Download failed"
+msgstr "下载失败"
+
+msgid "Invalid response"
+msgstr "响应无效"
+
+msgid "List could not be parsed"
+msgstr "列表解析失败"
+
+msgid "Native ranking remains authoritative; inspect the technical details before enabling Assisted mode."
+msgstr "原生排序仍然有效；启用辅助模式前请检查技术详情。"
+
+msgid "Native ranking remains available."
+msgstr "原生排序仍可使用。"
+
+msgid "Open the log below and check the service status before retrying."
+msgstr "请展开下方日志，并在重试前检查服务状态。"
+
+msgid "Permission denied"
+msgstr "权限不足"
+
+msgid "Refresh and try again; the previous rows are unchanged."
+msgstr "请刷新重试；之前的记录保持不变。"
+
+msgid "Retry the environment check. If it keeps failing, open Logs & Records for the service state."
+msgstr "请重试环境检测；若持续失败，请到“日志与记录”查看服务状态。"
+
+msgid "Retry the page; the source rows below are unavailable until the RPC succeeds."
+msgstr "请刷新页面；RPC 成功前下方来源行不可用。"
+
+msgid "Retry the source registry check. If it keeps failing, open Logs & Records."
+msgstr "请重试来源注册表检测；若持续失败，请查看“日志与记录”。"
+
+msgid "Retry, or check that OpenClash is installed and its configuration path is valid."
+msgstr "请重试，或确认 OpenClash 已安装且配置路径有效。"
+
+msgid "Source URL is invalid or insecure"
+msgstr "来源 URL 无效或不安全"
+
+msgid "Source error"
+msgstr "来源错误"
+
+msgid "Source is disabled"
+msgstr "来源已禁用"
+
+msgid "Source request timed out"
+msgstr "来源请求超时"
+
+msgid "Source returned an HTTP error"
+msgstr "来源返回 HTTP 错误"
+
+msgid "Source returned an unsupported list"
+msgstr "来源返回了不支持的列表"
+
+msgid "Source returned no usable addresses"
+msgstr "来源未返回可用地址"
+
+msgid "The backup file is still present."
+msgstr "备份文件仍存在。"
+
+msgid "The backup was not applied; the current configuration is unchanged."
+msgstr "备份未应用；当前配置保持不变。"
+
+msgid "The clipboard is unavailable and the copy fallback was rejected."
+msgstr "剪贴板不可用，备用复制方式也被拒绝。"
+
+msgid "The existing CFST binary, if any, was left unchanged."
+msgstr "现有 CFST 二进制（如有）未被改动。"
+
+msgid "The last service run reported an error."
+msgstr "上一次服务运行报告了错误。"
+
+msgid "The previous applied configuration was preserved."
+msgstr "之前已应用的配置保持不变。"
+
+msgid "The previous candidate pool is unchanged; unsaved edits are still kept."
+msgstr "候选池保持不变；未保存的编辑仍会保留。"
+
+msgid "The previous environment detection is still shown."
+msgstr "仍显示上一次环境检测结果。"
+
+msgid "The previous learning state was preserved."
+msgstr "之前的学习状态保持不变。"
+
+msgid "The previous log file was preserved."
+msgstr "之前的日志文件保持不变。"
+
+msgid "The previous service state was preserved."
+msgstr "之前的服务状态保持不变。"
+
+msgid "The proxy selection may be incomplete until the environment check succeeds."
+msgstr "环境检测成功前，代理选择可能不完整。"
+
+msgid "The service state was not changed."
+msgstr "服务状态未改变。"
+
+msgid "Unable to apply configuration."
+msgstr "无法应用配置。"
+
+msgid "Unable to check the proxy environment."
+msgstr "无法检测代理环境。"
+
+msgid "Unable to check the proxy environment. Retry from Overview and expand the technical details there."
+msgstr "无法检测代理环境。请到“概览”重试并展开技术详情。"
+
+msgid "Unable to clear logs."
+msgstr "无法清空日志。"
+
+msgid "Unable to complete self-check."
+msgstr "无法完成自检。"
+
+msgid "Unable to confirm speed test status."
+msgstr "无法确认测速状态。"
+
+msgid "Unable to copy technical details."
+msgstr "无法复制技术详情。"
+
+msgid "Unable to copy."
+msgstr "无法复制。"
+
+msgid "Unable to delete backup."
+msgstr "无法删除备份。"
+
+msgid "Unable to load"
+msgstr "无法加载"
+
+msgid "Unable to load IP history."
+msgstr "无法加载 IP 历史。"
+
+msgid "Unable to load OpenClash backups."
+msgstr "无法加载 OpenClash 备份。"
+
+msgid "Unable to load source status."
+msgstr "无法加载来源状态。"
+
+msgid "Unable to refresh environment."
+msgstr "无法刷新环境检测。"
+
+msgid "Unable to refresh sources."
+msgstr "无法刷新来源。"
+
+msgid "Unable to reset learning state."
+msgstr "无法重置学习状态。"
+
+msgid "Unable to restart service."
+msgstr "无法重启服务。"
+
+msgid "Unable to restore backup."
+msgstr "无法恢复备份。"
+
+msgid "Unable to start service."
+msgstr "无法启动服务。"
+
+msgid "Unable to stop service."
+msgstr "无法停止服务。"
+
+msgid "Unable to update CFST."
+msgstr "无法更新 CFST。"
+
+msgid "Unknown state codes"
+msgstr "未知状态码"
+
+msgid "OpenClash apply failed."
+msgstr "OpenClash apply failed."

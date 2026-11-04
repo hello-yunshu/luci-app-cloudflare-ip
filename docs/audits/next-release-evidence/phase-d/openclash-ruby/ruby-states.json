@@ -1,0 +1,14 @@
+{
+  "ruby-missing": {
+    "warning": "OpenClash is installed, but restoring a backup needs Ruby and the Psych YAML module.\n\nRuby is not installed.\n\nNext step: opkg install ruby ruby-psych\n\nBackup creation, download and delete still work; only Restore is disabled.",
+    "restoreDisabled": true
+  },
+  "psych-missing": {
+    "warning": "OpenClash is installed, but restoring a backup needs Ruby and the Psych YAML module.\n\nRuby is installed, but the Psych YAML module is missing.\n\nNext step: opkg install ruby-psych\n\nBackup creation, download and delete still work; only Restore is disabled.",
+    "restoreDisabled": true
+  },
+  "ruby-unusable": {
+    "warning": "OpenClash is installed, but restoring a backup needs Ruby and the Psych YAML module.\n\nRuby is installed but cannot run on this device (it exits with a segmentation fault).\n\nNext step: Use firmware with a working Ruby/Psych, or restore this backup on another device.\n\nBackup creation, download and delete still work; only Restore is disabled.",
+    "restoreDisabled": true
+  }
+}

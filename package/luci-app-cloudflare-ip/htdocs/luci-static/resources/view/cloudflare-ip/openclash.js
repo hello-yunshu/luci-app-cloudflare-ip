@@ -21,6 +21,26 @@ function formatSize(bytes) {
 	return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
 }
 
+function rubyRemedy(env) {
+	if (env.ruby_psych === true) return null;
+	if (env.ruby_status === 'ruby_missing') {
+		return {
+			reason: _('Ruby is not installed.'),
+			action: (env.package_manager === 'apk' ? 'apk add ruby ruby-psych' : 'opkg install ruby ruby-psych')
+		};
+	}
+	if (!env.ruby_usable) {
+		return {
+			reason: _('Ruby is installed but cannot run on this device (it exits with a segmentation fault).'),
+			action: _('Use firmware with a working Ruby/Psych, or restore this backup on another device.')
+		};
+	}
+	return {
+		reason: _('Ruby is installed, but the Psych YAML module is missing.'),
+		action: (env.package_manager === 'apk' ? 'apk add ruby-psych' : 'opkg install ruby-psych')
+	};
+}
+
 return view.extend({
 	title: _('OpenClash'),
 
@@ -42,7 +62,8 @@ return view.extend({
 			return utils.renderWithFooter(E('div', { 'class': 'cbi-map cfi-form-map' }, [
 				E('div', { 'class': 'cbi-section cfi-empty-state' }, [
 					E('h3', {}, _('Unable to check OpenClash environment')),
-					E('p', {}, _('The OpenClash environment check failed: %s').format(env.error || _('Unknown'))),
+					E('p', {}, _('Retry the environment check. If it keeps failing, open Logs & Records for the service state.')),
+					utils.technicalDetails(env.error),
 					E('button', { 'class': 'btn cbi-button', 'click': function() { location.reload(); } }, _('Retry'))
 				])
 			]), utils.FOOTER_OPTIONS);
@@ -101,12 +122,26 @@ return view.extend({
 		var backupSection = E('div', { 'class': 'cbi-section cfi-section', 'id': 'oc-backups-section' });
 		backupSection.appendChild(E('h3', {}, _('Config Backups')));
 
+		var rubyRemedyInfo = rubyRemedy(env);
+		var restoreBlocked = rubyRemedyInfo !== null;
+		if (restoreBlocked) {
+			backupSection.appendChild(E('div', { 'class': 'alert-message warning', 'id': 'oc-ruby-warning' }, [
+				E('p', {}, _('OpenClash is installed, but restoring a backup needs Ruby and the Psych YAML module.')),
+				E('p', {}, rubyRemedyInfo.reason),
+				E('p', {}, _('Next step: %s').format(rubyRemedyInfo.action)),
+				E('p', {}, _('Backup creation, download and delete still work; only Restore is disabled.'))
+			]));
+		}
+
 		var backupError = backupData._rpcError || backupData.success === false || backupData.error;
 		var backups = (backupData.success === true && backupData.backups) ? backupData.backups : [];
 
 		if (backupError) {
-			backupSection.appendChild(E('div', { 'class': 'alert-message error' },
-				_('Unable to load OpenClash backups: %s').format(backupData.error || _('Unknown'))));
+			backupSection.appendChild(utils.errorPanel(
+				_('Unable to load OpenClash backups.'),
+				_('Retry, or check that OpenClash is installed and its configuration path is valid.'),
+				backupData.error || backupData._rpcError
+			));
 			backupSection.appendChild(E('button', { 'class': 'btn cbi-button', 'click': function() { location.reload(); } }, _('Retry')));
 		} else if (backups.length === 0) {
 			backupSection.appendChild(E('div', {
@@ -134,10 +169,12 @@ return view.extend({
 
 				actionsCell.appendChild(E('button', {
 					'class': 'cbi-button cbi-button-apply',
+					'disabled': restoreBlocked ? '' : null,
+					'title': restoreBlocked ? rubyRemedyInfo.reason : null,
 					'click': function() {
 						ui.showModal(_('Confirm Restore'), [
 							E('div', { 'class': 'alert-message warning' },
-								_('Are you sure you want to restore this backup? A backup of the current configuration will be created first.')),
+								_('Restore the backup from %s? A backup of the current configuration will be created first.').format(backup.timestamp || backup.id)),
 							E('div', { 'class': 'right' }, [
 								E('button', { 'class': 'btn', 'click': function() { ui.hideModal(); } }, _('Cancel')),
 								E('button', {
@@ -148,7 +185,7 @@ return view.extend({
 										callOcRestoreBackup(backup.id).then(function(result) {
 											ui.hideModal();
 											if (!result || result.success !== true || result.error) {
-												ui.addNotification(null, E('p', {}, _('Unable to restore backup: %s').format((result && result.error) || _('Unknown'))), 'error');
+												utils.noticeError(_('Unable to restore backup.'), _('The backup was not applied; the current configuration is unchanged.'), (result && result.error) || _('Unknown'));
 											} else if (result.deferredUntilServiceStart || result.last_result === 'warning') {
 												ui.addNotification(null, E('p', {}, _('Nodes updated; OpenClash is disabled and the changes will take effect after it is started')), 'warning');
 												setTimeout(function() { location.reload(); }, 500);
@@ -158,7 +195,7 @@ return view.extend({
 											}
 										}).catch(function(e) {
 											ui.hideModal();
-											ui.addNotification(null, E('p', {}, _('Unable to restore backup: %s').format(e.message)), 'error');
+											utils.noticeError(_('Unable to restore backup.'), _('The backup was not applied; the current configuration is unchanged.'), e);
 										});
 									}
 								}, '\u21A9 ' + _('Restore'))
@@ -171,7 +208,7 @@ return view.extend({
 					'class': 'cbi-button cbi-button-reset',
 					'click': function() {
 						ui.showModal(_('Confirm Delete'), [
-							E('p', {}, _('Are you sure you want to delete this backup?')),
+							E('p', {}, _('Delete the backup from %s? This cannot be undone.').format(backup.timestamp || backup.id)),
 							E('div', { 'class': 'right' }, [
 								E('button', { 'class': 'btn', 'click': function() { ui.hideModal(); } }, _('Cancel')),
 								E('button', {
@@ -180,13 +217,13 @@ return view.extend({
 										ui.hideModal();
 										callOcDeleteBackup(backup.id).then(function(result) {
 											if (!result || result.success !== true || result.error) {
-												ui.addNotification(null, E('p', {}, _('Unable to delete backup: %s').format((result && result.error) || _('Unknown'))), 'error');
+												utils.noticeError(_('Unable to delete backup.'), _('The backup file is still present.'), (result && result.error) || _('Unknown'));
 											} else {
 												ui.addNotification(null, E('p', {}, _('Backup deleted')), 'info');
 												setTimeout(function() { location.reload(); }, 500);
 											}
 										}).catch(function(e) {
-											ui.addNotification(null, E('p', {}, _('Unable to delete backup: %s').format(e.message)), 'error');
+											utils.noticeError(_('Unable to delete backup.'), _('The backup file is still present.'), e);
 										});
 									}
 								}, _('Delete'))

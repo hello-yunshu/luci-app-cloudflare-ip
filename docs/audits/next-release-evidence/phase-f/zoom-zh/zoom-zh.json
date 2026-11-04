@@ -1,0 +1,4531 @@
+{
+  "schemaVersion": 1,
+  "sha": "ffa73f6",
+  "base": "http://127.0.0.1:18080",
+  "zoom": [
+    {
+      "level": 125,
+      "page": "overview",
+      "viewportCss": [
+        1024,
+        720
+      ],
+      "dpr": 1.25,
+      "scrollWidth": 1024,
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "Overview\nSettings\nOpenClash\nCandidate IP",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview  active\"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">Overview</a></li><li",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "focusables": 43,
+      "pressed": 37,
+      "reachedMainAfter": 26,
+      "mainTabs": 12,
+      "ringMissing": 0,
+      "offscreenMain": 0,
+      "offscreenSidebar": 19,
+      "offscreenTabs": [
+        {
+          "tag": "A",
+          "text": "Overview",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System Log",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Processes",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Realtime Graphs",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Administration",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Software",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Startup",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Scheduled Tasks",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Backup / Flash Firmware",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Reboot",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Cloudflare IP Optimization",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Interfaces",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "DHCP and DNS",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Diagnostics",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        }
+      ],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zoom-125-overview.png"
+    },
+    {
+      "level": 125,
+      "page": "settings",
+      "viewportCss": [
+        1024,
+        720
+      ],
+      "dpr": 1.25,
+      "scrollWidth": 1024,
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "Overview\nSettings\nOpenClash\nCandidate IP",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">Overview</a></li><li class=",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "focusables": 57,
+      "pressed": 37,
+      "reachedMainAfter": 26,
+      "mainTabs": 12,
+      "ringMissing": 0,
+      "offscreenMain": 0,
+      "offscreenSidebar": 19,
+      "offscreenTabs": [
+        {
+          "tag": "A",
+          "text": "Overview",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System Log",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Processes",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Realtime Graphs",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Administration",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Software",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Startup",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Scheduled Tasks",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Backup / Flash Firmware",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Reboot",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Cloudflare IP Optimization",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Interfaces",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "DHCP and DNS",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Diagnostics",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        }
+      ],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zoom-125-settings.png"
+    },
+    {
+      "level": 125,
+      "page": "sources",
+      "viewportCss": [
+        1024,
+        720
+      ],
+      "dpr": 1.25,
+      "scrollWidth": 1024,
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "Overview\nSettings\nOpenClash\nCandidate IP",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">Overview</a></li><li class=",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "focusables": 48,
+      "pressed": 37,
+      "reachedMainAfter": 26,
+      "mainTabs": 12,
+      "ringMissing": 0,
+      "offscreenMain": 0,
+      "offscreenSidebar": 19,
+      "offscreenTabs": [
+        {
+          "tag": "A",
+          "text": "Overview",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System Log",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Processes",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Realtime Graphs",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Administration",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Software",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Startup",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Scheduled Tasks",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Backup / Flash Firmware",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Reboot",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Cloudflare IP Optimization",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Interfaces",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "DHCP and DNS",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Diagnostics",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        }
+      ],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zoom-125-sources.png"
+    },
+    {
+      "level": 125,
+      "page": "intelligence",
+      "viewportCss": [
+        1024,
+        720
+      ],
+      "dpr": 1.25,
+      "scrollWidth": 1024,
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "Overview\nSettings\nOpenClash\nCandidate IP",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">Overview</a></li><li class=",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "focusables": 57,
+      "pressed": 37,
+      "reachedMainAfter": 26,
+      "mainTabs": 12,
+      "ringMissing": 0,
+      "offscreenMain": 0,
+      "offscreenSidebar": 19,
+      "offscreenTabs": [
+        {
+          "tag": "A",
+          "text": "Overview",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System Log",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Processes",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Realtime Graphs",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Administration",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Software",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Startup",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Scheduled Tasks",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Backup / Flash Firmware",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Reboot",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Cloudflare IP Optimization",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Interfaces",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "DHCP and DNS",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Diagnostics",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        }
+      ],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zoom-125-intelligence.png"
+    },
+    {
+      "level": 125,
+      "page": "openclash",
+      "viewportCss": [
+        1024,
+        720
+      ],
+      "dpr": 1.25,
+      "scrollWidth": 1024,
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "Overview\nSettings\nOpenClash\nCandidate IP",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">Overview</a></li><li class=",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "focusables": 48,
+      "pressed": 37,
+      "reachedMainAfter": 26,
+      "mainTabs": 12,
+      "ringMissing": 0,
+      "offscreenMain": 0,
+      "offscreenSidebar": 19,
+      "offscreenTabs": [
+        {
+          "tag": "A",
+          "text": "Overview",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System Log",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Processes",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Realtime Graphs",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Administration",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Software",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Startup",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Scheduled Tasks",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Backup / Flash Firmware",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Reboot",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Cloudflare IP Optimization",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Interfaces",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "DHCP and DNS",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Diagnostics",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        }
+      ],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zoom-125-openclash.png"
+    },
+    {
+      "level": 125,
+      "page": "passwall",
+      "viewportCss": [
+        1024,
+        720
+      ],
+      "dpr": 1.25,
+      "scrollWidth": 1024,
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "Overview\nSettings\nOpenClash\nCandidate IP",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">Overview</a></li><li class=",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "focusables": 43,
+      "pressed": 37,
+      "reachedMainAfter": 26,
+      "mainTabs": 12,
+      "ringMissing": 0,
+      "offscreenMain": 0,
+      "offscreenSidebar": 19,
+      "offscreenTabs": [
+        {
+          "tag": "A",
+          "text": "Overview",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System Log",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Processes",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Realtime Graphs",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Administration",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Software",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Startup",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Scheduled Tasks",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Backup / Flash Firmware",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Reboot",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Cloudflare IP Optimization",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Interfaces",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "DHCP and DNS",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Diagnostics",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        }
+      ],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zoom-125-passwall.png"
+    },
+    {
+      "level": 125,
+      "page": "advanced",
+      "viewportCss": [
+        1024,
+        720
+      ],
+      "dpr": 1.25,
+      "scrollWidth": 1024,
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "Overview\nSettings\nOpenClash\nCandidate IP",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">Overview</a></li><li class=",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "focusables": 51,
+      "pressed": 37,
+      "reachedMainAfter": 26,
+      "mainTabs": 12,
+      "ringMissing": 0,
+      "offscreenMain": 0,
+      "offscreenSidebar": 19,
+      "offscreenTabs": [
+        {
+          "tag": "A",
+          "text": "Overview",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System Log",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Processes",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Realtime Graphs",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Administration",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Software",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Startup",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Scheduled Tasks",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Backup / Flash Firmware",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Reboot",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Cloudflare IP Optimization",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Interfaces",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "DHCP and DNS",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Diagnostics",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        }
+      ],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zoom-125-advanced.png"
+    },
+    {
+      "level": 125,
+      "page": "logs",
+      "viewportCss": [
+        1024,
+        720
+      ],
+      "dpr": 1.25,
+      "scrollWidth": 1024,
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "Overview\nSettings\nOpenClash\nCandidate IP",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">Overview</a></li><li class=",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "focusables": 43,
+      "pressed": 37,
+      "reachedMainAfter": 26,
+      "mainTabs": 12,
+      "ringMissing": 0,
+      "offscreenMain": 0,
+      "offscreenSidebar": 19,
+      "offscreenTabs": [
+        {
+          "tag": "A",
+          "text": "Overview",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System Log",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Processes",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Realtime Graphs",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Administration",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Software",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Startup",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Scheduled Tasks",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Backup / Flash Firmware",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Reboot",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Cloudflare IP Optimization",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Interfaces",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "DHCP and DNS",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Diagnostics",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        }
+      ],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zoom-125-logs.png"
+    },
+    {
+      "level": 150,
+      "page": "overview",
+      "viewportCss": [
+        853,
+        600
+      ],
+      "dpr": 1.5,
+      "scrollWidth": 853,
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "Overview\nSettings\nOpenClash\nCandidate IP",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview  active\"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">Overview</a></li><li",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "focusables": 43,
+      "pressed": 37,
+      "reachedMainAfter": 26,
+      "mainTabs": 12,
+      "ringMissing": 0,
+      "offscreenMain": 0,
+      "offscreenSidebar": 20,
+      "offscreenTabs": [
+        {
+          "tag": "A",
+          "text": "orbstack",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Overview",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System Log",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Processes",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Realtime Graphs",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Administration",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Software",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Startup",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Scheduled Tasks",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Backup / Flash Firmware",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Reboot",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Cloudflare IP Optimization",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Interfaces",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "DHCP and DNS",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Diagnostics",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        }
+      ],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zoom-150-overview.png"
+    },
+    {
+      "level": 150,
+      "page": "settings",
+      "viewportCss": [
+        853,
+        600
+      ],
+      "dpr": 1.5,
+      "scrollWidth": 853,
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "Overview\nSettings\nOpenClash\nCandidate IP",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">Overview</a></li><li class=",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "focusables": 57,
+      "pressed": 37,
+      "reachedMainAfter": 26,
+      "mainTabs": 12,
+      "ringMissing": 0,
+      "offscreenMain": 0,
+      "offscreenSidebar": 20,
+      "offscreenTabs": [
+        {
+          "tag": "A",
+          "text": "orbstack",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Overview",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System Log",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Processes",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Realtime Graphs",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Administration",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Software",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Startup",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Scheduled Tasks",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Backup / Flash Firmware",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Reboot",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Cloudflare IP Optimization",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Interfaces",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "DHCP and DNS",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Diagnostics",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        }
+      ],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zoom-150-settings.png"
+    },
+    {
+      "level": 150,
+      "page": "sources",
+      "viewportCss": [
+        853,
+        600
+      ],
+      "dpr": 1.5,
+      "scrollWidth": 853,
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "Overview\nSettings\nOpenClash\nCandidate IP",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">Overview</a></li><li class=",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "focusables": 48,
+      "pressed": 37,
+      "reachedMainAfter": 26,
+      "mainTabs": 12,
+      "ringMissing": 0,
+      "offscreenMain": 0,
+      "offscreenSidebar": 20,
+      "offscreenTabs": [
+        {
+          "tag": "A",
+          "text": "orbstack",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Overview",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System Log",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Processes",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Realtime Graphs",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Administration",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Software",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Startup",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Scheduled Tasks",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Backup / Flash Firmware",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Reboot",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Cloudflare IP Optimization",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Interfaces",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "DHCP and DNS",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Diagnostics",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        }
+      ],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zoom-150-sources.png"
+    },
+    {
+      "level": 150,
+      "page": "intelligence",
+      "viewportCss": [
+        853,
+        600
+      ],
+      "dpr": 1.5,
+      "scrollWidth": 853,
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "Overview\nSettings\nOpenClash\nCandidate IP",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">Overview</a></li><li class=",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "focusables": 57,
+      "pressed": 37,
+      "reachedMainAfter": 26,
+      "mainTabs": 12,
+      "ringMissing": 0,
+      "offscreenMain": 0,
+      "offscreenSidebar": 20,
+      "offscreenTabs": [
+        {
+          "tag": "A",
+          "text": "orbstack",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Overview",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System Log",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Processes",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Realtime Graphs",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Administration",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Software",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Startup",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Scheduled Tasks",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Backup / Flash Firmware",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Reboot",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Cloudflare IP Optimization",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Interfaces",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "DHCP and DNS",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Diagnostics",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        }
+      ],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zoom-150-intelligence.png"
+    },
+    {
+      "level": 150,
+      "page": "openclash",
+      "viewportCss": [
+        853,
+        600
+      ],
+      "dpr": 1.5,
+      "scrollWidth": 853,
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "Overview\nSettings\nOpenClash\nCandidate IP",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">Overview</a></li><li class=",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "focusables": 48,
+      "pressed": 37,
+      "reachedMainAfter": 26,
+      "mainTabs": 12,
+      "ringMissing": 0,
+      "offscreenMain": 0,
+      "offscreenSidebar": 20,
+      "offscreenTabs": [
+        {
+          "tag": "A",
+          "text": "orbstack",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Overview",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System Log",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Processes",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Realtime Graphs",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Administration",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Software",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Startup",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Scheduled Tasks",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Backup / Flash Firmware",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Reboot",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Cloudflare IP Optimization",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Interfaces",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "DHCP and DNS",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Diagnostics",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        }
+      ],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zoom-150-openclash.png"
+    },
+    {
+      "level": 150,
+      "page": "passwall",
+      "viewportCss": [
+        853,
+        600
+      ],
+      "dpr": 1.5,
+      "scrollWidth": 853,
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "Overview\nSettings\nOpenClash\nCandidate IP",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">Overview</a></li><li class=",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "focusables": 43,
+      "pressed": 37,
+      "reachedMainAfter": 26,
+      "mainTabs": 12,
+      "ringMissing": 0,
+      "offscreenMain": 0,
+      "offscreenSidebar": 20,
+      "offscreenTabs": [
+        {
+          "tag": "A",
+          "text": "orbstack",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Overview",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System Log",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Processes",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Realtime Graphs",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Administration",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Software",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Startup",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Scheduled Tasks",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Backup / Flash Firmware",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Reboot",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Cloudflare IP Optimization",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Interfaces",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "DHCP and DNS",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Diagnostics",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        }
+      ],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zoom-150-passwall.png"
+    },
+    {
+      "level": 150,
+      "page": "advanced",
+      "viewportCss": [
+        853,
+        600
+      ],
+      "dpr": 1.5,
+      "scrollWidth": 853,
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "Overview\nSettings\nOpenClash\nCandidate IP",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">Overview</a></li><li class=",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "focusables": 51,
+      "pressed": 37,
+      "reachedMainAfter": 26,
+      "mainTabs": 12,
+      "ringMissing": 0,
+      "offscreenMain": 0,
+      "offscreenSidebar": 20,
+      "offscreenTabs": [
+        {
+          "tag": "A",
+          "text": "orbstack",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Overview",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System Log",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Processes",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Realtime Graphs",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Administration",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Software",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Startup",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Scheduled Tasks",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Backup / Flash Firmware",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Reboot",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Cloudflare IP Optimization",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Interfaces",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "DHCP and DNS",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Diagnostics",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        }
+      ],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zoom-150-advanced.png"
+    },
+    {
+      "level": 150,
+      "page": "logs",
+      "viewportCss": [
+        853,
+        600
+      ],
+      "dpr": 1.5,
+      "scrollWidth": 853,
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "Overview\nSettings\nOpenClash\nCandidate IP",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">Overview</a></li><li class=",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "focusables": 43,
+      "pressed": 37,
+      "reachedMainAfter": 26,
+      "mainTabs": 12,
+      "ringMissing": 0,
+      "offscreenMain": 0,
+      "offscreenSidebar": 20,
+      "offscreenTabs": [
+        {
+          "tag": "A",
+          "text": "orbstack",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Overview",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System Log",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Processes",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Realtime Graphs",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Administration",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Software",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Startup",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Scheduled Tasks",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Backup / Flash Firmware",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Reboot",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Cloudflare IP Optimization",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Interfaces",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "DHCP and DNS",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Diagnostics",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        }
+      ],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zoom-150-logs.png"
+    },
+    {
+      "level": 200,
+      "page": "overview",
+      "viewportCss": [
+        640,
+        450
+      ],
+      "dpr": 2,
+      "scrollWidth": 640,
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "Overview\nSettings\nOpenClash\nCandidate IP",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview  active\"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">Overview</a></li><li",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "focusables": 43,
+      "pressed": 37,
+      "reachedMainAfter": 26,
+      "mainTabs": 12,
+      "ringMissing": 0,
+      "offscreenMain": 0,
+      "offscreenSidebar": 20,
+      "offscreenTabs": [
+        {
+          "tag": "A",
+          "text": "orbstack",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Overview",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System Log",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Processes",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Realtime Graphs",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Administration",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Software",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Startup",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Scheduled Tasks",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Backup / Flash Firmware",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Reboot",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Cloudflare IP Optimization",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Interfaces",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "DHCP and DNS",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Diagnostics",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        }
+      ],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zoom-200-overview.png"
+    },
+    {
+      "level": 200,
+      "page": "settings",
+      "viewportCss": [
+        640,
+        450
+      ],
+      "dpr": 2,
+      "scrollWidth": 640,
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "Overview\nSettings\nOpenClash\nCandidate IP",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">Overview</a></li><li class=",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "focusables": 57,
+      "pressed": 37,
+      "reachedMainAfter": 26,
+      "mainTabs": 12,
+      "ringMissing": 0,
+      "offscreenMain": 0,
+      "offscreenSidebar": 20,
+      "offscreenTabs": [
+        {
+          "tag": "A",
+          "text": "orbstack",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Overview",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System Log",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Processes",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Realtime Graphs",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Administration",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Software",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Startup",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Scheduled Tasks",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Backup / Flash Firmware",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Reboot",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Cloudflare IP Optimization",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Interfaces",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "DHCP and DNS",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Diagnostics",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        }
+      ],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zoom-200-settings.png"
+    },
+    {
+      "level": 200,
+      "page": "sources",
+      "viewportCss": [
+        640,
+        450
+      ],
+      "dpr": 2,
+      "scrollWidth": 640,
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "Overview\nSettings\nOpenClash\nCandidate IP",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">Overview</a></li><li class=",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "focusables": 48,
+      "pressed": 37,
+      "reachedMainAfter": 26,
+      "mainTabs": 12,
+      "ringMissing": 0,
+      "offscreenMain": 0,
+      "offscreenSidebar": 20,
+      "offscreenTabs": [
+        {
+          "tag": "A",
+          "text": "orbstack",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Overview",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System Log",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Processes",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Realtime Graphs",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Administration",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Software",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Startup",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Scheduled Tasks",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Backup / Flash Firmware",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Reboot",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Cloudflare IP Optimization",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Interfaces",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "DHCP and DNS",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Diagnostics",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        }
+      ],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zoom-200-sources.png"
+    },
+    {
+      "level": 200,
+      "page": "intelligence",
+      "viewportCss": [
+        640,
+        450
+      ],
+      "dpr": 2,
+      "scrollWidth": 640,
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "Overview\nSettings\nOpenClash\nCandidate IP",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">Overview</a></li><li class=",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "focusables": 57,
+      "pressed": 37,
+      "reachedMainAfter": 26,
+      "mainTabs": 12,
+      "ringMissing": 0,
+      "offscreenMain": 0,
+      "offscreenSidebar": 20,
+      "offscreenTabs": [
+        {
+          "tag": "A",
+          "text": "orbstack",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Overview",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System Log",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Processes",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Realtime Graphs",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Administration",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Software",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Startup",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Scheduled Tasks",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Backup / Flash Firmware",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Reboot",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Cloudflare IP Optimization",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Interfaces",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "DHCP and DNS",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Diagnostics",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        }
+      ],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zoom-200-intelligence.png"
+    },
+    {
+      "level": 200,
+      "page": "openclash",
+      "viewportCss": [
+        640,
+        450
+      ],
+      "dpr": 2,
+      "scrollWidth": 640,
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "Overview\nSettings\nOpenClash\nCandidate IP",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">Overview</a></li><li class=",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "focusables": 48,
+      "pressed": 37,
+      "reachedMainAfter": 26,
+      "mainTabs": 12,
+      "ringMissing": 0,
+      "offscreenMain": 0,
+      "offscreenSidebar": 20,
+      "offscreenTabs": [
+        {
+          "tag": "A",
+          "text": "orbstack",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Overview",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System Log",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Processes",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Realtime Graphs",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Administration",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Software",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Startup",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Scheduled Tasks",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Backup / Flash Firmware",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Reboot",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Cloudflare IP Optimization",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Interfaces",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "DHCP and DNS",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Diagnostics",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        }
+      ],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zoom-200-openclash.png"
+    },
+    {
+      "level": 200,
+      "page": "passwall",
+      "viewportCss": [
+        640,
+        450
+      ],
+      "dpr": 2,
+      "scrollWidth": 640,
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "Overview\nSettings\nOpenClash\nCandidate IP",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">Overview</a></li><li class=",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "focusables": 43,
+      "pressed": 37,
+      "reachedMainAfter": 26,
+      "mainTabs": 12,
+      "ringMissing": 0,
+      "offscreenMain": 0,
+      "offscreenSidebar": 20,
+      "offscreenTabs": [
+        {
+          "tag": "A",
+          "text": "orbstack",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Overview",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System Log",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Processes",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Realtime Graphs",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Administration",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Software",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Startup",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Scheduled Tasks",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Backup / Flash Firmware",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Reboot",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Cloudflare IP Optimization",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Interfaces",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "DHCP and DNS",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Diagnostics",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        }
+      ],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zoom-200-passwall.png"
+    },
+    {
+      "level": 200,
+      "page": "advanced",
+      "viewportCss": [
+        640,
+        450
+      ],
+      "dpr": 2,
+      "scrollWidth": 640,
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "Overview\nSettings\nOpenClash\nCandidate IP",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">Overview</a></li><li class=",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "focusables": 51,
+      "pressed": 37,
+      "reachedMainAfter": 26,
+      "mainTabs": 12,
+      "ringMissing": 0,
+      "offscreenMain": 0,
+      "offscreenSidebar": 20,
+      "offscreenTabs": [
+        {
+          "tag": "A",
+          "text": "orbstack",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Overview",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System Log",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Processes",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Realtime Graphs",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Administration",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Software",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Startup",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Scheduled Tasks",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Backup / Flash Firmware",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Reboot",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Cloudflare IP Optimization",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Interfaces",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "DHCP and DNS",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Diagnostics",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        }
+      ],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zoom-200-advanced.png"
+    },
+    {
+      "level": 200,
+      "page": "logs",
+      "viewportCss": [
+        640,
+        450
+      ],
+      "dpr": 2,
+      "scrollWidth": 640,
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "Overview\nSettings\nOpenClash\nCandidate IP",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">Overview</a></li><li class=",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "focusables": 43,
+      "pressed": 37,
+      "reachedMainAfter": 26,
+      "mainTabs": 12,
+      "ringMissing": 0,
+      "offscreenMain": 0,
+      "offscreenSidebar": 20,
+      "offscreenTabs": [
+        {
+          "tag": "A",
+          "text": "orbstack",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Overview",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System Log",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Processes",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Realtime Graphs",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "System",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Administration",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Software",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Startup",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Scheduled Tasks",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Backup / Flash Firmware",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Reboot",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Cloudflare IP Optimization",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Interfaces",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Routing",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "DHCP and DNS",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Diagnostics",
+          "ring": true,
+          "inMain": false
+        },
+        {
+          "tag": "A",
+          "text": "Firewall",
+          "ring": true,
+          "inMain": false
+        }
+      ],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zoom-200-logs.png"
+    }
+  ],
+  "zh": [
+    {
+      "width": 375,
+      "page": "overview",
+      "msgidLeak": false,
+      "englishResidue": [],
+      "menuMissing": [],
+      "expectMissing": [],
+      "overflowX": false,
+      "clipped": 3,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "概览\n设置\nOpenClash\n候选 IP 来源\nPassWall\n智能优选\n高",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview  active\"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">概览</a></li><li class",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        },
+        {
+          "tag": "TABLE",
+          "cls": "table cfi-kv-table",
+          "text": "模式\npasswall\n上次运行时间\n-\n上次结果\n尚未运行\n优选 IP\n-\n脚",
+          "html": "<table class=\"table cfi-kv-table\"><tr class=\"tr\"><th class=\"th\">模式</th><td class=\"td\">passwall</td></tr><tr class=\"tr\"><th class=\"th\">上次运行时间</th><td class=\"td\">",
+          "overflowX": "hidden",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        },
+        {
+          "tag": "TABLE",
+          "cls": "table cfi-kv-table",
+          "text": "TAR\n✔ 已安装\nJQ\n✔ 已安装\nPASSWALL\n已安装（状态未知）\nOP",
+          "html": "<table class=\"table cfi-kv-table\"><tr class=\"tr\"><th class=\"th\">tar</th><td class=\"td\"><span class=\"cfi-badge green\">✔ 已安装</span></td></tr><tr class=\"tr\"><th cl",
+          "overflowX": "hidden",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zh-375-overview.png"
+    },
+    {
+      "width": 375,
+      "page": "settings",
+      "msgidLeak": false,
+      "englishResidue": [],
+      "menuMissing": [],
+      "expectMissing": [],
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "概览\n设置\nOpenClash\n候选 IP 来源\nPassWall\n智能优选\n高",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">概览</a></li><li class=\"tabme",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zh-375-settings.png"
+    },
+    {
+      "width": 375,
+      "page": "sources",
+      "msgidLeak": false,
+      "englishResidue": [],
+      "menuMissing": [],
+      "expectMissing": [],
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "概览\n设置\nOpenClash\n候选 IP 来源\nPassWall\n智能优选\n高",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">概览</a></li><li class=\"tabme",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zh-375-sources.png"
+    },
+    {
+      "width": 375,
+      "page": "intelligence",
+      "msgidLeak": false,
+      "englishResidue": [],
+      "menuMissing": [],
+      "expectMissing": [],
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "概览\n设置\nOpenClash\n候选 IP 来源\nPassWall\n智能优选\n高",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">概览</a></li><li class=\"tabme",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zh-375-intelligence.png"
+    },
+    {
+      "width": 375,
+      "page": "openclash",
+      "msgidLeak": false,
+      "englishResidue": [],
+      "menuMissing": [],
+      "expectMissing": [],
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "概览\n设置\nOpenClash\n候选 IP 来源\nPassWall\n智能优选\n高",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">概览</a></li><li class=\"tabme",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zh-375-openclash.png"
+    },
+    {
+      "width": 375,
+      "page": "passwall",
+      "msgidLeak": false,
+      "englishResidue": [],
+      "menuMissing": [],
+      "expectMissing": [],
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "概览\n设置\nOpenClash\n候选 IP 来源\nPassWall\n智能优选\n高",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">概览</a></li><li class=\"tabme",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zh-375-passwall.png"
+    },
+    {
+      "width": 375,
+      "page": "advanced",
+      "msgidLeak": false,
+      "englishResidue": [],
+      "menuMissing": [],
+      "expectMissing": [],
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "概览\n设置\nOpenClash\n候选 IP 来源\nPassWall\n智能优选\n高",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">概览</a></li><li class=\"tabme",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zh-375-advanced.png"
+    },
+    {
+      "width": 375,
+      "page": "logs",
+      "msgidLeak": false,
+      "englishResidue": [],
+      "menuMissing": [],
+      "expectMissing": [],
+      "overflowX": false,
+      "clipped": 4,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "概览\n设置\nOpenClash\n候选 IP 来源\nPassWall\n智能优选\n高",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">概览</a></li><li class=\"tabme",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        },
+        {
+          "tag": "TABLE",
+          "cls": "table cfi-ip-table",
+          "text": "#\nIP 地址\n暂无 IP 历史记录",
+          "html": "<table class=\"table cfi-ip-table\"><thead><tr class=\"tr\"><th class=\"th\">#</th><th class=\"th\">IP 地址</th></tr></thead><tbody><tr class=\"tr cfi-no-hover\"><td class=",
+          "overflowX": "hidden",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        },
+        {
+          "tag": "THEAD",
+          "cls": "",
+          "text": "#\nIP 地址",
+          "html": "<thead><tr class=\"tr\"><th class=\"th\">#</th><th class=\"th\">IP 地址</th></tr></thead>",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        },
+        {
+          "tag": "TBODY",
+          "cls": "",
+          "text": "暂无 IP 历史记录",
+          "html": "<tbody><tr class=\"tr cfi-no-hover\"><td class=\"td\" colspan=\"2\" style=\"color:var(--subtext-color);font-style:italic\">暂无 IP 历史记录</td></tr></tbody>",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zh-375-logs.png"
+    },
+    {
+      "width": 1280,
+      "page": "overview",
+      "msgidLeak": false,
+      "englishResidue": [],
+      "menuMissing": [],
+      "expectMissing": [],
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "概览\n设置\nOpenClash\n候选 IP 来源\nPassWall\n智能优选\n高",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview  active\"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">概览</a></li><li class",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zh-1280-overview.png"
+    },
+    {
+      "width": 1280,
+      "page": "settings",
+      "msgidLeak": false,
+      "englishResidue": [],
+      "menuMissing": [],
+      "expectMissing": [],
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "概览\n设置\nOpenClash\n候选 IP 来源\nPassWall\n智能优选\n高",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">概览</a></li><li class=\"tabme",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zh-1280-settings.png"
+    },
+    {
+      "width": 1280,
+      "page": "sources",
+      "msgidLeak": false,
+      "englishResidue": [],
+      "menuMissing": [],
+      "expectMissing": [],
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "概览\n设置\nOpenClash\n候选 IP 来源\nPassWall\n智能优选\n高",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">概览</a></li><li class=\"tabme",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zh-1280-sources.png"
+    },
+    {
+      "width": 1280,
+      "page": "intelligence",
+      "msgidLeak": false,
+      "englishResidue": [],
+      "menuMissing": [],
+      "expectMissing": [],
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "概览\n设置\nOpenClash\n候选 IP 来源\nPassWall\n智能优选\n高",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">概览</a></li><li class=\"tabme",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zh-1280-intelligence.png"
+    },
+    {
+      "width": 1280,
+      "page": "openclash",
+      "msgidLeak": false,
+      "englishResidue": [],
+      "menuMissing": [],
+      "expectMissing": [],
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "概览\n设置\nOpenClash\n候选 IP 来源\nPassWall\n智能优选\n高",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">概览</a></li><li class=\"tabme",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zh-1280-openclash.png"
+    },
+    {
+      "width": 1280,
+      "page": "passwall",
+      "msgidLeak": false,
+      "englishResidue": [],
+      "menuMissing": [],
+      "expectMissing": [],
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "概览\n设置\nOpenClash\n候选 IP 来源\nPassWall\n智能优选\n高",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">概览</a></li><li class=\"tabme",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zh-1280-passwall.png"
+    },
+    {
+      "width": 1280,
+      "page": "advanced",
+      "msgidLeak": false,
+      "englishResidue": [],
+      "menuMissing": [],
+      "expectMissing": [],
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "概览\n设置\nOpenClash\n候选 IP 来源\nPassWall\n智能优选\n高",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">概览</a></li><li class=\"tabme",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zh-1280-advanced.png"
+    },
+    {
+      "width": 1280,
+      "page": "logs",
+      "msgidLeak": false,
+      "englishResidue": [],
+      "menuMissing": [],
+      "expectMissing": [],
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "概览\n设置\nOpenClash\n候选 IP 来源\nPassWall\n智能优选\n高",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">概览</a></li><li class=\"tabme",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/zh-1280-logs.png"
+    }
+  ],
+  "reflow320": [
+    {
+      "page": "overview",
+      "innerWidth": 320,
+      "scrollWidth": 320,
+      "overflowX": false,
+      "clipped": 3,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "Overview\nSettings\nOpenClash\nCandidate IP",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview  active\"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">Overview</a></li><li",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        },
+        {
+          "tag": "TABLE",
+          "cls": "table cfi-kv-table",
+          "text": "MODE\npasswall\nLAST RUN TIME\n-\nLAST RESUL",
+          "html": "<table class=\"table cfi-kv-table\"><tr class=\"tr\"><th class=\"th\">Mode</th><td class=\"td\">passwall</td></tr><tr class=\"tr\"><th class=\"th\">Last Run Time</th><td cl",
+          "overflowX": "hidden",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        },
+        {
+          "tag": "TABLE",
+          "cls": "table cfi-kv-table",
+          "text": "TAR\n✔ Installed\nJQ\n✔ Installed\nPASSWALL\n",
+          "html": "<table class=\"table cfi-kv-table\"><tr class=\"tr\"><th class=\"th\">tar</th><td class=\"td\"><span class=\"cfi-badge green\">✔ Installed</span></td></tr><tr class=\"tr\">",
+          "overflowX": "hidden",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/reflow-320-overview.png"
+    },
+    {
+      "page": "settings",
+      "innerWidth": 320,
+      "scrollWidth": 320,
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "Overview\nSettings\nOpenClash\nCandidate IP",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">Overview</a></li><li class=",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/reflow-320-settings.png"
+    },
+    {
+      "page": "sources",
+      "innerWidth": 320,
+      "scrollWidth": 320,
+      "overflowX": false,
+      "clipped": 3,
+      "trunc": 2,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "Overview\nSettings\nOpenClash\nCandidate IP",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">Overview</a></li><li class=",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        },
+        {
+          "tag": "LI",
+          "cls": "",
+          "text": "Cloudflare Official IPv4",
+          "html": "<li data-value=\"cloudflare-official-v4\" selected=\"\" display=\"0\"><form><input type=\"checkbox\" tabindex=\"-1\" onclick=\"event.preventDefault()\"></form><label>Cloudf",
+          "overflowX": "hidden",
+          "scrollable": false,
+          "nowrap": true,
+          "inDropdown": true,
+          "inTabs": false
+        },
+        {
+          "tag": "LI",
+          "cls": "",
+          "text": "Cloudflare Official IPv6",
+          "html": "<li data-value=\"cloudflare-official-v6\" selected=\"\" display=\"1\"><form><input type=\"checkbox\" tabindex=\"-1\" onclick=\"event.preventDefault()\"></form><label>Cloudf",
+          "overflowX": "hidden",
+          "scrollable": false,
+          "nowrap": true,
+          "inDropdown": true,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [
+        {
+          "tag": "LI",
+          "cls": "",
+          "text": "Cloudflare Official IPv4",
+          "inDropdown": true,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "LI",
+          "cls": "",
+          "text": "Cloudflare Official IPv6",
+          "inDropdown": true,
+          "overflowX": "hidden"
+        }
+      ],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/reflow-320-sources.png"
+    },
+    {
+      "page": "intelligence",
+      "innerWidth": 320,
+      "scrollWidth": 320,
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "Overview\nSettings\nOpenClash\nCandidate IP",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">Overview</a></li><li class=",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/reflow-320-intelligence.png"
+    },
+    {
+      "page": "openclash",
+      "innerWidth": 320,
+      "scrollWidth": 320,
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "Overview\nSettings\nOpenClash\nCandidate IP",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">Overview</a></li><li class=",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/reflow-320-openclash.png"
+    },
+    {
+      "page": "passwall",
+      "innerWidth": 320,
+      "scrollWidth": 320,
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "Overview\nSettings\nOpenClash\nCandidate IP",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">Overview</a></li><li class=",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/reflow-320-passwall.png"
+    },
+    {
+      "page": "advanced",
+      "innerWidth": 320,
+      "scrollWidth": 320,
+      "overflowX": false,
+      "clipped": 1,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "Overview\nSettings\nOpenClash\nCandidate IP",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">Overview</a></li><li class=",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/reflow-320-advanced.png"
+    },
+    {
+      "page": "logs",
+      "innerWidth": 320,
+      "scrollWidth": 320,
+      "overflowX": false,
+      "clipped": 4,
+      "trunc": 0,
+      "clippedDetails": [
+        {
+          "tag": "DIV",
+          "cls": "",
+          "text": "Overview\nSettings\nOpenClash\nCandidate IP",
+          "html": "<div id=\"tabmenu\" style=\"\"><ul class=\"tabs\"><li class=\"tabmenu-item-overview \"><a href=\"/cgi-bin/luci/admin/services/cf_ip/overview\">Overview</a></li><li class=",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        },
+        {
+          "tag": "TABLE",
+          "cls": "table cfi-ip-table",
+          "text": "#\nIP ADDRESS\nNo IP history available",
+          "html": "<table class=\"table cfi-ip-table\"><thead><tr class=\"tr\"><th class=\"th\">#</th><th class=\"th\">IP Address</th></tr></thead><tbody><tr class=\"tr cfi-no-hover\"><td c",
+          "overflowX": "hidden",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        },
+        {
+          "tag": "THEAD",
+          "cls": "",
+          "text": "#\nIP ADDRESS",
+          "html": "<thead><tr class=\"tr\"><th class=\"th\">#</th><th class=\"th\">IP Address</th></tr></thead>",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        },
+        {
+          "tag": "TBODY",
+          "cls": "",
+          "text": "No IP history available",
+          "html": "<tbody><tr class=\"tr cfi-no-hover\"><td class=\"td\" colspan=\"2\" style=\"color:var(--subtext-color);font-style:italic\">No IP history available</td></tr></tbody>",
+          "overflowX": "visible",
+          "scrollable": false,
+          "nowrap": false,
+          "inDropdown": false,
+          "inTabs": false
+        }
+      ],
+      "truncDetails": [],
+      "consoleErrors": [],
+      "screenshot": "phase-f/zoom-zh/reflow-320-logs.png"
+    }
+  ],
+  "assertions": {
+    "passed": true,
+    "failed": 0,
+    "failures": []
+  }
+}

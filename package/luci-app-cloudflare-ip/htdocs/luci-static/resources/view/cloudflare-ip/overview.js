@@ -340,7 +340,7 @@ return view.extend({
 						ui.addNotification(null, E('p', _('Service started.')), 'info');
 						return waitReadyAndReload();
 					}).catch(function(e) {
-						ui.addNotification(null, E('p', _('Unable to start service: %s').format(e.message)), 'error');
+						utils.noticeError(_('Unable to start service.'), _('The service state was not changed.'), e);
 						utils.resetBusy(btn);
 					});
 				}
@@ -357,7 +357,7 @@ return view.extend({
 						ui.addNotification(null, E('p', _('Service stopped.')), 'info');
 						utils.reloadSoon();
 					}).catch(function(e) {
-						ui.addNotification(null, E('p', _('Unable to stop service: %s').format(e.message)), 'error');
+						utils.noticeError(_('Unable to stop service.'), _('The service state was not changed.'), e);
 						utils.resetBusy(btn);
 					});
 				}
@@ -373,7 +373,7 @@ return view.extend({
 					ui.addNotification(null, E('p', _('Service restarted.')), 'info');
 					return waitReadyAndReload();
 				}).catch(function(e) {
-					ui.addNotification(null, E('p', _('Unable to restart service: %s').format(e.message)), 'error');
+					utils.noticeError(_('Unable to restart service.'), _('The previous service state was preserved.'), e);
 					utils.resetBusy(btn);
 				});
 			}
@@ -400,7 +400,7 @@ return view.extend({
 						if (container.isConnected) utils.reloadSoon(300, function() { return container.isConnected; });
 					}).catch(function(e) {
 						if (container.isConnected && e.code !== 'ServiceReadyCancelled')
-							ui.addNotification(null, E('p', _('Unable to confirm speed test status: %s').format(e.message)), 'error');
+							utils.noticeError(_('Unable to confirm speed test status.'), _('Check the service status and logs before starting another run.'), e);
 						isRunningTest = false;
 						utils.resetBusy(btn);
 					});
@@ -424,13 +424,13 @@ return view.extend({
 				return callDownloadCfst().then(function(result) {
 					result = result || {};
 					if (result.success !== true) {
-						ui.addNotification(null, E('p', _('Unable to update CFST: %s').format(result.error || _('Unknown'))), 'error');
+						utils.noticeError(_('Unable to update CFST.'), _('The existing CFST binary, if any, was left unchanged.'), result.error);
 					} else {
 						ui.addNotification(null, E('p', _('CFST updated successfully.') + (result.cfst_version ? ' (' + result.cfst_version + ')' : '')), 'info');
 						utils.reloadSoon(1500);
 					}
 					}).catch(function(e) {
-						ui.addNotification(null, E('p', _('Unable to update CFST: %s').format(e.message)), 'error');
+						utils.noticeError(_('Unable to update CFST.'), _('The existing CFST binary, if any, was left unchanged.'), e);
 				}).finally(function() {
 					utils.resetBusy(btn);
 				});
@@ -466,7 +466,7 @@ return view.extend({
 		} else if (lastResult === 'success' || (typeof lastResult === 'string' && lastResult.indexOf('success') === 0)) {
 			lastResultBadge = E('span', { 'class': 'cfi-badge green' }, '\u2714 ' + translateStatus(lastResult));
 		} else if (lastResult === '-' || lastResult === 'unknown') {
-			lastResultBadge = E('span', { 'class': 'cfi-badge gray' }, '\u26A0 ' + '-');
+			lastResultBadge = E('span', { 'class': 'cfi-badge gray' }, _('Not run yet'));
 		} else {
 			lastResultBadge = E('span', { 'class': 'cfi-badge red' }, '\u2718 ' + translateStatus(lastResult));
 		}
@@ -475,10 +475,18 @@ return view.extend({
 			E('td', { 'class': 'td' }, lastResultBadge)
 		]));
 		if (data.service && data.service.target === 'openclash') {
-			var serviceMessage = data.service.deferredUntilServiceStart ?
-				_('Nodes updated; OpenClash is disabled and the changes will take effect after it is started') :
-				(data.service.error || error || (data.service.serviceApplied ? _('OpenClash service applied and health verified.') :
-					(data.service.recoveryVerified ? _('OpenClash service restored and health verified; new nodes were not applied.') : '')));
+			var serviceMessage;
+			if (data.service.deferredUntilServiceStart) {
+				serviceMessage = _('Nodes updated; OpenClash is disabled and the changes will take effect after it is started');
+			} else if (data.service.error || error) {
+				serviceMessage = E('div', {}, [
+					E('p', {}, _('OpenClash apply failed.')),
+					utils.technicalDetails(data.service.error || error)
+				]);
+			} else {
+				serviceMessage = data.service.serviceApplied ? _('OpenClash service applied and health verified.') :
+					(data.service.recoveryVerified ? _('OpenClash service restored and health verified; new nodes were not applied.') : '');
+			}
 			if (serviceMessage)
 				infoTable.appendChild(E('tr', { 'class': 'tr' }, [
 					E('th', { 'class': 'th' }, _('OpenClash Apply Status')),
@@ -614,7 +622,7 @@ return view.extend({
 					utils.resetBusy(btn);
 						ui.addNotification(null, E('p', _('Environment detection refreshed.')), 'info');
 					}).catch(function(e) {
-						ui.addNotification(null, E('p', _('Unable to refresh environment: %s').format(e.message)), 'error');
+						utils.noticeError(_('Unable to refresh environment.'), _('The previous environment detection is still shown.'), e);
 					utils.resetBusy(btn);
 				});
 			}

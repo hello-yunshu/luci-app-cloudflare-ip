@@ -1,0 +1,4 @@
+editable=false
+disabled=true
+readonly-attr=null
+value=https://legacy.example/update.sh

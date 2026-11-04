@@ -66,7 +66,7 @@ return view.extend({
 		var storedMode = uci.get('cf_ip', 'main', 'mode');
 		if (envError) {
 			o.value(storedMode === 'openclash' ? 'openclash' : 'passwall', _('Unknown (environment check failed)'));
-			o.description = _('Unable to check the proxy environment: %s').format(env.error || _('Unknown'));
+			o.description = _('Unable to check the proxy environment. Retry from Overview and expand the technical details there.');
 		} else if (!passwallInstalled && !openclashInstalled) {
 			o.value(storedMode === 'openclash' ? 'openclash' : 'passwall', _('None (No proxy service detected)'));
 			o.readonly = true;
@@ -150,6 +150,14 @@ return view.extend({
 		utils.createHandleSave(m, this);
 		utils.createHandleSaveApply(m, this);
 
-		return utils.renderWithFooter(m.render(), utils.FOOTER_OPTIONS);
+		return utils.renderWithFooter(m.render().then(function(node) {
+			if (envError)
+				node.appendChild(utils.errorPanel(
+					_('Unable to check the proxy environment.'),
+					_('The proxy selection may be incomplete until the environment check succeeds.'),
+					env.error
+				));
+			return node;
+		}), utils.FOOTER_OPTIONS);
 	}
 });

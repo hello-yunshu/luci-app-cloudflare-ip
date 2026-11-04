@@ -26,7 +26,8 @@ return view.extend({
     if (regData._rpcError)
       return utils.renderWithFooter(E('div',{'class':'cbi-map cfi-form-map'}, E('div',{'class':'cbi-section cfi-empty-state'},[
         E('h3',{},_('Unable to load source registry')),
-        E('p',{},_('The source registry RPC failed: %s').format(regData.error||_('Unknown'))),
+        E('p',{},_('Retry the source registry check. If it keeps failing, open Logs & Records.')),
+        utils.technicalDetails(regData.error),
         E('button',{'class':'btn cbi-button','click':function(){location.reload();}},_('Retry'))
       ])), utils.FOOTER_OPTIONS);
     s=m.section(form.TypedSection,'service',_('Candidate Budget'));
@@ -36,7 +37,7 @@ return view.extend({
     o=s.option(form.MultiValue,'builtin_sources',_('Built-in Sources'),_('Official sources are authoritative ranges. Community sources are untrusted seed IPs and are always re-tested locally.'));
     reg.forEach(function(x){
       var group=x.group==='official'?_('Official'):x.group==='carrier'?_('Carrier-specific'):x.group==='measured'?_('Measured Seeds'):_('Recommended Community');
-      o.value(x.id,group+' · '+x.name);
+      o.value(x.id, x.group==='official' ? x.name : group+' · '+x.name);
     });
     o.rmempty=false;
 
@@ -69,23 +70,23 @@ return view.extend({
       ]))
     ]), table=box.lastChild.firstChild;
     if (stData._rpcError)
-      box.appendChild(E('div',{'class':'alert-message error'},_('Unable to load source status: %s').format(stData.error||_('Unknown'))));
+      box.appendChild(utils.errorPanel(_('Unable to load source status.'), _('Retry the page; the source rows below are unavailable until the RPC succeeds.'), stData.error));
     var seen={};
     if (!stData._rpcError) {
-      reg.forEach(function(x){ var q=st[x.id]||{}, state=q.success?(q.stale?_('Cached / stale'):_('Fresh')):_('Not fetched'); seen[x.id]=true; table.appendChild(E('div',{'class':'tr'},[
+      reg.forEach(function(x){ var q=st[x.id]||{}, state=q._rpcError?utils.sourceStateLabel(q):(q.success===true?utils.sourceStateLabel(q):_('Not fetched')); seen[x.id]=true; table.appendChild(E('div',{'class':'tr'},[
         E('div',{'class':'td','data-label':_('Source')},x.name),
         E('div',{'class':'td','data-label':_('State')},state),
         E('div',{'class':'td','data-label':_('Candidates')},String(q.parsedCount||0)),
-        E('div',{'class':'td','data-label':_('Last Error')},q.lastError||'—')
+        E('div',{'class':'td','data-label':_('Last Error')},utils.sourceErrorNode(q.lastError))
       ])); });
-      Object.keys(st).filter(function(id){return !seen[id];}).sort().forEach(function(id){var q=st[id],state=q.success?(q.stale?_('Cached / stale'):_('Fresh')):_('Error');table.appendChild(E('div',{'class':'tr'},[
+      Object.keys(st).filter(function(id){return !seen[id];}).sort().forEach(function(id){var q=st[id],state=q.success===true?utils.sourceStateLabel(q):_('Error');table.appendChild(E('div',{'class':'tr'},[
         E('div',{'class':'td','data-label':_('Source')},id),
         E('div',{'class':'td','data-label':_('State')},state),
         E('div',{'class':'td','data-label':_('Candidates')},String(q.parsedCount||0)),
-        E('div',{'class':'td','data-label':_('Last Error')},q.lastError||'—')
+        E('div',{'class':'td','data-label':_('Last Error')},utils.sourceErrorNode(q.lastError))
       ]));});
     }
-    box.appendChild(E('button',{'class':'btn cbi-button-action','click':function(){var btn=this;utils.setBusy(btn,_('Refreshing...'));return callRefresh().then(function(r){if(r&&r.success===true){ui.addNotification(null,E('p',{},_('Sources refreshed; candidate pool prepared. Unsaved edits were kept.')),'info');}else{ui.addNotification(null,E('p',{},_('Unable to refresh sources: %s').format((r&&r.error)||_('Unknown'))),'error');}}).catch(function(e){ui.addNotification(null,E('p',{},_('Unable to refresh sources: %s').format(e.message||e)),'error');}).finally(function(){utils.resetBusy(btn);});}},_('Refresh Sources')));
+    box.appendChild(E('button',{'class':'btn cbi-button-action','click':function(){var btn=this;utils.setBusy(btn,_('Refreshing...'));return callRefresh().then(function(r){if(r&&r.success===true){ui.addNotification(null,E('p',{},_('Sources refreshed; candidate pool prepared. Unsaved edits were kept.')),'info');}else{utils.noticeError(_('Unable to refresh sources.'), _('The previous candidate pool is unchanged; unsaved edits are still kept.'), (r&&r.error)||_('Unknown'));}}).catch(function(e){utils.noticeError(_('Unable to refresh sources.'), _('The previous candidate pool is unchanged; unsaved edits are still kept.'), e);}).finally(function(){utils.resetBusy(btn);});}},_('Refresh Sources')));
     utils.createHandleSave(m, this);
     utils.createHandleSaveApply(m, this);
     // Map.save() renders again before validation. Keep runtime controls on that render too.

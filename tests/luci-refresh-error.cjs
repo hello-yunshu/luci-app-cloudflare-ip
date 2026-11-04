@@ -15,7 +15,8 @@ const source=fs.readFileSync(path.join(__dirname,'../package/luci-app-cloudflare
 (async()=>{
  for(const response of [{success:false,error:'controlled refresh failure'},{success:false},null,{success:true,tar:true,jq:true}]){
   const notices=[];let busy=0,reset=0;
-  const utils={loadSharedCSS(){},waitForServiceReady:()=>new Promise(()=>{}),appendFooter:x=>x,FOOTER_OPTIONS:{},setBusy(){busy++;},resetBusy(){reset++;}};
+  const utils={loadSharedCSS(){},waitForServiceReady:()=>new Promise(()=>{}),appendFooter:x=>x,FOOTER_OPTIONS:{},setBusy(){busy++;},resetBusy(){reset++;},
+   noticeError(title,message,error){notices.push({text:title+' '+String((error&&error.message)||error||''),kind:'error'});}};
   const view=new Function('view','ui','rpc','uci','form','utils','E','_','setTimeout',source)({extend:x=>x},{addNotification:(a,b,c)=>notices.push({text:flatten(b),kind:c})},{declare:()=>()=>Promise.resolve(response)},{get:()=>undefined},{},utils,E,x=>x,()=>{});
   const root=view.render({running:false,env:{tar:true,jq:true}});
   const button=find(root,n=>n.tag==='button'&&flatten(n).includes('Refresh Environment'));
@@ -28,8 +29,12 @@ const source=fs.readFileSync(path.join(__dirname,'../package/luci-app-cloudflare
  }
  const diagnosticsSource=fs.readFileSync(path.join(__dirname,'../package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/diagnostics.js'),'utf8');
  for(const response of [{success:false,error:'controlled diagnostics failure',runtime:{state:'stale-payload'}},{success:false},{},null,{success:true,runtime:{state:'ready'}}]) {
-  const utils={loadSharedCSS(){},appendFooter:x=>x,FOOTER_OPTIONS:{},callStatus:()=>Promise.resolve({})};
-  const view=new Function('view','ui','rpc','utils','E','_','window',diagnosticsSource)({extend:x=>x},{},{declare:({method})=>()=>Promise.resolve(method==='rill-diagnostics'?response:{success:true,ips:[]})},utils,E,x=>x,{setTimeout(){}});
+  const utils={loadSharedCSS(){},appendFooter:x=>x,FOOTER_OPTIONS:{},callStatus:()=>Promise.resolve({}),
+   errorPanel:(title,message,error)=>E('div',{},[title,message||'',String(error||'')]),
+   errorText:error=>String(error==null?'':error),
+   copyButton:()=>E('button',{}),
+   noticeError(){}};
+  const view=new Function('view','ui','rpc','utils','E','_','window','L',diagnosticsSource)({extend:x=>x},{},{declare:({method})=>()=>Promise.resolve(method==='rill-diagnostics'?response:{success:true,ips:[]})},utils,E,x=>x,{setTimeout(){}},{url:p=>'/cgi-bin/luci/'+p});
   const root=view.render(await view.load());
   const text=flatten(root);
   if(response&&response.success===true){
