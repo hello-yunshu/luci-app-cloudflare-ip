@@ -36,9 +36,7 @@ function runtimeSummary(status) {
 	return _('Unavailable / Native fallback') + (intelligence.state ? ' / ' + utils.statusLabel('runtime', intelligence.state) : '');
 }
 
-function copyText(text) {
-	if (navigator.clipboard && navigator.clipboard.writeText)
-		return navigator.clipboard.writeText(text);
+function execCommandCopy(text) {
 	return Promise.resolve().then(function() {
 		var area = E('textarea', { 'class': 'cfi-copy-source' }, text);
 		document.body.appendChild(area);
@@ -51,6 +49,12 @@ function copyText(text) {
 			document.body.removeChild(area);
 		}
 	});
+}
+
+function copyText(text) {
+	if (navigator.clipboard && navigator.clipboard.writeText)
+		return navigator.clipboard.writeText(text).catch(function() { return execCommandCopy(text); });
+	return execCommandCopy(text);
 }
 
 function addCopyButton(field, text) {
