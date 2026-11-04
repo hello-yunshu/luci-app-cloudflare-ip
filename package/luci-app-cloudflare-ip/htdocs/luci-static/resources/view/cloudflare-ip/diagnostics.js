@@ -66,6 +66,8 @@ return view.extend({
 		var intelligenceSection = E('div', { 'class': 'cbi-section cfi-section' });
 		intelligenceSection.appendChild(E('h3', {}, _('Rill Diagnostics')));
 		intelligenceSection.appendChild(E('p', {}, _('This snapshot explains fallback, qualification, delayed feedback, Prefix and Colo intelligence without exposing the internal model.')));
+		intelligenceSection.appendChild(E('p', { 'class': 'cfi-inline-link' },
+			E('a', { 'class': 'cbi-button cfi-link-button', 'href': L.url('admin/services/cf_ip/intelligence') }, _('Open Intelligence'))));
 		if (diagnostics.success !== true) {
 			intelligenceSection.appendChild(E('div', { 'class': 'alert-message danger', 'role': 'alert' },
 				E('p', {}, [ _('Diagnostics unavailable'), ': ', diagnostics.error || _('Unknown') ])));

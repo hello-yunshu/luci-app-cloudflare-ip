@@ -1989,3 +1989,35 @@ msgstr "不健康"
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
 msgid "Unknown (%s)"
 msgstr "未知（%s）"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Copy"
+msgstr "Copy"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Copied"
+msgstr "Copied"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Copy command was rejected"
+msgstr "Copy command was rejected"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Unable to copy: %s"
+msgstr "Unable to copy: %s"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Show advanced diagnostics"
+msgstr "Show advanced diagnostics"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Hide advanced diagnostics"
+msgstr "Hide advanced diagnostics"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Open Logs & Records"
+msgstr "Open Logs & Records"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Open Intelligence"
+msgstr "Open Intelligence"
