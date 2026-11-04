@@ -1,6 +1,6 @@
 # Next Release i18n Report — 2e28db4 baseline
 
-> 当前候选：`ffa73f6`。当前语言门禁结果：516 keys（JS 507 + menu 9），POT/zh_Hans/en 各 552 条，`tests/i18n-contract.py` 与 `tests/i18n-dynamic-contract.py` 均 PASS。真实 zh_cn 渲染见 `phase-f/zoom-zh/zh-375-*`、`zh-1280-*`。以下保留阶段 A 的 2e28db4 缺失测量。
+> 当前候选：`90dfc13`。当前语言门禁结果：516 keys（JS 507 + menu 9），POT/zh_Hans/en 各 552 条，`tests/i18n-contract.py` 与 `tests/i18n-dynamic-contract.py` 均 PASS。真实 zh_cn 渲染见 `phase-f/zoom-zh/zh-375-*`、`zh-1280-*`。以下保留阶段 A 的 2e28db4 缺失测量。
 基线：`main` / `2e28db4b5cdc221897bbe98ff78fbe7235098e53`。数据：`docs/audits/next-release-evidence/i18n-2e28db4/`。
 ## 1. 统计
 | 指标 | 值 |

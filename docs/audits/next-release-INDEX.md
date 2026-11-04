@@ -1,6 +1,6 @@
 # Next-release audit index
 
-当前代码候选：`audit/ui-skill-review` / `ffa73f6`（PR #25）；版本口径 `2.6.0-r8`。docs 随 PR #25 提交（docs-only commit 位于 `ffa73f6` 之后）。未合并、未打 tag、未建 Release、未改 release-channel。
+当前代码候选：`audit/ui-skill-review` / `90dfc13`（PR #25）；版本口径 `2.6.0-r8`。阶段 G 收口提交只增加 CHANGELOG、Release notes、发布检查清单与索引更新，不改变代码树。未合并、未打 tag、未建 Release、未改 release-channel。
 
 入口：主仓库 [README](../../README.md) 的“相关文档”已链接本索引。
 
@@ -13,10 +13,14 @@
 | [next-release-interaction-matrix.md](next-release-interaction-matrix.md) | 43 点旧矩阵；当前 51 点七态矩阵见 `next-release-evidence/phase-f/matrix/matrix.json` |
 | [next-release-visual-matrix.md](next-release-visual-matrix.md) | 9adb2d5 视觉矩阵；当前缩放/中文证据见 `next-release-evidence/phase-f/zoom-zh/` |
 | [next-release-i18n-report.md](next-release-i18n-report.md) | 阶段 A i18n 缺口；当前 516/552 门禁结果在文首 |
-| [next-release-phase-f-report.md](next-release-phase-f-report.md) | 本轮：七态矩阵、docs 归位、真实缩放、zh 渲染、门禁漂移 |
+| [next-release-phase-f-report.md](next-release-phase-f-report.md) | 阶段 F：七态矩阵、docs 归位、真实缩放、zh 渲染、门禁漂移 |
+| [next-release-phase-g-report.md](next-release-phase-g-report.md) | 阶段 G：发布收口准备与待授权清单 |
+| [next-release-release-notes-v2.6.0-8.md](next-release-release-notes-v2.6.0-8.md) | v2.6.0-8 Release notes 草稿 |
+| [next-release-sync-rill-adjudication.md](next-release-sync-rill-adjudication.md) | 跨仓 sync-rill 本地等价 vs 真实 PR 裁决材料 |
 | [next-release-phase-e-report.md](next-release-phase-e-report.md) | 阶段 E：发布前 6 条 |
 | [next-release-phase-b-report.md](next-release-phase-b-report.md) … [next-release-phase-d-report.md](next-release-phase-d-report.md) | 阶段 B–D 执行报告 |
 | [../plans/next-release-remediation-plan.md](../plans/next-release-remediation-plan.md) | 阶段 A 修复计划与 GO/NO-GO 条件 |
+| [../2.6.0-r8-RELEASE-READY.md](../2.6.0-r8-RELEASE-READY.md) | r8 发布准备、资产与授权清单 |
 
 ## 证据
 
@@ -39,5 +43,5 @@
 
 ## 门禁
 
-- 本地门禁↔CI 一致性由 [tests/ci-test-inventory.py](../../../tests/ci-test-inventory.py) 在 CI `workflow-lint` job 执行：任何 `tests/` 下的 `.sh/.py/.cjs` 未接入 CI 且未登记排除理由，job 直接失败。
+- 本地门禁↔CI 一致性由 [tests/ci-test-inventory.py](../../tests/ci-test-inventory.py) 在 CI `workflow-lint` job 执行：任何 `tests/` 下的 `.sh/.py/.cjs` 未接入 CI 且未登记排除理由，job 直接失败。
 - 当前：254 files / 247 referenced / 7 documented script exclusions / 0 leftovers。

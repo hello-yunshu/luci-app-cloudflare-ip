@@ -1,17 +1,17 @@
-# Next Release Issue Register — 2e28db4 baseline, current candidate ffa73f6
+# Next Release Issue Register — 2e28db4 baseline, current candidate 90dfc13
 
-审计基线：`main` / `2e28db4b5cdc221897bbe98ff78fbe7235098e53`；**当前候选**：`audit/ui-skill-review` / `ffa73f6`（PR #25）；证据目录：`docs/audits/next-release-evidence/`。历史正文保留阶段 A 复现，状态列已更新到当前候选。
+审计基线：`main` / `2e28db4b5cdc221897bbe98ff78fbe7235098e53`；**当前候选**：`audit/ui-skill-review` / `90dfc13`（PR #25）；证据目录：`docs/audits/next-release-evidence/`。历史正文保留阶段 A 复现，状态列已更新到当前候选。
 
 ## 1. 汇总
 
 | 优先级 | 数量 | 状态分布 |
 |---|---:|---|
-| P0 | 1 | CLOSED / FIXED（ffa73f6） |
+| P0 | 1 | CLOSED / FIXED（90dfc13） |
 | P1 | 5 | 4 CLOSED / FIXED；1 PASS-BY-USER-DECISION |
 | P2 | 9 | 3 CLOSED；6 OPEN / SOURCE_CONFIRMED |
 | P3 | 2 | OPEN / SOURCE_CONFIRMED |
 
-> 本表保留阶段 A 的复现结构；P0/P1 状态已按当前候选 `ffa73f6` 更新为 CLOSED/FIXED 或 PASS-BY-USER-DECISION；P2-07/P2-08/P2-09 已关闭，其余 P2/P3 仍未关闭。
+> 本表保留阶段 A 的复现结构；P0/P1 状态已按当前候选 `90dfc13` 更新为 CLOSED/FIXED 或 PASS-BY-USER-DECISION；P2-07/P2-08/P2-09 已关闭，其余 P2/P3 仍未关闭。
 
 ## 2. 索引
 
@@ -30,7 +30,7 @@
 | P2-05 | P2 | `confirm()` 与 LuCI modal 割裂 | OPEN — SOURCE_CONFIRMED | `diagnostics.js` / `intelligence.js` |
 | P2-06 | P2 | 缺少 reduced-motion 处理 | OPEN — SOURCE_CONFIRMED | `cloudflare-ip.css` |
 | P2-07 | P2 | 320px 顶部导航 tab 裁切 | CLOSED — VERIFIED（320 tab 换行，8 项全部可见） | `phase-f/zoom-zh/reflow-320-*.png` |
-| P2-08 | P2 | README 仍称 r6“正在重新资格化” | CLOSED — DOC UPDATED（ffa73f6） | `README.md` |
+| P2-08 | P2 | README 仍称 r6“正在重新资格化” | CLOSED — DOC UPDATED（90dfc13） | `README.md` |
 | P2-09 | P2 | rill-ml pin 落后 main，存在未合并 PR | CLOSED — 保持 `da8389f`，理由见 `phase-d/openclash-ruby/cross-repo.md` | `cross-repo.md` |
 | P3-01 | P3 | 缺少统一中文术语表 | OPEN — SOURCE_CONFIRMED | `i18n-2e28db4/` |
 | P3-02 | P3 | 设计 token/footer 一致性待收口 | OPEN — RUNTIME/视觉 | 78 张截图 |
@@ -50,7 +50,7 @@
 - **最小修复**：条件改为 `if (!result || result.success !== true || result.error)`；错误提示保留 `result.error || _('Unknown')`；不 reload。
 - **测试**：harness 四种响应；真实 ubus RPC route fixture；375/768/1280 × 三主题的 modal。
 - **跨仓/回退**：无；纯 UI 判定，回退不影响 UCI。
-- **状态**：CLOSED — FIXED（`ffa73f6`）。`openclash.js` 只在 `success === true` 时刷新成功态；失败保留错误与备份文件。证据：`phase-d/openclash/delete-success.json`、`delete-failure` 截图、`phase-e/` 技术详情。
+- **状态**：CLOSED — FIXED（`90dfc13`）。`openclash.js` 只在 `success === true` 时刷新成功态；失败保留错误与备份文件。证据：`phase-d/openclash/delete-success.json`、`delete-failure` 截图、`phase-e/` 技术详情。
 
 ## 4. P1
 
@@ -65,7 +65,7 @@
 - **期望**：四态 `UNAVAILABLE / ERROR / NOT_INSTALLED / EMPTY`；中文说明 + 重试 + 可展开原始错误。
 - **最小修复**：catch 保留 `{_error:true}`；渲染错误空状态；对 `success:false` 显示 error，不显示空列表。
 - **测试**：RPC reject、`{}`、`success:false`、权限错误；OpenClash/Sources 各一组。
-- **状态**：CLOSED — FIXED（`ffa73f6`）。RPC 失败与未安装/空数据分离，错误态显示人类说明 + 可展开技术详情。证据：`phase-e/before/diagnostics.png`、`phase-e/after/diagnostics.png`、`tests/luci-raw-error-contract.cjs`。
+- **状态**：CLOSED — FIXED（`90dfc13`）。RPC 失败与未安装/空数据分离，错误态显示人类说明 + 可展开技术详情。证据：`phase-e/before/diagnostics.png`、`phase-e/after/diagnostics.png`、`tests/luci-raw-error-contract.cjs`。
 
 ### P1-02 Sources 刷新丢失未保存编辑
 
@@ -76,7 +76,7 @@
 - **期望**：dirty state 拦截/提示；刷新只更新状态区，或在保存后 reload。
 - **最小修复**：监听表单 dirty；reload 前 `confirm`；或把 refresh 结果局部渲染。
 - **测试**：dirty/clean、刷新成功/失败、取消/确认、真实浏览器。
-- **状态**：CLOSED — FIXED（`ffa73f6`）。刷新只更新状态区，不 reload，未保存草稿保留。证据：`tests/luci-refresh-error.cjs`、`phase-f/matrix/src-refresh-*`。
+- **状态**：CLOSED — FIXED（`90dfc13`）。刷新只更新状态区，不 reload，未保存草稿保留。证据：`tests/luci-refresh-error.cjs`、`phase-f/matrix/src-refresh-*`。
 
 ### P1-03 Rill reset 不刷新状态
 
@@ -87,7 +87,7 @@
 - **期望**：成功后重新读取 status 或刷新状态区；失败/超时明确提示；generation readback。
 - **最小修复**：成功后调用 `callStatus()` 并局部更新；或 reload；错误不提示成功。
 - **测试**：真实 RPC reset + status；成功/失败/超时/generation mismatch。
-- **状态**：CLOSED — FIXED（`ffa73f6`）。成功后重载并反映状态；`ev.currentTarget`/form.Button 事件参数已修复。证据：`phase-d/intelligence/intelligence.json`、`tests/luci-view-bindings.cjs`。
+- **状态**：CLOSED — FIXED（`90dfc13`）。成功后重载并反映状态；`ev.currentTarget`/form.Button 事件参数已修复。证据：`phase-d/intelligence/intelligence.json`、`tests/luci-view-bindings.cjs`。
 
 ### P1-04 简体中文缺口
 
@@ -96,7 +96,7 @@
 - **证据**：`i18n-2e28db4/i18n-data.json`、`i18n-missing.tsv`；78 张真实截图菜单仍显示英文。
 - **影响**：中文不完整；动态状态可能显示机器码；术语不一致。
 - **期望**：POT/zh/en 全覆盖；菜单 key；动态映射；语言 CI gate。
-- **状态**：CLOSED — FIXED（`ffa73f6`）。当前 516 keys（JS 507 + menu 9），POT/zh_Hans/en 各 552 条；`i18n-contract.py` 与 `i18n-dynamic-contract.py` PASS。真实 zh 渲染见 `phase-f/zoom-zh/zh-375-*`、`zh-1280-*`。
+- **状态**：CLOSED — FIXED（`90dfc13`）。当前 516 keys（JS 507 + menu 9），POT/zh_Hans/en 各 552 条；`i18n-contract.py` 与 `i18n-dynamic-contract.py` PASS。真实 zh 渲染见 `phase-f/zoom-zh/zh-375-*`、`zh-1280-*`。
 
 ### P1-05 真实设备/硬件/24h soak 证据缺失
 
@@ -147,14 +147,14 @@
 - **证据**：`visual-2e28db4/aurora-light/320x900/overview.png` 等 3 张；`Candidate IP` 右侧被裁切，页面 `overflow=false`。
 - **风险**：极窄屏导航项不可读/不可点；虽然页面无横向滚动，但 tab 容器裁切。
 - **建议**：320 下 tab 换行/横向滚动/菜单折叠；补 320 全页交互。
-- **状态（ffa73f6）**：CLOSED — VERIFIED。本轮 320 reflow 重采 8 页，tab 自动换行，8 个 tab 全部可见，页面 `overflow=false`；证据 `phase-f/zoom-zh/reflow-320-*.png`。遗留观察：Sources 的 Built-in Sources 下拉在 320 闭合态以省略号显示（2 项），完整 option 文本仍在 DOM，属于 cbi-dropdown 标准收起态，非页面裁切。
+- **状态（90dfc13）**：CLOSED — VERIFIED。本轮 320 reflow 重采 8 页，tab 自动换行，8 个 tab 全部可见，页面 `overflow=false`；证据 `phase-f/zoom-zh/reflow-320-*.png`。遗留观察：Sources 的 Built-in Sources 下拉在 320 闭合态以省略号显示（2 项），完整 option 文本仍在 DOM，属于 cbi-dropdown 标准收起态，非页面裁切。
 
 ### P2-08 README 仍称 r6“正在重新资格化”
 - **文件**：`README.md` L39–L40。
 - **当前**：README 称 `2.6.0-r6` 是当前审计修复候选、正在重新 CI/预检；实际 r6 Release 已存在（pre-release）。
 - **风险**：维护者/用户对发布状态误判。
 - **建议**：发布后更新 README 状态；或改为“当前源码版本/最近发布”自动生成。
-- **状态（ffa73f6）**：CLOSED — DOC UPDATED。README 已改为“r6 已作为 pre-release 发布，其字节对应审计修复前基线；当前源码为 r8 候选，尚未创建 tag/Release”。
+- **状态（90dfc13）**：CLOSED — DOC UPDATED。README 已改为“r6 已作为 pre-release 发布，其字节对应审计修复前基线；当前源码为 r8 候选，尚未创建 tag/Release”。
 
 ### P2-09 rill-ml pin 落后 main，存在未合并 PR
 - **证据**：`cross-repo-2e28db4.json`；contract preview `da8389f`，rill-ml main `9602750`；PR #50/#51；Performance Manager #13。

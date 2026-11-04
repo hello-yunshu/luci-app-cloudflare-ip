@@ -1,6 +1,6 @@
 # Visual matrix - fresh audit corrected (9adb2d5 baseline)
 
-> 当前候选：`ffa73f6`。本轮补采真实浏览器 125%/150%/200% 缩放、320 reflow 与 zh_cn 375/1280 截图，见 `phase-f/zoom-zh/` 与 `next-release-phase-f-report.md`；下文的 9adb2d5 矩阵保留为历史视觉证据。
+> 当前候选：`90dfc13`。本轮补采真实浏览器 125%/150%/200% 缩放、320 reflow 与 zh_cn 375/1280 截图，见 `phase-f/zoom-zh/` 与 `next-release-phase-f-report.md`；下文的 9adb2d5 矩阵保留为历史视觉证据。
 
 Real OpenWrt 24.10.8 + LuCI 26.205.85413 in a disposable container; Chromium via Playwright. Bootstrap / Aurora light / Aurora dark.
 
