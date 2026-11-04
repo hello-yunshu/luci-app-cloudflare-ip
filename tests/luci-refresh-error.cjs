@@ -29,7 +29,7 @@ const source=fs.readFileSync(path.join(__dirname,'../package/luci-app-cloudflare
  const diagnosticsSource=fs.readFileSync(path.join(__dirname,'../package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/diagnostics.js'),'utf8');
  for(const response of [{success:false,error:'controlled diagnostics failure',runtime:{state:'stale-payload'}},{success:false},{},null,{success:true,runtime:{state:'ready'}}]) {
   const utils={loadSharedCSS(){},appendFooter:x=>x,FOOTER_OPTIONS:{},callStatus:()=>Promise.resolve({})};
-  const view=new Function('view','ui','rpc','utils','E','_','window',diagnosticsSource)({extend:x=>x},{},{declare:({method})=>()=>Promise.resolve(method==='rill-diagnostics'?response:{success:true,ips:[]})},utils,E,x=>x,{setTimeout(){}});
+  const view=new Function('view','ui','rpc','utils','E','_','window','L',diagnosticsSource)({extend:x=>x},{},{declare:({method})=>()=>Promise.resolve(method==='rill-diagnostics'?response:{success:true,ips:[]})},utils,E,x=>x,{setTimeout(){}},{url:p=>'/cgi-bin/luci/'+p});
   const root=view.render(await view.load());
   const text=flatten(root);
   if(response&&response.success===true){
