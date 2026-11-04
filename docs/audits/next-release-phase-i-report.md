@@ -20,6 +20,14 @@ Result: **PASS（5 条遗留已处置；Stable Gate 材料已准备但未执行�
 - 在 `.github/workflows/release.yml` 的 guard 前增加注释；新增 [RELEASE_CHANNEL_GUARD.md](../RELEASE_CHANNEL_GUARD.md) 说明“预期红”与真实故障的区分。
 - 未绕过、未删除、未注释掉 guard。
 
+### 1.2b 发布后 CI `evidence-manifest` 误红（已修复）
+
+- 现象：阶段 I 分支 CI run `41933111895` 的 `evidence-manifest` job 失败，日志：
+  `Stable review rejected: candidate tag is already occupied by different content`。
+- 根因：`prepare-stable-review.py` 把“tag 已存在且候选 tree 不同”当作致命错误。发布后任何 docs-only 提交都会改变 tree，因此每个后续 PR 都会误红。
+- 修复：`tagState=occupied-different`、`tagAvailable=false`、`tagConflict=true` 记录冲突，不再让 CI 整体失败；发布安全仍由 `release.yml` 的 pre-upload immutable-tag guard 保证（未改动）。`tests/stable-review.py` 新增 occupied-different 用例，5 tests OK。
+- 验证：修复后阶段 I CI 与后续 sync-rill 演练均通过（run id 见交付报告）。
+
 ### 1.3 线上 Release notes 与仓库草稿
 
 - 发布时首次使用的草稿头/重复块已在发布后清理；线上正文已替换为干净的最终版本。
