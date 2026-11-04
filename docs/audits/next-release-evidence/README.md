@@ -32,6 +32,17 @@ node docs/audits/next-release-evidence/repro-2e28db4/repro-risks.cjs \
 
 结果：`openclash_delete.false_success=true`、`rpc_failure_openclash.not_installed=true`、`rpc_failure_sources.rows=0/error_visible=false`、`sources_refresh.reload_calls=1/save_calls=0`、`rill_reset.reload_calls=0/stale_status=true`。
 
+## Phase D（`de5c4e6` / `6d3f3b6` / `a8f89e8`）
+
+| 路径 | 内容 |
+|---|---|
+| `phase-d/openclash/` | 真实 mihomo+uhttpd 控制器、真实配置/备份文件；删除成功/失败、恢复失败截图与 JSON；恢复成功 BLOCKED（Ruby/Psych segfault） |
+| `phase-d/speedtest/` | 真实 `status.json` + 日志经 `speedtest-status` RPC 读取；running/success/error 三态截图与 JSON |
+| `phase-d/intelligence/` | 复制按钮、clipboard 拒绝回退、复制失败提示、Live State 折叠、日志互链截图与 JSON |
+| `phase-d/scripts/` | 可复现的 Playwright 脚本 |
+
+结论：阶段 D PARTIAL（OpenClash 恢复成功仍 BLOCKED，缺可运行的 Ruby/Psych）；删除两条路径与恢复失败、测速弹窗、Intelligence 三项均 PASS。私有仓库禁用 Actions，本目录证据均为本地真实 LuCI/Playwright/本地契约执行。
+
 ## 2.6.0-r7 UI refinement（`7c13b1d` -> `9adb2d5`）
 
 | 路径 | 内容 |

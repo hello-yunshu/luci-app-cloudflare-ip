@@ -1,0 +1,25 @@
+{
+  "base": "http://127.0.0.1:18080",
+  "container": "cfip-ui-gate",
+  "rows": [
+    {
+      "state": "running",
+      "modalTitle": "Speed Test Log",
+      "badge": "⏳ Running",
+      "log": "Running CFST speedtest; measuring 8 candidates...",
+      "status": "running"
+    },
+    {
+      "state": "success",
+      "badge": "✔ Success",
+      "log": "Speedtest completed; selected 8 IPs; best=104.16.1.1",
+      "status": "success"
+    },
+    {
+      "state": "error",
+      "badge": "✘ Error",
+      "log": "ERROR: CFST run failed: synthetic failure",
+      "status": "error"
+    }
+  ]
+}
