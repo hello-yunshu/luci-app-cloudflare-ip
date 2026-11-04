@@ -23,6 +23,8 @@ function E(tag, attrs, children) {
    render(){return this.renderContents();}
   }
   const utils={loadSharedCSS(){},renderWithFooter:x=>x,
+   statusLabel(kind,value){return value==null||value===''?'Unknown':String(value);},
+   statusReasons(values){return values&&values.length?values.join(', '):'None';},
    createHandleSave(map,owner){calls.push(['save',owner]);},createHandleSaveApply(map,owner){calls.push(['apply',owner]);}};
   const form={Map,TypedSection:'typed',NamedSection:'named'};
   const source=fs.readFileSync(path.join(root,'package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip',name+'.js'),'utf8');

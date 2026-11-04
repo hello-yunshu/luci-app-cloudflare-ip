@@ -22,6 +22,81 @@ var FOOTER_OPTIONS = {
 	repoUrl: 'https://github.com/hello-yunshu/luci-app-cloudflare-ip'
 };
 
+/* User-facing labels for backend state codes. Unknown values keep the raw code
+ * visible instead of silently rendering English machine identifiers. */
+var STATUS_LABELS = {
+	mode: {
+		off: _('Off'),
+		shadow: _('Shadow'),
+		assisted: _('Assisted'),
+		guarded: _('Guarded'),
+		native: _('Native')
+	},
+	qualification: {
+		cold: _('Cold start'),
+		insufficient: _('Insufficient'),
+		qualified: _('Qualified'),
+		pending: _('Pending'),
+		unknown: _('Unknown')
+	},
+	health: {
+		healthy: _('Healthy'),
+		degraded: _('Degraded'),
+		unhealthy: _('Unhealthy'),
+		unknown: _('Unknown'),
+		unavailable: _('Unavailable'),
+		error: _('Error')
+	},
+	confidence: {
+		high: _('High'),
+		medium: _('Medium'),
+		low: _('Low'),
+		unknown: _('Unknown'),
+		unavailable: _('Unavailable')
+	},
+	runtime: {
+		disabled: _('Disabled'),
+		'not-installed': _('Not installed'),
+		ready: _('Ready'),
+		error: _('Error'),
+		unavailable: _('Unavailable')
+	},
+	reason: {
+		disabled: _('Disabled'),
+		manual_reset: _('Manual reset'),
+		insufficient_feedback: _('Insufficient feedback'),
+		insufficient_samples: _('Insufficient samples'),
+		qualification_missing: _('Qualification missing'),
+		not_qualified: _('Not qualified'),
+		runtime_unavailable: _('Runtime unavailable'),
+		runtime_not_installed: _('Runtime not installed'),
+		consumer_unavailable: _('Consumer unavailable'),
+		consumer_not_qualified: _('Consumer not qualified'),
+		context_changed: _('Context changed'),
+		stale_evidence: _('Stale evidence'),
+		holdout_censored: _('Holdout censored'),
+		resource_pressure: _('Resource pressure'),
+		timeout: _('Timeout'),
+		error: _('Error')
+	}
+};
+
+function statusLabel(kind, value) {
+	if (value === undefined || value === null || value === '')
+		return _('Unknown');
+	var code = String(value);
+	var table = STATUS_LABELS[kind] || {};
+	return table[code] || _('Unknown (%s)').format(code);
+}
+
+function statusReasons(values) {
+	if (!values || !values.length)
+		return _('None');
+	return values.map(function(value) {
+		return statusLabel('reason', value);
+	}).join(', ');
+}
+
 function isUciNoData(error) {
 	return error === 5 || /\bubus code 5\b/.test(error && error.message ? error.message : String(error));
 }
@@ -67,6 +142,19 @@ function resetBusy(button) {
 	button.removeAttribute('aria-busy');
 	button.textContent = button.getAttribute('data-original-title') || button.textContent;
 	button.removeAttribute('data-original-title');
+}
+
+function confirmAction(title, message, onConfirm, confirmLabel) {
+	ui.showModal(title, [
+		E('p', {}, message),
+		E('div', { 'class': 'right' }, [
+			E('button', { 'class': 'btn', 'click': function() { ui.hideModal(); } }, _('Cancel')),
+			E('button', {
+				'class': 'cbi-button cbi-button-reset',
+				'click': function() { ui.hideModal(); onConfirm(); }
+			}, confirmLabel || _('Confirm'))
+		])
+	]);
 }
 
 function reloadSoon(delay, isActive) {
@@ -423,6 +511,9 @@ return baseclass.extend({
 	setBusy: setBusy,
 	resetBusy: resetBusy,
 	reloadSoon: reloadSoon,
+	confirmAction: confirmAction,
+	statusLabel: statusLabel,
+	statusReasons: statusReasons,
 	waitForServiceReady: waitForServiceReady,
 	waitForRunStatus: waitForRunStatus,
 	requireSuccess: requireSuccess,
