@@ -87,6 +87,11 @@ jobs:
           python3 scripts/package_identity.py >/dev/null
           channel=$(jq -er 'select(.schemaVersion == 1) | .channel' release-channel.json)
           reason=$(jq -er 'select((.reason // "") != "") | .reason' release-channel.json)
+          # Expected guard, not a packaging failure: a red "Build and Release"
+          # run on main means release-channel.json is `stable`. Automatic
+          # promotion is intentionally disabled; a stable release needs a
+          # separate explicit Stable Gate and user authorization. Do not
+          # bypass this branch, and do not treat it as a failed build.
           if [[ "$channel" != prerelease ]]; then
             echo "stable channel requires an explicit Stable Gate; automatic promotion is disabled" >&2
             exit 1

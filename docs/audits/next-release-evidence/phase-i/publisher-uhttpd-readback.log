@@ -1,0 +1,15 @@
+Timestamp: 2026-11-05 (Asia/Shanghai)
+Container: cfip-ui-phasef (OpenWrt 24.10.8 x86_64, /sbin/init, procd/uhttpd/uci/jq/curl present)
+Command: cd /tmp/repo-snapshot && bash tests/publisher-uhttpd-readback.sh
+Exit code: 5
+Output: (none before exit; script uses set -e)
+Failure state from a preserved temp run:
+  status.json: {"success":false,"state":"error","listenerReady":false,
+                "error":"publisher_generation_readback_failed"}
+  publish/generations/gen.*/result.json exists
+  http.log is empty and the uhttpd process started by the fixture init is gone
+  (the fixture starts uhttpd with -f in the background; it does not survive
+   the init script exit in this BusyBox ash runtime).
+Conclusion: the test needs a fixture rework (supervisor or procd-managed
+listener) before it can be wired into CI. It is not excluded for lack of a
+container: a real live-init container was used and the test still failed.
