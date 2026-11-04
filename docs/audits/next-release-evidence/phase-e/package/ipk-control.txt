@@ -1,0 +1,16 @@
+Package: luci-app-cloudflare-ip
+Version: 2.6.0-r8
+Depends: libc, luci-base, bash, flock, curl, tar, jq, ca-bundle, ca-certificates
+Source: feeds/base/luci-app-cloudflare-ip
+SourceName: luci-app-cloudflare-ip
+License: GPL-3.0
+Section: luci
+SourceDateEpoch: 1784877710
+Maintainer: yunshu
+Architecture: all
+Installed-Size: 778240
+Description:  OpenWrt plugin for automatically selecting the fastest Cloudflare IPs
+ using CloudflareSpeedTest, and updating PassWall or OpenClash proxy
+ configurations. Includes Native, Adaptive Measurement, Operational Health,
+ and the optional Candidate Rill consumer integration. The Rill Runtime
+ binary remains an independently packaged optional dependency.

@@ -1,0 +1,3 @@
+i18n keys: 473 (JS 464 + menu 9)
+coverage: POT 484, zh_Hans 484, en 484
+i18n contract: PASS

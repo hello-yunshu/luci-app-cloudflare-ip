@@ -1,0 +1,47 @@
+{
+  "rill-openwrt-packages": {
+    "default_branch": "main",
+    "main_sha": "a1245c293605740db3bf49f143ba03f545a89922",
+    "main_date": "2026-11-02T18:09:20Z",
+    "open_prs": [
+      {
+        "headRefName": "yunshu/keep-feed-release-independent",
+        "number": 2,
+        "title": "ci(rill): keep feed release independent",
+        "updatedAt": "2026-08-31T12:35:30Z"
+      }
+    ]
+  },
+  "rill-ml": {
+    "default_branch": "main",
+    "main_sha": "9602750202f56ed860fc8815bb91e81083d0ffdb",
+    "main_date": "2026-09-08T05:36:21Z",
+    "open_prs": [
+      {
+        "headRefName": "dependabot/cargo/runtime-dependencies-d6682f781d",
+        "number": 51,
+        "title": "deps(deps): bump the runtime-dependencies group across 1 directory with 6 updates",
+        "updatedAt": "2026-11-02T01:09:51Z"
+      },
+      {
+        "headRefName": "codex/runtime-security-compatibility",
+        "number": 50,
+        "title": "Repair Runtime security dependencies and preserve channel compatibility",
+        "updatedAt": "2026-11-02T09:09:48Z"
+      }
+    ]
+  },
+  "luci-app-performance-manager": {
+    "default_branch": "main",
+    "main_sha": "d5c42e1867d34ea1aa3013485e713504bd9163aa",
+    "main_date": "2026-09-01T07:11:15Z",
+    "open_prs": [
+      {
+        "headRefName": "codex/runtime-owner-qualification",
+        "number": 13,
+        "title": "Protect Runtime package ownership and bind qualified Stable bytes",
+        "updatedAt": "2026-10-16T17:14:53Z"
+      }
+    ]
+  }
+}

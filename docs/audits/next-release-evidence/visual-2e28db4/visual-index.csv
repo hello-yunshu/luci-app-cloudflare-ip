@@ -1,0 +1,79 @@
+sha,theme,viewport,page,state,title,w,h,docScrollWidth,bodyScrollWidth,overflow,textLen,file
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-light,375x900,overview,normal,概览 - OpenWrt,375,900,375,375,False,512,aurora-light/375x900/overview.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-light,375x900,settings,normal,设置 - OpenWrt,375,900,375,375,False,764,aurora-light/375x900/settings.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-light,375x900,sources,normal,Candidate IP Sources - OpenWrt,375,900,375,375,False,1099,aurora-light/375x900/sources.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-light,375x900,intelligence,normal,Intelligence - OpenWrt,375,900,375,375,False,2461,aurora-light/375x900/intelligence.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-light,375x900,openclash,normal,OpenClash - OpenWrt,375,900,375,375,False,464,aurora-light/375x900/openclash.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-light,375x900,passwall,normal,PassWall - OpenWrt,375,900,375,375,False,309,aurora-light/375x900/passwall.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-light,375x900,advanced,normal,高级 - OpenWrt,375,900,375,375,False,758,aurora-light/375x900/advanced.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-light,375x900,logs,normal,日志与记录 - OpenWrt,375,900,375,375,False,339,aurora-light/375x900/logs.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-light,768x900,overview,normal,概览 - OpenWrt,768,900,768,768,False,552,aurora-light/768x900/overview.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-light,768x900,settings,normal,设置 - OpenWrt,768,900,768,768,False,804,aurora-light/768x900/settings.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-light,768x900,sources,normal,Candidate IP Sources - OpenWrt,768,900,768,768,False,1171,aurora-light/768x900/sources.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-light,768x900,intelligence,normal,Intelligence - OpenWrt,768,900,768,768,False,2501,aurora-light/768x900/intelligence.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-light,768x900,openclash,normal,OpenClash - OpenWrt,768,900,768,768,False,504,aurora-light/768x900/openclash.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-light,768x900,passwall,normal,PassWall - OpenWrt,768,900,768,768,False,349,aurora-light/768x900/passwall.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-light,768x900,advanced,normal,高级 - OpenWrt,768,900,768,768,False,798,aurora-light/768x900/advanced.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-light,768x900,logs,normal,日志与记录 - OpenWrt,768,900,768,768,False,379,aurora-light/768x900/logs.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-light,1280x900,overview,normal,概览 - OpenWrt,1280,900,1280,1280,False,552,aurora-light/1280x900/overview.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-light,1280x900,settings,normal,设置 - OpenWrt,1280,900,1280,1280,False,804,aurora-light/1280x900/settings.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-light,1280x900,sources,normal,Candidate IP Sources - OpenWrt,1280,900,1280,1280,False,1188,aurora-light/1280x900/sources.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-light,1280x900,intelligence,normal,Intelligence - OpenWrt,1280,900,1280,1280,False,2501,aurora-light/1280x900/intelligence.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-light,1280x900,openclash,normal,OpenClash - OpenWrt,1280,900,1280,1280,False,504,aurora-light/1280x900/openclash.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-light,1280x900,passwall,normal,PassWall - OpenWrt,1280,900,1280,1280,False,349,aurora-light/1280x900/passwall.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-light,1280x900,advanced,normal,高级 - OpenWrt,1280,900,1280,1280,False,798,aurora-light/1280x900/advanced.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-light,1280x900,logs,normal,日志与记录 - OpenWrt,1280,900,1280,1280,False,379,aurora-light/1280x900/logs.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-light,320x900,overview,boundary-320,概览 - OpenWrt,320,900,320,320,False,512,aurora-light/320x900/overview.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-light,1280x900-200pct-effective-640,sources,boundary-200pct-effective-640,Candidate IP Sources - OpenWrt,640,900,640,640,False,1139,aurora-light/1280x900-200pct-effective-640/sources.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,bootstrap,375x900,overview,normal,OpenWrt - LuCI,375,900,375,375,False,414,bootstrap/375x900/overview.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,bootstrap,375x900,settings,normal,OpenWrt - LuCI,375,900,375,375,False,782,bootstrap/375x900/settings.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,bootstrap,375x900,sources,normal,OpenWrt - LuCI,375,900,375,375,False,1035,bootstrap/375x900/sources.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,bootstrap,375x900,intelligence,normal,OpenWrt - LuCI,375,900,375,375,False,2364,bootstrap/375x900/intelligence.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,bootstrap,375x900,openclash,normal,OpenWrt - LuCI,375,900,375,375,False,367,bootstrap/375x900/openclash.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,bootstrap,375x900,passwall,normal,OpenWrt - LuCI,375,900,375,375,False,212,bootstrap/375x900/passwall.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,bootstrap,375x900,advanced,normal,OpenWrt - LuCI,375,900,375,375,False,661,bootstrap/375x900/advanced.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,bootstrap,375x900,logs,normal,OpenWrt - LuCI,375,900,375,375,False,241,bootstrap/375x900/logs.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,bootstrap,768x900,overview,normal,OpenWrt - LuCI,768,900,768,768,False,454,bootstrap/768x900/overview.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,bootstrap,768x900,settings,normal,OpenWrt - LuCI,768,900,768,768,False,822,bootstrap/768x900/settings.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,bootstrap,768x900,sources,normal,OpenWrt - LuCI,768,900,768,768,False,1075,bootstrap/768x900/sources.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,bootstrap,768x900,intelligence,normal,OpenWrt - LuCI,768,900,768,768,False,2404,bootstrap/768x900/intelligence.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,bootstrap,768x900,openclash,normal,OpenWrt - LuCI,768,900,768,768,False,407,bootstrap/768x900/openclash.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,bootstrap,768x900,passwall,normal,OpenWrt - LuCI,768,900,768,768,False,252,bootstrap/768x900/passwall.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,bootstrap,768x900,advanced,normal,OpenWrt - LuCI,768,900,768,768,False,701,bootstrap/768x900/advanced.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,bootstrap,768x900,logs,normal,OpenWrt - LuCI,768,900,768,768,False,405,bootstrap/768x900/logs.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,bootstrap,1280x900,overview,normal,OpenWrt - LuCI,1280,900,1280,1280,False,454,bootstrap/1280x900/overview.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,bootstrap,1280x900,settings,normal,OpenWrt - LuCI,1280,900,1280,1280,False,822,bootstrap/1280x900/settings.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,bootstrap,1280x900,sources,normal,OpenWrt - LuCI,1280,900,1280,1280,False,1092,bootstrap/1280x900/sources.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,bootstrap,1280x900,intelligence,normal,OpenWrt - LuCI,1280,900,1280,1280,False,2404,bootstrap/1280x900/intelligence.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,bootstrap,1280x900,openclash,normal,OpenWrt - LuCI,1280,900,1280,1280,False,407,bootstrap/1280x900/openclash.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,bootstrap,1280x900,passwall,normal,OpenWrt - LuCI,1280,900,1280,1280,False,252,bootstrap/1280x900/passwall.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,bootstrap,1280x900,advanced,normal,OpenWrt - LuCI,1280,900,1280,1280,False,701,bootstrap/1280x900/advanced.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,bootstrap,1280x900,logs,normal,OpenWrt - LuCI,1280,900,1280,1280,False,281,bootstrap/1280x900/logs.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,bootstrap,320x900,overview,boundary-320,OpenWrt - LuCI,320,900,320,320,False,414,bootstrap/320x900/overview.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,bootstrap,1280x900-200pct-effective-640,sources,boundary-200pct-effective-640,OpenWrt - LuCI,640,900,640,640,False,1075,bootstrap/1280x900-200pct-effective-640/sources.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-dark,375x900,overview,normal,概览 - OpenWrt,375,900,375,375,False,512,aurora-dark/375x900/overview.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-dark,375x900,settings,normal,设置 - OpenWrt,375,900,375,375,False,764,aurora-dark/375x900/settings.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-dark,375x900,sources,normal,Candidate IP Sources - OpenWrt,375,900,375,375,False,1099,aurora-dark/375x900/sources.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-dark,375x900,intelligence,normal,Intelligence - OpenWrt,375,900,375,375,False,2461,aurora-dark/375x900/intelligence.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-dark,375x900,openclash,normal,OpenClash - OpenWrt,375,900,375,375,False,464,aurora-dark/375x900/openclash.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-dark,375x900,passwall,normal,PassWall - OpenWrt,375,900,375,375,False,309,aurora-dark/375x900/passwall.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-dark,375x900,advanced,normal,高级 - OpenWrt,375,900,375,375,False,758,aurora-dark/375x900/advanced.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-dark,375x900,logs,normal,日志与记录 - OpenWrt,375,900,375,375,False,339,aurora-dark/375x900/logs.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-dark,768x900,overview,normal,概览 - OpenWrt,768,900,768,768,False,552,aurora-dark/768x900/overview.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-dark,768x900,settings,normal,设置 - OpenWrt,768,900,768,768,False,804,aurora-dark/768x900/settings.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-dark,768x900,sources,normal,Candidate IP Sources - OpenWrt,768,900,768,768,False,1171,aurora-dark/768x900/sources.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-dark,768x900,intelligence,normal,Intelligence - OpenWrt,768,900,768,768,False,2520,aurora-dark/768x900/intelligence.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-dark,768x900,openclash,normal,OpenClash - OpenWrt,768,900,768,768,False,504,aurora-dark/768x900/openclash.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-dark,768x900,passwall,normal,PassWall - OpenWrt,768,900,768,768,False,349,aurora-dark/768x900/passwall.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-dark,768x900,advanced,normal,高级 - OpenWrt,768,900,768,768,False,798,aurora-dark/768x900/advanced.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-dark,768x900,logs,normal,日志与记录 - OpenWrt,768,900,768,768,False,379,aurora-dark/768x900/logs.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-dark,1280x900,overview,normal,概览 - OpenWrt,1280,900,1280,1280,False,552,aurora-dark/1280x900/overview.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-dark,1280x900,settings,normal,设置 - OpenWrt,1280,900,1280,1280,False,804,aurora-dark/1280x900/settings.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-dark,1280x900,sources,normal,Candidate IP Sources - OpenWrt,1280,900,1280,1280,False,1188,aurora-dark/1280x900/sources.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-dark,1280x900,intelligence,normal,Intelligence - OpenWrt,1280,900,1280,1280,False,2501,aurora-dark/1280x900/intelligence.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-dark,1280x900,openclash,normal,OpenClash - OpenWrt,1280,900,1280,1280,False,504,aurora-dark/1280x900/openclash.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-dark,1280x900,passwall,normal,PassWall - OpenWrt,1280,900,1280,1280,False,349,aurora-dark/1280x900/passwall.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-dark,1280x900,advanced,normal,高级 - OpenWrt,1280,900,1280,1280,False,798,aurora-dark/1280x900/advanced.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-dark,1280x900,logs,normal,日志与记录 - OpenWrt,1280,900,1280,1280,False,379,aurora-dark/1280x900/logs.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-dark,320x900,overview,boundary-320,概览 - OpenWrt,320,900,320,320,False,512,aurora-dark/320x900/overview.png
+2e28db4b5cdc221897bbe98ff78fbe7235098e53,aurora-dark,1280x900-200pct-effective-640,sources,boundary-200pct-effective-640,Candidate IP Sources - OpenWrt,640,900,640,640,False,1139,aurora-dark/1280x900-200pct-effective-640/sources.png

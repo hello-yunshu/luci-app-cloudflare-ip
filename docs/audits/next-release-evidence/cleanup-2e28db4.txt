@@ -1,0 +1,19 @@
+Audit cleanup — 2e28db4
+Removed containers:
+- cfip-audit-luci
+Removed images:
+- cfip-audit-luci-img:local
+- cfip-audit-luci-img2:local
+- cfip-audit-luci-img3:local
+- openwrt/rootfs:x86_64-24.10.8
+Removed temp paths:
+- /tmp/repro.js, /tmp/capture_visual.sh
+- /tmp/aurora.ipk, /tmp/aurora-extract, /tmp/cfip-r6.ipk, /tmp/cfip-extract
+- /tmp/owpkgs, /tmp/base-packages.*, /tmp/pkg-packages.*, /tmp/luci-packages.*
+- /tmp/aurora-375-test.png, /tmp/test-bootstrap.png, /tmp/dark375*.png
+- /tmp/interaction-*.png
+No temporary git branch was created.
+Retained:
+- docs/audits/next-release-evidence/** (screenshots, harness, JSON/TSV)
+- existing /Users/yunshu/Documents/GitHub/r6-container-evidence-20261103 (prior goal)
+No product code changed; no tag/Release created; no push performed.

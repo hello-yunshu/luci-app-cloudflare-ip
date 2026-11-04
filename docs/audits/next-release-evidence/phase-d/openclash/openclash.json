@@ -1,0 +1,23 @@
+{
+  "base": "http://127.0.0.1:18080",
+  "container": "cfip-ui-gate",
+  "rows": [
+    {
+      "path": "delete-success",
+      "notification": "Backup deleted",
+      "fileAfter": "missing"
+    },
+    {
+      "path": "delete-failure",
+      "notification": "Unable to delete backup: failed to delete backupDismiss",
+      "noReload": true,
+      "fileAfter": "present"
+    },
+    {
+      "path": "restore-failure",
+      "notification": "Unable to restore backup: OpenClash candidate or backup is not a supported YAML document; nothing was publishedDismiss",
+      "noReload": true,
+      "configUnchanged": true
+    }
+  ]
+}
