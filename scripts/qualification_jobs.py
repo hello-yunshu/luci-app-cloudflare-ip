@@ -7,7 +7,7 @@ REQUIRED_JOBS = (
     'package-identity', 'host-contract', 'legacy-contract', 'rpc-luci-contract',
     'openwrt-package', 'package-migration', 'rill-runtime-integration',
     'package-release-guard', 'workflow-lint', 'real-cfst-smoke',
-    'release-asset-contract', 'docker-replay', 'rootfs-contract',
+    'release-asset-contract', 'docker-replay', 'rootfs-contract', 'i18n-contract',
 )
 
 
