@@ -1,0 +1,4 @@
+FAIL: missing from POT: Show advanced diagnostics
+FAIL: missing/empty zh_Hans: Show advanced diagnostics
+i18n keys: 473 (JS 464 + menu 9)
+coverage: POT 484, zh_Hans 484, en 484

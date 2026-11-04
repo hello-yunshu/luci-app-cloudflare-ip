@@ -1,0 +1,9 @@
+{
+  "scenario": "logs-clear-modal",
+  "modalText": "清除日志\n\n清除日志文件？\n\n取消\n清除",
+  "cancelHidden": true,
+  "logText": "日志已清除。",
+  "pageErrors": [
+    "\"%s/%s.js%s\".format is not a function"
+  ]
+}
