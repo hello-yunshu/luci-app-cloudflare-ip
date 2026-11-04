@@ -1,0 +1,63 @@
+c3c1e4cdc136
+Status
+Overview
+Routing
+Firewall
+System Log
+Processes
+Realtime Graphs
+System
+System
+Administration
+Software
+Startup
+Scheduled Tasks
+Backup / Flash Firmware
+Reboot
+Services
+Cloudflare IP Optimization
+Network
+Interfaces
+Routing
+DHCP and DNS
+Diagnostics
+Firewall
+Log out
+Overview
+Settings
+Candidate IP Sources
+Intelligence
+Advanced
+Logs & Records
+Logs & Records
+Rill Diagnostics
+
+This snapshot explains fallback, qualification, delayed feedback, Prefix and Colo intelligence without exposing the internal model.
+
+Open Intelligence
+
+Diagnostics unavailable. Refresh the page or check the service status, then try again.
+
+Technical details
+cf-ip-auto returned no valid result
+Recent Logs
+↻ Refresh
+✖ Clear Logs
+
+✘ Last error: controlled raw backend failure
+
+IP History (latest 10)
+↻ Refresh
+#	IP ADDRESS
+No IP history available
+云云舒
+ · 
+Cloudflare IP Optimization
+ · 
+v2.6.0-r8
+Project
+ · 
+GitHub
+ · 
+@云云舒
+Powered by LuCI openwrt-24.10 branch (26.301.70438~aa4865e) / OpenWrt 24.10.8 (r29233-443ec4032a)

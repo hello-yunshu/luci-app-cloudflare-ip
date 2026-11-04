@@ -69,12 +69,21 @@ node docs/audits/next-release-evidence/repro-2e28db4/repro-risks.cjs \
 | `ui-refinement-7c13b1d/baseline-compare/` | v1.8.3-1（`77a65a8`）与 2.x 同环境对照截图与 `report.md` |
 | `ui-refinement-7c13b1d/token-footer/` | token/footer 修复前后截图与 computed radius/shadow |
 
-结论：CI run 41703798493 success，Real LuCI UI Gate 41703798508 success；43/43 检查 PASS（41 交互 + 2 只读）；78/78 截图无横向溢出；200% 键盘 16/16 PASS；逐控件 Tab 焦点 312/312；WCAG 扫描 41 项不达标，均为 LuCI/Aurora 原生按钮/标签色，已在报告中说明不覆盖主题的原因。物理设备与 24h soak 仍 `NOT RUN`。
+结论：CI run 41703798493 success，Real LuCI UI Gate 41703798508 success；43/43 检查 PASS（41 交互 + 2 只读）；78/78 截图无横向溢出；200% 键盘 16/16 PASS；逐控件 Tab 焦点 312/312；WCAG 扫描 41 项不达标，均为 LuCI/Aurora 原生按钮/标签色，已在报告中说明不覆盖主题的原因。物理设备与 24h soak 当时 `NOT RUN`（后按用户裁定改为 `PASS-BY-USER-DECISION`）。
+
+## Phase E（`1ec2a6d`）
+
+| 路径 | 内容 |
+|---|---|
+| `phase-e/before/`、`after/` | Advanced、Diagnostics、Sources、Intelligence 四组真实 LuCI BEFORE/AFTER 截图与 DOM 文本读数；四组 PNG sha256 均不同 |
+| `phase-e/package/` | r8 IPK control、IPK/APK metadata（含 sha256/size，确认 `Depends` 无 uhttpd） |
+
+结论：6 条发布前必须做全部闭合；本地门禁与 exact-SHA CI `41841999414` / `41841991191` / `41841999512` 全绿；详见 `docs/audits/next-release-phase-e-report.md`。
 
 ## 边界
 
-- 真实物理设备、硬件矩阵、24h soak：**NOT RUN**。
-- 真实 OpenClash/PassWall 控制器、真实代理网络：**NOT RUN**；页面使用 init stub 暴露路由。
+- 真实物理设备、硬件矩阵、24h soak：按用户 2026-11-04 裁定 **PASS-BY-USER-DECISION**，未补造新记录。
+- 真实 OpenClash：phase D 已使用真实 mihomo 1.19.33 + uhttpd 控制器，并在 aarch64 上完成真实备份恢复；PassWall 真实代理网络仍 **NOT RUN**。
 - 本轮已跑 WCAG AA 三主题全页扫描、键盘 200% 与逐控件焦点；真实触控设备、物理硬件矩阵仍 **NOT RUN**。
 - 200% 缩放为 640 CSS px 有效宽度近似，不是精确浏览器 zoom。
 - 审计容器与 fixture 不属于产品代码；审计完成后清理容器/镜像，保留本目录证据。

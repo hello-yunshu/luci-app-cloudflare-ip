@@ -1,0 +1,111 @@
+59e2d967e017
+Status
+Overview
+Routing
+Firewall
+System Log
+Processes
+Realtime Graphs
+System
+System
+Administration
+Software
+Startup
+Scheduled Tasks
+Backup / Flash Firmware
+Reboot
+Services
+Cloudflare IP Optimization
+Network
+Interfaces
+Routing
+DHCP and DNS
+Diagnostics
+Firewall
+Log out
+Overview
+Settings
+Candidate IP Sources
+Intelligence
+Advanced
+Logs & Records
+Candidate Sources
+Candidate Budget
+CFST Candidate IP Count
+Maximum unique IPs supplied to one CFST run. Allocation is automatic: a small local-history share, a majority community share, and the remainder official-range exploration; unused quota flows to the other pools.
+Built-in Sources
+Cloudflare Official IPv4
+Cloudflare Official IPv6
+▾
+Official sources are authoritative ranges. Community sources are untrusted seed IPs and are always re-tested locally.
+Custom Sources
+Custom sources accept HTTPS text lists containing IP, IP:port, IPv6, bracketed IPv6:port, or CIDR. Only the IP/CIDR is retained; domains are rejected.
+Enabled	Name	Kind	URL	Manual IP / CIDR	Family	
+
+This section contains no values yet
+Add
+LAN Result Publisher
+Optional compatibility output for other LAN tools. PassWall/OpenClash still use direct modification and do not need this.
+Enable LAN Publisher
+Bind IPv4
+Leave empty to use the current LAN IPv4 automatically. Public or 0.0.0.0 bindings are refused.
+HTTP Port
+Published Paths
+/ip.txt · /best-ipv4.txt · /best-ipv6.txt · /result.json
+Runtime Source Status
+
+Each run allocates roughly 1/8 to fresh history champions, 5/8 to community seeds, and 1/4 to Cloudflare official range exploration. Missing pools flow to other sources. All candidates are deduplicated and measured locally in one CFST run; community ports are never reused.
+
+Source
+State
+Candidates
+Last Error
+Cloudflare Official IPv4
+Fresh
+42
+—
+Cloudflare Official IPv6
+Not fetched
+0
+—
+LancelotRar best-cf-ips
+Not fetched
+0
+—
+IPDB BestCF IPv4
+Not fetched
+0
+—
+IPDB BestCF IPv6
+Not fetched
+0
+—
+DustinWin BestCF
+Not fetched
+0
+—
+DustinWin BestCF CMCC
+Not fetched
+0
+—
+DustinWin BestCF CUCC
+Not fetched
+0
+—
+DustinWin BestCF CTCC
+Not fetched
+0
+—
+svip-s measured seed IPs
+Not fetched
+0
+—
+custom-known
+Error
+0
+Download failed
+custom-raw
+Error
+0
+Source error
+Techni
