@@ -1,0 +1,13 @@
+Timestamp: 2026-11-05 (Asia/Shanghai)
+Container: cfip-ui-phasef (OpenWrt 24.10.8 x86_64, /sbin/init, procd/uhttpd/uci/jq/curl present)
+Command: cd /tmp/repo-snapshot && CFIP_PROCD_TRACE_LOG=/tmp/procd-trace bash tests/publisher-procd-rebind.sh
+Exit code: 1
+Output:
+  FAIL listener not reachable at 127.0.0.1
+Trace: procd `service set` payload was submitted, but the fixture service was
+not registered/started; `ubus call service list {"name":"cfip-lan-fixture-..."}`
+returned an empty object after cleanup. The fixture depends on a procd trigger
+rewrite that did not produce a running instance in this container.
+Conclusion: the test needs fixture rework (real procd service registration and
+trigger payload) before it can be wired into CI. Not excluded for lack of a
+container: a real live-init container was used and the test still failed.

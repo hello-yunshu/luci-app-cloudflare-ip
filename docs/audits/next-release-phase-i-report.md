@@ -1,0 +1,71 @@
+# Phase I - cleanup, stable gate preparation and post-release validation
+
+Result: **PASS（5 条遗留已处置；Stable Gate 材料已准备但未执行；v2.6.0-8 发布后安装/升级验证 PASS）。** 未改 `release-channel.json`、未移动/删除 tag、未打新 tag、未建新 Release。
+
+## 1. 遗留 5 条
+
+### 1.1 跨仓 sync-rill 真实演练
+
+- 真实执行：临时克隆 `main`，仅给 `contracts/rill-runtime.json` 加一个尾随空行（JSON 语义不变），运行 `rill-openwrt-packages/scripts/open_sync_pr.py`。
+- 结果：分支 `automation/rill-qualified-drill-6c05f995648e7cabcd71` 推送成功；PR **#26** 创建成功；CI 自动触发；head `9e9526120baf1f1066ab67aab23b25e9d7855717`。
+- 运行：push CI `41929387139`、PR CI `41929395955`、`workflow_dispatch` CI `41929533620`；均只有 `evidence-manifest` job 失败，其余 job success。
+- 失败原因：`Stable review rejected: candidate tag is already occupied by different content`。`prepare-stable-review.py` 按设计拒绝改动 contract 的候选，因为 `v2.6.0-8` tag 已存在且不可变。
+- 处置：PR #26 已关闭并说明，分支已删除；main/pin/tag/Release 均未变。
+- 结论：**PASS-BY-REAL-PATH**——推分支、`gh pr create`、CI 自动触发、显式 dispatch 均验证通过；演练候选被不可变 tag guard 正确拒绝。没有产生绿色 CI 的 contract-change 候选，因为现有 tag 不可变；未来真实同步需新版本/tag。
+- 证据：`phase-i/sync-rill-drill.md`（本报告 §1.1 的 run/PR 记录）。
+
+### 1.2 Build and Release stable guard
+
+- 确认 `41904752070` 的失败是设计行为：`changes` success，`check-qualification` failure（`stable channel requires an explicit Stable Gate; automatic promotion is disabled`），`collect`/`release` skipped；未创建 tag/Release。
+- 在 `.github/workflows/release.yml` 的 guard 前增加注释；新增 [RELEASE_CHANNEL_GUARD.md](../RELEASE_CHANNEL_GUARD.md) 说明“预期红”与真实故障的区分。
+- 未绕过、未删除、未注释掉 guard。
+
+### 1.3 线上 Release notes 与仓库草稿
+
+- 发布时首次使用的草稿头/重复块已在发布后清理；线上正文已替换为干净的最终版本。
+- 仓库 [next-release-release-notes-v2.6.0-8.md](next-release-release-notes-v2.6.0-8.md) 已同步为线上正文，并标注“已发布（2026-11-04）”。
+- 差异原因已记录：首次发布误用草稿全文，随后仅编辑 Release body，tag 与资产未变。
+
+### 1.4 publisher 测试是否纳入 CI
+
+- 在真实 `cfip-ui-phasef` 容器（OpenWrt 24.10.8 x86_64，`/sbin/init`，procd/uhttpd/uci/jq/curl 可用）中执行：
+  - `tests/publisher-uhttpd-readback.sh` → **exit 5**，`publisher_generation_readback_failed`；fixture 启动的 uhttpd 在脚本退出后未存活。
+  - `tests/publisher-procd-rebind.sh` → **exit 1**，`FAIL listener not reachable at 127.0.0.1`；procd fixture service 未注册/未启动。
+- 结论：**当前不纳入 CI**。不是缺少容器，而是两个 fixture 需要重写（用 procd/受管进程持有 uhttpd，修正 procd service/trigger payload）。`tests/ci-test-inventory.py` 的排除理由已更新为“已在 live 容器尝试并失败”，并附日志到 `next-release-evidence/phase-i/`。
+- 未修改测试或产品代码来“迁就” CI；待后续单独修复 fixture。
+
+### 1.5 历史大归档
+
+- 主仓库 `docs/audits/next-release-evidence/` 现有 **35 MB**，包含 phase-d/e/f、矩阵、缩放/中文、visual-2e28db4 基线；足以自证 r8 审计。
+- 四个历史归档保留在 linked worktree：`ui-refinement-7c13b1d/` 28 MB、`ui-skill-audit/` 21 MB、`visual-phase-b/` 5.6 MB、`visual-phase-c/` 6.0 MB。它们不是 r8 发布证据，**不归位主仓库**。
+- 访问方式：`git worktree list` → `/Users/yunshu/Documents/GitHub/cfip-docs-evidence`，分支 `phase-b/next-release-fixes`；该分支未推远端，干净克隆不可得。已在 INDEX 记录。
+
+## 2. 下一阶段：Stable Gate
+
+- 新增 [STABLE_GATE.md](../STABLE_GATE.md)：门槛、角色、评审流程、当前 blocker。
+- 结论：**NOT READY**，不执行 Stable 晋级。当前 blocker：
+  - 物理设备/硬件矩阵 NOT RUN（pre-release 的 PASS-BY-USER-DECISION 不等于 Stable 证据）；
+  - 24h soak NOT RUN；
+  - PassWall 真实代理网络 NOT RUN；
+  - arm64 仅安装/页面，超出 x86 的架构未覆盖；
+  - 完整触控矩阵 partial；
+  - full-workspace 非 shipped zstd 公告仍待用户裁决；
+  - channel 变更未授权；guard 不得绕过。
+- 评审流程：evidence freeze → exact-SHA Gate → device review → security review → user decision → channel change (separate authorization) → stable release from approved main SHA → post-release validation。
+
+## 3. 发布后验证（v2.6.0-8 资产）
+
+详见 [post-release validation](next-release-post-release-validation-v2.6.0-8.md)。
+
+- IPK（24.10.8 x86_64，镜像 `9972a4b4…`）：opkg update/install rc 0；版本 2.6.0-r8；依赖解析；`cf-ip-auto --status` rc 0。
+- IPK 升级 r6→r8：rc 0；`/etc/config/cf_ip` SHA256 不变（`fc5ee4c8…`），自定义值全部保留；新默认写入 `cf_ip-opkg`。
+- APK（25.12.5 x86_64，镜像 `c5d5f05b…`）：apk update/add rc 0；版本 2.6.0-r8；依赖解析；status rc 0；post-install 备份生成。
+- APK 升级 r6→r8：rc 0；自定义 UCI 值全部保留；`cf_ip` 文件哈希变化是因为 apk 合并默认值并写 `cf_ip.apk-new`，不是配置重置。
+- 边界：容器不是物理设备；`/cgi-bin/luci/` 403（无完整 LuCI CGI session），未宣称浏览器页面验证。
+
+## 4. 未做之事
+
+- 未改 `release-channel.json`；未移动/删除 `v2.6.0-8` tag；未打新 tag；未建 Release。
+- 未合并 PR #26（已关闭）；未改 Runtime pin；未开真实跨仓 PR。
+- 未执行 Stable 晋级。
+- 物理设备、24h soak、PassWall 真实代理网络、完整触控矩阵仍未覆盖。

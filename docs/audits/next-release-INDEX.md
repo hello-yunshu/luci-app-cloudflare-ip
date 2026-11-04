@@ -15,8 +15,12 @@
 | [next-release-i18n-report.md](next-release-i18n-report.md) | 阶段 A i18n 缺口；当前 516/552 门禁结果在文首 |
 | [next-release-phase-f-report.md](next-release-phase-f-report.md) | 阶段 F：七态矩阵、docs 归位、真实缩放、zh 渲染、门禁漂移 |
 | [next-release-phase-g-report.md](next-release-phase-g-report.md) | 阶段 G：发布收口准备与待授权清单 |
-| [next-release-release-notes-v2.6.0-8.md](next-release-release-notes-v2.6.0-8.md) | v2.6.0-8 Release notes 草稿 |
-| [next-release-sync-rill-adjudication.md](next-release-sync-rill-adjudication.md) | 跨仓 sync-rill 本地等价 vs 真实 PR 裁决材料 |
+| [next-release-phase-i-report.md](next-release-phase-i-report.md) | 阶段 I：遗留清理、sync-rill 真实演练、Stable Gate 准备、发布后验证 |
+| [next-release-post-release-validation-v2.6.0-8.md](next-release-post-release-validation-v2.6.0-8.md) | v2.6.0-8 发布后 IPK/APK 真实安装与升级验证 |
+| [next-release-release-notes-v2.6.0-8.md](next-release-release-notes-v2.6.0-8.md) | v2.6.0-8 线上 Release 正文（已同步） |
+| [next-release-sync-rill-adjudication.md](next-release-sync-rill-adjudication.md) | 跨仓 sync-rill 本地等价 vs 真实 PR 裁决材料（含真实演练结果） |
+| [../STABLE_GATE.md](../STABLE_GATE.md) | Stable Gate 门槛、角色与评审流程 |
+| [../RELEASE_CHANNEL_GUARD.md](../RELEASE_CHANNEL_GUARD.md) | stable guard 预期失败的解释与排查边界 |
 | [next-release-phase-e-report.md](next-release-phase-e-report.md) | 阶段 E：发布前 6 条 |
 | [next-release-phase-b-report.md](next-release-phase-b-report.md) … [next-release-phase-d-report.md](next-release-phase-d-report.md) | 阶段 B–D 执行报告 |
 | [../plans/next-release-remediation-plan.md](../plans/next-release-remediation-plan.md) | 阶段 A 修复计划与 GO/NO-GO 条件 |
@@ -30,6 +34,7 @@
 | `next-release-evidence/phase-f/zoom-zh/` | 真实 Chrome 125/150/200% 页面缩放、320 reflow、zh_cn 375/1280 截图与 `zoom-zh.json` |
 | `next-release-evidence/phase-f/gate-inventory.tsv` | 254 个本地测试 → CI job / 排除理由逐行清单 |
 | `next-release-evidence/phase-f/verify.json` | 证据校验结果与退出码 |
+| `next-release-evidence/phase-i/` | publisher 测试在 live 24.10.8 容器的失败证据（uhttpd exit 5、procd exit 1） |
 | `next-release-evidence/phase-e/` | raw error、动态状态码、Advanced 只读的 BEFORE/AFTER |
 | `next-release-evidence/phase-d/` | 真实 OpenClash 控制器与恢复、测速弹窗、Intelligence |
 | `next-release-evidence/visual-2e28db4/` | 阶段 A 78 张真实 LuCI 基线截图 |
@@ -38,8 +43,10 @@
 ## 存放决定
 
 - **放在主仓库的 `docs/` 树内**，不另建独立 docs 仓库。理由：审计结论必须与代码 SHA、CI run、包哈希同仓绑定；评审时一次干净检出即可复核；docs 变更与代码变更走同一条 CI/PR 门禁。
-- `cfip-docs-evidence` 是本仓库的 linked worktree（同一 `.git`，分支 `phase-b/next-release-fixes`），不是独立远端仓库。阶段 A–E 的大部分证据已随本 PR 复制回主仓库；仅三个体量较大的历史视觉归档保留在 worktree：`ui-refinement-7c13b1d/`（28 MB）、`ui-skill-audit/`（21 MB）、`visual-phase-b/` 与 `visual-phase-c/`（11.6 MB）。它们不是当前候选证据，当前候选的缩放/中文/矩阵证据全部在主仓库。
-- 当前 PR #25 携带 7 份 docs、phase-f 全量证据、phase-d/e 关键证据与基线截图；README 与 `docs/audits/next-release-INDEX.md` 提供可点击入口。
+- `cfip-docs-evidence` 是本仓库的 linked worktree（同一 `.git`，分支 `phase-b/next-release-fixes`），不是独立远端仓库。阶段 A–E 的大部分证据已复制回主仓库；仅四个体量较大的历史视觉归档保留在 worktree：`ui-refinement-7c13b1d/`（28 MB）、`ui-skill-audit/`（21 MB）、`visual-phase-b/`（5.6 MB）、`visual-phase-c/`（6.0 MB）。
+- 主仓库 `docs/audits/next-release-evidence/` 现有 **35 MB**，包含当前候选的 phase-d/e/f、matrix、zoom/zh、visual-2e28db4 基线；足以自证 r8 审计。上述四个归档是阶段 B/C/refinement 的历史过程材料，不是 r8 发布证据，因此不归位主仓库。
+- 访问方式（仅本机）：`git -C /Users/yunshu/Documents/GitHub/luci-app-cloudflare-ip worktree list` 可看到 `/Users/yunshu/Documents/GitHub/cfip-docs-evidence`（分支 `phase-b/next-release-fixes`）；直接在该目录查看。该分支未推送到远端，干净克隆无法获得这四个归档。
+- 当前 PR 分支（phase I）携带阶段 I 报告、发布后验证、Stable Gate、guard 文档与上述 phase-i 失败证据。
 
 ## 门禁
 
