@@ -59,13 +59,18 @@ class ReviewBoundary(unittest.TestCase):
             with self.subTest(change=change), self.assertRaises(ValueError):
                 self.check_case(change)
 
-    def test_tree_mismatch_and_occupied_tag_reject(self):
+    def test_tree_mismatch_rejects(self):
         with self.assertRaises(ValueError):
             self.check_case(trees=['c' * 40, 'd' * 40])
+
+    def test_occupied_tag_with_different_tree_is_recorded(self):
         tag = [{'ref': 'refs/tags/' + review.source()['tag'],
                 'object': {'type': 'commit', 'sha': 'e' * 40}}]
-        with self.assertRaises(ValueError):
-            self.check_case(refs=tag, tag_tree='d' * 40)
+        result = self.check_case(refs=tag, tag_tree='d' * 40)
+        self.assertEqual(result['tagState'], 'occupied-different')
+        self.assertEqual(result['tagAvailable'], False)
+        self.assertEqual(result['tagConflict'], True)
+        self.assertEqual(result['tagCommit'], 'e' * 40)
 
 
 if __name__ == '__main__':

@@ -66,9 +66,15 @@ def prepare(manifest_path, preflight_path, negatives_path, candidate, repository
             raise ValueError('candidate tag state could not be checked')
         commit = json.loads(subprocess.check_output(['gh', 'api', f'repos/{repository}/git/commits/{sha}'], text=True))
         tag_tree = commit.get('tree', {}).get('sha') if isinstance(commit, dict) else None
+        # A post-release docs commit necessarily differs from the tagged tree.
+        # Record the conflict instead of failing the whole CI run: this receipt
+        # is only PREPARED_FOR_REVIEW, and the release workflow has its own
+        # pre-upload immutable-tag guard. A different tree under the same tag
+        # can never be published; tagAvailable stays false.
         if tag_tree != candidate_tree:
-            raise ValueError('candidate tag is already occupied by different content')
-        tag_state = 'existing-equivalent'
+            tag_state = 'occupied-different'
+        else:
+            tag_state = 'existing-equivalent'
         tag_commit = sha
     policy_path = ROOT / 'docs/audits/g6-g7-evidence/device-policy-20261024.json'
     policy = json.loads(policy_path.read_bytes())
@@ -79,7 +85,7 @@ def prepare(manifest_path, preflight_path, negatives_path, candidate, repository
         candidateCommit=candidate, testedCommit=tested, tree=candidate_tree,
         runId=manifest['runId'], runAttempt=manifest['runAttempt'],
         qualificationManifestSha256=digest, identity=identity, tagAvailable=(tag_state == 'available'),
-        tagState=tag_state, tagCommit=tag_commit,
+        tagState=tag_state, tagCommit=tag_commit, tagConflict=(tag_state == 'occupied-different'),
         assets=manifest['assetFiles'], runtimeContract=contract,
         devicePolicy=policy, actualDeviceCoverage='See separate candidate deployment receipt; software results do not imply device PASS',
         publication='NOT AUTHORIZED / NOT RUN', automaticStablePromotion='DISABLED',
