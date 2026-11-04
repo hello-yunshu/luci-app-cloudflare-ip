@@ -835,6 +835,35 @@ msgstr ""
 msgid "Config Backups"
 msgstr ""
 
+msgid ""
+"OpenClash is installed, but restoring a backup needs Ruby and the Psych YAML "
+"module."
+msgstr ""
+
+msgid "Ruby is not installed."
+msgstr ""
+
+msgid ""
+"Ruby is installed but cannot run on this device (it exits with a segmentation "
+"fault)."
+msgstr ""
+
+msgid "Ruby is installed, but the Psych YAML module is missing."
+msgstr ""
+
+#, javascript-format
+msgid "Next step: %s"
+msgstr ""
+
+msgid ""
+"Use firmware with a working Ruby/Psych, or restore this backup on another "
+"device."
+msgstr ""
+
+msgid ""
+"Backup creation, download and delete still work; only Restore is disabled."
+msgstr ""
+
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js:94
 msgid ""
 "No backups available. Backups are created automatically when the config is "

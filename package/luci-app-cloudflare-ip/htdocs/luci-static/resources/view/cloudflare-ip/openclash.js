@@ -21,6 +21,26 @@ function formatSize(bytes) {
 	return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
 }
 
+function rubyRemedy(env) {
+	if (env.ruby_psych === true) return null;
+	if (env.ruby_status === 'ruby_missing') {
+		return {
+			reason: _('Ruby is not installed.'),
+			action: (env.package_manager === 'apk' ? 'apk add ruby ruby-psych' : 'opkg install ruby ruby-psych')
+		};
+	}
+	if (!env.ruby_usable) {
+		return {
+			reason: _('Ruby is installed but cannot run on this device (it exits with a segmentation fault).'),
+			action: _('Use firmware with a working Ruby/Psych, or restore this backup on another device.')
+		};
+	}
+	return {
+		reason: _('Ruby is installed, but the Psych YAML module is missing.'),
+		action: (env.package_manager === 'apk' ? 'apk add ruby-psych' : 'opkg install ruby-psych')
+	};
+}
+
 return view.extend({
 	title: _('OpenClash'),
 
@@ -101,6 +121,17 @@ return view.extend({
 		var backupSection = E('div', { 'class': 'cbi-section cfi-section', 'id': 'oc-backups-section' });
 		backupSection.appendChild(E('h3', {}, _('Config Backups')));
 
+		var rubyRemedyInfo = rubyRemedy(env);
+		var restoreBlocked = rubyRemedyInfo !== null;
+		if (restoreBlocked) {
+			backupSection.appendChild(E('div', { 'class': 'alert-message warning', 'id': 'oc-ruby-warning' }, [
+				E('p', {}, _('OpenClash is installed, but restoring a backup needs Ruby and the Psych YAML module.')),
+				E('p', {}, rubyRemedyInfo.reason),
+				E('p', {}, _('Next step: %s').format(rubyRemedyInfo.action)),
+				E('p', {}, _('Backup creation, download and delete still work; only Restore is disabled.'))
+			]));
+		}
+
 		var backupError = backupData._rpcError || backupData.success === false || backupData.error;
 		var backups = (backupData.success === true && backupData.backups) ? backupData.backups : [];
 
@@ -139,6 +170,8 @@ return view.extend({
 
 				actionsCell.appendChild(E('button', {
 					'class': 'cbi-button cbi-button-apply',
+					'disabled': restoreBlocked ? '' : null,
+					'title': restoreBlocked ? rubyRemedyInfo.reason : null,
 					'click': function() {
 						ui.showModal(_('Confirm Restore'), [
 							E('div', { 'class': 'alert-message warning' },

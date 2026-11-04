@@ -1892,6 +1892,31 @@ cmd_run() {
 	json_result "mode" "$MODE" "ip_type" "$IP_TYPE" "ip_count" "$IP_COUNT" "best_ips" "$best_ips_json"
 }
 
+detect_ruby_psych() {
+	CFIP_RUBY_INSTALLED=false
+	CFIP_RUBY_USABLE=false
+	CFIP_RUBY_PSYCH=false
+	CFIP_RUBY_STATUS="ruby_missing"
+	CFIP_RUBY_VERSION=""
+	command -v ruby >/dev/null 2>&1 || return 0
+	CFIP_RUBY_INSTALLED=true
+	# A package can install Ruby but still be unusable on this CPU (for
+	# example a SIGSEGV before the interpreter starts). Distinguish that from
+	# a missing Psych module so the UI can give the right remedy.
+	if ! ruby -v >/dev/null 2>&1; then
+		CFIP_RUBY_STATUS="ruby_unusable"
+		return 0
+	fi
+	CFIP_RUBY_USABLE=true
+	CFIP_RUBY_VERSION="$(ruby -e 'print RUBY_VERSION' 2>/dev/null | tr -cd '0-9A-Za-z._-')" || CFIP_RUBY_VERSION=""
+	if ruby -rpsych -e 'exit 0' >/dev/null 2>&1; then
+		CFIP_RUBY_PSYCH=true
+		CFIP_RUBY_STATUS="available"
+	else
+		CFIP_RUBY_STATUS="psych_missing"
+	fi
+}
+
 cmd_check_env() {
 	JSON_MODE=true
 	# Real-time detection without writing cache (like upnp-bridge-relay's do_check_env)
@@ -1932,8 +1957,8 @@ cmd_check_env() {
 
 	local openclash_installed=false
 	local openclash_running=false
-	[[ -x /etc/init.d/openclash ]] && openclash_installed=true
-	$openclash_installed && /etc/init.d/openclash running >/dev/null 2>&1 && openclash_running=true
+	[[ -x "${INIT_DIR}/openclash" ]] && openclash_installed=true
+	$openclash_installed && "${INIT_DIR}/openclash" running >/dev/null 2>&1 && openclash_running=true
 
 	local cfst_installed=false
 		load_uci_config_if_available 2>/dev/null || true
@@ -1942,8 +1967,13 @@ cmd_check_env() {
 		cfst_installed=true
 	fi
 
-	printf '{"success":true,%s,"missing_deps":%s,"package_manager":"%s","passwall_installed":%s,"passwall_running":%s,"openclash_installed":%s,"openclash_running":%s,"cfst_installed":%s}\n' \
-		"$deps" "$missing_deps" "$package_manager" "$passwall_installed" "$passwall_running" "$openclash_installed" "$openclash_running" "$cfst_installed"
+	detect_ruby_psych
+	local openclash_restore_available=false
+	[[ "$openclash_installed" == true && "$CFIP_RUBY_PSYCH" == true ]] && openclash_restore_available=true
+
+	printf '{"success":true,%s,"missing_deps":%s,"package_manager":"%s","passwall_installed":%s,"passwall_running":%s,"openclash_installed":%s,"openclash_running":%s,"cfst_installed":%s,"ruby_installed":%s,"ruby_usable":%s,"ruby_psych":%s,"ruby_status":"%s","ruby_version":"%s","openclash_restore_available":%s}\n' \
+		"$deps" "$missing_deps" "$package_manager" "$passwall_installed" "$passwall_running" "$openclash_installed" "$openclash_running" "$cfst_installed" \
+		"$CFIP_RUBY_INSTALLED" "$CFIP_RUBY_USABLE" "$CFIP_RUBY_PSYCH" "$CFIP_RUBY_STATUS" "$CFIP_RUBY_VERSION" "$openclash_restore_available"
 }
 
 cmd_refresh_env() {
@@ -1988,8 +2018,8 @@ cmd_refresh_env() {
 
 	local openclash_installed=false
 	local openclash_running=false
-	[[ -x /etc/init.d/openclash ]] && openclash_installed=true
-	$openclash_installed && /etc/init.d/openclash running >/dev/null 2>&1 && openclash_running=true
+	[[ -x "${INIT_DIR}/openclash" ]] && openclash_installed=true
+	$openclash_installed && "${INIT_DIR}/openclash" running >/dev/null 2>&1 && openclash_running=true
 
 	local cfst_installed=false
 	local cfst_ver=""
@@ -2003,9 +2033,14 @@ cmd_refresh_env() {
 	local updated_at
 	updated_at="$(date '+%Y-%m-%d %H:%M:%S' 2>/dev/null || echo '')"
 
+	detect_ruby_psych
+	local openclash_restore_available=false
+	[[ "$openclash_installed" == true && "$CFIP_RUBY_PSYCH" == true ]] && openclash_restore_available=true
+
 	local result
-	printf -v result '{"success":true,%s,"missing_deps":%s,"package_manager":"%s","arch":"%s","passwall_installed":%s,"passwall_running":%s,"openclash_installed":%s,"openclash_running":%s,"cfst_installed":%s,"cfst_version":"%s","updated_at":"%s"}\n' \
-		"$deps" "$missing_deps" "$package_manager" "$arch" "$passwall_installed" "$passwall_running" "$openclash_installed" "$openclash_running" "$cfst_installed" "$cfst_ver" "$updated_at"
+	printf -v result '{"success":true,%s,"missing_deps":%s,"package_manager":"%s","arch":"%s","passwall_installed":%s,"passwall_running":%s,"openclash_installed":%s,"openclash_running":%s,"cfst_installed":%s,"cfst_version":"%s","updated_at":"%s","ruby_installed":%s,"ruby_usable":%s,"ruby_psych":%s,"ruby_status":"%s","ruby_version":"%s","openclash_restore_available":%s}\n' \
+		"$deps" "$missing_deps" "$package_manager" "$arch" "$passwall_installed" "$passwall_running" "$openclash_installed" "$openclash_running" "$cfst_installed" "$cfst_ver" "$updated_at" \
+		"$CFIP_RUBY_INSTALLED" "$CFIP_RUBY_USABLE" "$CFIP_RUBY_PSYCH" "$CFIP_RUBY_STATUS" "$CFIP_RUBY_VERSION" "$openclash_restore_available"
 
 	# Write to cache
 	mkdir -p "$STATUS_DIR"
