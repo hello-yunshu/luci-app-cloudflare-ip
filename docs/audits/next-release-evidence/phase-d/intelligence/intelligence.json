@@ -1,0 +1,45 @@
+{
+  "base": "http://127.0.0.1:18080",
+  "rows": [
+    {
+      "test": "default-collapsed",
+      "toggle": true,
+      "toggleText": "Show advanced diagnostics",
+      "ariaExpanded": "false",
+      "bodyHidden": true,
+      "copyButtons": 5,
+      "logsLinks": 1
+    },
+    {
+      "test": "toggle-enter",
+      "ariaExpanded": "true",
+      "text": "Hide advanced diagnostics",
+      "bodyHidden": false,
+      "persisted": "1"
+    },
+    {
+      "test": "persisted-after-reload",
+      "ariaExpanded": "true",
+      "bodyHidden": false
+    },
+    {
+      "test": "copy-success",
+      "text": "Unavailable",
+      "label": "Copied"
+    },
+    {
+      "test": "clipboard-rejection-fallback",
+      "label": "Copied"
+    },
+    {
+      "test": "copy-fallback-failure",
+      "notification": "Unable to copy: Copy command was rejectedDismiss"
+    },
+    {
+      "test": "recent-runs-to-logs",
+      "logsUrl": "http://127.0.0.1:18080/cgi-bin/luci/admin/services/cf_ip/logs",
+      "backLink": 1,
+      "returnedUrl": "http://127.0.0.1:18080/cgi-bin/luci/admin/services/cf_ip/intelligence"
+    }
+  ]
+}
