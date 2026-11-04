@@ -466,7 +466,7 @@ return view.extend({
 		} else if (lastResult === 'success' || (typeof lastResult === 'string' && lastResult.indexOf('success') === 0)) {
 			lastResultBadge = E('span', { 'class': 'cfi-badge green' }, '\u2714 ' + translateStatus(lastResult));
 		} else if (lastResult === '-' || lastResult === 'unknown') {
-			lastResultBadge = E('span', { 'class': 'cfi-badge gray' }, '\u26A0 ' + '-');
+			lastResultBadge = E('span', { 'class': 'cfi-badge gray' }, _('Not run yet'));
 		} else {
 			lastResultBadge = E('span', { 'class': 'cfi-badge red' }, '\u2718 ' + translateStatus(lastResult));
 		}

@@ -68,7 +68,11 @@ function addCopyButton(field, text) {
 			var self = this;
 			copyText(text).then(function() {
 				self.textContent = _('Copied');
-				window.setTimeout(function() { self.textContent = _('Copy'); }, 1500);
+				self.setAttribute('aria-label', _('Copied'));
+				window.setTimeout(function() {
+					self.textContent = _('Copy');
+					self.setAttribute('aria-label', _('Copy'));
+				}, 1500);
 			}).catch(function(error) {
 				ui.addNotification(null, E('p', {}, _('Unable to copy: %s').format(error.message || error)), 'error');
 			});

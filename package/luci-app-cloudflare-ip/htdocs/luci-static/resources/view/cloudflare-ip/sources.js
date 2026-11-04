@@ -36,7 +36,7 @@ return view.extend({
     o=s.option(form.MultiValue,'builtin_sources',_('Built-in Sources'),_('Official sources are authoritative ranges. Community sources are untrusted seed IPs and are always re-tested locally.'));
     reg.forEach(function(x){
       var group=x.group==='official'?_('Official'):x.group==='carrier'?_('Carrier-specific'):x.group==='measured'?_('Measured Seeds'):_('Recommended Community');
-      o.value(x.id,group+' · '+x.name);
+      o.value(x.id, x.group==='official' ? x.name : group+' · '+x.name);
     });
     o.rmempty=false;
 

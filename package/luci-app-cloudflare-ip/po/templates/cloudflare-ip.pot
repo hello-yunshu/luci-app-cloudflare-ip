@@ -857,12 +857,6 @@ msgstr ""
 msgid "Confirm Restore"
 msgstr ""
 
-#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js:120
-msgid ""
-"Are you sure you want to restore this backup? A backup of the current "
-"configuration will be created first."
-msgstr ""
-
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js:122
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js:153
 msgid "Cancel"
@@ -893,10 +887,6 @@ msgstr ""
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js:150
 msgid "Confirm Delete"
-msgstr ""
-
-#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js:151
-msgid "Are you sure you want to delete this backup?"
 msgstr ""
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js:160
@@ -1848,10 +1838,6 @@ msgstr ""
 msgid "Unable to check OpenClash environment"
 msgstr ""
 
-#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js
-msgid "Unable to load OpenClash backups: %s"
-msgstr ""
-
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/sources.js
 msgid "Unable to load source registry"
 msgstr ""
@@ -2094,4 +2080,31 @@ msgstr ""
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
 msgid "Open Intelligence"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js
+msgid "Not run yet"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/diagnostics.js
+msgid "Diagnostics unavailable. Refresh the page or check the service status, then try again."
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js
+msgid "Unable to load OpenClash backups. Retry, or check that OpenClash is installed and its configuration path is valid."
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/diagnostics.js
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js
+msgid "Technical details"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js
+#, javascript-format
+msgid "Restore the backup from %s? A backup of the current configuration will be created first."
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js
+#, javascript-format
+msgid "Delete the backup from %s? This cannot be undone."
 msgstr ""
