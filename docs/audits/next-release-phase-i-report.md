@@ -11,7 +11,9 @@ Result: **PASS（5 条遗留已处置；Stable Gate 材料已准备但未执行�
 - 运行：push CI `41929387139`、PR CI `41929395955`、`workflow_dispatch` CI `41929533620`；均只有 `evidence-manifest` job 失败，其余 job success。
 - 失败原因：`Stable review rejected: candidate tag is already occupied by different content`。`prepare-stable-review.py` 按设计拒绝改动 contract 的候选，因为 `v2.6.0-8` tag 已存在且不可变。
 - 处置：PR #26 已关闭并说明，分支已删除；main/pin/tag/Release 均未变。
-- 结论：**PASS-BY-REAL-PATH**——推分支、`gh pr create`、CI 自动触发、显式 dispatch 均验证通过；演练候选被不可变 tag guard 正确拒绝。没有产生绿色 CI 的 contract-change 候选，因为现有 tag 不可变；未来真实同步需新版本/tag。
+- 首次失败暴露的 gate 误红已修复（见 §1.2b）。
+- **第二次真实演练（修复后）**：PR **#28**，head `56cb1e5ad23d28edd4c86f11e307f5f94a923a4a`；push CI `41936332364` success（20/20）；pull_request CI `41936344450` success（20/20）。PR #28 已关闭、分支已删除，未合并、pin 未变。
+- 结论：**PASS-BY-REAL-PATH（绿色路径已验证）**——推分支、`gh pr create`、CI 自动触发/全绿、显式 dispatch 均验证通过。
 - 证据：`phase-i/sync-rill-drill.md`（本报告 §1.1 的 run/PR 记录）。
 
 ### 1.2 Build and Release stable guard
@@ -71,7 +73,16 @@ Result: **PASS（5 条遗留已处置；Stable Gate 材料已准备但未执行�
 - APK 升级 r6→r8：rc 0；自定义 UCI 值全部保留；`cf_ip` 文件哈希变化是因为 apk 合并默认值并写 `cf_ip.apk-new`，不是配置重置。
 - 边界：容器不是物理设备；`/cgi-bin/luci/` 403（无完整 LuCI CGI session），未宣称浏览器页面验证。
 
-## 4. 未做之事
+## 4. CI 与门禁事实
+
+- 阶段 I 分支 head `b79ab8adbbbd15056ceda48bf5aa424d4af00c44`。
+- CI（push）`41936166247`：success，20/20 jobs。
+- CI（pull_request）`41936173109`：success。
+- Real LuCI UI Gate（workflow_dispatch at branch head）`41936204478`：success。
+- 本地：`ci-test-inventory.py` 0、`actionlint` 0、i18n 0/0、`release-channel-contract.sh` 0、`release-tag-immutability.sh` 0、`phase-f/scripts/verify.cjs` 0。
+- sync-rill 绿色演练：PR #28，push CI `41936332364` success 20/20，PR CI `41936344450` success 20/20。
+
+## 5. 未做之事
 
 - 未改 `release-channel.json`；未移动/删除 `v2.6.0-8` tag；未打新 tag；未建 Release。
 - 未合并 PR #26（已关闭）；未改 Runtime pin；未开真实跨仓 PR。

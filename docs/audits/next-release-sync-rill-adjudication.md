@@ -57,11 +57,23 @@
   即 `prepare-stable-review.py` 对候选 tag `v2.6.0-8` 做不可变校验，发现演练分支的 contract 内容与已发布 tag 不同，按设计拒绝。其余所有 job（host/legacy/rpc/package/migration/i18n/rootfs 等）均 success。
 - 处置：PR #26 已关闭并附说明，分支已删除；main 未变、pin 未变、tag/Release 未动。
 
-结论：**真实路径的推分支、PR 创建、CI 自动触发与 workflow_dispatch 均已验证通过；演练候选被 stable-review 的不可变 tag guard 正确拒绝，不是自动化路径失败。** 由于 `v2.6.0-8` tag 已存在且不可变，任何改变 contract 的候选都会触发同一拒绝；一个“绿色”的契约变更演练需要新的候选版本/tag，不能在此发布后窗口伪造。
+结论：**真实路径的推分支、PR 创建、CI 自动触发与 workflow_dispatch 均已验证通过；首个演练候选被 stable-review 的不可变 tag guard 正确拒绝，这暴露了发布后 CI 的一个结构性误红（见 §5.1）。修复后第二次演练 CI 全绿。**
+
+### 5.1 首次演练暴露的 gate 问题与修复
+
+- 首次演练 CI 的 `evidence-manifest` 失败原因不是路径失败，而是 `prepare-stable-review.py` 把“tag 已存在且候选 tree 不同”当成致命错误。发布后任何 docs-only 提交都会改变 tree，导致后续每个 PR 都误红。
+- 修复：记录 `tagState=occupied-different`、`tagAvailable=false`、`tagConflict=true`，不再让 CI 整体失败；`release.yml` 的 pre-upload immutable-tag guard 保持不变。`tests/stable-review.py` 增加 occupied-different 用例。
+- 修复提交在阶段 I 分支（`b79ab8a`），阶段 I CI `41936166247` 全绿。
+
+### 5.2 第二次真实演练（绿色路径）
+
+- 从阶段 I 分支（含修复）创建临时分支，仅给 contract 加尾随空行。
+- 结果：PR **#28**，head `56cb1e5ad23d28edd4c86f11e307f5f94a923a4a`；push CI `41936332364` success（20/20）；pull_request CI `41936344450` success（20/20）。
+- 处置：PR #28 已关闭、分支已删除；未合并、pin 未变、tag/Release 未动。
 
 ## 6. 推荐（供用户裁决）
 
-**推荐：本轮按 `PASS-BY-REAL-PATH` 接受。** 真实 GitHub 行为已验证；无需再开真实 PR。保留的边界是：没有产生一个绿色 CI 的 contract-change 候选，因为现有 tag 不可变；这不影响 r8 发布，也不影响未来真实同步（未来同步会对应新版本/新 tag）。
+**推荐：本轮按 `PASS-BY-REAL-PATH` 接受。** 真实 GitHub 行为已验证且第二次演练 CI 全绿；无需再开真实 PR。
 
 理由：
 
