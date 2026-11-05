@@ -1,0 +1,1830 @@
+{
+  "container": "cfip-ui-gate",
+  "base": "http://127.0.0.1:18080",
+  "report": [
+    {
+      "theme": "bootstrap",
+      "page": "overview",
+      "viewport": "640x900 (1280@200%)",
+      "focusables": 16,
+      "tabsTested": 12,
+      "unique": 12,
+      "noRing": 0,
+      "offscreen": 0,
+      "bottom": {
+        "scrollY": 703,
+        "scrollHeight": 1603,
+        "hasActions": false,
+        "actionsVisible": true,
+        "footerVisible": true,
+        "overflow": false,
+        "scrollWidth": 640
+      },
+      "pass": true,
+      "tabs": [
+        {
+          "tag": "a",
+          "text": "Settings",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenClash",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Candidate IP Sources",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "PassWall",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Intelligence",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Advanced",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Logs & Records",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "button",
+          "text": "▶ Start",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "button",
+          "text": "↻ Restart",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "button",
+          "text": "⬇ Download CFST",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "hello-yunshu/luci-app-cloudflare-ip",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "button",
+          "text": "↻ Refresh Environment",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        }
+      ]
+    },
+    {
+      "theme": "bootstrap",
+      "page": "settings",
+      "viewport": "640x900 (1280@200%)",
+      "focusables": 30,
+      "tabsTested": 12,
+      "unique": 12,
+      "noRing": 0,
+      "offscreen": 0,
+      "bottom": {
+        "scrollY": 1138,
+        "scrollHeight": 2038,
+        "hasActions": true,
+        "actionsVisible": true,
+        "footerVisible": true,
+        "overflow": false,
+        "scrollWidth": 640
+      },
+      "pass": true,
+      "tabs": [
+        {
+          "tag": "a",
+          "text": "Settings",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenClash",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Candidate IP Sources",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "PassWall",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Intelligence",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Advanced",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Logs & Records",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "input",
+          "text": "1",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "select",
+          "text": "Every 6 hours (recommended)\nEvery hour\nE",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "input",
+          "text": "",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "select",
+          "text": "PassWall\nOpenClash",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "input",
+          "text": "4",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        }
+      ]
+    },
+    {
+      "theme": "bootstrap",
+      "page": "sources",
+      "viewport": "640x900 (1280@200%)",
+      "focusables": 21,
+      "tabsTested": 12,
+      "unique": 11,
+      "noRing": 0,
+      "offscreen": 0,
+      "bottom": {
+        "scrollY": 1713,
+        "scrollHeight": 2613,
+        "hasActions": true,
+        "actionsVisible": true,
+        "footerVisible": true,
+        "overflow": false,
+        "scrollWidth": 640
+      },
+      "pass": true,
+      "tabs": [
+        {
+          "tag": "a",
+          "text": "Settings",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenClash",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Candidate IP Sources",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "PassWall",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Intelligence",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Advanced",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Logs & Records",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "input",
+          "text": "128",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "div",
+          "text": "Official · Cloudflare Official IPv4\nOffi",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "input",
+          "text": "",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "input",
+          "text": "1",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "input",
+          "text": "",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        }
+      ]
+    },
+    {
+      "theme": "bootstrap",
+      "page": "intelligence",
+      "viewport": "640x900 (1280@200%)",
+      "focusables": 8,
+      "tabsTested": 8,
+      "unique": 8,
+      "noRing": 0,
+      "offscreen": 0,
+      "bottom": {
+        "scrollY": 3368,
+        "scrollHeight": 4268,
+        "hasActions": true,
+        "actionsVisible": true,
+        "footerVisible": true,
+        "overflow": false,
+        "scrollWidth": 640
+      },
+      "pass": true,
+      "tabs": [
+        {
+          "tag": "a",
+          "text": "Settings",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenClash",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Candidate IP Sources",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "PassWall",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Intelligence",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Advanced",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Logs & Records",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "select",
+          "text": "Balanced\nOfficial-heavy\nHistory-heavy\nDi",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        }
+      ]
+    },
+    {
+      "theme": "bootstrap",
+      "page": "openclash",
+      "viewport": "640x900 (1280@200%)",
+      "focusables": 20,
+      "tabsTested": 12,
+      "unique": 11,
+      "noRing": 0,
+      "offscreen": 0,
+      "bottom": {
+        "scrollY": 232,
+        "scrollHeight": 1132,
+        "hasActions": true,
+        "actionsVisible": true,
+        "footerVisible": true,
+        "overflow": false,
+        "scrollWidth": 640
+      },
+      "pass": true,
+      "tabs": [
+        {
+          "tag": "a",
+          "text": "Settings",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenClash",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Candidate IP Sources",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "PassWall",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Intelligence",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Advanced",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Logs & Records",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "input",
+          "text": "/etc/openclash/config/config.yaml",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "input",
+          "text": "",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "input",
+          "text": "[CF-{n}]",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "input",
+          "text": "",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "input",
+          "text": "3",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        }
+      ]
+    },
+    {
+      "theme": "bootstrap",
+      "page": "passwall",
+      "viewport": "640x900 (1280@200%)",
+      "focusables": 16,
+      "tabsTested": 12,
+      "unique": 12,
+      "noRing": 0,
+      "offscreen": 0,
+      "bottom": {
+        "scrollY": 0,
+        "scrollHeight": 900,
+        "hasActions": true,
+        "actionsVisible": true,
+        "footerVisible": true,
+        "overflow": false,
+        "scrollWidth": 640
+      },
+      "pass": true,
+      "tabs": [
+        {
+          "tag": "a",
+          "text": "Settings",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenClash",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Candidate IP Sources",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "PassWall",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Intelligence",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Advanced",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Logs & Records",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "input",
+          "text": "",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "input",
+          "text": "[CF-{n}]",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Project",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "GitHub",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "@云云舒",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        }
+      ]
+    },
+    {
+      "theme": "bootstrap",
+      "page": "advanced",
+      "viewport": "640x900 (1280@200%)",
+      "focusables": 25,
+      "tabsTested": 12,
+      "unique": 11,
+      "noRing": 0,
+      "offscreen": 0,
+      "bottom": {
+        "scrollY": 1006,
+        "scrollHeight": 1906,
+        "hasActions": true,
+        "actionsVisible": true,
+        "footerVisible": true,
+        "overflow": false,
+        "scrollWidth": 640
+      },
+      "pass": true,
+      "tabs": [
+        {
+          "tag": "a",
+          "text": "Settings",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenClash",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Candidate IP Sources",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "PassWall",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Intelligence",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Advanced",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Logs & Records",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "input",
+          "text": "https://raw.githubusercontent.com/hello-",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "input",
+          "text": "",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "input",
+          "text": "3",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "input",
+          "text": "5",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "input",
+          "text": "",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        }
+      ]
+    },
+    {
+      "theme": "bootstrap",
+      "page": "logs",
+      "viewport": "640x900 (1280@200%)",
+      "focusables": 15,
+      "tabsTested": 12,
+      "unique": 11,
+      "noRing": 0,
+      "offscreen": 0,
+      "bottom": {
+        "scrollY": 255,
+        "scrollHeight": 1155,
+        "hasActions": false,
+        "actionsVisible": true,
+        "footerVisible": true,
+        "overflow": false,
+        "scrollWidth": 640
+      },
+      "pass": true,
+      "tabs": [
+        {
+          "tag": "a",
+          "text": "Settings",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenClash",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Candidate IP Sources",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "PassWall",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Intelligence",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Advanced",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Logs & Records",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "button",
+          "text": "↻ Refresh",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "button",
+          "text": "✖ Clear Logs",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "textarea",
+          "text": "No logs found.",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "button",
+          "text": "↻ Refresh",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Project",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        }
+      ]
+    },
+    {
+      "theme": "aurora-dark",
+      "page": "overview",
+      "viewport": "640x900 (1280@200%)",
+      "focusables": 18,
+      "tabsTested": 12,
+      "unique": 12,
+      "noRing": 0,
+      "offscreen": 0,
+      "bottom": {
+        "scrollY": 737,
+        "scrollHeight": 1637,
+        "hasActions": false,
+        "actionsVisible": true,
+        "footerVisible": true,
+        "overflow": false,
+        "scrollWidth": 640
+      },
+      "pass": true,
+      "tabs": [
+        {
+          "tag": "a",
+          "text": "Settings",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenClash",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Candidate IP Sources",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "PassWall",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Intelligence",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Advanced",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Logs & Records",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "button",
+          "text": "▶ Start",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "button",
+          "text": "↻ Restart",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "button",
+          "text": "⬇ Download CFST",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "hello-yunshu/luci-app-cloudflare-ip",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "button",
+          "text": "↻ Refresh Environment",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        }
+      ]
+    },
+    {
+      "theme": "aurora-dark",
+      "page": "settings",
+      "viewport": "640x900 (1280@200%)",
+      "focusables": 30,
+      "tabsTested": 12,
+      "unique": 12,
+      "noRing": 0,
+      "offscreen": 0,
+      "bottom": {
+        "scrollY": 980,
+        "scrollHeight": 1880,
+        "hasActions": true,
+        "actionsVisible": true,
+        "footerVisible": true,
+        "overflow": false,
+        "scrollWidth": 640
+      },
+      "pass": true,
+      "tabs": [
+        {
+          "tag": "a",
+          "text": "Settings",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenClash",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Candidate IP Sources",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "PassWall",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Intelligence",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Advanced",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Logs & Records",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "input",
+          "text": "1",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "select",
+          "text": "Every 6 hours (recommended)\nEvery hour\nE",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "select",
+          "text": "PassWall\nOpenClash",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "input",
+          "text": "4",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "select",
+          "text": "IPv4\nIPv6\nBoth",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        }
+      ]
+    },
+    {
+      "theme": "aurora-dark",
+      "page": "sources",
+      "viewport": "640x900 (1280@200%)",
+      "focusables": 23,
+      "tabsTested": 12,
+      "unique": 11,
+      "noRing": 0,
+      "offscreen": 0,
+      "bottom": {
+        "scrollY": 2123,
+        "scrollHeight": 3023,
+        "hasActions": true,
+        "actionsVisible": true,
+        "footerVisible": true,
+        "overflow": false,
+        "scrollWidth": 640
+      },
+      "pass": true,
+      "tabs": [
+        {
+          "tag": "a",
+          "text": "Settings",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenClash",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Candidate IP Sources",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "PassWall",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Intelligence",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Advanced",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Logs & Records",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "input",
+          "text": "128",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "div",
+          "text": "Official · Cloudflare Official IPv4\nOffi",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "input",
+          "text": "",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "input",
+          "text": "1",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "input",
+          "text": "",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        }
+      ]
+    },
+    {
+      "theme": "aurora-dark",
+      "page": "intelligence",
+      "viewport": "640x900 (1280@200%)",
+      "focusables": 8,
+      "tabsTested": 8,
+      "unique": 8,
+      "noRing": 0,
+      "offscreen": 0,
+      "bottom": {
+        "scrollY": 3716,
+        "scrollHeight": 4616,
+        "hasActions": true,
+        "actionsVisible": true,
+        "footerVisible": true,
+        "overflow": false,
+        "scrollWidth": 640
+      },
+      "pass": true,
+      "tabs": [
+        {
+          "tag": "a",
+          "text": "Settings",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenClash",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Candidate IP Sources",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "PassWall",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Intelligence",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Advanced",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Logs & Records",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "select",
+          "text": "Balanced\nOfficial-heavy\nHistory-heavy\nDi",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        }
+      ]
+    },
+    {
+      "theme": "aurora-dark",
+      "page": "openclash",
+      "viewport": "640x900 (1280@200%)",
+      "focusables": 22,
+      "tabsTested": 12,
+      "unique": 11,
+      "noRing": 0,
+      "offscreen": 0,
+      "bottom": {
+        "scrollY": 338,
+        "scrollHeight": 1238,
+        "hasActions": true,
+        "actionsVisible": true,
+        "footerVisible": true,
+        "overflow": false,
+        "scrollWidth": 640
+      },
+      "pass": true,
+      "tabs": [
+        {
+          "tag": "a",
+          "text": "Settings",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenClash",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Candidate IP Sources",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "PassWall",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Intelligence",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Advanced",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Logs & Records",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "input",
+          "text": "/etc/openclash/config/config.yaml",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "input",
+          "text": "",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "input",
+          "text": "[CF-{n}]",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "input",
+          "text": "",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "input",
+          "text": "3",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        }
+      ]
+    },
+    {
+      "theme": "aurora-dark",
+      "page": "passwall",
+      "viewport": "640x900 (1280@200%)",
+      "focusables": 18,
+      "tabsTested": 12,
+      "unique": 12,
+      "noRing": 0,
+      "offscreen": 0,
+      "bottom": {
+        "scrollY": 0,
+        "scrollHeight": 900,
+        "hasActions": true,
+        "actionsVisible": true,
+        "footerVisible": true,
+        "overflow": false,
+        "scrollWidth": 640
+      },
+      "pass": true,
+      "tabs": [
+        {
+          "tag": "a",
+          "text": "Settings",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenClash",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Candidate IP Sources",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "PassWall",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Intelligence",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Advanced",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Logs & Records",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "input",
+          "text": "",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "input",
+          "text": "[CF-{n}]",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Project",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "GitHub",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "@云云舒",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        }
+      ]
+    },
+    {
+      "theme": "aurora-dark",
+      "page": "advanced",
+      "viewport": "640x900 (1280@200%)",
+      "focusables": 27,
+      "tabsTested": 12,
+      "unique": 11,
+      "noRing": 0,
+      "offscreen": 0,
+      "bottom": {
+        "scrollY": 1057,
+        "scrollHeight": 1957,
+        "hasActions": true,
+        "actionsVisible": true,
+        "footerVisible": true,
+        "overflow": false,
+        "scrollWidth": 640
+      },
+      "pass": true,
+      "tabs": [
+        {
+          "tag": "a",
+          "text": "Settings",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenClash",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Candidate IP Sources",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "PassWall",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Intelligence",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Advanced",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Logs & Records",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "input",
+          "text": "https://raw.githubusercontent.com/hello-",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "input",
+          "text": "",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "input",
+          "text": "3",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "input",
+          "text": "5",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "input",
+          "text": "",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        }
+      ]
+    },
+    {
+      "theme": "aurora-dark",
+      "page": "logs",
+      "viewport": "640x900 (1280@200%)",
+      "focusables": 17,
+      "tabsTested": 12,
+      "unique": 11,
+      "noRing": 0,
+      "offscreen": 0,
+      "bottom": {
+        "scrollY": 509,
+        "scrollHeight": 1409,
+        "hasActions": false,
+        "actionsVisible": true,
+        "footerVisible": true,
+        "overflow": false,
+        "scrollWidth": 640
+      },
+      "pass": true,
+      "tabs": [
+        {
+          "tag": "a",
+          "text": "Settings",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenClash",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Candidate IP Sources",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "PassWall",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Intelligence",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Advanced",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Logs & Records",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "button",
+          "text": "↻ Refresh",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "button",
+          "text": "✖ Clear Logs",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "textarea",
+          "text": "No logs found.",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "button",
+          "text": "↻ Refresh",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        },
+        {
+          "tag": "a",
+          "text": "Project",
+          "name": "",
+          "inViewport": true,
+          "ring": true,
+          "reachableAfterScroll": true
+        }
+      ]
+    }
+  ]
+}
