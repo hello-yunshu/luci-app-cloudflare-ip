@@ -36,6 +36,18 @@ Stable review rejected: candidate tag is already occupied by different content
 - Remote branch deleted.
 - `main`, the Runtime pin, tags and Releases untouched.
 
+## Second real drill (green path, after the fix)
+
+| Item | Value |
+|---|---|
+| Base | `phase-i-closeout` @ `b79ab8a` (contains the stable-review fix) |
+| Branch | `automation/rill-qualified-drill-green-6c05f995648e7cabcd71` |
+| PR | #28, created, then closed unmerged |
+| PR head | `56cb1e5ad23d28edd4c86f11e307f5f94a923a4a` |
+| push CI | `41936332364` success (20/20) |
+| pull_request CI | `41936344450` success (20/20) |
+| Cleanup | PR #28 closed, branch deleted, main/pin/tag untouched |
+
 ## Conclusion
 
-Real path verified for: branch push, PR creation, CI auto-trigger, explicit `workflow_dispatch`. No green CI contract-change candidate was produced because `v2.6.0-8` is immutable; a green drill would require a new candidate version/tag and separate authorization.
+Real path verified: branch push, PR creation, CI auto-trigger and explicit `workflow_dispatch`; the fixed gate now records an occupied tag instead of failing, so the second drill is fully green. No merge and no pin change.
