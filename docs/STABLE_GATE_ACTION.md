@@ -1,0 +1,47 @@
+# Stable Gate — one-page execution and decision checklist
+
+Status: **NOT READY.** This page is the compact operating list behind
+[STABLE_GATE.md](STABLE_GATE.md) and §5A. It does not authorize a channel
+change, a Stable tag, or a Stable Release.
+
+## A. Decisions (user / release owner)
+
+| # | Decision | Options | Acceptance line | If not decided |
+|---|---|---|---|---|
+| D1 | Non-shipped zstd advisories | accept boundary / upgrade polars+zstd / remove polars member | written decision in the issue register; fail-closed rule kept | Stable blocked (shipped Runtime is already clean) |
+| D2 | Stable channel change | keep `stable` / authorize a separate channel PR | explicit user authorization; `release-channel.json` changed only by an authorized PR; `release-tag-immutability.sh` and `release-channel-contract.sh` exit 0 | remains `stable`, no promotion |
+| D3 | Accept container-only rollback/ENOSPC evidence | accept / require device drill | decision recorded; if accepted, the device power/ENOSPC row is moved to a documented residual risk | device drill remains a blocker |
+
+## B. External device / owner work
+
+Each row must produce artifacts (log/screenshot/JSON), not just an assertion.
+
+| # | Work | Who | Equipment | Method | Acceptance line |
+|---|---|---|---|---|---|
+| E1 | Physical install/upgrade | user/owner or maintainer with hardware | one supported OpenWrt 24.10.x device, serial/SSH | install r9, upgrade from r8, rollback with `--force-downgrade`; capture firmware/arch/opkg logs | version r9 after install/upgrade, config preserved, rollback works |
+| E2 | Hardware matrix | user/owner | at least x86_64 and aarch64 devices | repeat E1 + page load per architecture | every declared architecture either passes or is explicitly scoped out |
+| E3 | 24h soak | user/owner | same device, continuous power | run scheduled updates/proxy updates for 24h; record memory, errors, cron, publisher state | no crash/leak; publisher remains ready; logs archived |
+| E4 | PassWall real proxy network | user/owner | device + working PassWall node | start/stop/refresh through the real proxy | node updates and connectivity verified on the real network |
+| E5 | OpenClash real controller | user/owner | device with OpenClash + mihomo + Ruby | backup/restore/delete and target update | all three controller actions succeed on device |
+| E6 | Touch/keyboard matrix | user/owner | real touch device (tablet/panel) | tap-only navigation, soft keyboard, 200% zoom, gestures | no dead control; no overflow; keyboard focus complete |
+| E7 | Power cut / ENOSPC on device | user/owner | device with recoverable boot / serial | back up `/usr/lib/opkg/status`, fill overlay, cut power during upgrade, restore per [ROLLBACK_AND_RECOVERY.md](ROLLBACK_AND_RECOVERY.md) | opkg usable after restore; config intact; procedure followed |
+
+## C. Build and release gate (maintainer, after A/B)
+
+| # | Work | Acceptance line |
+|---|---|---|
+| R1 | exact-SHA CI | 21/21 success on the release SHA |
+| R2 | Real LuCI UI Gate | success on the same SHA |
+| R3 | Package bytes | IPK/APK from the same run; SHA256 recorded; `Depends` has no `uhttpd` |
+| R4 | Fresh install + upgrade | r8→r9 and fresh install pass on 24.10.8/25.12.x containers |
+| R5 | Tag/release guards | `release-tag-immutability.sh`, `release-channel-contract.sh` exit 0; tag target immutable |
+| R6 | Post-release | re-download all assets, `sha256sum -c` passes; install notes recorded |
+
+## D. Current count
+
+- Device/owner work still required: **E1–E7 = 7 items**.
+- User decisions still required: **D1–D2 = 2 items** (D3 optional boundary acceptance).
+- Build/release steps: **R1–R6**, executable by the maintainer after the above.
+- Container evidence already green: publisher fixtures, rollback/ENOSPC/power-loss drills, matrix, i18n, UI Gate. These are **not** device evidence.
+
+**Conclusion: NOT READY. No Stable action may be executed from this page.**
