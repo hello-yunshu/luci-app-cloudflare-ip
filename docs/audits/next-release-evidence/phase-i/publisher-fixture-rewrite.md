@@ -114,7 +114,7 @@ New job `publisher-runtime` in `.github/workflows/ci.yml`:
 
 1. starts the pinned 24.10.8 image with `/sbin/init`;
 2. waits for ubus, installs `bash curl jq`;
-3. copies the tree and runs both fixtures.
+3. copies the tree and runs both fixtures plus `tests/opkg-status-recovery.sh`.
 
 `tests/ci-test-inventory.py` no longer excludes them.
 

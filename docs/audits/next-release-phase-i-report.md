@@ -8,8 +8,10 @@ Result: **PASS（5 条遗留已处置；Stable Gate 材料已准备但未执行�
 
 - 两个 fixture 的早期失败不是“uhttpd 未存活 / procd 未注册”。保留现场显示 uhttpd 进程存活、procd 实例 running、generation 文件存在；真正原因是产品 `curl --connect-timeout 1 --max-time 1` 被 24.10.8 当前 feed 的 `curl 8.22.0-r1` 拒绝（`remaining timeout of 999 too small`），就绪检查恒失败。
 - 已在 `publisher.sh` 两处改为 2s；fixture 改用真实 procd/uhttpd、真实触发注册断言和真实 reload 命令；在全新 24.10.8 容器连跑两遍 PASS；新增 CI job `publisher-runtime`；登记为 P1-06。
-- 该修复只在 `main`，**不包含在 v2.6.0-8 资产**；r8 在装有当前 curl 的设备上 publisher 仍不可用，下一次发布才修复。
-- 详细证据：[publisher-fixture-rewrite.md](next-release-evidence/phase-i/publisher-fixture-rewrite.md)。
+- 该修复只在 `main`，**不包含在 v2.6.0-8 资产**；r8 在装有当前 curl 的设备上 publisher 仍不可用，下一次发布才修复。经用户补充授权，已准备 `v2.6.0-9` Pre-release 作为 P1-06 修复版本。
+- ENOSPC 会把 `/usr/lib/opkg/status` 写坏；已新增 [ROLLBACK_AND_RECOVERY.md](../ROLLBACK_AND_RECOVERY.md) 与 `tests/opkg-status-recovery.sh`，演练输出：truncated status rejected，恢复后 opkg 列出 133 packages，rc 0。
+- 历史归档分支无法用 git push（85 MiB / 28 MiB pack 均被重置）；改用 GitHub Git Data API 逐 blob 创建 `evidence/*-archive` 分支，清洁 clone 可 fetch 并核对 tree SHA。
+- 详细证据：[publisher-fixture-rewrite.md](next-release-evidence/phase-i/publisher-fixture-rewrite.md)、[stable-gate-drills.md](next-release-evidence/phase-i/stable-gate-drills.md)。
 
 Stable Gate 自检也已完成容器可做部分：硬件/架构矩阵、zstd 决策材料、shipped 依赖零公告、rollback/ENOSPC/断电容器演练、触控/键盘浏览器上限；物理设备、24h soak、PassWall 真实网络仍停在外部依赖。详见 [STABLE_GATE.md](../STABLE_GATE.md) §2A/§5A 与 [stable-gate-drills.md](next-release-evidence/phase-i/stable-gate-drills.md)。
 

@@ -221,6 +221,8 @@ Docker replay 证据会明确标记为 `replayed`，不能证明真实设备表�
 
 - [Next-release 审计索引（v2.6.0-8 已发布；Stable Gate 待授权）](docs/audits/next-release-INDEX.md)
 - [Stable Gate 门槛与评审流程](docs/STABLE_GATE.md)
+- [Stable Gate 执行/决策清单](docs/STABLE_GATE_ACTION.md)
+- [升级失败与 opkg status 恢复](docs/ROLLBACK_AND_RECOVERY.md)
 - [release channel guard 说明](docs/RELEASE_CHANNEL_GUARD.md)
 - [真实设备验证](docs/REAL_DEVICE_VALIDATION.md)
 - [2.2 Adaptive Measurement](docs/2.2_ADAPTIVE_MEASUREMENT.md)
