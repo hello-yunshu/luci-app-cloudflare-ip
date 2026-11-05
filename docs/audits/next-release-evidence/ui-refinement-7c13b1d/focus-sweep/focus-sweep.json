@@ -1,0 +1,2793 @@
+{
+  "container": "cfip-ui-gate",
+  "base": "http://127.0.0.1:18080",
+  "results": [
+    {
+      "theme": "bootstrap",
+      "page": "overview",
+      "controls": 16,
+      "focusPass": 15,
+      "hoverPass": 16,
+      "focusFail": 0,
+      "tested": [
+        {
+          "tag": "a",
+          "text": "Overview",
+          "focus": true,
+          "method": "programmatic",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Settings",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenClash",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Candidate IP Sources",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "PassWall",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Intelligence",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Advanced",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Logs & Records",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "▶ Start",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "↻ Restart",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "⬇ Download CFST",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "hello-yunshu/luci-app-cloudflare",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "↻ Refresh Environment",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Project",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "GitHub",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "@云云舒",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        }
+      ]
+    },
+    {
+      "theme": "bootstrap",
+      "page": "settings",
+      "controls": 30,
+      "focusPass": 29,
+      "hoverPass": 26,
+      "focusFail": 0,
+      "tested": [
+        {
+          "tag": "a",
+          "text": "Overview",
+          "focus": true,
+          "method": "programmatic",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Settings",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenClash",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Candidate IP Sources",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "PassWall",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Intelligence",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Advanced",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Logs & Records",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "1",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "select",
+          "text": "Every 6 hours (recommended)\nEver",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "select",
+          "text": "PassWall\nOpenClash",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "4",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "select",
+          "text": "IPv4\nIPv6\nBoth",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "select",
+          "text": "TCPing\nHTTPing",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "",
+          "focus": true,
+          "visible": true,
+          "method": "tab"
+        },
+        {
+          "tag": "input",
+          "text": "8",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "6",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "200",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "3",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "40",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "",
+          "focus": true,
+          "visible": true,
+          "method": "tab"
+        },
+        {
+          "tag": "input",
+          "text": "1",
+          "focus": true,
+          "visible": true,
+          "method": "tab"
+        },
+        {
+          "tag": "input",
+          "text": "1",
+          "focus": true,
+          "visible": true,
+          "method": "tab"
+        },
+        {
+          "tag": "a",
+          "text": "Project",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "GitHub",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "@云云舒",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "div",
+          "text": "Save & Apply\n▾",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "Save",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "Reset",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        }
+      ]
+    },
+    {
+      "theme": "bootstrap",
+      "page": "sources",
+      "controls": 21,
+      "focusPass": 20,
+      "hoverPass": 20,
+      "focusFail": 0,
+      "tested": [
+        {
+          "tag": "a",
+          "text": "Overview",
+          "focus": true,
+          "method": "programmatic",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Settings",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenClash",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Candidate IP Sources",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "PassWall",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Intelligence",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Advanced",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Logs & Records",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "128",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "div",
+          "text": "Official · Cloudflare Official I",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "1",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "",
+          "focus": true,
+          "visible": true,
+          "method": "tab"
+        },
+        {
+          "tag": "input",
+          "text": "12345",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "Refresh Sources",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Project",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "GitHub",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "@云云舒",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "div",
+          "text": "Save & Apply\n▾",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "Save",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "Reset",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        }
+      ]
+    },
+    {
+      "theme": "bootstrap",
+      "page": "intelligence",
+      "controls": 8,
+      "focusPass": 7,
+      "hoverPass": 8,
+      "focusFail": 0,
+      "tested": [
+        {
+          "tag": "a",
+          "text": "Overview",
+          "focus": false,
+          "method": "programmatic",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Settings",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenClash",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Candidate IP Sources",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "PassWall",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Intelligence",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Advanced",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Logs & Records",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        }
+      ]
+    },
+    {
+      "theme": "bootstrap",
+      "page": "openclash",
+      "controls": 20,
+      "focusPass": 19,
+      "hoverPass": 19,
+      "focusFail": 0,
+      "tested": [
+        {
+          "tag": "a",
+          "text": "Overview",
+          "focus": true,
+          "method": "programmatic",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Settings",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenClash",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Candidate IP Sources",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "PassWall",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Intelligence",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Advanced",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Logs & Records",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "/etc/openclash/config/config.yam",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "[CF-{n}]",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "",
+          "focus": true,
+          "visible": true,
+          "method": "tab"
+        },
+        {
+          "tag": "input",
+          "text": "3",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "Retry",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Project",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "GitHub",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "@云云舒",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "div",
+          "text": "Save & Apply\n▾",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "Save",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "Reset",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        }
+      ]
+    },
+    {
+      "theme": "bootstrap",
+      "page": "passwall",
+      "controls": 16,
+      "focusPass": 15,
+      "hoverPass": 16,
+      "focusFail": 0,
+      "tested": [
+        {
+          "tag": "a",
+          "text": "Overview",
+          "focus": true,
+          "method": "programmatic",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Settings",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenClash",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Candidate IP Sources",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "PassWall",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Intelligence",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Advanced",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Logs & Records",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "[CF-{n}]",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Project",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "GitHub",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "@云云舒",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "div",
+          "text": "Save & Apply\n▾",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "Save",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "Reset",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        }
+      ]
+    },
+    {
+      "theme": "bootstrap",
+      "page": "advanced",
+      "controls": 25,
+      "focusPass": 24,
+      "hoverPass": 23,
+      "focusFail": 0,
+      "tested": [
+        {
+          "tag": "a",
+          "text": "Overview",
+          "focus": true,
+          "method": "programmatic",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Settings",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenClash",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Candidate IP Sources",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "PassWall",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Intelligence",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Advanced",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Logs & Records",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "https://raw.githubusercontent.co",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "3",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "5",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "",
+          "focus": true,
+          "visible": true,
+          "method": "tab"
+        },
+        {
+          "tag": "input",
+          "text": "1",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "60",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "30",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "8",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "4",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "5",
+          "focus": true,
+          "visible": true,
+          "method": "tab"
+        },
+        {
+          "tag": "a",
+          "text": "Project",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "GitHub",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "@云云舒",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "div",
+          "text": "Save & Apply\n▾",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "Save",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "Reset",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        }
+      ]
+    },
+    {
+      "theme": "bootstrap",
+      "page": "logs",
+      "controls": 15,
+      "focusPass": 14,
+      "hoverPass": 14,
+      "focusFail": 0,
+      "tested": [
+        {
+          "tag": "a",
+          "text": "Overview",
+          "focus": true,
+          "method": "programmatic",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Settings",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenClash",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Candidate IP Sources",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "PassWall",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Intelligence",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Advanced",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Logs & Records",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "↻ Refresh",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "✖ Clear Logs",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "textarea",
+          "text": "No logs found.",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "↻ Refresh",
+          "focus": true,
+          "visible": true,
+          "method": "tab"
+        },
+        {
+          "tag": "a",
+          "text": "Project",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "GitHub",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "@云云舒",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        }
+      ]
+    },
+    {
+      "theme": "aurora-dark",
+      "page": "overview",
+      "controls": 21,
+      "focusPass": 19,
+      "hoverPass": 18,
+      "focusFail": 0,
+      "tested": [
+        {
+          "tag": "a",
+          "text": "Overview",
+          "focus": true,
+          "method": "programmatic",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Settings",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenClash",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Candidate IP Sources",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "PassWall",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Intelligence",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Advanced",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Logs & Records",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "▶ Start",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "↻ Restart",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "⬇ Download CFST",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "hello-yunshu/luci-app-cloudflare",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "↻ Refresh Environment",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Project",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "GitHub",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "@云云舒",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "LuCI openwrt-24.10 branch (26.20",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenWrt 24.10.8 (r29233-443ec403",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "dark",
+          "focus": true,
+          "visible": true,
+          "method": "tab"
+        },
+        {
+          "tag": "body",
+          "text": "a78db1a14c7f\nStatus\nSystem\nServi",
+          "focus": false,
+          "visible": true,
+          "method": "tab"
+        },
+        {
+          "tag": "a",
+          "text": "a78db1a14c7f",
+          "focus": true,
+          "visible": true,
+          "method": "tab"
+        }
+      ]
+    },
+    {
+      "theme": "aurora-dark",
+      "page": "settings",
+      "controls": 33,
+      "focusPass": 31,
+      "hoverPass": 28,
+      "focusFail": 0,
+      "tested": [
+        {
+          "tag": "a",
+          "text": "Overview",
+          "focus": true,
+          "method": "programmatic",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Settings",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenClash",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Candidate IP Sources",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "PassWall",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Intelligence",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Advanced",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Logs & Records",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "1",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "select",
+          "text": "Every 6 hours (recommended)\nEver",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "select",
+          "text": "PassWall\nOpenClash",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "4",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "select",
+          "text": "IPv4\nIPv6\nBoth",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "select",
+          "text": "TCPing\nHTTPing",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "8",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "6",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "200",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "3",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "40",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "1",
+          "focus": true,
+          "visible": true,
+          "method": "tab"
+        },
+        {
+          "tag": "input",
+          "text": "1",
+          "focus": true,
+          "visible": true,
+          "method": "tab"
+        },
+        {
+          "tag": "a",
+          "text": "Project",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "GitHub",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "@云云舒",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "div",
+          "text": "Save & Apply\n▾",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "Save",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "Reset",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "LuCI openwrt-24.10 branch (26.20",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenWrt 24.10.8 (r29233-443ec403",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "dark",
+          "focus": true,
+          "visible": true,
+          "method": "tab"
+        },
+        {
+          "tag": "body",
+          "text": "a78db1a14c7f\nStatus\nSystem\nServi",
+          "focus": false,
+          "visible": true,
+          "method": "tab"
+        },
+        {
+          "tag": "a",
+          "text": "a78db1a14c7f",
+          "focus": true,
+          "visible": true,
+          "method": "tab"
+        }
+      ]
+    },
+    {
+      "theme": "aurora-dark",
+      "page": "sources",
+      "controls": 26,
+      "focusPass": 24,
+      "hoverPass": 22,
+      "focusFail": 0,
+      "tested": [
+        {
+          "tag": "a",
+          "text": "Overview",
+          "focus": true,
+          "method": "programmatic",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Settings",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenClash",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Candidate IP Sources",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "PassWall",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Intelligence",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Advanced",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Logs & Records",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "128",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "div",
+          "text": "Official · Cloudflare Official I",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "1",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "",
+          "focus": true,
+          "visible": true,
+          "method": "tab"
+        },
+        {
+          "tag": "input",
+          "text": "12345",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "Refresh Sources",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Project",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "GitHub",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "@云云舒",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "div",
+          "text": "Save & Apply\n▾",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "Save",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "Reset",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "LuCI openwrt-24.10 branch (26.20",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenWrt 24.10.8 (r29233-443ec403",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "dark",
+          "focus": true,
+          "visible": true,
+          "method": "tab"
+        },
+        {
+          "tag": "body",
+          "text": "a78db1a14c7f\nStatus\nSystem\nServi",
+          "focus": false,
+          "visible": true,
+          "method": "tab"
+        },
+        {
+          "tag": "a",
+          "text": "a78db1a14c7f",
+          "focus": true,
+          "visible": true,
+          "method": "tab"
+        }
+      ]
+    },
+    {
+      "theme": "aurora-dark",
+      "page": "intelligence",
+      "controls": 8,
+      "focusPass": 7,
+      "hoverPass": 8,
+      "focusFail": 0,
+      "tested": [
+        {
+          "tag": "a",
+          "text": "Overview",
+          "focus": true,
+          "method": "programmatic",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Settings",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenClash",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Candidate IP Sources",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "PassWall",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Intelligence",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Advanced",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Logs & Records",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        }
+      ]
+    },
+    {
+      "theme": "aurora-dark",
+      "page": "openclash",
+      "controls": 25,
+      "focusPass": 23,
+      "hoverPass": 21,
+      "focusFail": 0,
+      "tested": [
+        {
+          "tag": "a",
+          "text": "Overview",
+          "focus": true,
+          "method": "programmatic",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Settings",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenClash",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Candidate IP Sources",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "PassWall",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Intelligence",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Advanced",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Logs & Records",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "/etc/openclash/config/config.yam",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "[CF-{n}]",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "",
+          "focus": true,
+          "visible": true,
+          "method": "tab"
+        },
+        {
+          "tag": "input",
+          "text": "3",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "Retry",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Project",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "GitHub",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "@云云舒",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "div",
+          "text": "Save & Apply\n▾",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "Save",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "Reset",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "LuCI openwrt-24.10 branch (26.20",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenWrt 24.10.8 (r29233-443ec403",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "dark",
+          "focus": true,
+          "visible": true,
+          "method": "tab"
+        },
+        {
+          "tag": "body",
+          "text": "a78db1a14c7f\nStatus\nSystem\nServi",
+          "focus": false,
+          "visible": true,
+          "method": "tab"
+        },
+        {
+          "tag": "a",
+          "text": "a78db1a14c7f",
+          "focus": true,
+          "visible": true,
+          "method": "tab"
+        }
+      ]
+    },
+    {
+      "theme": "aurora-dark",
+      "page": "passwall",
+      "controls": 21,
+      "focusPass": 19,
+      "hoverPass": 18,
+      "focusFail": 0,
+      "tested": [
+        {
+          "tag": "a",
+          "text": "Overview",
+          "focus": true,
+          "method": "programmatic",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Settings",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenClash",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Candidate IP Sources",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "PassWall",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Intelligence",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Advanced",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Logs & Records",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "[CF-{n}]",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Project",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "GitHub",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "@云云舒",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "div",
+          "text": "Save & Apply\n▾",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "Save",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "Reset",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "LuCI openwrt-24.10 branch (26.20",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenWrt 24.10.8 (r29233-443ec403",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "dark",
+          "focus": true,
+          "visible": true,
+          "method": "tab"
+        },
+        {
+          "tag": "body",
+          "text": "a78db1a14c7f\nStatus\nSystem\nServi",
+          "focus": false,
+          "visible": true,
+          "method": "tab"
+        },
+        {
+          "tag": "a",
+          "text": "a78db1a14c7f",
+          "focus": true,
+          "visible": true,
+          "method": "tab"
+        }
+      ]
+    },
+    {
+      "theme": "aurora-dark",
+      "page": "advanced",
+      "controls": 30,
+      "focusPass": 28,
+      "hoverPass": 25,
+      "focusFail": 0,
+      "tested": [
+        {
+          "tag": "a",
+          "text": "Overview",
+          "focus": true,
+          "method": "programmatic",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Settings",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenClash",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Candidate IP Sources",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "PassWall",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Intelligence",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Advanced",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Logs & Records",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "https://raw.githubusercontent.co",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "3",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "5",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "",
+          "focus": true,
+          "visible": true,
+          "method": "tab"
+        },
+        {
+          "tag": "input",
+          "text": "1",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "60",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "30",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "8",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "4",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "5",
+          "focus": true,
+          "visible": true,
+          "method": "tab"
+        },
+        {
+          "tag": "a",
+          "text": "Project",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "GitHub",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "@云云舒",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "div",
+          "text": "Save & Apply\n▾",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "Save",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "Reset",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "LuCI openwrt-24.10 branch (26.20",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenWrt 24.10.8 (r29233-443ec403",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "dark",
+          "focus": true,
+          "visible": true,
+          "method": "tab"
+        },
+        {
+          "tag": "body",
+          "text": "a78db1a14c7f\nStatus\nSystem\nServi",
+          "focus": false,
+          "visible": true,
+          "method": "tab"
+        },
+        {
+          "tag": "a",
+          "text": "a78db1a14c7f",
+          "focus": true,
+          "visible": true,
+          "method": "tab"
+        }
+      ]
+    },
+    {
+      "theme": "aurora-dark",
+      "page": "logs",
+      "controls": 20,
+      "focusPass": 18,
+      "hoverPass": 16,
+      "focusFail": 0,
+      "tested": [
+        {
+          "tag": "a",
+          "text": "Overview",
+          "focus": true,
+          "method": "programmatic",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Settings",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenClash",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Candidate IP Sources",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "PassWall",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Intelligence",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Advanced",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "Logs & Records",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "↻ Refresh",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "✖ Clear Logs",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "textarea",
+          "text": "No logs found.",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "button",
+          "text": "↻ Refresh",
+          "focus": true,
+          "visible": true,
+          "method": "tab"
+        },
+        {
+          "tag": "a",
+          "text": "Project",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "GitHub",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "@云云舒",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "LuCI openwrt-24.10 branch (26.20",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "a",
+          "text": "OpenWrt 24.10.8 (r29233-443ec403",
+          "focus": true,
+          "visible": true,
+          "method": "tab",
+          "hover": true
+        },
+        {
+          "tag": "input",
+          "text": "dark",
+          "focus": true,
+          "visible": true,
+          "method": "tab"
+        },
+        {
+          "tag": "body",
+          "text": "a78db1a14c7f\nStatus\nSystem\nServi",
+          "focus": false,
+          "visible": true,
+          "method": "tab"
+        },
+        {
+          "tag": "a",
+          "text": "a78db1a14c7f",
+          "focus": true,
+          "visible": true,
+          "method": "tab"
+        }
+      ]
+    }
+  ]
+}

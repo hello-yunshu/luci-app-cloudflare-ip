@@ -1,0 +1,321 @@
+{
+  "sections": [
+    {
+      "title": "Measurement Policy",
+      "values": [
+        {
+          "label": "Source Strategy",
+          "len": 69,
+          "text": "Balanced\nOfficial-heavy\nHistory-heavy\nDiversity-heavy\nCommunity-heavy"
+        },
+        {
+          "label": "Probe Batch Size",
+          "len": 0,
+          "text": ""
+        },
+        {
+          "label": "Maximum Probes",
+          "len": 0,
+          "text": ""
+        },
+        {
+          "label": "Deterministic Early Stop",
+          "len": 0,
+          "text": ""
+        }
+      ]
+    },
+    {
+      "title": "Adaptive Measurement",
+      "values": [
+        {
+          "label": "Enable Adaptive Measurement",
+          "len": 0,
+          "text": ""
+        },
+        {
+          "label": "Mode",
+          "len": 183,
+          "text": "Off\nShadow\nGuarded (qualified only)\nShadow records counterfactual evidence without changing production probe order. Guar"
+        },
+        {
+          "label": "Current State",
+          "len": 21,
+          "text": "Insufficient / Shadow"
+        },
+        {
+          "label": "Requested / Effective Mode",
+          "len": 45,
+          "text": "Unknown (unavailable) / Unknown (unavailable)"
+        },
+        {
+          "label": "Audit Evidence",
+          "len": 19,
+          "text": "0 / fresh at: never"
+        },
+        {
+          "label": "Winner / Top-N Recall",
+          "len": 25,
+          "text": "unavailable / unavailable"
+        },
+        {
+          "label": "Eligible Insufficiency Rate",
+          "len": 11,
+          "text": "unavailable"
+        },
+        {
+          "label": "Replay Probe Savings",
+          "len": 11,
+          "text": "unavailable"
+        },
+        {
+          "label": "Full Audit",
+          "len": 33,
+          "text": "never / next in runs: unavailable"
+        },
+        {
+          "label": "Scheduler Contract",
+          "len": 24,
+          "text": "v? / feature contract v?"
+        },
+        {
+          "label": "Selection",
+          "len": 40,
+          "text": "K: 0, expansions: 0, last fallback: none"
+        }
+      ]
+    },
+    {
+      "title": "Product Intelligence Summary",
+      "values": [
+        {
+          "label": "Current Endpoint",
+          "len": 11,
+          "text": "Unavailable"
+        },
+        {
+          "label": "System Health",
+          "len": 7,
+          "text": "Unknown"
+        },
+        {
+          "label": "Adaptive Measurement",
+          "len": 24,
+          "text": "Off → Off / Insufficient"
+        },
+        {
+          "label": "Candidate Intelligence",
+          "len": 25,
+          "text": "Native only / Unavailable"
+        },
+        {
+          "label": "Next Full Audit / Optimize",
+          "len": 28,
+          "text": "unavailable / policy current"
+        }
+      ]
+    },
+    {
+      "title": "Operational Health",
+      "values": [
+        {
+          "label": "State",
+          "len": 7,
+          "text": "Unknown"
+        },
+        {
+          "label": "Reason Codes",
+          "len": 4,
+          "text": "None"
+        },
+        {
+          "label": "Why This Run",
+          "len": 18,
+          "text": "Native measurement"
+        },
+        {
+          "label": "Current Context Policy",
+          "len": 43,
+          "text": "conservative-default / conservative default"
+        },
+        {
+          "label": "Recent Runs",
+          "len": 10,
+          "text": "No history"
+        }
+      ]
+    },
+    {
+      "title": "Rill Runtime Consumer",
+      "values": [
+        {
+          "label": "Enable Rill Intelligence",
+          "len": 109,
+          "text": "Enable the optional Rill consumer. Native ranking remains authoritative when Rill is disabled or unavailable."
+        },
+        {
+          "label": "Mode",
+          "len": 155,
+          "text": "Off\nShadow\nAssisted (qualification-gated)\nAssisted is qualification-gated and uses only the Native safe envelope; any Ru"
+        },
+        {
+          "label": "Runtime Timeout (ms)",
+          "len": 0,
+          "text": ""
+        },
+        {
+          "label": "Runtime Path",
+          "len": 103,
+          "text": "/usr/bin/rill-runtime\nFixed package-managed Preview Runtime path; custom executable paths are rejected."
+        },
+        {
+          "label": "State File",
+          "len": 83,
+          "text": "Must stay under /etc/cf_ip. Paths outside the package state directory are rejected."
+        }
+      ]
+    },
+    {
+      "title": "Live State",
+      "values": [
+        {
+          "label": "Runtime",
+          "len": 25,
+          "text": "Disabled / Native ranking"
+        },
+        {
+          "label": "Runtime installation",
+          "len": 62,
+          "text": "Runtime is optional; Native mode remains available without it."
+        },
+        {
+          "label": "Runtime Channel",
+          "len": 7,
+          "text": "Unknown"
+        },
+        {
+          "label": "Runtime API",
+          "len": 7,
+          "text": "Unknown"
+        },
+        {
+          "label": "Feature Schema",
+          "len": 1,
+          "text": "?"
+        },
+        {
+          "label": "State / Model Generation",
+          "len": 5,
+          "text": "0 / 0"
+        },
+        {
+          "label": "Learning",
+          "len": 56,
+          "text": "Valid feedback: 0, delayed pending: 0, completed: 0, Δ ?"
+        },
+        {
+          "label": "Runtime Health",
+          "len": 7,
+          "text": "Unknown"
+        },
+        {
+          "label": "Resource Guard",
+          "len": 48,
+          "text": "pressure: no, state bytes: 0 / ?, pending: 0 / ?"
+        },
+        {
+          "label": "Runtime Inspect",
+          "len": 42,
+          "text": "pending: 0, completed: 0, last error: None"
+        },
+        {
+          "label": "Current Authority",
+          "len": 6,
+          "text": "Native"
+        },
+        {
+          "label": "Qualification",
+          "len": 7,
+          "text": "Unknown"
+        },
+        {
+          "label": "Learning Context",
+          "len": 7,
+          "text": "Unknown"
+        },
+        {
+          "label": "Decision Confidence",
+          "len": 11,
+          "text": "Unavailable"
+        },
+        {
+          "label": "Confidence Reasons",
+          "len": 29,
+          "text": "Unavailable / Native fallback"
+        },
+        {
+          "label": "Decision Selection",
+          "len": 53,
+          "text": "Native top1: ?, Rill top1: ?, final: ?, agreement: no"
+        },
+        {
+          "label": "Decision Evidence",
+          "len": 47,
+          "text": "comparable: 0, wins: 0, ties: 0, losses: 0, Δ ?"
+        },
+        {
+          "label": "Native Holdout",
+          "len": 40,
+          "text": "performed: 0, failures: 0 / non-blocking"
+        },
+        {
+          "label": "Fallback Reason",
+          "len": 4,
+          "text": "None"
+        },
+        {
+          "label": "Source Strategy Loop",
+          "len": 65,
+          "text": "deterministic: no, requested: Unknown (?), effective: Unknown (?)"
+        },
+        {
+          "label": "Reuse / Full Optimize",
+          "len": 39,
+          "text": "Native hard gate: Unknown, reason: none"
+        },
+        {
+          "label": "Probe Efficiency",
+          "len": 41,
+          "text": "probed: 0 / 0, avoided: 0, early stop: no"
+        },
+        {
+          "label": "Native vs Rill",
+          "len": 29,
+          "text": "native: ?, Rill: ?, regret: 0"
+        },
+        {
+          "label": "Prefix Intelligence",
+          "len": 43,
+          "text": "tracked: 0, high quality: 0, low quality: 0"
+        },
+        {
+          "label": "Colo Intelligence",
+          "len": 40,
+          "text": "observed: 0, latest: Unknown, Unknown: 0"
+        },
+        {
+          "label": "Shadow Self-check",
+          "len": 14,
+          "text": "Run self-check"
+        },
+        {
+          "label": "Reset Learning State",
+          "len": 20,
+          "text": "Reset learning state"
+        }
+      ]
+    }
+  ],
+  "overflow": false,
+  "scrollWidth": 1280
+}

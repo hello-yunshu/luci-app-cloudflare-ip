@@ -1,0 +1,102 @@
+{
+  "cssFullBytes": 18592,
+  "cssStrippedBytes": 14994,
+  "rows": [
+    {
+      "variant": "full",
+      "width": 375,
+      "synthetic": false,
+      "viewport": 375,
+      "mapWidth": 365,
+      "grid": "334.219px",
+      "cols": 1,
+      "media600": true,
+      "containerSupported": true,
+      "overflow": false
+    },
+    {
+      "variant": "stripped",
+      "width": 375,
+      "synthetic": false,
+      "viewport": 375,
+      "mapWidth": 365,
+      "grid": "334.219px",
+      "cols": 1,
+      "media600": true,
+      "containerSupported": true,
+      "overflow": false
+    },
+    {
+      "variant": "full",
+      "width": 640,
+      "synthetic": false,
+      "viewport": 640,
+      "mapWidth": 630,
+      "grid": "192px 381.625px",
+      "cols": 2,
+      "media600": false,
+      "containerSupported": true,
+      "overflow": false
+    },
+    {
+      "variant": "stripped",
+      "width": 640,
+      "synthetic": false,
+      "viewport": 640,
+      "mapWidth": 630,
+      "grid": "192px 381.625px",
+      "cols": 2,
+      "media600": false,
+      "containerSupported": true,
+      "overflow": false
+    },
+    {
+      "variant": "full",
+      "width": 768,
+      "synthetic": false,
+      "viewport": 768,
+      "mapWidth": 758,
+      "grid": "224.516px 477.109px",
+      "cols": 2,
+      "media600": false,
+      "containerSupported": true,
+      "overflow": false
+    },
+    {
+      "variant": "stripped",
+      "width": 768,
+      "synthetic": false,
+      "viewport": 768,
+      "mapWidth": 758,
+      "grid": "224.516px 477.109px",
+      "cols": 2,
+      "media600": false,
+      "containerSupported": true,
+      "overflow": false
+    },
+    {
+      "variant": "full",
+      "width": 768,
+      "synthetic": true,
+      "viewport": 768,
+      "mapWidth": 500,
+      "grid": "469.219px",
+      "cols": 1,
+      "media600": false,
+      "containerSupported": true,
+      "overflow": false
+    },
+    {
+      "variant": "stripped",
+      "width": 768,
+      "synthetic": true,
+      "viewport": 768,
+      "mapWidth": 500,
+      "grid": "192px 251.609px",
+      "cols": 2,
+      "media600": false,
+      "containerSupported": true,
+      "overflow": false
+    }
+  ]
+}

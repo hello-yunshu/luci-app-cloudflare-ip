@@ -1,0 +1,19 @@
+{
+  "pages": 24,
+  "elements": 1105,
+  "failures": 35,
+  "byTheme": {
+    "bootstrap": 12,
+    "aurora-light": 5,
+    "aurora-dark": 18
+  },
+  "byPage": {
+    "settings": 5,
+    "sources": 8,
+    "openclash": 5,
+    "passwall": 5,
+    "advanced": 5,
+    "logs": 3,
+    "overview": 4
+  }
+}
