@@ -1,6 +1,15 @@
 # Next Release Issue Register — 2e28db4 baseline, released v2.6.0-8, post-release findings
 
-审计基线：`main` / `2e28db4b5cdc221897bbe98ff78fbe7235098e53`；发布身份：`v2.6.0-8` → `4cbad4d2bb68315ed22b4c702effb78c1cd03ffb`（Pre-release）；当前 `main`：`ae4282f7f4c543a06693925a9d49098891d85df8`（PR #27 合并）。证据目录：`docs/audits/next-release-evidence/`。历史正文保留阶段 A 复现，状态列已更新到发布后修复。
+审计基线：`main` / `2e28db4b5cdc221897bbe98ff78fbe7235098e53`；发布身份：`v2.6.0-8` → `4cbad4d2bb68315ed22b4c702effb78c1cd03ffb`（Pre-release）；修复发布 `v2.6.0-9`（Pre-release，tag 目标以 Release 为准）。证据目录：`docs/audits/next-release-evidence/`。历史正文保留阶段 A 复现，状态列已更新到发布后修复。
+
+## 最终合并 SHA
+
+| 阶段 | SHA |
+|---|---|
+| v2.6.0-8 tag 目标 | `4cbad4d2bb68315ed22b4c702effb78c1cd03ffb` |
+| 阶段 I 清理 merge | `ae4282f7f4c543a06693925a9d49098891d85df8` |
+| 阶段 J 自检 merge | `8257a3d2979cbc187cc0677fc61f81bde3ea0c04` |
+| 阶段 K（r9） | 以 `v2.6.0-9` tag 为准（不在文档中写死合并 SHA） |
 
 ## 1. 汇总
 

@@ -1,6 +1,6 @@
 # Stable Gate — criteria, decision and review flow
 
-Status: **prepared, not executed.** `v2.6.0-8` is a published Pre-release. No stable promotion, no channel change, no new tag/Release is authorized by this document.
+Status: **prepared, not executed.** `v2.6.0-8` is a published Pre-release; `v2.6.0-9` is the P1-06 fix Pre-release authorized separately under explicit conditions. No stable promotion and no channel change are authorized by this document. The compact operating list is [STABLE_GATE_ACTION.md](STABLE_GATE_ACTION.md).
 
 ## 1. Current base
 
@@ -123,9 +123,9 @@ commands and outputs. Summary:
 - ENOSPC (full target filesystem): the package files are written but
   `/usr/lib/opkg/status` fails with `No space left on device`, leaving a
   corrupt status DB and an apparently installed package. Freeing space and
-  reinstalling succeeds; the config hash stays unchanged. A device-side
-  `opkg` status backup/restore step is still missing from the rollback
-  procedure.
+  restoring the pre-upgrade status backup (see
+  [ROLLBACK_AND_RECOVERY.md](ROLLBACK_AND_RECOVERY.md)) makes opkg usable
+  again; the config hash stays unchanged.
 - Power-loss (container kill during prerm): old version and config remain;
   reinstall succeeds. A kill during file extraction and a real power cut were
   not forced.
@@ -165,7 +165,7 @@ No automatic promotion. `release.yml` intentionally refuses non-`prerelease` cha
 | Full touch/keyboard matrix | keyboard at browser ceiling; full touch **NOT RUN** | run on touch device |
 | Full-workspace non-shipped zstd advisories | decision material prepared (§2A.3) | user accept boundary or upgrade |
 | Rollback / ENOSPC / power-loss on device | container drill PASS; device **NOT RUN** | device drill plus opkg status backup procedure |
-| Released r8 bytes contain P1-06 | the current release cannot publish on curl 8.22.0 | a new build/release is required before any Stable claim |
+| Released r8 bytes contain P1-06 | fixed by the P1-06 Pre-release (`v2.6.0-9`); any Stable candidate must be r9 or later | use the r9 bytes for a Stable claim |
 | Channel change to stable | not authorized | explicit user authorization; do not bypass guard |
 
 ### 5A. External-device work (not executable here)

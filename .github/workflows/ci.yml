@@ -329,6 +329,7 @@ jobs:
           tar --exclude=.git --exclude=docs -cf - . | docker exec -i cfip-publisher-fixture tar -C /tmp/repo -xf -
           docker exec cfip-publisher-fixture sh -c 'cd /tmp/repo && bash tests/publisher-uhttpd-readback.sh'
           docker exec cfip-publisher-fixture sh -c 'cd /tmp/repo && bash tests/publisher-procd-rebind.sh'
+          docker exec cfip-publisher-fixture sh -c 'cd /tmp/repo && bash tests/opkg-status-recovery.sh'
 
   legacy-contract:
     runs-on: ubuntu-latest
