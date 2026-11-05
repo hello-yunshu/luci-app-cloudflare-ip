@@ -8,20 +8,24 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   package-identity:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.identity.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - id: identity
         run: echo "matrix=$(python3 -B scripts/package_identity.py --matrix)" >> "$GITHUB_OUTPUT"
 
   host-contract:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
       - name: Install host tools
@@ -265,7 +269,7 @@ jobs:
   docker-replay:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Build bounded Docker replay harness image
         run: docker compose -f docker/2.3/compose.yaml build adaptive-replay
       - name: Run bounded Docker replay harness
@@ -279,7 +283,7 @@ jobs:
   i18n-contract:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Install gettext
         run: sudo apt-get update && sudo apt-get install -y gettext
       - name: Verify translation syntax and key coverage
@@ -292,7 +296,7 @@ jobs:
   rootfs-contract:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Run rootfs policy and migration tests in disposable OpenWrt
         run: |
           set -euo pipefail
@@ -311,7 +315,7 @@ jobs:
   publisher-runtime:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Run publisher fixtures against live OpenWrt procd/uhttpd
         run: |
           set -euo pipefail
@@ -334,7 +338,7 @@ jobs:
   legacy-contract:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Install host tools
         run: sudo apt-get update && sudo apt-get install -y jq shellcheck ruby ruby-psych
       - name: Run 1.8.3 preservation contracts
@@ -360,7 +364,7 @@ jobs:
       image: ghcr.io/openwrt/sdk:${{ matrix.arch }}-${{ matrix.branch }}
       options: --user root
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           path: luci-app-cloudflare-ip
       - name: Checkout canonical Runtime package at immutable contract commit
@@ -374,7 +378,7 @@ jobs:
           git -C rill-openwrt-packages checkout --detach "$package_commit"
           test "$(git -C rill-openwrt-packages rev-parse HEAD)" = "$package_commit"
       - name: Cache OpenWrt Rust toolchain and Cargo registry
-        uses: actions/cache@v6
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
           path: |
             /builder/dl/cargo
@@ -451,7 +455,7 @@ jobs:
           QUALIFICATION_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           bash "$GITHUB_WORKSPACE/luci-app-cloudflare-ip/tests/sdk-writer-lock.sh" /builder "$GITHUB_WORKSPACE/writer-lock-qualification"
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ always() && steps.writer_lock.outcome != 'skipped' }}
         with:
           name: writer-lock-${{ matrix.branch }}-${{ matrix.pkgtype }}-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
@@ -502,7 +506,7 @@ jobs:
           test -n "$runtime_libgcc"
           mkdir -p "$GITHUB_WORKSPACE/output/validation-runtime"
           cp "$runtime_libgcc" "$GITHUB_WORKSPACE/output/validation-runtime/libgcc_s.so.1"
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: luci-app-cloudflare-ip-${{ matrix.pkgtype }}-${{ matrix.branch }}-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
           path: output/
@@ -526,22 +530,22 @@ jobs:
       image: ghcr.io/openwrt/sdk:${{ matrix.arch }}-${{ matrix.branch }}
       options: --user root
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           path: luci-app-cloudflare-ip
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: v2.6.0-2
           path: legacy-r2
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: v2.6.0-3
           path: legacy-r3
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: luci-app-cloudflare-ip-${{ matrix.pkgtype }}-${{ matrix.branch }}-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
           path: current-output
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: luci-app-cloudflare-ip-ipk-v24.10.8-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
           path: runtime-output
@@ -679,7 +683,7 @@ jobs:
           test -x "$RUNTIME_BIN"
           SOURCE_TAG=v2.6.0-2 SOURCE_SHA="$source_sha" OPKG="${OPKG_BIN:-opkg}" APK="${APK_BIN:-apk}" \
             R3_BASE="$r3_base" bash luci-app-cloudflare-ip/tests/package-migration.sh "${{ matrix.pkgtype }}" "$legacy_base" "$legacy_addon" "$current_base" "$current_addon" "$RUNTIME_BIN"
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
           name: package-migration-${{ matrix.pkgtype }}-${{ matrix.branch }}-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
@@ -696,7 +700,7 @@ jobs:
     needs: openwrt-package
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Checkout canonical Runtime package at immutable contract commit
         shell: bash
         run: |
@@ -784,7 +788,7 @@ jobs:
           jq -n --arg version "$VERSION" --arg packageCommit "$PACKAGE_COMMIT" --arg qualificationRun "$QUALIFICATION_RUN" --arg qualificationManifestSha256 "$QUALIFICATION_MANIFEST_SHA256" --arg upstreamTag "$UPSTREAM_TAG" --arg stableCommit "$STABLE_COMMIT" --arg previewCommit "$PREVIEW_COMMIT" --arg sourceArchiveSha256 "$SOURCE_ARCHIVE_SHA256" --arg binarySha256 "$BINARY_SHA256" \
             '{schemaVersion:1,consumer:"hello-yunshu/luci-app-cloudflare-ip",package:{repository:"hello-yunshu/rill-openwrt-packages",commit:$packageCommit,qualificationRunId:($qualificationRun|tonumber),qualificationManifestSha256:$qualificationManifestSha256},stablePackageQualification:"PASS",previewRuntimeIntegration:"PASS",stableCommit:$stableCommit,previewCommit:$previewCommit,runtime:{version:$version,tag:$upstreamTag,commit:$previewCommit,sourceArchiveSha256:$sourceArchiveSha256,binarySha256:$binarySha256},integration:{test:"tests/rill-feedback-integration.sh",status:"pass",sameRelease:true,sourcePackage:"rill-runtime-preview",packageBinary:"/usr/bin/rill-runtime"}}' \
             > rill-runtime-integration.json
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: rill-runtime-integration-evidence-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
           path: rill-runtime-integration.json
@@ -794,14 +798,14 @@ jobs:
     runs-on: ubuntu-latest
     needs: [host-contract, openwrt-package, package-migration, rill-runtime-integration, docker-replay]
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Verify source build version policy
         run: python3 scripts/check-build-version-policy.py
 
   rpc-luci-contract:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Install contract tools
         run: sudo apt-get update && sudo apt-get install -y jq
       - name: RPC and LuCI dispatch contracts
@@ -815,7 +819,7 @@ jobs:
   workflow-lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Install actionlint
         run: |
           set -euo pipefail
@@ -829,7 +833,7 @@ jobs:
   real-cfst-smoke:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Install tools
         run: sudo apt-get update && sudo apt-get install -y jq
       - name: Download and execute real CFST
@@ -849,7 +853,7 @@ jobs:
           2606:4700::1111/128
           EOF_INPUT
           env -u GH_TOKEN -u GITHUB_TOKEN CFST_EVIDENCE_DIR="$RUNNER_TEMP/cfst/execution" bash tests/cfst-real-smoke.sh "$cfst" "$RUNNER_TEMP/cfst/input.txt"
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: cfst-byte-qualification-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
           path: |
@@ -862,7 +866,7 @@ jobs:
     needs: openwrt-package
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Download exact-attempt SDK artifacts
         env:
           GH_TOKEN: ${{ github.token }}
@@ -878,7 +882,7 @@ jobs:
     needs: [package-identity, host-contract, legacy-contract, rpc-luci-contract, openwrt-package, package-migration, rill-runtime-integration, package-release-guard, workflow-lint, real-cfst-smoke, release-asset-contract, docker-replay, rootfs-contract, i18n-contract]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Require every qualification job
         env:
           RESULTS: ${{ toJSON(needs) }}
@@ -892,7 +896,7 @@ jobs:
     needs: [package-identity, host-contract, legacy-contract, rpc-luci-contract, openwrt-package, package-migration, rill-runtime-integration, package-release-guard, workflow-lint, real-cfst-smoke, release-asset-contract, docker-replay, rootfs-contract, i18n-contract]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
       - name: Generate exact qualification manifest
@@ -955,7 +959,7 @@ jobs:
           python3 tests/release-preflight-real.py qualification.json "$public_dir" --commit "$GITHUB_SHA" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --apk-bin "$apk_bin" --output release-preflight-negatives.json
           (cd "$public_dir" && sha256sum -- * > "$GITHUB_WORKSPACE/SHA256SUMS")
           python3 scripts/prepare-stable-review.py --manifest qualification.json --preflight release-preflight.json --negatives release-preflight-negatives.json --candidate "${{ github.event.pull_request.head.sha || github.sha }}" --repository "$GITHUB_REPOSITORY" --output stable-review.json
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: qualification-evidence-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
           path: |
