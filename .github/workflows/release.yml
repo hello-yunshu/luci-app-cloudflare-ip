@@ -23,7 +23,7 @@ jobs:
     outputs:
       release_needed: ${{ steps.scope.outputs.release_needed }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 2
@@ -63,7 +63,7 @@ jobs:
       ipk_name: ${{ steps.verify.outputs.ipk_name }}
       apk_name: ${{ steps.verify.outputs.apk_name }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 1
@@ -117,7 +117,7 @@ jobs:
     if: needs.check-qualification.result == 'success'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: ${{ needs.check-qualification.outputs.commit }}
           fetch-depth: 1
@@ -163,7 +163,7 @@ jobs:
           python3 scripts/validate-release-assets.py release/qualification.json release --commit "$EXPECTED_SHA" --run-id "$QUALIFICATION_RUN_ID" --run-attempt "$QUALIFICATION_RUN_ATTEMPT" --version "$VERSION" --release "$RELEASE" --contract contracts/rill-runtime.json
           (cd release && sha256sum luci-app-cloudflare-ip*.ipk luci-app-cloudflare-ip*.apk > sha256sums.txt)
           bash tests/release-asset-contract.sh release "$VERSION"
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: release-bundle
           path: release/
@@ -174,11 +174,11 @@ jobs:
     if: needs.check-qualification.result == 'success' && needs.collect.result == 'success'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: ${{ needs.check-qualification.outputs.commit }}
           fetch-depth: 0
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: release-bundle
           path: release/
@@ -199,7 +199,7 @@ jobs:
             test "$tag_sha" = "$EXPECTED_SHA" || { echo "immutable tag collision: $tag points to $tag_sha, expected $EXPECTED_SHA" >&2; exit 1; }
           fi
       - name: Publish exact qualified release
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3 # v3
         with:
           tag_name: ${{ needs.check-qualification.outputs.tag }}
           name: ${{ needs.check-qualification.outputs.tag }}

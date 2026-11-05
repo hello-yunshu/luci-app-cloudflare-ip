@@ -8,6 +8,10 @@ on:
 permissions:
   actions: write
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   cleanup:
     runs-on: ubuntu-latest
