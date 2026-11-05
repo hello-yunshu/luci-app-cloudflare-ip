@@ -1,0 +1,87 @@
+{
+  "base": "http://127.0.0.1:18081",
+  "label": "before",
+  "rows": [
+    {
+      "page": "overview",
+      "section": {
+        "radius": "12px",
+        "shadow": "color(srgb 0.0745098 0.133333 0.219608 / 0.09) 0px 5px 18px 0px"
+      },
+      "stat": {
+        "radius": "12px",
+        "shadow": "color(srgb 0.0745098 0.133333 0.219608 / 0.09) 0px 5px 18px 0px"
+      },
+      "table": {
+        "radius": "9px",
+        "shadow": "none"
+      },
+      "cmd": null,
+      "badge": {
+        "radius": "4px",
+        "shadow": "none"
+      },
+      "footer": {
+        "radius": "0px",
+        "shadow": "none"
+      },
+      "footerMark": {
+        "radius": "4px",
+        "shadow": "none"
+      },
+      "footerLink": {
+        "radius": "4px",
+        "shadow": "none"
+      }
+    },
+    {
+      "page": "settings",
+      "section": {
+        "radius": "12px",
+        "shadow": "color(srgb 0.0745098 0.133333 0.219608 / 0.09) 0px 5px 18px 0px"
+      },
+      "stat": null,
+      "table": null,
+      "cmd": null,
+      "badge": null,
+      "footer": {
+        "radius": "0px",
+        "shadow": "none"
+      },
+      "footerMark": {
+        "radius": "4px",
+        "shadow": "none"
+      },
+      "footerLink": {
+        "radius": "4px",
+        "shadow": "none"
+      }
+    },
+    {
+      "page": "sources",
+      "section": {
+        "radius": "12px",
+        "shadow": "color(srgb 0.0745098 0.133333 0.219608 / 0.09) 0px 5px 18px 0px"
+      },
+      "stat": null,
+      "table": {
+        "radius": "9px",
+        "shadow": "none"
+      },
+      "cmd": null,
+      "badge": null,
+      "footer": {
+        "radius": "0px",
+        "shadow": "none"
+      },
+      "footerMark": {
+        "radius": "4px",
+        "shadow": "none"
+      },
+      "footerLink": {
+        "radius": "4px",
+        "shadow": "none"
+      }
+    }
+  ]
+}
