@@ -1,0 +1,12 @@
+{
+  "no-preference": {
+    "animationName": "cfi-pulse",
+    "logFontSize": "12px",
+    "logFontFamily": "monospace"
+  },
+  "reduce": {
+    "animationName": "none",
+    "logFontSize": "12px",
+    "logFontFamily": "monospace"
+  }
+}
