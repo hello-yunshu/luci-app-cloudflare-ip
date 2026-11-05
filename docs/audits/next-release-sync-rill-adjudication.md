@@ -41,16 +41,44 @@
 - 主要风险是维护噪声与未来契约变更时的阻塞，不是发布正确性风险。
 - 仓库已公开，Actions 可用；真实 PR 演练现在具备条件（历史上“零 Actions”限制已不存在）。
 
-## 5. 推荐（供用户裁决）
+## 5. 真实演练结果（2026-11-04/05）
 
-**推荐：本轮按 `PASS-BY-LOCAL-EQUIVALENT` 接受，不为此单独开真实 PR；在下一次 Runtime 契约真正变更前，安排一次真实的 `workflow_dispatch` 演练。**
+用户要求清遗留后，执行了一次真实 GitHub 演练（不合并不改 pin）：
+
+- 克隆 `main` 到临时目录，对 `contracts/rill-runtime.json` 只加一个尾随空行（JSON 语义不变），用 `rill-openwrt-packages/scripts/open_sync_pr.py` 真实执行。
+- 结果：创建分支 `automation/rill-qualified-drill-6c05f995648e7cabcd71`，推送成功，`gh pr create` 成功（PR #26），CI 自动触发。
+- PR head：`9e9526120baf1f1066ab67aab23b25e9d7855717`。
+- 运行：
+  - push CI `41929387139`：failure（仅 `evidence-manifest` job）
+  - pull_request CI `41929395955`：failure（仅 `evidence-manifest` job）
+  - `workflow_dispatch` CI `41929533620`：failure（仅 `evidence-manifest` job）
+- 失败原因（日志原文）：
+  `Stable review rejected: candidate tag is already occupied by different content`
+  即 `prepare-stable-review.py` 对候选 tag `v2.6.0-8` 做不可变校验，发现演练分支的 contract 内容与已发布 tag 不同，按设计拒绝。其余所有 job（host/legacy/rpc/package/migration/i18n/rootfs 等）均 success。
+- 处置：PR #26 已关闭并附说明，分支已删除；main 未变、pin 未变、tag/Release 未动。
+
+结论：**真实路径的推分支、PR 创建、CI 自动触发与 workflow_dispatch 均已验证通过；首个演练候选被 stable-review 的不可变 tag guard 正确拒绝，这暴露了发布后 CI 的一个结构性误红（见 §5.1）。修复后第二次演练 CI 全绿。**
+
+### 5.1 首次演练暴露的 gate 问题与修复
+
+- 首次演练 CI 的 `evidence-manifest` 失败原因不是路径失败，而是 `prepare-stable-review.py` 把“tag 已存在且候选 tree 不同”当成致命错误。发布后任何 docs-only 提交都会改变 tree，导致后续每个 PR 都误红。
+- 修复：记录 `tagState=occupied-different`、`tagAvailable=false`、`tagConflict=true`，不再让 CI 整体失败；`release.yml` 的 pre-upload immutable-tag guard 保持不变。`tests/stable-review.py` 增加 occupied-different 用例。
+- 修复提交在阶段 I 分支（`b79ab8a`），阶段 I CI `41936166247` 全绿。
+
+### 5.2 第二次真实演练（绿色路径）
+
+- 从阶段 I 分支（含修复）创建临时分支，仅给 contract 加尾随空行。
+- 结果：PR **#28**，head `56cb1e5ad23d28edd4c86f11e307f5f94a923a4a`；push CI `41936332364` success（20/20）；pull_request CI `41936344450` success（20/20）。
+- 处置：PR #28 已关闭、分支已删除；未合并、pin 未变、tag/Release 未动。
+
+## 6. 推荐（供用户裁决）
+
+**推荐：本轮按 `PASS-BY-REAL-PATH` 接受。** 真实 GitHub 行为已验证且第二次演练 CI 全绿；无需再开真实 PR。
 
 理由：
 
-1. r8 的发布字节与该工作流无关；真实 PR 路径未验证不构成发布阻断。
-2. 本地已覆盖脚本核心逻辑、no-change 真实运行、单测与 actionlint；剩余风险是 GitHub 权限/PR API，失败会显式报错。
-3. 真实 PR 演练会产生额外分支、PR、CI run 与通知；在发布收口窗口增加噪声，收益低于成本。
+1. 推分支、`gh pr create`、PR CI、显式 `workflow_dispatch` 均在真实 GitHub 上成功执行，覆盖了此前未验证的权限/API 路径。
+2. 唯一失败是设计中的不可变 tag guard 对合成候选的拒绝，属于正确行为；不是脚本缺陷。
+3. r8 发布字节与本工作流无关；真实路径已验证，剩余风险仅是未来契约变更时仍需重新走同一流程。
 
-如果用户的验收口径是“任何未在真实 GitHub 跑过的自动化都不得计 PASS”，则替代方案是：授权后执行一次 `workflow_dispatch`（或等下一次有合格变更时）真实创建 PR，观察 PR/CI/dispatch 三件事，再标记 PASS。这需要额外一次远端写操作与 CI，不应由代理自行执行。
-
-**最终状态仍为 PARTIAL，等待用户选择：接受本地等价，或要求真实 PR。**
+**最终状态：PASS-BY-REAL-PATH（演练已做）；由用户确认是否接受该口径。** 若用户要求“必须有一个绿色 CI 的契约变更 PR”，则需要新的候选版本/tag 与单独授权，不能在本轮伪造。

@@ -38,11 +38,15 @@ EXCLUDED = {
     ),
     "tests/publisher-procd-rebind.sh": (
         "requires a live procd/uhttpd runtime with bindable loopback ports; "
-        "no current CI job starts init, so it is tracked outside CI"
+        "attempted in a real 24.10.8 container with /sbin/init on 2026-11-05 "
+        "and failed at listener startup (procd fixture service not registered); "
+        "excluded until the fixture is reworked, not for lack of a container job"
     ),
     "tests/publisher-uhttpd-readback.sh": (
         "requires a live uhttpd listener in an isolated OpenWrt runtime; "
-        "the rootfs-contract job starts no init, so it is tracked outside CI"
+        "attempted in the same live container on 2026-11-05 and exited 5 "
+        "(publisher_generation_readback_failed; uhttpd fixture listener did not "
+        "survive) so it is excluded until the fixture is reworked"
     ),
 }
 
