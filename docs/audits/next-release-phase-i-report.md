@@ -2,6 +2,19 @@
 
 Result: **PASS（5 条遗留已处置；Stable Gate 材料已准备但未执行；v2.6.0-8 发布后安装/升级验证 PASS）。** 未改 `release-channel.json`、未移动/删除 tag、未打新 tag、未建新 Release。
 
+## 0. Follow-up (2026-11-05)
+
+阶段 I 的 publisher 排除结论已被推翻并完成重写：
+
+- 两个 fixture 的早期失败不是“uhttpd 未存活 / procd 未注册”。保留现场显示 uhttpd 进程存活、procd 实例 running、generation 文件存在；真正原因是产品 `curl --connect-timeout 1 --max-time 1` 被 24.10.8 当前 feed 的 `curl 8.22.0-r1` 拒绝（`remaining timeout of 999 too small`），就绪检查恒失败。
+- 已在 `publisher.sh` 两处改为 2s；fixture 改用真实 procd/uhttpd、真实触发注册断言和真实 reload 命令；在全新 24.10.8 容器连跑两遍 PASS；新增 CI job `publisher-runtime`；登记为 P1-06。
+- 该修复只在 `main`，**不包含在 v2.6.0-8 资产**；r8 在装有当前 curl 的设备上 publisher 仍不可用，下一次发布才修复。
+- 详细证据：[publisher-fixture-rewrite.md](next-release-evidence/phase-i/publisher-fixture-rewrite.md)。
+
+Stable Gate 自检也已完成容器可做部分：硬件/架构矩阵、zstd 决策材料、shipped 依赖零公告、rollback/ENOSPC/断电容器演练、触控/键盘浏览器上限；物理设备、24h soak、PassWall 真实网络仍停在外部依赖。详见 [STABLE_GATE.md](../STABLE_GATE.md) §2A/§5A 与 [stable-gate-drills.md](next-release-evidence/phase-i/stable-gate-drills.md)。
+
+历史归档分支 `phase-b/next-release-fixes` 仍只在本地；2026-11-05 推送 85 MiB pack 被 GitHub HTTPS 重置，恢复步骤已写入 INDEX。
+
 ## 1. 遗留 5 条
 
 ### 1.1 跨仓 sync-rill 真实演练
@@ -39,16 +52,15 @@ Result: **PASS（5 条遗留已处置；Stable Gate 材料已准备但未执行�
 ### 1.4 publisher 测试是否纳入 CI
 
 - 在真实 `cfip-ui-phasef` 容器（OpenWrt 24.10.8 x86_64，`/sbin/init`，procd/uhttpd/uci/jq/curl 可用）中执行：
-  - `tests/publisher-uhttpd-readback.sh` → **exit 5**，`publisher_generation_readback_failed`；fixture 启动的 uhttpd 在脚本退出后未存活。
-  - `tests/publisher-procd-rebind.sh` → **exit 1**，`FAIL listener not reachable at 127.0.0.1`；procd fixture service 未注册/未启动。
-- 结论：**当前不纳入 CI**。不是缺少容器，而是两个 fixture 需要重写（用 procd/受管进程持有 uhttpd，修正 procd service/trigger payload）。`tests/ci-test-inventory.py` 的排除理由已更新为“已在 live 容器尝试并失败”，并附日志到 `next-release-evidence/phase-i/`。
-- 未修改测试或产品代码来“迁就” CI；待后续单独修复 fixture。
+  - `tests/publisher-uhttpd-readback.sh` → **exit 5**，`publisher_generation_readback_failed`；当时归因“uhttpd 未存活”（后来被推翻，见 §0）。
+  - `tests/publisher-procd-rebind.sh` → **exit 1**，`FAIL listener not reachable at 127.0.0.1`；当时归因“procd fixture 未注册/未启动”（后来被推翻，见 §0）。
+- 结论：**已重写并纳入 CI（2026-11-05 follow-up，见 §0）。** 两个 fixture 在真实 24.10.8 procd/uhttpd 中全新容器跑通；根因是产品 1s curl 超时在 curl 8.22.0 下不可用，已修复并登记 P1-06；`.github/workflows/ci.yml` 新增 `publisher-runtime` job，`ci-test-inventory.py` 不再排除这两个测试。早期失败日志保留在 `next-release-evidence/phase-i/`。
 
 ### 1.5 历史大归档
 
 - 主仓库 `docs/audits/next-release-evidence/` 现有 **35 MB**，包含 phase-d/e/f、矩阵、缩放/中文、visual-2e28db4 基线；足以自证 r8 审计。
 - 四个历史归档保留在 linked worktree：`ui-refinement-7c13b1d/` 28 MB、`ui-skill-audit/` 21 MB、`visual-phase-b/` 5.6 MB、`visual-phase-c/` 6.0 MB。它们不是 r8 发布证据，**不归位主仓库**。
-- 访问方式：`git worktree list` → `/Users/yunshu/Documents/GitHub/cfip-docs-evidence`，分支 `phase-b/next-release-fixes`；该分支未推远端，干净克隆不可得。已在 INDEX 记录。
+- 访问方式：`git worktree list` → `/Users/yunshu/Documents/GitHub/cfip-docs-evidence`，分支 `phase-b/next-release-fixes`；该分支未推远端，干净克隆不可得。2026-11-05 follow-up 尝试推送该分支（24 commits / 约 85 MiB pack），GitHub HTTPS 连续返回 `Connection reset by peer`，仍未推送。INDEX 已记录 bundle 导出/传输/回填的可执行恢复步骤。
 
 ## 2. 下一阶段：Stable Gate
 
@@ -57,10 +69,13 @@ Result: **PASS（5 条遗留已处置；Stable Gate 材料已准备但未执行�
   - 物理设备/硬件矩阵 NOT RUN（pre-release 的 PASS-BY-USER-DECISION 不等于 Stable 证据）；
   - 24h soak NOT RUN；
   - PassWall 真实代理网络 NOT RUN；
-  - arm64 仅安装/页面，超出 x86 的架构未覆盖；
-  - 完整触控矩阵 partial；
-  - full-workspace 非 shipped zstd 公告仍待用户裁决；
+  - arm64 仅 r7 安装/页面，r8 未跑，超出 x86 的架构未覆盖；
+  - 完整触控矩阵 NOT RUN（键盘已到浏览器上限）；
+  - full-workspace 非 shipped zstd 公告已备决策材料，仍待用户裁决；
+  - rollback/ENOSPC/断电容器演练 PASS，但真实设备层面的断电/ENOSPC/opkg status 恢复未做；
+  - `v2.6.0-8` 资产包含 P1-06（publisher 在 curl 8.22.0 下不可用），Stable 前必须重新构建/发布；
   - channel 变更未授权；guard 不得绕过。
+- 已完成的容器自检：硬件/架构矩阵、zstd 决策材料、shipped 依赖零公告、rollback/ENOSPC/断电演练、触控/键盘浏览器上限，见 [STABLE_GATE.md](../STABLE_GATE.md) §2A 与 [stable-gate-drills.md](next-release-evidence/phase-i/stable-gate-drills.md)。
 - 评审流程：evidence freeze → exact-SHA Gate → device review → security review → user decision → channel change (separate authorization) → stable release from approved main SHA → post-release validation。
 
 ## 3. 发布后验证（v2.6.0-8 资产）
@@ -88,3 +103,5 @@ Result: **PASS（5 条遗留已处置；Stable Gate 材料已准备但未执行�
 - 未合并 PR #26（已关闭）；未改 Runtime pin；未开真实跨仓 PR。
 - 未执行 Stable 晋级。
 - 物理设备、24h soak、PassWall 真实代理网络、完整触控矩阵仍未覆盖。
+- P1-06 修复只在 `main`，未进入 r8 资产；本阶段不授权新 tag/Release。
+- `phase-b/next-release-fixes` 归档分支未推送成功，仍为本地分支。

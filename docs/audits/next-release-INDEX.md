@@ -1,6 +1,6 @@
 # Next-release audit index
 
-当前代码候选：`audit/ui-skill-review` / `90dfc13`（PR #25）；版本口径 `2.6.0-r8`。阶段 G 收口提交只增加 CHANGELOG、Release notes、发布检查清单与索引更新，不改变代码树。未合并、未打 tag、未建 Release、未改 release-channel。
+发布身份：`v2.6.0-8`（2026-11-04，Pre-release），tag → `4cbad4d2bb68315ed22b4c702effb78c1cd03ffb`；`release-channel.json` 仍为 `stable`，未做 Stable 晋级。当前 `main`：`ae4282f7f4c543a06693925a9d49098891d85df8`（PR #27 合并）。阶段 I 之后新增：publisher fixture 重写与真实运行时缺陷修复（P1-06）、`publisher-runtime` CI job、Stable Gate 自检材料。以下“候选”引用为历史审计口径，不再代表当前发布头。
 
 入口：主仓库 [README](../../README.md) 的“相关文档”已链接本索引。
 
@@ -34,7 +34,9 @@
 | `next-release-evidence/phase-f/zoom-zh/` | 真实 Chrome 125/150/200% 页面缩放、320 reflow、zh_cn 375/1280 截图与 `zoom-zh.json` |
 | `next-release-evidence/phase-f/gate-inventory.tsv` | 254 个本地测试 → CI job / 排除理由逐行清单 |
 | `next-release-evidence/phase-f/verify.json` | 证据校验结果与退出码 |
-| `next-release-evidence/phase-i/` | publisher 测试在 live 24.10.8 容器的失败证据（uhttpd exit 5、procd exit 1） |
+| `next-release-evidence/phase-i/publisher-fixture-rewrite.md` | publisher fixture 在真实 24.10.8 procd/uhttpd 中跑通的证据、curl 8.22.0 根因与 P1-06 修复 |
+| `next-release-evidence/phase-i/stable-gate-drills.md` | rollback / ENOSPC / 断电容器演练的原始命令与结果（含 opkg status DB 损坏发现） |
+| `next-release-evidence/phase-i/` | publisher 测试早期失败日志（已由上述重写取代结论） |
 | `next-release-evidence/phase-e/` | raw error、动态状态码、Advanced 只读的 BEFORE/AFTER |
 | `next-release-evidence/phase-d/` | 真实 OpenClash 控制器与恢复、测速弹窗、Intelligence |
 | `next-release-evidence/visual-2e28db4/` | 阶段 A 78 张真实 LuCI 基线截图 |
@@ -45,10 +47,15 @@
 - **放在主仓库的 `docs/` 树内**，不另建独立 docs 仓库。理由：审计结论必须与代码 SHA、CI run、包哈希同仓绑定；评审时一次干净检出即可复核；docs 变更与代码变更走同一条 CI/PR 门禁。
 - `cfip-docs-evidence` 是本仓库的 linked worktree（同一 `.git`，分支 `phase-b/next-release-fixes`），不是独立远端仓库。阶段 A–E 的大部分证据已复制回主仓库；仅四个体量较大的历史视觉归档保留在 worktree：`ui-refinement-7c13b1d/`（28 MB）、`ui-skill-audit/`（21 MB）、`visual-phase-b/`（5.6 MB）、`visual-phase-c/`（6.0 MB）。
 - 主仓库 `docs/audits/next-release-evidence/` 现有 **35 MB**，包含当前候选的 phase-d/e/f、matrix、zoom/zh、visual-2e28db4 基线；足以自证 r8 审计。上述四个归档是阶段 B/C/refinement 的历史过程材料，不是 r8 发布证据，因此不归位主仓库。
-- 访问方式（仅本机）：`git -C /Users/yunshu/Documents/GitHub/luci-app-cloudflare-ip worktree list` 可看到 `/Users/yunshu/Documents/GitHub/cfip-docs-evidence`（分支 `phase-b/next-release-fixes`）；直接在该目录查看。该分支未推送到远端，干净克隆无法获得这四个归档。
-- 当前 PR 分支（phase I）携带阶段 I 报告、发布后验证、Stable Gate、guard 文档与上述 phase-i 失败证据。
+- 访问方式（仅本机）：`git -C /Users/yunshu/Documents/GitHub/luci-app-cloudflare-ip worktree list` 可看到 `/Users/yunshu/Documents/GitHub/cfip-docs-evidence`（分支 `phase-b/next-release-fixes`）；直接在该目录查看。
+- **可复现性结论：否。** 该分支未在远端（`git ls-remote origin refs/heads/phase-b/next-release-fixes` 无输出）。2026-11-05 尝试推送 24 个提交 / 约 85 MiB 的 pack，GitHub HTTPS 侧连续返回 `Connection reset by peer`，未推送成功；干净克隆仍无法获得这四个归档。
+- 可执行恢复步骤（在持有该 worktree 的机器上执行）：
+  1. `git -C /Users/yunshu/Documents/GitHub/cfip-docs-evidence bundle create /tmp/cfip-evidence.bundle phase-b/next-release-fixes`
+  2. 传输 bundle 后，在任意克隆：`git fetch /tmp/cfip-evidence.bundle phase-b/next-release-fixes:phase-b/next-release-fixes && git worktree add /path/to/checkout phase-b/next-release-fixes`
+  3. 若要把分支放入远端：在网络允许大 pack 的环境执行 `git push origin phase-b/next-release-fixes`（或分拆为按归档拆分的多个小分支分别推送）。
+  这四个归档不是 r8 发布证据；主仓库 `docs/audits/next-release-evidence/` 已足以自证 r8 审计，缺少它们不影响 r8 复核。
 
 ## 门禁
 
 - 本地门禁↔CI 一致性由 [tests/ci-test-inventory.py](../../tests/ci-test-inventory.py) 在 CI `workflow-lint` job 执行：任何 `tests/` 下的 `.sh/.py/.cjs` 未接入 CI 且未登记排除理由，job 直接失败。
-- 当前：254 files / 247 referenced / 7 documented script exclusions / 0 leftovers。
+- 当前：254 files / 249 referenced / 11 documented exclusions / 0 leftovers（2026-11-05，`python3 -B tests/ci-test-inventory.py` exit 0）。新增 `publisher-runtime` job 覆盖两个 publisher fixture。
