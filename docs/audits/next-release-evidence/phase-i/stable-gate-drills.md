@@ -101,3 +101,23 @@ behaviour cannot be reproduced in a container).
 - `apk` (25.12.x) rollback/ENOSPC/power-loss drills;
 - interruption during the actual file-extraction phase (timing was not forced);
 - real power cut (docker kill is not a hardware power loss).
+
+## 5. opkg status backup/restore drill
+
+Procedure: `docs/ROLLBACK_AND_RECOVERY.md`. Test: `tests/opkg-status-recovery.sh`,
+run in a fresh 24.10.8 container with 133 installed packages:
+
+```
+PASS baseline status is readable (133 entries)
+PASS truncated status is rejected (rc=0, stderr=92 bytes)
+PASS restored status matches the backup and opkg lists 133 packages
+rc=0
+```
+
+The test truncates `/usr/lib/opkg/status` (the ENOSPC symptom), records the
+backup SHA256, restores the backup atomically, and requires the package count to
+match. It is wired into the `publisher-runtime` CI job.
+
+Not covered: interruption of the restore itself (power cut while writing the
+backup), APK database restore, and real flash corruption.
+
