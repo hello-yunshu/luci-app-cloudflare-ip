@@ -308,6 +308,28 @@ jobs:
               bash tests/runtime-channel-matrix.sh
             '
 
+  publisher-runtime:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Run publisher fixtures against live OpenWrt procd/uhttpd
+        run: |
+          set -euo pipefail
+          docker run -d --name cfip-publisher-fixture --platform linux/amd64 \
+            openwrt/rootfs@sha256:9972a4b4747cd136abd597475d7b88c51a49fd849d0d53f069a2f4bf446061b9 /sbin/init
+          trap 'docker rm -f cfip-publisher-fixture >/dev/null 2>&1 || true' EXIT
+          ready=""
+          for _ in $(seq 1 30); do
+            if docker exec cfip-publisher-fixture ubus call service list '{}' >/dev/null 2>&1; then ready=1; break; fi
+            sleep 1
+          done
+          test -n "$ready"
+          docker exec cfip-publisher-fixture sh -c 'opkg update >/dev/null && opkg install bash curl jq >/dev/null'
+          docker exec cfip-publisher-fixture mkdir -p /tmp/repo
+          tar --exclude=.git --exclude=docs -cf - . | docker exec -i cfip-publisher-fixture tar -C /tmp/repo -xf -
+          docker exec cfip-publisher-fixture sh -c 'cd /tmp/repo && bash tests/publisher-uhttpd-readback.sh'
+          docker exec cfip-publisher-fixture sh -c 'cd /tmp/repo && bash tests/publisher-procd-rebind.sh'
+
   legacy-contract:
     runs-on: ubuntu-latest
     steps:

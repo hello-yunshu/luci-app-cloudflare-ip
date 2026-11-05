@@ -1,17 +1,17 @@
-# Next Release Issue Register — 2e28db4 baseline, current candidate 90dfc13
+# Next Release Issue Register — 2e28db4 baseline, released v2.6.0-8, post-release findings
 
-审计基线：`main` / `2e28db4b5cdc221897bbe98ff78fbe7235098e53`；**当前候选**：`audit/ui-skill-review` / `90dfc13`（PR #25）；证据目录：`docs/audits/next-release-evidence/`。历史正文保留阶段 A 复现，状态列已更新到当前候选。
+审计基线：`main` / `2e28db4b5cdc221897bbe98ff78fbe7235098e53`；发布身份：`v2.6.0-8` → `4cbad4d2bb68315ed22b4c702effb78c1cd03ffb`（Pre-release）；当前 `main`：`ae4282f7f4c543a06693925a9d49098891d85df8`（PR #27 合并）。证据目录：`docs/audits/next-release-evidence/`。历史正文保留阶段 A 复现，状态列已更新到发布后修复。
 
 ## 1. 汇总
 
 | 优先级 | 数量 | 状态分布 |
 |---|---:|---|
-| P0 | 1 | CLOSED / FIXED（90dfc13） |
-| P1 | 5 | 4 CLOSED / FIXED；1 PASS-BY-USER-DECISION |
+| P0 | 1 | CLOSED / FIXED |
+| P1 | 6 | 5 CLOSED / FIXED；1 PASS-BY-USER-DECISION |
 | P2 | 9 | 3 CLOSED；6 OPEN / SOURCE_CONFIRMED |
 | P3 | 2 | OPEN / SOURCE_CONFIRMED |
 
-> 本表保留阶段 A 的复现结构；P0/P1 状态已按当前候选 `90dfc13` 更新为 CLOSED/FIXED 或 PASS-BY-USER-DECISION；P2-07/P2-08/P2-09 已关闭，其余 P2/P3 仍未关闭。
+> 本表保留阶段 A 的复现结构；P0/P1 状态已按发布后修复更新。P1-06 是发布后由 live 容器 fixture 发现的真实运行时缺陷，已在 `main` 修复，**未包含在 v2.6.0-8 资产中**，需要下一次发布才能到达用户。P2-07/P2-08/P2-09 已关闭，其余 P2/P3 仍未关闭。
 
 ## 2. 索引
 
@@ -23,6 +23,7 @@
 | P1-03 | P1 | Rill reset 不刷新状态 | CLOSED — FIXED | `phase-d/intelligence/`、`tests/luci-view-bindings.cjs` |
 | P1-04 | P1 | 简体中文 88 个 key + 2 个菜单缺失 | CLOSED — FIXED（516 keys / 552 entries） | `tests/i18n-contract.py`、`phase-f/zoom-zh/` |
 | P1-05 | P1 | 真实设备/硬件/24h soak 证据缺失 | PASS-BY-USER-DECISION (2026-11-04) | `next-release-phase-d-report.md` §Follow-up |
+| P1-06 | P1 | publisher 就绪检查在 curl 8.22.0 下恒定失败 | CLOSED — FIXED（main，未进入 r8 资产） | `next-release-evidence/phase-i/publisher-fixture-rewrite.md` |
 | P2-01 | P2 | 600/900px media query 与容器宽度风险 | OPEN — SOURCE_CONFIRMED | `cloudflare-ip.css` |
 | P2-02 | P2 | Overview 内联 CSS 重复 | OPEN — SOURCE_CONFIRMED | `overview.js` |
 | P2-03 | P2 | 深色主题变量双来源/硬编码 | OPEN — SOURCE_CONFIRMED | `cloudflare-ip.css` |
@@ -105,6 +106,14 @@
 - **影响**：最终 GO 条件不满足；不能把容器当硬件。
 - **期望**：用户提供设备或明确接受边界；记录 firmware/arch/package/proxy/rollback。
 - **状态**：PASS-BY-USER-DECISION（2026-11-04）。用户确认“真机 + 24h soak 之前已经做过了，直接 pass”；未补造新记录。历史设备验收见 `g6-g7-evidence/device-acceptance-3bf0ec1.json`，历史 soak 记录为 SKIPPED/NOT STARTED，故本状态仅依据用户裁定。
+
+### P1-06 publisher 就绪检查在 curl 8.22.0 下恒定失败
+
+- **发现**：2026-11-05 在真实 OpenWrt 24.10.8 容器中重写 `tests/publisher-*.sh` 时发现，`publisher.sh` 的 `--connect-timeout 1 --max-time 1` 被当前 feed 的 `curl 8.22.0-r1` 拒绝：`curl: (28) remaining timeout of 999 too small to resolve via SIGALRM method`。真实 procd/uhttpd 已运行、文件可 200 返回，但 `cfip_publisher_wait_ready` 恒失败，发布器无法进入 ready。
+- **影响**：`v2.6.0-8` 及更早资产在安装当前 curl 包的设备上 publisher 不可用；此前阶段 I 把失败误判为 fixture 未启动服务。
+- **修复**：`publisher.sh` 两处就绪/端点检查改为 `--connect-timeout 2 --max-time 2`；fixture 用真实 procd/uhttpd 并在 24.10.8 容器跑通；新增 CI job `publisher-runtime`。
+- **证据**：`next-release-evidence/phase-i/publisher-fixture-rewrite.md`；本机复现：`curl --max-time 1` → rc 28，`--max-time 2` → 200。
+- **状态**：CLOSED — FIXED（`main`）。**未包含在 r8 资产**；下一次发布才到达用户。
 
 ## 5. P2
 
