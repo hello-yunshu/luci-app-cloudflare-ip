@@ -1,0 +1,1044 @@
+{
+  "container": "cfip-ui-gate",
+  "base": "http://127.0.0.1:18080",
+  "points": [
+    {
+      "id": "ov-start",
+      "page": "overview",
+      "control": "Start",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "PASS",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "N/A",
+        "open": "N/A"
+      },
+      "assertions": {
+        "busy": {
+          "disabled": false,
+          "text": "▶ Start"
+        },
+        "banner": ""
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 4146,
+      "kind": "interactive"
+    },
+    {
+      "id": "ov-restart",
+      "page": "overview",
+      "control": "Restart",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "PASS",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "N/A",
+        "open": "N/A"
+      },
+      "assertions": {
+        "text": "Unable to restart service: init_action_failed\n\nDismiss\nOverview\nSettings\nCandidate IP Sources\nIntelligence\nAdvanced\nLogs"
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 3448,
+      "kind": "interactive"
+    },
+    {
+      "id": "ov-cfst",
+      "page": "overview",
+      "control": "Download CFST",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "PASS",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "N/A",
+        "open": "N/A"
+      },
+      "assertions": {
+        "busy": {
+          "text": "Downloading...",
+          "disabled": true
+        },
+        "notice": "Downloading CFST, please wait...",
+        "rpc": "cf_ip.download-cfst via /ubus",
+        "beforeBytes": 75919,
+        "afterBytes": 78731
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 2951,
+      "kind": "interactive",
+      "sha": "9adb2d5"
+    },
+    {
+      "id": "ov-refresh-env",
+      "page": "overview",
+      "control": "Refresh Environment",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "PASS",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "N/A",
+        "open": "N/A"
+      },
+      "assertions": {
+        "envTable": "MODE\tpasswall\nLAST RUN TIME\t-\nLAST RESULT\t✘ Error\nBEST IPS\t-\nSCRIPT VERSION\t2.6.0\nCFST VERSION\t-\nGITHUB\thello-yunshu/luci-app-cloudflare-ip"
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 3950,
+      "kind": "interactive"
+    },
+    {
+      "id": "ov-footer",
+      "page": "overview",
+      "control": "Footer links",
+      "states": {
+        "default": "PASS",
+        "hover": "PASS",
+        "focus": "PASS",
+        "active": "N/A",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "N/A",
+        "open": "PASS"
+      },
+      "assertions": {
+        "hover": {
+          "outline": "3px none rgb(23, 105, 170)",
+          "boxShadow": "none",
+          "transform": "none",
+          "visible": true
+        },
+        "focus": {
+          "outline": "2px solid rgb(23, 105, 170)",
+          "boxShadow": "none",
+          "transform": "none",
+          "visible": true
+        },
+        "href": "https://github.com/hello-yunshu/luci-app-cloudflare-ip"
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 1479,
+      "kind": "interactive"
+    },
+    {
+      "id": "set-enable",
+      "page": "settings",
+      "control": "Enable Service",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "PASS",
+        "active": "N/A",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "N/A",
+        "open": "N/A"
+      },
+      "assertions": {
+        "toggled": true,
+        "focus": {
+          "outline": "2px solid color(srgb 0.0901961 0.411765 0.666667 / 0.3)",
+          "boxShadow": "none",
+          "transform": "none",
+          "visible": true
+        }
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 1458,
+      "kind": "interactive"
+    },
+    {
+      "id": "set-schedule",
+      "page": "settings",
+      "control": "Run Schedule",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "N/A",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "N/A",
+        "open": "PASS"
+      },
+      "assertions": {
+        "customVisible": true,
+        "customCount": 1
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 1731,
+      "kind": "interactive"
+    },
+    {
+      "id": "set-mode",
+      "page": "settings",
+      "control": "Mode",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "N/A",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "N/A",
+        "open": "N/A"
+      },
+      "assertions": {
+        "value": "openclash"
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 1430,
+      "kind": "interactive"
+    },
+    {
+      "id": "set-iptype",
+      "page": "settings",
+      "control": "IP Type",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "N/A",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "N/A",
+        "open": "N/A"
+      },
+      "assertions": {
+        "value": "both"
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 1431,
+      "kind": "interactive"
+    },
+    {
+      "id": "set-protocol",
+      "page": "settings",
+      "control": "Speed Test Protocol",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "N/A",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "N/A",
+        "open": "N/A"
+      },
+      "assertions": {
+        "value": "http"
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 1403,
+      "kind": "interactive"
+    },
+    {
+      "id": "set-validation",
+      "page": "settings",
+      "control": "IP Count validation",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "N/A",
+        "disabled": "N/A",
+        "error": "PASS",
+        "empty": "N/A",
+        "open": "N/A"
+      },
+      "assertions": {
+        "invalid": 1
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 2753,
+      "kind": "interactive"
+    },
+    {
+      "id": "set-save",
+      "page": "settings",
+      "control": "Save",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "PASS",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "N/A",
+        "open": "N/A"
+      },
+      "assertions": {
+        "browserValue": "16",
+        "changes": 1,
+        "formValue": "16"
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 3855,
+      "kind": "interactive",
+      "sha": "9adb2d5"
+    },
+    {
+      "id": "set-apply-open",
+      "page": "settings",
+      "control": "Save & Apply dropdown",
+      "states": {
+        "default": "PASS",
+        "hover": "PASS",
+        "focus": "PASS",
+        "active": "N/A",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "N/A",
+        "open": "PASS"
+      },
+      "assertions": {
+        "items": [
+          "Save & Apply",
+          "Apply unchecked"
+        ],
+        "open": true,
+        "closed": false
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 1794,
+      "kind": "interactive"
+    },
+    {
+      "id": "set-reset",
+      "page": "settings",
+      "control": "Reset",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "N/A",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "N/A",
+        "open": "N/A"
+      },
+      "assertions": {
+        "value": "8"
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 2240,
+      "kind": "interactive"
+    },
+    {
+      "id": "src-budget",
+      "page": "sources",
+      "control": "CFST Candidate IP Count",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "PASS",
+        "active": "N/A",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "N/A",
+        "open": "N/A"
+      },
+      "assertions": {
+        "value": "256",
+        "focus": {
+          "outline": "2px solid color(srgb 0.0901961 0.411765 0.666667 / 0.3)",
+          "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklab(0 0 0 / 0) 0px 0px 0px 0px, oklab(0 0 0 / 0.06) 0px 1px 3px 0px, oklab(0 0 0 / 0.04) 0px 1px 2px 0px",
+          "transform": "none",
+          "visible": true
+        }
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 1433,
+      "kind": "interactive"
+    },
+    {
+      "id": "src-multiselect",
+      "page": "sources",
+      "control": "Built-in Sources",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "N/A",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "N/A",
+        "open": "PASS"
+      },
+      "assertions": {
+        "options": 22,
+        "open": true
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 1764,
+      "kind": "interactive"
+    },
+    {
+      "id": "src-add",
+      "page": "sources",
+      "control": "Add custom source",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "N/A",
+        "disabled": "PASS",
+        "error": "N/A",
+        "empty": "N/A",
+        "open": "PASS"
+      },
+      "assertions": {
+        "addDisabledBeforeName": true,
+        "addEnabledAfterName": true,
+        "rows": 1,
+        "nameFields": 0
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 2704,
+      "kind": "interactive"
+    },
+    {
+      "id": "src-kind",
+      "page": "sources",
+      "control": "Custom source kind",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "N/A",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "N/A",
+        "open": "PASS"
+      },
+      "assertions": {
+        "editOpened": true,
+        "modalTitle": "Candidate Sources - cfg06ff76",
+        "kind": "manual",
+        "options": [
+          "HTTPS URL",
+          "Manual IP list"
+        ],
+        "manualIpVisible": 2,
+        "modalInputs": 4
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 31385,
+      "kind": "interactive"
+    },
+    {
+      "id": "src-lan",
+      "page": "sources",
+      "control": "LAN Publisher",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "N/A",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "N/A",
+        "open": "PASS"
+      },
+      "assertions": {
+        "checked": true,
+        "port": "12345"
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 1460,
+      "kind": "interactive"
+    },
+    {
+      "id": "src-refresh",
+      "page": "sources",
+      "control": "Refresh Sources",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "PASS",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "N/A",
+        "open": "N/A"
+      },
+      "assertions": {
+        "busy": [
+          "Add"
+        ],
+        "draft": "256",
+        "notice": "Unable to refresh sources: cf-ip-auto returned no valid resultDismiss"
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 4784,
+      "kind": "interactive"
+    },
+    {
+      "id": "src-save",
+      "page": "sources",
+      "control": "Save",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "PASS",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "N/A",
+        "open": "N/A"
+      },
+      "assertions": {
+        "browserValue": "256",
+        "changes": 1,
+        "formValue": "256"
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 3465,
+      "kind": "interactive",
+      "sha": "9adb2d5"
+    },
+    {
+      "id": "int-policy",
+      "page": "intelligence",
+      "control": "Source Strategy",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "N/A",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "N/A",
+        "open": "N/A"
+      },
+      "assertions": {
+        "value": "history-heavy"
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 1680,
+      "kind": "interactive"
+    },
+    {
+      "id": "int-probe",
+      "page": "intelligence",
+      "control": "Probe Batch Size",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "N/A",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "N/A",
+        "open": "N/A"
+      },
+      "assertions": {
+        "value": "4"
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 1593,
+      "kind": "interactive"
+    },
+    {
+      "id": "int-early",
+      "page": "intelligence",
+      "control": "Deterministic Early Stop",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "N/A",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "N/A",
+        "open": "N/A"
+      },
+      "assertions": {
+        "toggled": true
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 1615,
+      "kind": "interactive"
+    },
+    {
+      "id": "int-adaptive",
+      "page": "intelligence",
+      "control": "Adaptive Measurement Mode",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "N/A",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "N/A",
+        "open": "N/A"
+      },
+      "assertions": {
+        "value": "guarded"
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 1685,
+      "kind": "interactive"
+    },
+    {
+      "id": "int-rill",
+      "page": "intelligence",
+      "control": "Rill Runtime",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "N/A",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "N/A",
+        "open": "N/A"
+      },
+      "assertions": {
+        "enabled": true
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 1909,
+      "kind": "interactive"
+    },
+    {
+      "id": "int-selfcheck",
+      "page": "intelligence",
+      "control": "Run self-check",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "PASS",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "N/A",
+        "open": "N/A"
+      },
+      "assertions": {
+        "notice": "Rill self-check fell back to Native.Dismiss",
+        "text": "云云舒\n · \nCloudflare IP Optimization\n · \nv2.6.0-r7\nProject\n · \nGitHub\n · \n@云云舒\nSave & Apply\n▾\nSave\nReset\nPowered by LuCI openwrt-24.10 branch (26.205.85413~cac97ed) / OpenWrt 24.10.8 (r29233-443ec4032a)"
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 4132,
+      "kind": "interactive"
+    },
+    {
+      "id": "int-reset",
+      "page": "intelligence",
+      "control": "Reset learning state",
+      "states": {
+        "default": "PASS",
+        "hover": "PASS",
+        "focus": "N/A",
+        "active": "N/A",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "N/A",
+        "open": "PASS"
+      },
+      "assertions": {
+        "modal": 1,
+        "modalText": "Reset Learning State\n\nReset Rill learning state? Native configuration will not be changed.\n\nCancel\nReset"
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 2317,
+      "kind": "interactive"
+    },
+    {
+      "id": "int-long-values",
+      "page": "intelligence",
+      "control": "DummyValue long fields",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "N/A",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "N/A",
+        "open": "N/A"
+      },
+      "assertions": {
+        "fields": 57,
+        "longFields": 5,
+        "overflow": false,
+        "clipped": 0
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 1409,
+      "kind": "read-only",
+      "sha": "9adb2d5"
+    },
+    {
+      "id": "int-save",
+      "page": "intelligence",
+      "control": "Save",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "N/A",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "N/A",
+        "open": "N/A"
+      },
+      "assertions": {
+        "browserValue": "5",
+        "changes": 1,
+        "formValue": "5"
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 3268,
+      "kind": "interactive",
+      "sha": "9adb2d5"
+    },
+    {
+      "id": "oc-path",
+      "page": "openclash",
+      "control": "Config File Path",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "N/A",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "PASS",
+        "open": "N/A"
+      },
+      "assertions": {
+        "value": "/etc/openclash/config/config.yaml"
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 1389,
+      "kind": "interactive"
+    },
+    {
+      "id": "oc-filter",
+      "page": "openclash",
+      "control": "Transport Filter",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "N/A",
+        "disabled": "N/A",
+        "error": "PASS",
+        "empty": "N/A",
+        "open": "N/A"
+      },
+      "assertions": {
+        "value": "ws,badproto",
+        "backupAlert": 1
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 1411,
+      "kind": "interactive"
+    },
+    {
+      "id": "oc-backup-retry",
+      "page": "openclash",
+      "control": "Backup load failure / Retry",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "PASS",
+        "disabled": "N/A",
+        "error": "PASS",
+        "empty": "N/A",
+        "open": "N/A"
+      },
+      "assertions": {
+        "alertBefore": "Unable to load OpenClash backups: fixture: backup listing unavailable",
+        "alertAfter": [],
+        "tableRowsAfterRetry": 1,
+        "note": "controlled fixture failed the first listing; Retry re-queried and rendered the backup table"
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 3050,
+      "kind": "interactive",
+      "sha": "9adb2d5"
+    },
+    {
+      "id": "oc-save",
+      "page": "openclash",
+      "control": "Save",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "N/A",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "N/A",
+        "open": "N/A"
+      },
+      "assertions": {
+        "browserValue": "3",
+        "changes": 1,
+        "formValue": "3"
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 3164,
+      "kind": "interactive",
+      "sha": "9adb2d5"
+    },
+    {
+      "id": "pw-domain",
+      "page": "passwall",
+      "control": "Target Domain",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "N/A",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "PASS",
+        "open": "N/A"
+      },
+      "assertions": {
+        "value": "cdn.example.com"
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 1374,
+      "kind": "interactive"
+    },
+    {
+      "id": "pw-save",
+      "page": "passwall",
+      "control": "Save",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "N/A",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "N/A",
+        "open": "N/A"
+      },
+      "assertions": {
+        "browserValue": " [CF-{n}]",
+        "changes": 1,
+        "formValue": " [CF-{n}]"
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 2880,
+      "kind": "interactive",
+      "sha": "9adb2d5"
+    },
+    {
+      "id": "adv-mirror",
+      "page": "advanced",
+      "control": "GitHub Mirror",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "N/A",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "N/A",
+        "open": "N/A"
+      },
+      "assertions": {
+        "value": "https://ghp.ci/"
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 1418,
+      "kind": "interactive"
+    },
+    {
+      "id": "adv-validation",
+      "page": "advanced",
+      "control": "Timeout validation",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "N/A",
+        "disabled": "N/A",
+        "error": "PASS",
+        "empty": "N/A",
+        "open": "N/A"
+      },
+      "assertions": {
+        "invalid": 1
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 2524,
+      "kind": "interactive"
+    },
+    {
+      "id": "adv-save",
+      "page": "advanced",
+      "control": "Save",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "N/A",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "N/A",
+        "open": "N/A"
+      },
+      "assertions": {
+        "browserValue": "3",
+        "changes": 1,
+        "formValue": "3"
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 3160,
+      "kind": "interactive",
+      "sha": "9adb2d5"
+    },
+    {
+      "id": "log-refresh",
+      "page": "logs",
+      "control": "Refresh",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "PASS",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "PASS",
+        "open": "N/A"
+      },
+      "assertions": {
+        "log": "No logs found.",
+        "empty": 1
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 3210,
+      "kind": "interactive"
+    },
+    {
+      "id": "log-clear",
+      "page": "logs",
+      "control": "Clear Logs",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "PASS",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "N/A",
+        "open": "PASS"
+      },
+      "assertions": {
+        "modal": "Clear Logs\n\nClear log file?\n\nCancel\nClear",
+        "log": "Log file cleared."
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 3065,
+      "kind": "interactive"
+    },
+    {
+      "id": "log-history",
+      "page": "logs",
+      "control": "IP History table",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "N/A",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "N/A",
+        "open": "N/A"
+      },
+      "assertions": {
+        "table": 0,
+        "text": "lare IP Optimization\n · \nv2.6.0-r7\nProject\n · \nGitHub\n · \n@云云舒\nPowered by LuCI openwrt-24.10 branch (26.205.85413~cac97ed) / OpenWrt 24.10.8 (r29233-443ec4032a)"
+      },
+      "evidence": {},
+      "status": "PASS",
+      "ms": 1395,
+      "kind": "read-only"
+    },
+    {
+      "id": "set-apply",
+      "page": "settings",
+      "control": "Save & Apply",
+      "kind": "interactive",
+      "sha": "9adb2d5",
+      "status": "PASS",
+      "states": {
+        "default": "PASS",
+        "hover": "N/A",
+        "focus": "N/A",
+        "active": "PASS",
+        "disabled": "N/A",
+        "error": "N/A",
+        "empty": "N/A",
+        "open": "PASS"
+      },
+      "assertions": {
+        "serverValue": "8",
+        "formValue": "8"
+      },
+      "evidence": {}
+    }
+  ]
+}
