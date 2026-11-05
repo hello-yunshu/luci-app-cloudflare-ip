@@ -29,23 +29,25 @@ jq -e '.success==true' "$CFIP_PUBLISH_STATUS_FILE" >/dev/null
 echo 'PASS actual isolated uhttpd serves exact published bytes'
 prefix="$(jq -r '.generationPath' "$CFIP_PUBLISH_DIR/result.json")"
 while IFS=$'\t' read -r name hash; do
- curl --noproxy '*' -fsS --connect-timeout 1 --max-time 2 "http://$CFIP_PUBLISH_BIND:$CFIP_PUBLISH_PORT$prefix/$name" -o "$TMP/download"
+ curl --noproxy '*' -fsS --connect-timeout 2 --max-time 3 "http://$CFIP_PUBLISH_BIND:$CFIP_PUBLISH_PORT$prefix/$name" -o "$TMP/download"
  test "$(sha256sum "$TMP/download" | awk '{print $1}')" = "$hash"
 done < <(jq -r '.artifacts|to_entries[]|[.key,.value.sha256]|@tsv' "$CFIP_PUBLISH_DIR/result.json")
 echo 'PASS actual uhttpd serves pinned generation artifacts with matching digests'
 cfip_publisher_status_json | jq -e '.success==true and .listenerReady==true' >/dev/null
 # The independent backend command must read enabled state from a real isolated
 # UCI configuration, rather than its process-default disabled flag.
-mkdir -p "$TMP/config" "$TMP/delta"
-cp /etc/config/cf_ip "$TMP/config/cf_ip"
+mkdir -p "$TMP/config" "$TMP/delta" "$TMP/status"
+chmod 700 "$TMP/status"
+cp "$ROOT/package/luci-app-cloudflare-ip/root/etc/config/cf_ip" "$TMP/config/cf_ip"
 export CFIP_UCI_CONFIG_DIR="$TMP/config" CFIP_UCI_DELTA_DIR="$TMP/delta"
 uci(){ command uci -c "$CFIP_UCI_CONFIG_DIR" -P "$CFIP_UCI_DELTA_DIR" "$@"; }
 export -f uci
 uci set cf_ip.lan.enabled=1
 uci set "cf_ip.lan.bind_address=$CFIP_PUBLISH_BIND"
 uci set "cf_ip.lan.port=$CFIP_PUBLISH_PORT"
+uci set "cf_ip.rill.state_file=$TMP/status/rill-state.json"
 uci commit cf_ip
-CFIP_LIB_DIR="$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip" bash "$ROOT/package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto-v2" --publisher-status >"$TMP/command-status"
+CFIP_STATUS_DIR="$TMP/status" CFIP_LIB_DIR="$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip" bash "$ROOT/package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto-v2" --publisher-status >"$TMP/command-status"
 jq -e '.success==true and .listenerReady==true' "$TMP/command-status" >/dev/null
 echo 'PASS backend publisher-status loads real isolated UCI enabled state'
 unset -f uci

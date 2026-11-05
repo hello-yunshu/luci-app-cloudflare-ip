@@ -120,8 +120,10 @@ cfip_publisher_wait_ready() {
     if ! ((bytes > 0 && bytes <= 1048576)) || ! jq -e '.schemaVersion==1 and (.ips|type)=="array" and (.selected|type)=="array"' "$tmp/expected" >/dev/null 2>&1; then rm -rf "$tmp"; return 1; fi
     generation="$(jq -r '.generation // empty' "$tmp/expected")" || { rm -rf "$tmp"; return 1; }
     [[ -z "$generation" || "$generation" =~ ^gen\.[0-9a-f]{64}$ ]] || { rm -rf "$tmp"; return 1; }
+    # OpenWrt's curl 8.22 rejects a one-second limit ("remaining timeout of 999
+    # too small to resolve via SIGALRM method"), so keep both limits at 2s.
     for ((attempt=1; attempt<=attempts; attempt++)); do
-        if curl -fsS --noproxy '*' --connect-timeout 1 --max-time 1 "http://$bind:$port$path" 2>/dev/null |
+        if curl -fsS --noproxy '*' --connect-timeout 2 --max-time 2 "http://$bind:$port$path" 2>/dev/null |
             head -c "$((bytes+1))" >"$tmp/body"; then statuses=("${PIPESTATUS[@]}"); else statuses=("${PIPESTATUS[@]}"); fi
         if ((statuses[0] == 0 && statuses[1] == 0)) && cmp -s "$tmp/expected" "$tmp/body"; then
             count="$(jq '.selected|length' "$tmp/expected")" || { rm -rf "$tmp"; return 1; }
@@ -142,7 +144,7 @@ cfip_publisher_endpoint_open() {
     [[ "$bind" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ && "$port" =~ ^[0-9]{1,5}$ ]] || return 2
     port=$((10#$port))
     ((port >= 1024 && port <= 65535)) || return 2
-    remote="$(curl --noproxy '*' -IsS --connect-timeout 1 --max-time 1 -o /dev/null -w '%{remote_ip}' "http://$bind:$port/result.json" 2>/dev/null || true)"
+    remote="$(curl --noproxy '*' -IsS --connect-timeout 2 --max-time 2 -o /dev/null -w '%{remote_ip}' "http://$bind:$port/result.json" 2>/dev/null || true)"
     [[ -n "$remote" ]]
 }
 
