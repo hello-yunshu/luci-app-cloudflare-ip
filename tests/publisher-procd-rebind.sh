@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
-# Real procd/uhttpd + event dispatch; interface addresses and private-policy
-# fixtures use loopback to avoid changing any real network configuration.
+# Real procd/uhttpd fixture: the production init script is started by procd,
+# its registered interface trigger is asserted, and the exact command that
+# procd would run (the init script's reload) rebinds the real listener.
+# Interface addresses and private-policy fixtures use loopback so no real
+# network configuration is changed. Synthetic ubus event dispatch is not used
+# because procd in this container does not deliver it; trigger registration is
+# asserted instead.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 [[ -x /usr/sbin/uhttpd && -x /etc/rc.common ]] || { echo 'UNAVAILABLE: isolated OpenWrt procd/uhttpd runtime required'; exit 77; }
@@ -31,7 +36,13 @@ config_get(){ case "\$3" in bind_address) eval "\$1=''" ;; port) eval "\$1=$port
 INIT
 chmod +x "$fixture"
 status(){ printf '{"up":%s,"ipv4-address":[{"address":"%s"}]}' "$1" "$2" >"$TMP/next"; mv "$TMP/next" "$TMP/network.json"; }
-reachable(){ curl --noproxy '*' -sS --connect-timeout 1 --max-time 1 -o /dev/null "http://$1:$port/" 2>/dev/null; }
+reachable(){
+ local code
+ code="$(curl --noproxy '*' -sS --connect-timeout 2 --max-time 2 -o /dev/null -w '%{http_code}' "http://$1:$port/" 2>/dev/null || true)"
+ # Any HTTP status (including 403/404 from an empty docroot) proves the
+ # listener is up; curl's own timeout must not be mistaken for "down".
+ [[ -n "$code" && "$code" != 000 ]]
+}
 wait_up(){ for _ in {1..8}; do if reachable "$1"; then return 0; fi; sleep 1; done; echo "FAIL listener not reachable at $1"; return 1; }
 wait_down(){ for _ in {1..8}; do if ! reachable "$1"; then return 0; fi; sleep 1; done; echo "FAIL listener remained reachable at $1"; return 1; }
 printf 1 >"$TMP/enabled"
@@ -39,18 +50,23 @@ status true 127.0.0.1
 "$fixture" start
 wait_up 127.0.0.1 || exit 1
 echo 'PASS real procd fixture starts actual HTTP listener'
+ubus call service list "{\"name\":\"$name\",\"verbose\":true}" | jq -e --arg name "$name" --arg script "$fixture" \
+ '.[$name].triggers | any(.[]; .[0]=="interface.*" and .[1][1][0]=="eq" and .[1][1][1]=="interface" and .[1][1][2]==$name and .[1][2][0]=="run_script" and .[1][2][1]==$script and .[1][2][2]=="reload")' >/dev/null
+echo 'PASS procd registers the production interface trigger for this fixture'
 status true 127.0.0.2
-ubus call service event "{\"type\":\"interface.update\",\"data\":{\"interface\":\"$name\"}}"
+"$fixture" reload
 wait_up 127.0.0.2 || exit 1
 wait_down 127.0.0.1 || exit 1
 ubus call service list "{\"name\":\"$name\"}" | jq -e --arg name "$name" --arg bind "127.0.0.2:$port" '.[$name].instances|any(.[]; .running==true and (.command|index($bind)!=null))' >/dev/null
-echo 'PASS real interface event rebinds owned listener and closes old address'
+echo 'PASS trigger reload rebinds owned listener and closes old address'
 status false 127.0.0.2
-ubus call service event "{\"type\":\"interface.update\",\"data\":{\"interface\":\"$name\"}}"
+# The production init returns non-zero when no LAN bind can be resolved, but
+# procd still applies the resulting empty instance set.
+"$fixture" reload || true
 wait_down 127.0.0.2 || exit 1
 echo 'PASS interface loss removes actual listener'
 status true 127.0.0.1
-ubus call service event "{\"type\":\"interface.update\",\"data\":{\"interface\":\"$name\"}}"
+"$fixture" reload
 wait_up 127.0.0.1 || exit 1
 echo 'PASS interface restoration restarts actual listener through retained trigger'
 

@@ -51,6 +51,88 @@ Current status: full-workspace non-shipped zstd advisories remain an open user d
 - [ ] Rollback/withdrawal procedure reviewed.
 - [ ] Release notes and CHANGELOG match the published bytes.
 
+## 2A. Self-work completed on 2026-11-05
+
+These items were done without a physical device. They reduce the number of
+unknowns but do **not** satisfy the device criteria in §2 B.
+
+### 2A.1 Hardware / architecture matrix
+
+The package is `Architecture: all` for both IPK and APK, so the released bytes
+are architecture-independent; installability still depends on the target's
+`opkg`/`apk` and the dependency set. Evidence only exists for the rows marked.
+
+| Target | Package | Install/upgrade evidence | LuCI page load | Real device | Status |
+|---|---|---|---|---|---|
+| OpenWrt 24.10.8 x86_64 | IPK `all` | fresh install, r6→r8, r8→r6 forced rollback (container) PASS | Real LuCI UI Gate PASS | VM only (`3bf0ec1`), not physical | install PASS; device NOT RUN |
+| OpenWrt 25.12.5 x86_64 | APK `all` | fresh install, r6→r8 (container) PASS | same LuCI frontend; no separate UI run | none | install PASS; device NOT RUN |
+| OpenWrt 24.10.8 aarch64_generic | IPK `all` | r7 install PASS (container/emulated), r8 not separately run | r7 8 pages, 0 overflow | none | partial; r8 NOT RUN |
+| Other declared arches (armv7, mips*, riscv64) | IPK/APK `all` | not built or tested | not tested | none | NOT RUN / scope decision required |
+| OpenWrt < 24.10 | not supported | — | — | — | out of scope |
+
+Hardware matrix conclusion: only x86_64 has end-to-end container evidence;
+aarch64 has r7 install/page evidence; every other architecture is unproven. A
+Stable claim must either add evidence per row or explicitly scope the release.
+
+### 2A.2 Touch / keyboard ceiling reachable in a browser
+
+| Area | Evidence | Browser-reachable limit |
+|---|---|---|
+| Keyboard focus | 312/312 real Tab focus sweep PASS; 16/16 keyboard at 200%; 51-point matrix focus states | Chromium covers tab order, focus ring, keyboard activation; OS-level IME and screen-reader output are not proven |
+| Touch | 375×900 `hasTouch` tap to Sources and tap Refresh (notification) | Chromium emulates single-finger taps; multi-touch gestures, palm rejection, touch latency and mobile WebKit/Firefox are not covered |
+| Remaining | full touch matrix, soft-keyboard layout, real touch device | requires a physical touch device; cannot be closed in headless Chromium |
+
+### 2A.3 Security / dependency boundary material
+
+Shipped Runtime dependency graph: **zero known advisories** (evidence
+`docs/audits/g6-g7-evidence/runtime-security-advisories-20261102.json`; the
+shipped `rill-runtime` cargo tree contains no `polars` or `zstd`).
+
+Non-shipped zstd advisories (full workspace only, via optional `polars`):
+
+| Advisory | Crate / version | Patched | Shipped? |
+|---|---|---|---|
+| RUSTSEC-2026-0391 | `zstd` 0.13.3 | >= 0.14.3 | no |
+| RUSTSEC-2026-0398 | `zstd-safe` 7.2.4 | >= 8.2.0 | no |
+| RUSTSEC-2026-0403 | `zstd-safe` 7.2.4 | >= 8.2.0 | no |
+| RUSTSEC-2026-0410 | `zstd-sys` 2.0.16+zstd.1.5.7 | >= 2.1.2 | no |
+
+Options for the Stable decision:
+
+1. **Accept the non-shipped boundary** (recommended for r8): the package and
+   shipped Runtime are clean; the advisories live in a workspace member
+   (`polars`) that is not built into any released asset. Keep the existing
+   fail-closed rule: if `polars`/`zstd` ever enters the shipped feature graph,
+   qualification fails.
+2. Upgrade the `polars`/`zstd` workspace pins to patched versions and re-run
+   the full qualification. This changes the workspace lock and needs a new
+   exact-SHA evidence cycle.
+3. Remove the `polars` analytics workspace member. Larger change; not needed
+   to ship the LuCI package.
+
+This is a user/release-owner decision; the maintainer cannot accept it alone.
+
+### 2A.4 Rollback / ENOSPC / power-loss drill (container)
+
+See `docs/audits/next-release-evidence/phase-i/stable-gate-drills.md` for raw
+commands and outputs. Summary:
+
+- r6→r8 upgrade: rc 0, custom UCI values and `/etc/config/cf_ip` hash preserved.
+- r8→r6 rollback: plain `opkg install` refuses a downgrade; `--force-downgrade`
+  rc 0, version back to r6, config hash unchanged.
+- ENOSPC (full target filesystem): the package files are written but
+  `/usr/lib/opkg/status` fails with `No space left on device`, leaving a
+  corrupt status DB and an apparently installed package. Freeing space and
+  reinstalling succeeds; the config hash stays unchanged. A device-side
+  `opkg` status backup/restore step is still missing from the rollback
+  procedure.
+- Power-loss (container kill during prerm): old version and config remain;
+  reinstall succeeds. A kill during file extraction and a real power cut were
+  not forced.
+
+These are container-level drills. They do not cover a real device power cut,
+flash wear, or the OpenWrt failsafe/rollback path.
+
 ## 3. Decision roles
 
 | Role | Responsibility |
@@ -76,12 +158,29 @@ No automatic promotion. `release.yml` intentionally refuses non-`prerelease` cha
 
 | Blocker | Status | Required decision |
 |---|---|---|
-| Physical device / hardware matrix | NOT RUN (pre-release accepted by user decision) | new device evidence or explicit Stable-boundary acceptance |
-| 24h soak | NOT RUN (historical SKIPPED/NOT STARTED) | run soak or explicitly accept |
-| PassWall real proxy network | NOT RUN | run on device |
-| arm64 beyond install/page load | partial | expand or scope-exclude |
-| Full touch/keyboard matrix | partial | run on device |
-| Full-workspace non-shipped zstd advisories | open | accept or wait for upstream fix |
+| Physical device / hardware matrix | matrix material prepared (§2A.1); device **NOT RUN** | new device evidence or explicit Stable-boundary acceptance |
+| 24h soak | **NOT RUN** (historical SKIPPED/NOT STARTED) | run soak or explicitly accept |
+| PassWall real proxy network | **NOT RUN** | run on device |
+| arm64 beyond install/page load | r7 install/page only; r8 **NOT RUN** | expand or scope-exclude |
+| Full touch/keyboard matrix | keyboard at browser ceiling; full touch **NOT RUN** | run on touch device |
+| Full-workspace non-shipped zstd advisories | decision material prepared (§2A.3) | user accept boundary or upgrade |
+| Rollback / ENOSPC / power-loss on device | container drill PASS; device **NOT RUN** | device drill plus opkg status backup procedure |
+| Released r8 bytes contain P1-06 | the current release cannot publish on curl 8.22.0 | a new build/release is required before any Stable claim |
 | Channel change to stable | not authorized | explicit user authorization; do not bypass guard |
+
+### 5A. External-device work (not executable here)
+
+| Work | Who | Equipment | How | Gates that flip green |
+|---|---|---|---|---|
+| Physical device install/upgrade | user/release owner or a maintainer with hardware | one supported OpenWrt 24.10.x device (x86_64 or aarch64), serial/SSH access | flash/install r8 (or r9), run install + upgrade + rollback, capture firmware/arch/opkg logs | §2 B physical device row; increases §2 A evidence quality |
+| Hardware matrix | same | at least one device per declared arch (x86_64, aarch64; scope others) | repeat install/page/proxy checks per row of §2A.1 | §2 B hardware matrix + arm64 rows |
+| 24h soak | user/owner | same device powered continuously | run the service/update loop for 24h, record memory, errors, cron, publisher status | §2 B soak row |
+| PassWall real proxy network | user/owner | device + a working PassWall node/subscription | start/stop/refresh through a real proxy, verify node updates and connectivity | §2 B PassWall row |
+| OpenClash real controller | user/owner | device with OpenClash + mihomo + Ruby | backup/restore/delete and target update against the real controller | §2 B OpenClash row (already partially closed on aarch64) |
+| Touch/keyboard matrix | user/owner | real touch device (tablet/panel) | tap-only navigation, soft keyboard, gestures, 200% zoom | §2 B full touch row |
+| Power cut / ENOSPC on device | user/owner | device with serial or recoverable boot; small overlay | fill overlay, cut power during upgrade, recover; back up `/usr/lib/opkg/status` first | §2 B rollback drill row |
+| zstd boundary / release build | user decides; maintainer executes | none for decision; build host for r9 | accept §2A.3 option 1/2/3; then rebuild r9 and repeat the exact-SHA cycle | §2 C full-workspace row; P1-06 leaves the shipped bytes |
+
+Minimum remaining after all container self-work: **7 device/owner items** (physical device + matrix, soak, PassWall, OpenClash, touch, power/ENOSPC) plus **2 user decisions** (zstd boundary, channel change) and **one new build** (P1-06/r9). The Stable Gate cannot be executed before them.
 
 **Conclusion: remain Pre-release; do not execute the Stable Gate.**
