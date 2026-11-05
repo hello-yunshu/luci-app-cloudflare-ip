@@ -1,0 +1,4 @@
+[
+{"theme":"bootstrap","viewport":"320x900","scrollWidth":320,"innerWidth":320,"menuClientWidth":310,"menuScrollWidth":315,"rows":2,"maxRight":267.71875,"tabs":["概览","设置","OpenClash","候选 IP 来源","PassWall","智能优选","高级","日志与记录"]},
+{"theme":"aurora-light","viewport":"320x900","scrollWidth":320,"innerWidth":320,"menuClientWidth":296,"menuScrollWidth":296,"rows":5,"maxRight":282.421875,"tabs":["概览","设置","OpenClash","候选 IP 来源","PassWall","智能优选","高级","日志与记录"]},
+{"theme":"aurora-dark","viewport":"320x900","scrollWidth":320,"innerWidth":320,"menuClientWidth":296,"menuScrollWidth":296,"rows":5,"maxRight":282.421875,"tabs":["概览","设置","OpenClash","候选 IP 来源","PassWall","智能优选","高级","日志与记录"]}]

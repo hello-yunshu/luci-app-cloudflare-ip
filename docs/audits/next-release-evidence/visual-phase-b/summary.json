@@ -1,0 +1,23 @@
+{
+  "capturedAt": "2026-11-03T12:04:32.098971+00:00",
+  "normal": 72,
+  "boundary": 6,
+  "total": 78,
+  "overflow": 0,
+  "login": 0,
+  "minTextLen": 219,
+  "darkByTheme": {
+    "bootstrap": 0,
+    "aurora-light": 0,
+    "aurora-dark": 26
+  },
+  "themes": {
+    "bootstrap": 26,
+    "aurora-light": 26,
+    "aurora-dark": 26
+  },
+  "menuTranslations": [
+    "候选 IP 来源",
+    "智能优选"
+  ]
+}
