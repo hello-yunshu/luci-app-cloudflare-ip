@@ -662,8 +662,14 @@ jobs:
           }
           if [[ "${{ matrix.pkgtype }}" == ipk ]]; then
             probe="$RUNNER_TEMP/opkg-probe"
-            mkdir -p "$probe/etc" "$probe/tmp" "$probe/usr/lib/opkg" "$probe/var/lock"
+            mkdir -p "$probe/etc/opkg" "$probe/tmp" "$probe/usr/lib/opkg/info" "$probe/var/lock"
             printf 'arch all 1\narch x86_64 10\n' > "$probe/etc/opkg.conf"
+            # Mirror the migration matrix root so the probe resolves the same
+            # dependencies instead of failing the candidate selection.
+            for package in libc luci-base bash flock curl tar jq ca-bundle ca-certificates uhttpd rill-runtime-preview; do
+              printf 'Package: %s\nVersion: 1\nArchitecture: x86_64\nStatus: install ok installed\n\n' "$package"
+              : > "$probe/usr/lib/opkg/info/$package.list"
+            done > "$probe/usr/lib/opkg/status"
             if ! "$OPKG_BIN" --offline-root "$probe" --force-depends --noaction install "$legacy_base" >/dev/null 2>&1 || ! "$OPKG_BIN" --offline-root "$probe" --force-depends --noaction install "$legacy_addon" >/dev/null 2>&1; then
               build_historical legacy-r2 r2
               legacy_base="$work/r2-base.ipk"
