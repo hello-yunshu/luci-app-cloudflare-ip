@@ -57,6 +57,9 @@ async function measure(page, theme) {
     const themeLoaded = links.some(el => ((el.href || el.src || '')).includes('/luci-static/' + media + '/'));
     const truncated = Array.from((main || document).querySelectorAll('*'))
       .filter(el => {
+        // Native input/textarea scrollWidth includes their internal editing area.
+        // It is not a visible text-node truncation signal; assess input hitbox separately.
+        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') return false;
         const css = getComputedStyle(el);
         return css.whiteSpace === 'nowrap' &&
           el.clientWidth > 0 && el.scrollWidth > el.clientWidth + 2 &&
