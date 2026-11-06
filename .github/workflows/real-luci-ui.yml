@@ -48,11 +48,17 @@ jobs:
           '
       - name: Provision the current working tree into real LuCI
         run: CFIP_UI_LANG=en bash tests/real-luci-ui-provision.sh cfip-ui-gate 18080
-      - name: Install Playwright
+      - name: Install Playwright bindings and use runner Chrome
         run: |
           set -euo pipefail
-          npm install --prefix "$RUNNER_TEMP/ui" playwright@1.55.0
-          "$RUNNER_TEMP/ui/node_modules/.bin/playwright" install --with-deps chromium
+          npm install --prefix "$RUNNER_TEMP/ui" --no-audit --no-fund playwright@1.55.0
+          browser="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || true)"
+          if [ -z "$browser" ]; then
+            echo 'No Chrome executable on runner; browser setup required' >&2
+            exit 1
+          fi
+          echo "PLAYWRIGHT_EXECUTABLE=$browser" >> "$GITHUB_ENV"
+          "$browser" --version
       - name: Run real LuCI interaction assertions
         run: |
           set -euo pipefail
