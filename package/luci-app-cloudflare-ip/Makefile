@@ -51,7 +51,7 @@ define Build/Compile
 			"$(STAGING_DIR_HOSTPKG)/bin/po2lmo" "$$$$po_dir/cloudflare-ip.po" "$(PKG_BUILD_DIR)/lmo/cloudflare-ip.$$$$lmo_lang.lmo"; \
 		fi; \
 	done; \
-	for file in root/usr/bin/cf-ip-auto-v2 root/usr/bin/cf-ip-auto-legacy root/usr/bin/cf-ip-auto root/usr/libexec/rpcd/cf_ip htdocs/luci-static/resources/cloudflare-ip/utils.js; do \
+	for file in root/usr/bin/cf-ip-auto-v2 root/usr/bin/cf-ip-auto-legacy root/usr/libexec/rpcd/cf_ip htdocs/luci-static/resources/cloudflare-ip/utils.js; do \
 		sed -i 's/@PKG_VERSION@/$(PKG_VERSION)/g; s/@PKG_RELEASE@/$(PKG_RELEASE)/g; s/@PKG_FULL_VERSION@/$(PKG_VERSION)-r$(PKG_RELEASE)/g' "$(PKG_BUILD_DIR)/$$$$file" || exit 1; \
 	done
 endef
@@ -102,22 +102,32 @@ endef
 
 define Package/luci-app-cloudflare-ip/postinst
 #!/bin/sh
-[ -n "$${IPKG_INSTROOT}" ] || { \
-	[ -x /usr/libexec/cf-ip/migrate-self-update-url.sh ] && /usr/libexec/cf-ip/migrate-self-update-url.sh; \
-	[ -x /usr/libexec/cf-ip/migrate-managed-config.sh ] && /usr/libexec/cf-ip/migrate-managed-config.sh; \
-	[ -x /etc/init.d/cf_ip ] && /etc/init.d/cf_ip enable 2>/dev/null; \
-	uci -q get luci.languages.zh_cn >/dev/null || uci -q set luci.languages.zh_cn='简体中文'; \
-	uci -q commit luci; \
-	rm -f /tmp/luci-indexcache.*; \
-	rm -rf /tmp/luci-modulecache/; \
-	/etc/init.d/rpcd reload 2>/dev/null; \
-	if [ -f /tmp/cf_ip/status.json ] && [ ! -f /etc/cf_ip/status.json ]; then \
-		mkdir -p /etc/cf_ip; \
-		mv /tmp/cf_ip/status.json /etc/cf_ip/status.json; \
-		[ -f /tmp/cf_ip/env_cache.json ] && mv /tmp/cf_ip/env_cache.json /etc/cf_ip/env_cache.json; \
-	fi; \
-	exit 0; \
-}
+# Offline/rootfs installs cannot run the online lifecycle.
+[ -n "$${IPKG_INSTROOT}" ] && exit 0
+# Each step reports its own failure instead of being swallowed by a trailing
+# "exit 0": an upgrade that cannot migrate or enable must not look successful.
+if [ -x /usr/libexec/cf-ip/migrate-self-update-url.sh ]; then
+	/usr/libexec/cf-ip/migrate-self-update-url.sh || { echo "cf-ip self-update URL migration failed" >&2; exit 1; }
+fi
+if [ -x /usr/libexec/cf-ip/migrate-managed-config.sh ]; then
+	/usr/libexec/cf-ip/migrate-managed-config.sh || { echo "cf-ip managed config migration failed" >&2; exit 1; }
+fi
+if [ -x /etc/init.d/cf_ip ]; then
+	/etc/init.d/cf_ip enable || { echo "cf_ip enable failed" >&2; exit 1; }
+fi
+# Do not rewrite the global LuCI language here: this package only ships its
+# own zh-cn catalog and must not change another package's configuration.
+rm -f /tmp/luci-indexcache.*
+rm -rf /tmp/luci-modulecache/
+/etc/init.d/rpcd reload 2>/dev/null || true
+if [ -f /tmp/cf_ip/status.json ] && [ ! -f /etc/cf_ip/status.json ]; then
+	mkdir -p /etc/cf_ip || { echo "cf-ip status migration failed: cannot create /etc/cf_ip" >&2; exit 1; }
+	mv /tmp/cf_ip/status.json /etc/cf_ip/status.json || { echo "cf-ip status migration failed" >&2; exit 1; }
+	if [ -f /tmp/cf_ip/env_cache.json ]; then
+		mv /tmp/cf_ip/env_cache.json /etc/cf_ip/env_cache.json || { echo "cf-ip env cache migration failed" >&2; exit 1; }
+	fi
+fi
+exit 0
 endef
 
 define Package/luci-app-cloudflare-ip/prerm

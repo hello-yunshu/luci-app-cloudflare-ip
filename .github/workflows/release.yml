@@ -193,11 +193,7 @@ jobs:
           set -euo pipefail
           git fetch --force --tags origin
           tag=$(python3 scripts/package_identity.py --field tag)
-          ref="refs/tags/${tag}"
-          if git show-ref --verify --quiet "$ref"; then
-            tag_sha="$(git rev-parse "${ref}^{commit}")"
-            test "$tag_sha" = "$EXPECTED_SHA" || { echo "immutable tag collision: $tag points to $tag_sha, expected $EXPECTED_SHA" >&2; exit 1; }
-          fi
+          bash scripts/guard-release-tag.sh "$tag" "$EXPECTED_SHA"
       - name: Publish exact qualified release
         uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3 # v3
         with:

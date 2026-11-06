@@ -1,0 +1,9 @@
+kind=apk image=openwrt/rootfs:x86_64-25.12.5
+PASS fresh install 2.6.0-r9 with working --status
+PASS r8->r9 upgrade, config hash and values preserved, --status works
+PASS rollback to r8 with config preserved and working --status
+PASS ENOSPC prevented a valid install (rc=1, state=payload_broken)
+PASS ENOSPC recovery reinstall reaches r9 with working --status
+PASS power-loss left r8 intact with original config
+PASS power-loss retry reaches r9 with config preserved
+drill apk: 0 failure(s)

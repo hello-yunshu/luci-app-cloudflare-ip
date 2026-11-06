@@ -1,0 +1,5 @@
+WARNING: The requested image's platform (linux/amd64) does not match the detected host platform (linux/arm64/v8) and no specific platform was requested
+PASS first run submits only --run (no competing --download-cfst)
+PASS non-first startup submits only --download-cfst
+PASS startup_delay runs before lock acquisition; manual run acquires the lock
+startup race behaviour passed

@@ -1,0 +1,4 @@
+channel file: stable (G6/G7 Stable candidate; automatic publication remains disabled and a concrete proposal requires separate approval)
+Validated channel file and explicit Stable promotion boundary
+Real tag guard rejects collisions and accepts new tags
+Release workflow and guard enforce immutable tags
