@@ -669,7 +669,7 @@ jobs:
               legacy_base="$work/r2-base.ipk"
               legacy_addon="$work/r2-addon.ipk"
             fi
-            if ! "$OPKG_BIN" --conf "$probe/etc/opkg.conf" --offline-root "$probe" --add-arch all:10 --force-depends --noaction install "$r8_base" >"$RUNNER_TEMP/r8-probe.log" 2>&1; then
+            if ! "$OPKG_BIN" --conf "$probe/etc/opkg.conf" --offline-root "$probe" --add-arch all:10 --force-depends install "$r8_base" >"$RUNNER_TEMP/r8-probe.log" 2>&1; then
               cat "$RUNNER_TEMP/r8-probe.log" >&2 || true
               echo "r8 release asset is not installable by the SDK opkg: $r8_base" >&2
               exit 1
