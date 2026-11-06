@@ -58,7 +58,7 @@ YAML
 # Evaluate the original command functions, with only expensive measurement and
 # clock operations stubbed. No sibling v2 engine or shared library is provided.
 run_entry() {
- source "$ROOT/package/luci-app-cloudflare-ip/root/usr/bin/$entry"
+ source "$ENTRY_FILE"
  STATUS_DIR="$TMP/state"; STATUS_FILE="$TMP/state/status.json"; LOG_FILE="$TMP/log"; LOCK_FILE="$TMP/lock"
  load_uci_config() { MODE=openclash; OPENCLASH_CONFIG="$TMP/config.yaml"; OPENCLASH_TARGET_DOMAIN=cdn.example.com; WORK_DIR="$TMP"; IP_COUNT=1; AUTO_UPDATE=false; STARTUP_DELAY=0; [[ "$scenario" != stop-disabled ]] || STOP_SERVICE_BEFORE_SPEEDTEST=false; }
  date() { if [[ "${1:-}" == +%s ]]; then cat "$TMP/clock"; else command date "$@"; fi; }
@@ -89,6 +89,14 @@ for entry in cf-ip-auto cf-ip-auto-legacy; do
    enabled-down) fixture 1 down ;;
    recovery-fail) fixture 1 live down ;;
   esac
+  # The oldest engine is no longer shipped; the fixture keeps its behaviour
+  # covered without installing it.
+  if [[ "$entry" == cf-ip-auto ]]; then
+   ENTRY_FILE="$ROOT/tests/fixtures/legacy-cf-ip-auto"
+  else
+   ENTRY_FILE="$ROOT/package/luci-app-cloudflare-ip/root/usr/bin/$entry"
+  fi
+  export ENTRY_FILE
   set +e
   (set -e; run_entry) >"$TMP/result" 2>"$TMP/errors"
   rc=$?
@@ -125,6 +133,7 @@ done
 # Check the other installed legacy OpenClash entry points. These run through
 # the same native shell file, without the v2 engine or its libraries.
 for entry in cf-ip-auto-legacy; do
+ ENTRY_FILE="$ROOT/package/luci-app-cloudflare-ip/root/usr/bin/$entry"; export ENTRY_FILE
  for scenario in sync-disabled sync-healthy restore-disabled restore-healthy selected-read-fail; do
   action="${scenario%%-*}"
   [[ "$action" != selected ]] || action=selected
