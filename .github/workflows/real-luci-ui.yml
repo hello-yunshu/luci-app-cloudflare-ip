@@ -14,12 +14,16 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   real-luci-ui:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Start a real OpenWrt + LuCI container
         run: |
           set -euo pipefail
@@ -55,7 +59,7 @@ jobs:
           NODE_PATH="$RUNNER_TEMP/ui/node_modules" \
             node tests/real-luci-ui.cjs \
             --evidence "$GITHUB_WORKSPACE/real-luci-ui-evidence"
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
           name: real-luci-ui-evidence-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
