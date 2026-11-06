@@ -1,0 +1,7 @@
+Baseline evidence SHA: ffa73f6
+Current main at audit start: 16c68fd
+Command: git diff --stat ffa73f6..16c68fd -- package/luci-app-cloudflare-ip/htdocs
+Result: no output (the LuCI source tree is identical), so the phase-f screenshots
+captured at ffa73f6 still describe the current UI sources. The baseline stays
+ffa73f6 on purpose; it is the SHA the evidence was captured at, not a claim that
+main is still at ffa73f6.

@@ -168,7 +168,7 @@ class Contracts(unittest.TestCase):
             self.fail('GNU sed is required for the build macro test')
         self.assertEqual(result.returncode,0,result.stdout+result.stderr)
         identity=source(self.root)
-        for name in ['root/usr/bin/cf-ip-auto','root/usr/bin/cf-ip-auto-v2','root/usr/bin/cf-ip-auto-legacy','root/usr/libexec/rpcd/cf_ip','htdocs/luci-static/resources/cloudflare-ip/utils.js']:
+        for name in ['root/usr/bin/cf-ip-auto-v2','root/usr/bin/cf-ip-auto-legacy','root/usr/libexec/rpcd/cf_ip','htdocs/luci-static/resources/cloudflare-ip/utils.js']:
             text=(self.root/'build'/name).read_text();self.assertNotIn('@PKG_',text)
             self.assertIn(identity['version'],text)
         rpc=(self.root/'build/root/usr/libexec/rpcd/cf_ip').read_text()

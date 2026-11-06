@@ -68,6 +68,7 @@ jobs:
           bash tests/v2-prerelease-workflow-contract.sh
           bash tests/immutable-tag-contract.sh
           bash tests/package-release-bump-contract.sh
+          node docs/audits/next-release-evidence/phase-f/scripts/verify.cjs
       - name: V2 host contract tests
         run: |
           bash tests/v2-observation.sh
@@ -97,6 +98,7 @@ jobs:
           python3 tests/status-observation-metadata.py
           python3 tests/apk-ownership-preflight.py
           python3 tests/package-prerm-failures.py
+          bash tests/package-lifecycle.sh
           bash tests/v2-transaction.sh
           bash tests/openclash-rollback-external-conflict.sh
           bash tests/openclash-transaction-write-failure.sh
@@ -140,8 +142,10 @@ jobs:
           bash tests/cfst-install-deadline.sh
           python3 tests/cfst-install-faults.py
           python3 tests/cfst-cache-qualification.py
-          CFIP_TEST_LEGACY="$PWD/package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto" python3 tests/cfst-install-faults.py
-          CFIP_TEST_LEGACY="$PWD/package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto" python3 tests/cfst-cache-qualification.py
+          # Unshipped older legacy engine fixture, kept only to qualify the
+          # legacy compatibility path.
+          CFIP_TEST_LEGACY="$PWD/tests/fixtures/legacy-cf-ip-auto" python3 tests/cfst-install-faults.py
+          CFIP_TEST_LEGACY="$PWD/tests/fixtures/legacy-cf-ip-auto" python3 tests/cfst-cache-qualification.py
           bash tests/source-refresh-deadline.sh
           bash tests/source-cache-cap.sh
           bash tests/resource-pressure-contract.sh
@@ -537,10 +541,6 @@ jobs:
         with:
           ref: v2.6.0-2
           path: legacy-r2
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          ref: v2.6.0-3
-          path: legacy-r3
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: luci-app-cloudflare-ip-${{ matrix.pkgtype }}-${{ matrix.branch }}-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
@@ -563,30 +563,36 @@ jobs:
             test -x /builder/staging_dir/host/bin/apk
             echo 'APK_BIN=/builder/staging_dir/host/bin/apk' >> "$GITHUB_ENV"
           fi
-      - name: Download immutable r2 and r3 package inputs
+      - name: Download immutable r2 legacy and r8 recent package inputs
         shell: bash
         run: |
           set -euo pipefail
           work="$GITHUB_WORKSPACE/legacy-input"
           mkdir -p "$work"
           curl -fsSL --retry 3 "https://github.com/hello-yunshu/luci-app-cloudflare-ip/releases/download/v2.6.0-2/sha256sums.txt" -o "$work/r2-sha256sums.txt"
+          curl -fsSL --retry 3 "https://github.com/hello-yunshu/luci-app-cloudflare-ip/releases/download/v2.6.0-8/SHA256SUMS" -o "$work/r8-SHA256SUMS"
           if [[ "${{ matrix.pkgtype }}" == ipk ]]; then
             r2_base=luci-app-cloudflare-ip_2.6.0-r2_all.ipk
             r2_addon=luci-app-cloudflare-ip-rill_2.6.0-r2_all.ipk
-            r3_base=luci-app-cloudflare-ip_2.6.0-r3_all.ipk
+            r8_base=luci-app-cloudflare-ip_2.6.0-r8_all.ipk
+            r8_asset="$r8_base"
           else
             r2_base=luci-app-cloudflare-ip-2.6.0-r2.apk
             r2_addon=luci-app-cloudflare-ip-rill-2.6.0-r2.apk
-            r3_base=luci-app-cloudflare-ip-2.6.0-r3.apk
+            r8_base=luci-app-cloudflare-ip-2.6.0-r8.apk
+            r8_asset="$r8_base"
           fi
-          for spec in "v2.6.0-2/$r2_base" "v2.6.0-2/$r2_addon" "v2.6.0-3/$r3_base"; do
+          for spec in "v2.6.0-2/$r2_base" "v2.6.0-2/$r2_addon"; do
             tag="${spec%%/*}"
             name="${spec#*/}"
             curl -fsSL --retry 3 "https://github.com/hello-yunshu/luci-app-cloudflare-ip/releases/download/$tag/$name" -o "$work/$name"
           done
+          curl -fsSL --retry 3 "https://github.com/hello-yunshu/luci-app-cloudflare-ip/releases/download/v2.6.0-8/$r8_asset" -o "$work/$r8_asset"
           (cd "$work" && sha256sum -c r2-sha256sums.txt --ignore-missing)
+          r8_sha=$(awk -v name="$r8_asset" '$2 == name {print $1}' "$work/r8-SHA256SUMS")
+          test -n "$r8_sha"
+          test "$(sha256sum "$work/$r8_asset" | awk '{print $1}')" = "$r8_sha"
           test "$(git -C "$GITHUB_WORKSPACE/legacy-r2" rev-parse HEAD)" = "$(git -C "$GITHUB_WORKSPACE/legacy-r2" rev-parse 'v2.6.0-2^{commit}')"
-          test "$(git -C "$GITHUB_WORKSPACE/legacy-r3" rev-parse HEAD)" = "$(git -C "$GITHUB_WORKSPACE/legacy-r3" rev-parse 'v2.6.0-3^{commit}')"
       - name: Extract the current qualified Runtime binary
         shell: bash
         run: |
@@ -634,7 +640,7 @@ jobs:
           current_addon=$(find "$GITHUB_WORKSPACE/current-output" -type f -name 'luci-app-cloudflare-ip-rill*.${{ matrix.pkgtype }}' -print -quit)
           legacy_base="$work/$(if [[ "${{ matrix.pkgtype }}" == ipk ]]; then echo luci-app-cloudflare-ip_2.6.0-r2_all.ipk; else echo luci-app-cloudflare-ip-2.6.0-r2.apk; fi)"
           legacy_addon="$work/$(if [[ "${{ matrix.pkgtype }}" == ipk ]]; then echo luci-app-cloudflare-ip-rill_2.6.0-r2_all.ipk; else echo luci-app-cloudflare-ip-rill-2.6.0-r2.apk; fi)"
-          r3_base="$work/$(if [[ "${{ matrix.pkgtype }}" == ipk ]]; then echo luci-app-cloudflare-ip_2.6.0-r3_all.ipk; else echo luci-app-cloudflare-ip-2.6.0-r3.apk; fi)"
+          r8_base="$work/$(if [[ "${{ matrix.pkgtype }}" == ipk ]]; then echo luci-app-cloudflare-ip_2.6.0-r8_all.ipk; else echo luci-app-cloudflare-ip-2.6.0-r8.apk; fi)"
           build_historical() {
             local checkout_dir="$1" output_prefix="$2"
             cd /builder
@@ -656,15 +662,23 @@ jobs:
           }
           if [[ "${{ matrix.pkgtype }}" == ipk ]]; then
             probe="$RUNNER_TEMP/opkg-probe"
-            mkdir -p "$probe"
+            mkdir -p "$probe/etc/opkg" "$probe/tmp" "$probe/usr/lib/opkg/info" "$probe/var/lock"
+            printf 'arch all 1\narch x86_64 10\n' > "$probe/etc/opkg.conf"
+            # Mirror the migration matrix root so the probe resolves the same
+            # dependencies instead of failing the candidate selection.
+            for package in libc luci-base bash flock curl tar jq ca-bundle ca-certificates uhttpd rill-runtime-preview; do
+              printf 'Package: %s\nVersion: 1\nArchitecture: x86_64\nStatus: install ok installed\n\n' "$package"
+              : > "$probe/usr/lib/opkg/info/$package.list"
+            done > "$probe/usr/lib/opkg/status"
             if ! "$OPKG_BIN" --offline-root "$probe" --force-depends --noaction install "$legacy_base" >/dev/null 2>&1 || ! "$OPKG_BIN" --offline-root "$probe" --force-depends --noaction install "$legacy_addon" >/dev/null 2>&1; then
               build_historical legacy-r2 r2
               legacy_base="$work/r2-base.ipk"
               legacy_addon="$work/r2-addon.ipk"
             fi
-            if ! "$OPKG_BIN" --offline-root "$probe" --force-depends --noaction install "$r3_base" >/dev/null 2>&1; then
-              build_historical legacy-r3 r3
-              r3_base="$work/r3-base.ipk"
+            if ! "$OPKG_BIN" --conf "$probe/etc/opkg.conf" --offline-root "$probe" --add-arch all:10 --force-depends install "$r8_base" >"$RUNNER_TEMP/r8-probe.log" 2>&1; then
+              cat "$RUNNER_TEMP/r8-probe.log" >&2 || true
+              echo "r8 release asset is not installable by the SDK opkg: $r8_base" >&2
+              exit 1
             fi
           else
             apk_bin=/builder/staging_dir/host/bin/apk
@@ -673,16 +687,16 @@ jobs:
               legacy_base="$work/r2-base.apk"
               legacy_addon="$work/r2-addon.apk"
             fi
-            if ! "$apk_bin" --allow-untrusted adbdump "$r3_base" >/dev/null 2>&1; then
-              build_historical legacy-r3 r3
-              r3_base="$work/r3-base.apk"
+            if ! "$apk_bin" --allow-untrusted adbdump "$r8_base" >/dev/null 2>&1; then
+              echo "r8 release asset is not readable by the SDK apk: $r8_base" >&2
+              exit 1
             fi
           fi
           cd "$GITHUB_WORKSPACE"
           test -n "$current_base" -a -n "$current_addon"
           test -x "$RUNTIME_BIN"
           SOURCE_TAG=v2.6.0-2 SOURCE_SHA="$source_sha" OPKG="${OPKG_BIN:-opkg}" APK="${APK_BIN:-apk}" \
-            R3_BASE="$r3_base" bash luci-app-cloudflare-ip/tests/package-migration.sh "${{ matrix.pkgtype }}" "$legacy_base" "$legacy_addon" "$current_base" "$current_addon" "$RUNTIME_BIN"
+            RECENT_BASE="$r8_base" bash luci-app-cloudflare-ip/tests/package-migration.sh "${{ matrix.pkgtype }}" "$legacy_base" "$legacy_addon" "$current_base" "$current_addon" "$RUNTIME_BIN"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
@@ -691,6 +705,76 @@ jobs:
             package-migration-evidence.json
             package-migration-details/
           if-no-files-found: error
+
+  package-drill:
+    name: Real package drill (${{ matrix.pkgtype }} OpenWrt ${{ matrix.branch }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - branch: v24.10.8
+            pkgtype: ipk
+            image: openwrt/rootfs:x86_64-24.10.8
+            r8: luci-app-cloudflare-ip_2.6.0-r8_all.ipk
+            r9: luci-app-cloudflare-ip_2.6.0-r9_all.ipk
+          - branch: v25.12.5
+            pkgtype: apk
+            image: openwrt/rootfs:x86_64-25.12.5
+            r8: luci-app-cloudflare-ip-2.6.0-r8.apk
+            r9: luci-app-cloudflare-ip-2.6.0-r9.apk
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Download r8 and r9 release packages
+        shell: bash
+        run: |
+          set -euo pipefail
+          work="$RUNNER_TEMP/drill-input"
+          mkdir -p "$work"
+          r8="${{ matrix.r8 }}"
+          r9="${{ matrix.r9 }}"
+          for spec in "v2.6.0-8/$r8" "v2.6.0-9/$r9"; do
+            tag="${spec%%/*}"
+            name="${spec#*/}"
+            curl -fsSL --retry 3 "https://github.com/hello-yunshu/luci-app-cloudflare-ip/releases/download/$tag/$name" -o "$work/$name"
+            curl -fsSL --retry 3 "https://github.com/hello-yunshu/luci-app-cloudflare-ip/releases/download/$tag/SHA256SUMS" -o "$work/$tag-SHA256SUMS"
+          done
+          r8_sha=$(awk -v name="$r8" '$2 == name {print $1}' "$work/v2.6.0-8-SHA256SUMS")
+          r9_sha=$(awk -v name="$r9" '$2 == name {print $1}' "$work/v2.6.0-9-SHA256SUMS")
+          test -n "$r8_sha" -a -n "$r9_sha"
+          test "$(sha256sum "$work/$r8" | awk '{print $1}')" = "$r8_sha"
+          test "$(sha256sum "$work/$r9" | awk '{print $1}')" = "$r9_sha"
+      - name: Run fresh, upgrade, rollback, ENOSPC and power-loss drill
+        shell: bash
+        run: |
+          set -euo pipefail
+          work="$RUNNER_TEMP/drill-input"
+          out="$RUNNER_TEMP/r4-${{ matrix.pkgtype }}"
+          timeout 900 bash tests/r4-container-drill.sh --kind "${{ matrix.pkgtype }}" --image "${{ matrix.image }}" \
+            --r8 "$work/${{ matrix.r8 }}" \
+            --r9 "$work/${{ matrix.r9 }}" \
+            --out "$out"
+          cat "$out/summary.txt"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
+        with:
+          name: package-drill-${{ matrix.pkgtype }}-${{ matrix.branch }}-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/r4-${{ matrix.pkgtype }}/
+          if-no-files-found: error
+
+  startup-race:
+    name: Startup race regression (OpenWrt 24.10.8)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Run startup race regression in a real OpenWrt root
+        shell: bash
+        run: |
+          set -euo pipefail
+          # The rootfs has no read deadline on feed fetches; the host timeout
+          # keeps a stalled mirror from hanging the job. The container script
+          # installs the dependencies and then runs tests/startup-race.sh.
+          timeout 900 docker run --rm --privileged -v "$PWD:/src" -w /src openwrt/rootfs:x86_64-24.10.8 sh /src/tests/startup-race-container.sh
 
   rill-runtime-integration:
     permissions:
@@ -936,7 +1020,7 @@ jobs:
           migration_apk=$(find "$asset_dir/package-migration-apk" -type f -name package-migration-evidence.json -print -quit)
           test -n "$migration_ipk" -a -n "$migration_apk"
           PACKAGE_MIGRATION=$(jq -n --argjson ipk "$(cat "$migration_ipk")" --argjson apk "$(cat "$migration_apk")" \
-            '{schemaVersion:1,currentMatrices:[$ipk.currentMatrix,$apk.currentMatrix],historicalR3ToR4Meaning:$ipk.historicalR3ToR4Meaning,legacyVersion:$ipk.legacyVersion,sourceTag:$ipk.sourceTag,sourceSHA:$ipk.sourceSHA,currentSHA:$ipk.currentSHA,ipk:$ipk.ipk,apk:$apk.apk,baseOnlyUpgrade:($ipk.baseOnlyUpgrade and $apk.baseOnlyUpgrade),baseAddonToBaseUpgrade:($ipk.baseAddonToBaseUpgrade and $apk.baseAddonToBaseUpgrade),addonRemovalSafe:($ipk.addonRemovalSafe and $apk.addonRemovalSafe),r3ToR4:($ipk.r3ToR4 and $apk.r3ToR4),runtimeAbsent:($ipk.runtimeAbsent and $apk.runtimeAbsent),runtimePresent:($ipk.runtimePresent and $apk.runtimePresent)}')
+            '{schemaVersion:1,currentMatrices:[$ipk.currentMatrix,$apk.currentMatrix],recentToCurrentMeaning:$ipk.recentToCurrentMeaning,legacyVersion:$ipk.legacyVersion,sourceTag:$ipk.sourceTag,sourceSHA:$ipk.sourceSHA,currentSHA:$ipk.currentSHA,ipk:$ipk.ipk,apk:$apk.apk,baseOnlyUpgrade:($ipk.baseOnlyUpgrade and $apk.baseOnlyUpgrade),baseAddonToBaseUpgrade:($ipk.baseAddonToBaseUpgrade and $apk.baseAddonToBaseUpgrade),addonRemovalSafe:($ipk.addonRemovalSafe and $apk.addonRemovalSafe),recentToCurrent:($ipk.recentToCurrent and $apk.recentToCurrent),runtimeAbsent:($ipk.runtimeAbsent and $apk.runtimeAbsent),runtimePresent:($ipk.runtimePresent and $apk.runtimePresent)}')
           ASSET_FILES="$asset_files"
           RILL_EVIDENCE="$(cat "$rill_evidence_file")"
           for json_input in RESULTS ARTIFACTS ASSET_FILES RILL_EVIDENCE; do

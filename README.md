@@ -37,8 +37,8 @@
 - 源码版本以 [PKG_VERSION / PKG_RELEASE](package/luci-app-cloudflare-ip/Makefile) 为准，可运行 `python3 scripts/package_identity.py` 查询。
 - 已发布版本和准确文件名以选定 Release 的 `qualification.json` 为准；源码候选可能尚未发布。
 - 当前源码渠道：`stable` 候选；不表示已经发布 Stable
-- `2.6.0-r6` 已作为 pre-release 发布，其字节对应审计修复前基线；当前源码为 `2.6.0-r8` 发布候选，尚未创建 tag/Release。自动 Stable 发布保持禁用，设备/Soak 与完整 workspace 的非 shipped 依赖边界待用户裁决，具体 SHA、同 run/attempt 安装包与支持范围须另行批准
-- r8 发布收口材料已准备（CHANGELOG、Release notes、资产 SHA256、回滚步骤）；merge、tag、Release 与 channel 变更均等待用户单独授权，详见 [2.6.0-r8 发布准备](docs/2.6.0-r8-RELEASE-READY.md)
+- `2.6.0-r6` 已作为 pre-release 发布，其字节对应审计修复前基线；当前源码为 `2.6.0-r9`，`v2.6.0-9` 已于 2026-11-05 作为 pre-release 发布（包含 P1-06 修复）。自动 Stable 发布保持禁用，设备/Soak 与完整 workspace 的非 shipped 依赖边界待用户裁决，具体 SHA、同 run/attempt 安装包与支持范围须另行批准
+- r8 发布收口材料（CHANGELOG、Release notes、资产 SHA256、回滚步骤）保留作历史记录；r9 已按同一流程发布，Stable 晋级仍需单独授权，详见 [2.6.0-r8 发布准备](docs/2.6.0-r8-RELEASE-READY.md)
 
 正式包只从 `main` 的成功 exact-head CI 资格化运行中发布。IPK/APK、`sha256sums.txt` 和 `qualification.json` 属于同一证据链；主机测试和 SDK 构建不能替代真实 OpenWrt 设备、硬件兼容性或长期 soak 验证。
 

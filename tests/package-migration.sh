@@ -10,7 +10,9 @@ CURRENT_ADDON="${5:?current compatibility package required}"
 RUNTIME_BIN="${6:?qualified Runtime binary required}"
 OPKG="${OPKG:-opkg}"
 APK="${APK:-apk}"
-R3_BASE="${R3_BASE:-$LEGACY_BASE}"
+# The "recent" base is the previous stable-gate release, now r8. R3_BASE is
+# still accepted so old callers keep working.
+RECENT_BASE="${RECENT_BASE:-${R3_BASE:-$LEGACY_BASE}}"
 EVIDENCE_DIR="${MIGRATION_EVIDENCE_DIR:-$PWD/package-migration-details}"
 mkdir -p "$EVIDENCE_DIR"
 WORK="$(mktemp -d)"
@@ -284,7 +286,7 @@ scenario_d() {
 
 scenario_e() {
     local root="$1"
-    install_package "$root" "$R3_BASE"
+    install_package "$root" "$RECENT_BASE"
     install_package "$root" "$CURRENT_BASE"
     assert_installed "$root" "$BASE_PACKAGE"
     check_base_runtime "$root"
@@ -518,7 +520,7 @@ if [[ "$KIND" == apk ]]; then
             --info "name:$package" --info 'version:1-r0' --info 'arch:x86_64' \
             --info 'description:package migration test fixture'
     done
-    for package in "$LEGACY_BASE" "$LEGACY_ADDON" "$CURRENT_BASE" "$CURRENT_ADDON" "$R3_BASE"; do
+    for package in "$LEGACY_BASE" "$LEGACY_ADDON" "$CURRENT_BASE" "$CURRENT_ADDON" "$RECENT_BASE"; do
         cp "$package" "$apk_repository/$(basename "$package")"
     done
     "$APK" --allow-untrusted mkndx --output "$apk_repository/packages.adb" "$apk_repository"/*.apk
@@ -533,7 +535,7 @@ for role in legacyBase legacyAddon currentBase currentAddon recentBase; do
         legacyAddon) input="$LEGACY_ADDON"; package_name="$ADDON_PACKAGE" ;;
         currentBase) input="$CURRENT_BASE"; package_name="$BASE_PACKAGE" ;;
         currentAddon) input="$CURRENT_ADDON"; package_name="$ADDON_PACKAGE" ;;
-        recentBase) input="$R3_BASE"; package_name="$BASE_PACKAGE" ;;
+        recentBase) input="$RECENT_BASE"; package_name="$BASE_PACKAGE" ;;
     esac
     python3 "$ROOT/scripts/openwrt-package-metadata.py" "$input" --format "$KIND" \
         --apk-bin "$APK" --package-name "$package_name" --output "$EVIDENCE_DIR/$role.json"
@@ -569,6 +571,6 @@ jq -n --arg kind "$KIND" \
 source_tag="${SOURCE_TAG:-v2.6.0-2}"
 source_sha="${SOURCE_SHA:-unknown}"
 jq -n --slurpfile matrix "$EVIDENCE_DIR/current-matrix.json" --arg kind "$KIND" --arg tag "$source_tag" --arg sha "$source_sha" --arg current "${GITHUB_SHA:-unknown}" \
-  '{schemaVersion:1,currentMatrix:$matrix[0],historicalR3ToR4Meaning:"legacy field retained; current from/to identity is in currentMatrix",kind:$kind,sourceTag:$tag,sourceSHA:$sha,currentSHA:$current,legacyVersion:"2.6.0-r2",ipk:(if $kind=="ipk" then "PASS" else "NOT_APPLICABLE" end),apk:(if $kind=="apk" then "PASS" else "NOT_APPLICABLE" end),baseOnlyUpgrade:true,baseAddonToBaseUpgrade:true,addonRemovalSafe:true,r3ToR4:true,runtimeAbsent:true,runtimePresent:true}' \
+  '{schemaVersion:1,currentMatrix:$matrix[0],recentToCurrentMeaning:"recent base is the previous released pre-release; current from/to identity is in currentMatrix",kind:$kind,sourceTag:$tag,sourceSHA:$sha,currentSHA:$current,legacyVersion:"2.6.0-r2",recentVersion:"2.6.0-r8",ipk:(if $kind=="ipk" then "PASS" else "NOT_APPLICABLE" end),apk:(if $kind=="apk" then "PASS" else "NOT_APPLICABLE" end),baseOnlyUpgrade:true,baseAddonToBaseUpgrade:true,addonRemovalSafe:true,recentToCurrent:true,runtimeAbsent:true,runtimePresent:true}' \
   > package-migration-evidence.json
 echo "real $KIND package-manager migration matrix passed"

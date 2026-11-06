@@ -1,0 +1,4 @@
+Installing luci-app-cloudflare-ip (2.6.0-r9) to root...
+Collected errors:
+ * opkg_conf_write_status_files: Couldn't close //usr/lib/opkg/status: No space left on device.
+Configuring luci-app-cloudflare-ip.
