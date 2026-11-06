@@ -59,6 +59,20 @@ jobs:
           NODE_PATH="$RUNNER_TEMP/ui/node_modules" \
             node tests/real-luci-ui.cjs \
             --evidence "$GITHUB_WORKSPACE/real-luci-ui-evidence"
+      - name: Install checksum-pinned Aurora theme in OpenWrt
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 -o "$RUNNER_TEMP/luci-theme-aurora.ipk" \
+            https://github.com/eamonxg/luci-theme-aurora/releases/download/v1.4.0/luci-theme-aurora_1.4.0-r20260920_all.ipk
+          echo "5b3f2d669ef82e575498d1b99c4b9b498088540eeff7db989f214b63d3ef8a8e  $RUNNER_TEMP/luci-theme-aurora.ipk" | sha256sum -c -
+          docker cp "$RUNNER_TEMP/luci-theme-aurora.ipk" cfip-ui-gate:/tmp/luci-theme-aurora.ipk
+          docker exec cfip-ui-gate opkg install /tmp/luci-theme-aurora.ipk
+      - name: Capture all-page real theme and viewport visual matrix
+        run: |
+          set -euo pipefail
+          NODE_PATH="$RUNNER_TEMP/ui/node_modules" \
+            CFIP_VISUAL_OUT="$GITHUB_WORKSPACE/real-luci-ui-evidence/visual" \
+            node tests/real-luci-ui-visual.cjs
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
