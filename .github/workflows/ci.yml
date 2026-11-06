@@ -662,13 +662,14 @@ jobs:
           }
           if [[ "${{ matrix.pkgtype }}" == ipk ]]; then
             probe="$RUNNER_TEMP/opkg-probe"
-            mkdir -p "$probe/tmp" "$probe/usr/lib/opkg" "$probe/var/lock"
+            mkdir -p "$probe/etc" "$probe/tmp" "$probe/usr/lib/opkg" "$probe/var/lock"
+            printf 'arch all 1\narch x86_64 10\n' > "$probe/etc/opkg.conf"
             if ! "$OPKG_BIN" --offline-root "$probe" --force-depends --noaction install "$legacy_base" >/dev/null 2>&1 || ! "$OPKG_BIN" --offline-root "$probe" --force-depends --noaction install "$legacy_addon" >/dev/null 2>&1; then
               build_historical legacy-r2 r2
               legacy_base="$work/r2-base.ipk"
               legacy_addon="$work/r2-addon.ipk"
             fi
-            if ! "$OPKG_BIN" --offline-root "$probe" --add-arch all:10 --force-depends --noaction install "$r8_base" >"$RUNNER_TEMP/r8-probe.log" 2>&1; then
+            if ! "$OPKG_BIN" --conf "$probe/etc/opkg.conf" --offline-root "$probe" --add-arch all:10 --force-depends --noaction install "$r8_base" >"$RUNNER_TEMP/r8-probe.log" 2>&1; then
               cat "$RUNNER_TEMP/r8-probe.log" >&2 || true
               echo "r8 release asset is not installable by the SDK opkg: $r8_base" >&2
               exit 1
