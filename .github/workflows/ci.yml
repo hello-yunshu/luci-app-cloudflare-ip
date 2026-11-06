@@ -764,22 +764,9 @@ jobs:
         run: |
           set -euo pipefail
           # The rootfs has no read deadline on feed fetches; the host timeout
-          # keeps a stalled mirror from hanging the job.
-          timeout 900 docker run --rm --privileged -v "$PWD:/src" -w /src openwrt/rootfs:x86_64-24.10.8 sh -c '
-            set -e
-            mkdir -p /var/lock
-            for _ in 1 2 3; do
-              opkg update >/tmp/opkg-update.log 2>&1 || true
-              opkg install bash jq curl flock >/tmp/opkg-deps.log 2>&1 || true
-              ok=1
-              for b in bash jq curl flock; do command -v "$b" >/dev/null || ok=0; done
-              [ "$ok" = 1 ] && break
-              sleep 2
-            done
-            for b in bash jq curl flock; do
-              command -v "$b" >/dev/null || { echo "missing dependency: $b" >&2; exit 1; }
-            done
-            bash tests/startup-race.sh'
+          # keeps a stalled mirror from hanging the job. The container script
+          # installs the dependencies and then runs tests/startup-race.sh.
+          timeout 900 docker run --rm --privileged -v "$PWD:/src" -w /src openwrt/rootfs:x86_64-24.10.8 sh /src/tests/startup-race-container.sh
 
   rill-runtime-integration:
     permissions:

@@ -48,8 +48,9 @@ writes global LuCI language state.
 
 ## P1-3 — startup race
 
-`bash tests/startup-race.sh` inside a disposable privileged 24.10.8 root,
-mounted from the worktree. Output: `p1-3-startup-race.txt`. It proves the init
+`tests/startup-race-container.sh` inside a disposable privileged 24.10.8 root,
+mounted from the worktree; that wrapper installs the dependencies and runs
+`tests/startup-race.sh`. Output: `p1-3-startup-race.txt`. It proves the init
 script submits only one background job and that `startup_delay` runs before the
 writer lock is taken, so a manual run can acquire the lock immediately.
 
