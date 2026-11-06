@@ -1,0 +1,12 @@
+PASS postinst online success migrates status and does not touch global LuCI language
+PASS postinst self-update migration failure is fatal
+PASS postinst managed config migration failure is fatal
+PASS postinst enable failure is fatal
+PASS postinst status migration failure is fatal
+PASS postinst offline root skips online lifecycle
+PASS preinst fresh install does not stop services
+PASS preinst offline root skips online lifecycle
+PASS preinst refuses upgrade when cf_ip stop fails
+PASS preinst refuses upgrade when publisher stop fails
+PASS preinst upgrade stops both services
+package lifecycle behaviour passed

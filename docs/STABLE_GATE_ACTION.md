@@ -33,7 +33,7 @@ Each row must produce artifacts (log/screenshot/JSON), not just an assertion.
 | R1 | exact-SHA CI | 21/21 success on the release SHA |
 | R2 | Real LuCI UI Gate | success on the same SHA |
 | R3 | Package bytes | IPK/APK from the same run; SHA256 recorded; `Depends` has no `uhttpd` |
-| R4 | Fresh install + upgrade | r8→r9 and fresh install pass on 24.10.8/25.12.x containers |
+| R4 | Fresh install + upgrade | r8→r9 and fresh install pass on 24.10.8 (IPK) and 25.12.x (APK) containers, including rollback/ENOSPC/power-loss drills |
 | R5 | Tag/release guards | `release-tag-immutability.sh`, `release-channel-contract.sh` exit 0; tag target immutable |
 | R6 | Post-release | re-download all assets, `sha256sum -c` passes; install notes recorded |
 
@@ -42,6 +42,6 @@ Each row must produce artifacts (log/screenshot/JSON), not just an assertion.
 - Device/owner work still required: **E1–E7 = 7 items**.
 - User decisions still required: **D1–D2 = 2 items** (D3 optional boundary acceptance).
 - Build/release steps: **R1–R6**, executable by the maintainer after the above.
-- Container evidence already green: publisher fixtures, rollback/ENOSPC/power-loss drills, matrix, i18n, UI Gate. These are **not** device evidence.
+- Container evidence already green: publisher fixtures, IPK/APK r8→r9 upgrade + fresh install + rollback/ENOSPC/power-loss drills on 24.10.8 and 25.12.x, matrix, i18n, UI Gate. These are **not** device evidence.
 
 **Conclusion: NOT READY. No Stable action may be executed from this page.**

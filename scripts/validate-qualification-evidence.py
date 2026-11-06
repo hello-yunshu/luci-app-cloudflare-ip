@@ -73,8 +73,14 @@ def validate(
     require(migration.get("currentSHA"), migration.get("currentSHA") == commit, "migration evidence does not match qualification SHA")
     for field in ("ipk", "apk"):
         require(field, migration.get(field) == "PASS", f"package migration {field} is not PASS")
-    for field in ("baseOnlyUpgrade", "baseAddonToBaseUpgrade", "addonRemovalSafe", "r3ToR4", "runtimeAbsent", "runtimePresent"):
+    for field in ("baseOnlyUpgrade", "baseAddonToBaseUpgrade", "addonRemovalSafe", "runtimeAbsent", "runtimePresent"):
         require(field, migration.get(field) is True, f"package migration {field} is not true")
+    # Current evidence names the recent-basis migration explicitly; older
+    # released artifacts used r3ToR4 for the same fact.
+    recent = migration.get("recentToCurrent")
+    if recent is None:
+        recent = migration.get("r3ToR4")
+    require("recentToCurrent", recent is True, "package migration recentToCurrent is not true")
     rill = manifest.get("rill")
     require(rill, isinstance(rill, dict), "rill evidence missing")
     require(rill.get("schemaVersion"), rill.get("schemaVersion") == 1, "rill schemaVersion must be 1")

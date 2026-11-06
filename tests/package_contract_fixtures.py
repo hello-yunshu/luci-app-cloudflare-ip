@@ -27,7 +27,7 @@ def manifest(assets=None):
     c = json.loads((ROOT / 'contracts/rill-runtime.json').read_text())
     commit = '0123456789abcdef0123456789abcdef01234567'
     migration = dict(c['packageMigration'], currentSHA=commit, ipk='PASS', apk='PASS')
-    migration.update({k:True for k in ('baseOnlyUpgrade','baseAddonToBaseUpgrade','addonRemovalSafe','r3ToR4','runtimeAbsent','runtimePresent')})
+    migration.update({k:True for k in ('baseOnlyUpgrade','baseAddonToBaseUpgrade','addonRemovalSafe','recentToCurrent','runtimeAbsent','runtimePresent')})
     assets = assets if assets is not None else assets_for()
     matrices=[]
     for asset in assets:

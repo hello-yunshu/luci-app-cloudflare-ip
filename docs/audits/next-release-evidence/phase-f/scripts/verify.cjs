@@ -13,7 +13,20 @@ const crypto = require('crypto');
 const ROOT = path.resolve(__dirname, '../..'); // next-release-evidence
 const MATRIX = path.join(ROOT, 'phase-f/matrix/matrix.json');
 const ZOOM = path.join(ROOT, 'phase-f/zoom-zh/zoom-zh.json');
-const EXPECTED_SHA = process.env.CFIP_UI_SHA || 'ffa73f6';
+const BASELINE = path.join(ROOT, 'phase-f/baseline-sha.txt');
+
+// The evidence is generated against one commit and stays valid only for that
+// commit. Never bind it to whatever HEAD happens to be: pass --sha explicitly.
+const argSha = (() => {
+  const i = process.argv.indexOf('--sha');
+  return i >= 0 ? process.argv[i + 1] : '';
+})();
+const EXPECTED_SHA = argSha || process.env.CFIP_UI_SHA ||
+  (fs.existsSync(BASELINE) ? fs.readFileSync(BASELINE, 'utf8').trim() : '');
+if (!EXPECTED_SHA) {
+  console.error('expected sha required: pass --sha <sha>, set CFIP_UI_SHA, or add phase-f/baseline-sha.txt');
+  process.exit(2);
+}
 const STATES = ['loading', 'disabled', 'error', 'success', 'partial', 'cancel', 'rollback'];
 
 function sha(file) {
@@ -22,6 +35,7 @@ function sha(file) {
 
 const failures = [];
 const warnings = [];
+let ringEvidence = 0;
 
 if (!fs.existsSync(MATRIX)) failures.push('matrix.json missing');
 if (!fs.existsSync(ZOOM)) failures.push('zoom-zh.json missing');
@@ -77,11 +91,20 @@ if (matrix) {
       }
       if (!row.assertions || !row.assertions[state] || !row.assertions[state].dom || !row.assertions[state].focus)
         failures.push(`${row.id}/${state}: DOM/focus assertion missing`);
+      const focus = row.assertions && row.assertions[state] && row.assertions[state].focus;
+      if (focus && typeof focus.ring !== 'boolean')
+        failures.push(`${row.id}/${state}: focus ring was not captured`);
+      // A keyboard-reachable control inside the main panel must show a focus
+      // ring. Mouse-opened containers (UL/LI/SUMMARY) are allowed to be false.
+      if (focus && focus.inMain && ['BUTTON', 'INPUT', 'A'].includes(focus.tag) && focus.ring !== true)
+        failures.push(`${row.id}/${state}: keyboard control ${focus.tag} has no focus ring`);
+      if (focus && focus.ring === true) ringEvidence += 1;
       if (!row.assertions[state].persistence) failures.push(`${row.id}/${state}: persistence assertion missing`);
     }
     for (const state of STATES) if (row.states[state] === 'N/A') counts[state] = counts[state] || { PASS: 0, 'N/A': 0 }, counts[state]['N/A'] += 1;
   }
   if (matrix.missingEvidence && matrix.missingEvidence.length) failures.push(`missingEvidence: ${matrix.missingEvidence.join(',')}`);
+  if (!ringEvidence) failures.push('no keyboard focus ring evidence captured');
   if (missing.length) warnings.push(...missing);
 }
 
@@ -113,7 +136,7 @@ if (zoom) {
 const summary = {
   schemaVersion: 1,
   sha: EXPECTED_SHA,
-  matrix: { points: matrix ? matrix.points.length : 0, counts, failures: failures.filter(f => !f.startsWith('zoom')).length },
+  matrix: { points: matrix ? matrix.points.length : 0, counts, ringEvidence, failures: failures.filter(f => !f.startsWith('zoom')).length },
   zoom: { screenshots: zoomCount, uniqueHashes: Object.keys(zoomHashes).length },
   passed: failures.length === 0,
   failed: failures.length,

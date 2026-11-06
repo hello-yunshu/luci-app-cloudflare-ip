@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "sha": "ffa73f6",
+  "matrix": {
+    "points": 51,
+    "counts": {
+      "loading": {
+        "PASS": 7,
+        "N/A": 44
+      },
+      "disabled": {
+        "PASS": 9,
+        "N/A": 42
+      },
+      "error": {
+        "PASS": 17,
+        "N/A": 34
+      },
+      "success": {
+        "PASS": 51,
+        "N/A": 0
+      },
+      "rollback": {
+        "PASS": 12,
+        "N/A": 39
+      },
+      "partial": {
+        "PASS": 0,
+        "N/A": 51
+      },
+      "cancel": {
+        "PASS": 25,
+        "N/A": 26
+      }
+    },
+    "ringEvidence": 17,
+    "failures": 0
+  },
+  "zoom": {
+    "screenshots": 48,
+    "uniqueHashes": 48
+  },
+  "passed": true,
+  "failed": 0,
+  "failures": [],
+  "warnings": []
+}

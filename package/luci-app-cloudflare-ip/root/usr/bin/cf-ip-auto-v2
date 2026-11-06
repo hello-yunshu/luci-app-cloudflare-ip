@@ -540,6 +540,9 @@ run_v2() {
     CFIP_SPEEDTEST_COMPLETED=false
     CFIP_OPENCLASH_EXPECTED_ENABLED=""; CFIP_OPENCLASH_INITIAL_RUNNING=false; CFIP_OPENCLASH_INITIAL_HEALTHY=false; CFIP_OPENCLASH_DEFERRED=false; CFIP_OPENCLASH_CF_STOPPED=false; CFIP_OPENCLASH_RECOVERY_ATTEMPTED=false; CFIP_OPENCLASH_RECOVERY_VERIFIED=false; CFIP_OPENCLASH_RESTART_ATTEMPTS=0; CFIP_OPENCLASH_FILE_WRITTEN=false; CFIP_OPENCLASH_SERVICE_APPLIED=false; CFIP_OPENCLASH_SERVICE_ERROR=""; CFIP_RECOVERY_ERROR=""
     load_config || return 1
+    # The boot delay must not hold the writer lock: an auto-run waiting here is
+    # not an active task, so a manual "Run now" must not be reported as busy.
+    apply_startup_delay || { cfip_json_error "invalid startup delay"; return 1; }
     acquire_lock || { cfip_json_error "$(cf_ip_writer_lock_message)"; return 1; }
     CFIP_CLEANUP_DONE=false
     trap 'run_cleanup "$?"' EXIT
@@ -570,7 +573,6 @@ run_v2() {
         return 0
     fi
     write_status true "$CFIP_PHASE" "$CFIP_LAST_RESULT" ""
-    apply_startup_delay || { fail_run "invalid startup delay"; return 1; }
     CFIP_PHASE=acquiring
     ensure_cfst || { fail_run "failed to prepare CloudflareSpeedTest"; return 1; }
     cfip_prepare_candidate_pool "$CFIP_INPUT_POOL_FILE" "$CFIP_CANDIDATE_INPUT_FILE" "$CFIP_SOURCE_STATUS_FILE" || { fail_run "no candidate IPs available from enabled sources/cache"; return 1; }

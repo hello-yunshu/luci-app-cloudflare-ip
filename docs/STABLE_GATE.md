@@ -1,16 +1,16 @@
 # Stable Gate — criteria, decision and review flow
 
-Status: **prepared, not executed.** `v2.6.0-8` is a published Pre-release; `v2.6.0-9` is the P1-06 fix Pre-release authorized separately under explicit conditions. No stable promotion and no channel change are authorized by this document. The compact operating list is [STABLE_GATE_ACTION.md](STABLE_GATE_ACTION.md).
+Status: **prepared, not executed.** `v2.6.0-8` and the P1-06 fix `v2.6.0-9` are published Pre-releases. No stable promotion and no channel change are authorized by this document. The compact operating list is [STABLE_GATE_ACTION.md](STABLE_GATE_ACTION.md).
 
 ## 1. Current base
 
 | Item | Value |
 |---|---|
-| Pre-release | `v2.6.0-8` (2026-11-04), tag → `4cbad4d2bb68315ed22b4c702effb78c1cd03ffb` |
-| Assets | IPK `1a3bc3cc…`, APK `a40cc859…`; same run `41901653719` attempt 1 |
+| Source baseline | `2.6.0-r9`; release tag `v2.6.0-9` → `1bbb3d7a380157e8175f44f42c5f39d9159f09df` |
+| Previous Pre-release | `v2.6.0-8` (2026-11-04), tag → `4cbad4d2bb68315ed22b4c702effb78c1cd03ffb` |
 | Channel | `stable` in `release-channel.json`, but automatic promotion is disabled by the `release.yml` guard |
-| Post-release install | IPK/APK fresh install + r6→r8 upgrade PASS (see phase I report) |
-| Stable status | **NOT READY** — blockers below are still open |
+| Post-release install | r6→r8 IPK and fresh install PASS; r8→r9 + fresh install container drills in §4A (phase I) |
+| Stable status | **NOT READY** — device/owner and decision blockers below are still open |
 
 ## 2. Entry criteria
 
@@ -64,8 +64,8 @@ are architecture-independent; installability still depends on the target's
 
 | Target | Package | Install/upgrade evidence | LuCI page load | Real device | Status |
 |---|---|---|---|---|---|
-| OpenWrt 24.10.8 x86_64 | IPK `all` | fresh install, r6→r8, r8→r6 forced rollback (container) PASS | Real LuCI UI Gate PASS | VM only (`3bf0ec1`), not physical | install PASS; device NOT RUN |
-| OpenWrt 25.12.5 x86_64 | APK `all` | fresh install, r6→r8 (container) PASS | same LuCI frontend; no separate UI run | none | install PASS; device NOT RUN |
+| OpenWrt 24.10.8 x86_64 | IPK `all` | fresh r9, r8→r9, r9→r8 forced rollback, ENOSPC, power-loss (container) PASS; historical r6→r8/r8→r6 PASS | Real LuCI UI Gate PASS | VM only (`3bf0ec1`), not physical | install PASS; device NOT RUN |
+| OpenWrt 25.12.5 x86_64 | APK `all` | fresh r9, r8→r9, r9→r8 rollback, ENOSPC, power-loss (container) PASS | same LuCI frontend; no separate UI run | none | install PASS; device NOT RUN |
 | OpenWrt 24.10.8 aarch64_generic | IPK `all` | r7 install PASS (container/emulated), r8 not separately run | r7 8 pages, 0 overflow | none | partial; r8 NOT RUN |
 | Other declared arches (armv7, mips*, riscv64) | IPK/APK `all` | not built or tested | not tested | none | NOT RUN / scope decision required |
 | OpenWrt < 24.10 | not supported | — | — | — | out of scope |
@@ -117,18 +117,21 @@ This is a user/release-owner decision; the maintainer cannot accept it alone.
 See `docs/audits/next-release-evidence/phase-i/stable-gate-drills.md` for raw
 commands and outputs. Summary:
 
-- r6→r8 upgrade: rc 0, custom UCI values and `/etc/config/cf_ip` hash preserved.
-- r8→r6 rollback: plain `opkg install` refuses a downgrade; `--force-downgrade`
-  rc 0, version back to r6, config hash unchanged.
-- ENOSPC (full target filesystem): the package files are written but
-  `/usr/lib/opkg/status` fails with `No space left on device`, leaving a
-  corrupt status DB and an apparently installed package. Freeing space and
-  restoring the pre-upgrade status backup (see
-  [ROLLBACK_AND_RECOVERY.md](ROLLBACK_AND_RECOVERY.md)) makes opkg usable
-  again; the config hash stays unchanged.
-- Power-loss (container kill during prerm): old version and config remain;
-  reinstall succeeds. A kill during file extraction and a real power cut were
-  not forced.
+- r8→r9 upgrade (IPK and APK): rc 0, custom UCI values and `/etc/config/cf_ip`
+  hash preserved (IPK); APK merges the new default into `cf_ip.apk-new` without
+  resetting user values.
+- r9→r8 rollback (IPK and APK): plain install refuses a downgrade; forced
+  downgrade returns r8 with the config hash unchanged.
+- Fresh r9 install (IPK and APK): `--status` returns schema 2 and the exact
+  `2.6.0-r9` package version.
+- ENOSPC (full target filesystem, IPK and APK): APK reports
+  `No space left on device` and installs nothing. IPK may return exit code 0
+  while the extracted payload is zero bytes; the drill detects this as
+  `payload_broken` rather than trusting the package-manager status. Freeing
+  space plus a reinstall returns a working r9 in both formats.
+- Power-loss (container kill during install, IPK and APK): r8 and the config
+  survive; removing the stale package-manager lock and reinstalling reaches r9.
+- Historical r6→r8 / r8→r6 IPK drills remain in the phase-i record.
 
 These are container-level drills. They do not cover a real device power cut,
 flash wear, or the OpenWrt failsafe/rollback path.
@@ -154,7 +157,7 @@ No automatic promotion. `release.yml` intentionally refuses non-`prerelease` cha
 7. **Stable release**: only from the approved exact `main` SHA, with the same-run assets; tag is immutable; no asset replacement.
 8. **Post-release**: re-download, checksum, install on the supported matrix, record results.
 
-## 5. Blockers for r8 → stable (current)
+## 5. Blockers for r9 → stable (current)
 
 | Blocker | Status | Required decision |
 |---|---|---|
@@ -164,8 +167,8 @@ No automatic promotion. `release.yml` intentionally refuses non-`prerelease` cha
 | arm64 beyond install/page load | r7 install/page only; r8 **NOT RUN** | expand or scope-exclude |
 | Full touch/keyboard matrix | keyboard at browser ceiling; full touch **NOT RUN** | run on touch device |
 | Full-workspace non-shipped zstd advisories | decision material prepared (§2A.3) | user accept boundary or upgrade |
-| Rollback / ENOSPC / power-loss on device | container drill PASS; device **NOT RUN** | device drill plus opkg status backup procedure |
-| Released r8 bytes contain P1-06 | fixed by the P1-06 Pre-release (`v2.6.0-9`); any Stable candidate must be r9 or later | use the r9 bytes for a Stable claim |
+| Rollback / ENOSPC / power-loss on device | container IPK+APK drills PASS; device **NOT RUN** | device drill plus opkg status backup procedure |
+| P1-06 in released bytes | fixed by the P1-06 Pre-release (`v2.6.0-9`); the r9 bytes are the current Stable candidate | use the r9 bytes for a Stable claim |
 | Channel change to stable | not authorized | explicit user authorization; do not bypass guard |
 
 ### 5A. External-device work (not executable here)

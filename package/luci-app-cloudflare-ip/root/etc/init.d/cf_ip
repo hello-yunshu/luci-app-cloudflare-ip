@@ -6,6 +6,7 @@ STOP=10
 USE_PROCD=1
 
 CRONTAB_FILE="/etc/crontabs/root"
+CF_IP_AUTO_BIN="${CF_IP_AUTO_BIN:-/usr/bin/cf-ip-auto}"
 CF_IP_RUNTIME_DIR="${CF_IP_RUNTIME_DIR:-/tmp/cf_ip}"
 CF_IP_STATUS_DIR="${CF_IP_STATUS_DIR:-/etc/cf_ip}"
 
@@ -127,7 +128,7 @@ _start_service_unlocked() {
 		return 1
 	fi
 	local validation_output validation_error
-	validation_output="$(cf-ip-auto --validate-config 2>/dev/null)" || {
+	validation_output="$("$CF_IP_AUTO_BIN" --validate-config 2>/dev/null)" || {
 		validation_error="$(printf '%s\n' "$validation_output" | jq -r '.error // empty' 2>/dev/null || true)"
 		[ -n "$validation_error" ] || validation_error="semantic configuration validation failed"
 		logger -t cf_ip -p daemon.err "Semantic configuration validation failed: $validation_error"
@@ -160,7 +161,7 @@ _start_service_unlocked() {
 
 	# Resolve to cron expression via cf-ip-auto
 	local cron_expr
-	cron_expr="$(cf-ip-auto --to-cron "$cron_interval" "$cron_custom")" || {
+	cron_expr="$("$CF_IP_AUTO_BIN" --to-cron "$cron_interval" "$cron_custom")" || {
 		logger -t cf_ip -p daemon.err "crontab: failed to convert schedule to cron expression, falling back to daemon"
 		# Fallback: start as traditional daemon — will be replaced on next config save
 		return 1
@@ -181,15 +182,21 @@ _start_service_unlocked() {
 	esac
 
 	# Write initial status for crontab-managed mode
-	cf-ip-auto --write-status-held || return 1
-	# These jobs acquire the same lock after the service lifecycle releases it.
-	(sleep 1; /usr/bin/cf-ip-auto --download-cfst >/dev/null 2>&1) &
-	[ "$first_run" -eq 1 ] && (sleep 1; /usr/bin/cf-ip-auto --run >/dev/null 2>&1) &
+	"$CF_IP_AUTO_BIN" --write-status-held || return 1
+	# One background job only: two concurrent jobs raced for the same
+	# attempts=1 writer lock and the loser silently dropped the first run.
+	# A first run already installs CFST itself (ensure_cfst), so it does not
+	# need the separate download job.
+	if [ "$first_run" -eq 1 ]; then
+		(sleep 1; "$CF_IP_AUTO_BIN" --run >/dev/null 2>&1 || logger -t cf_ip -p daemon.err "startup first run failed") &
+	else
+		(sleep 1; "$CF_IP_AUTO_BIN" --download-cfst >/dev/null 2>&1 || logger -t cf_ip -p daemon.err "startup CFST download failed") &
+	fi
 }
 
 _stop_service_unlocked() {
 	cf_ip_cron_remove || return 1
-	/usr/bin/cf-ip-auto --mark-stopped-held
+	"$CF_IP_AUTO_BIN" --mark-stopped-held
 }
 
 # rc.common closes/kills the procd service after these functions and otherwise

@@ -1,0 +1,5 @@
+(1/1) Installing luci-app-cloudflare-ip (2.6.0-r9)
+  Executing luci-app-cloudflare-ip-2.6.0-r9.pre-install
+ERROR: luci-app-cloudflare-ip-2.6.0-r9: failed to extract usr/bin/cf-ip-auto: No space left on device
+ERROR: luci-app-cloudflare-ip-2.6.0-r9: No space left on device
+1 error; 15.9 MiB in 155 packages

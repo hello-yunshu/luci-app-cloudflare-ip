@@ -16,5 +16,5 @@ test "$(run_cron custom 30m)" = '*/30 * * * *'
 test "$(run_cron custom '0 3,15 * * *')" = '0 3,15 * * *'
 if run_cron custom $'0 3 * * *\n/etc/passwd' >/dev/null 2>&1; then exit 1; fi
 if run_cron custom '0 3 * * *;id' >/dev/null 2>&1; then exit 1; fi
-grep -Fq 'cf-ip-auto --to-cron "$cron_interval" "$cron_custom"' "$ROOT/package/luci-app-cloudflare-ip/root/etc/init.d/cf_ip"
+grep -Fq '"$CF_IP_AUTO_BIN" --to-cron "$cron_interval" "$cron_custom"' "$ROOT/package/luci-app-cloudflare-ip/root/etc/init.d/cf_ip"
 echo 'cron/init/CLI roundtrip contract passed'
