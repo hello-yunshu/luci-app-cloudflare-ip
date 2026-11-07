@@ -74,7 +74,7 @@
             "text": "@云云舒"
           }
         ],
-        "title": "概览 -yunshu"
+        "title": "概览 -<host>"
       },
       "consoleErrors": []
     },
@@ -143,7 +143,7 @@
             "text": "项目"
           }
         ],
-        "title": "设置 -yunshu"
+        "title": "设置 -<host>"
       },
       "consoleErrors": []
     },
@@ -209,7 +209,7 @@
             "text": "重置"
           }
         ],
-        "title": "候选 IP 来源 -yunshu"
+        "title": "候选 IP 来源 -<host>"
       },
       "consoleErrors": []
     },
@@ -275,7 +275,7 @@
             "text": "打开日志与记录"
           }
         ],
-        "title": "智能优选 -yunshu"
+        "title": "智能优选 -<host>"
       },
       "consoleErrors": []
     },
@@ -341,7 +341,7 @@
             "text": "保存并应用\n▾"
           }
         ],
-        "title": "OpenClash -yunshu"
+        "title": "OpenClash -<host>"
       },
       "consoleErrors": []
     },
@@ -407,7 +407,7 @@
             "text": "@云云舒"
           }
         ],
-        "title": "概览 -yunshu"
+        "title": "概览 -<host>"
       },
       "consoleErrors": []
     },
@@ -473,7 +473,7 @@
             "text": "重置"
           }
         ],
-        "title": "高级 -yunshu"
+        "title": "高级 -<host>"
       },
       "consoleErrors": []
     },
@@ -542,7 +542,7 @@
             "text": "LuCI openwrt-25.12 branch (26.218.70234~"
           }
         ],
-        "title": "日志与记录 -yunshu"
+        "title": "日志与记录 -<host>"
       },
       "consoleErrors": []
     },
@@ -608,7 +608,7 @@
             "text": "@云云舒"
           }
         ],
-        "title": "概览 -yunshu"
+        "title": "概览 -<host>"
       }
     },
     {
@@ -673,7 +673,7 @@
             "text": "项目"
           }
         ],
-        "title": "设置 -yunshu"
+        "title": "设置 -<host>"
       }
     },
     {
@@ -738,7 +738,7 @@
             "text": "LuCI openwrt-25.12 branch (26.218.70234~"
           }
         ],
-        "title": "日志与记录 -yunshu"
+        "title": "日志与记录 -<host>"
       }
     }
   ],
@@ -747,6 +747,6 @@
     "attempted": true,
     "servicesTapped": true,
     "pluginTapped": false,
-    "url": "http://192.168.2.1/cgi-bin/luci/"
+    "url": "http://192.168.1.1/cgi-bin/luci/"
   }
 }
