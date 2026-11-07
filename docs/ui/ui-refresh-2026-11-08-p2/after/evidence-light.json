@@ -5,27 +5,27 @@
   "pages": [
     {
       "slug": "overview",
-      "title": "Overview -yunshu"
+      "title": "Overview"
     },
     {
       "slug": "settings",
-      "title": "Settings -yunshu"
+      "title": "Settings"
     },
     {
       "slug": "sources",
-      "title": "Candidate IP Sources -yunshu"
+      "title": "Candidate IP Sources"
     },
     {
       "slug": "intelligence",
-      "title": "Intelligence -yunshu"
+      "title": "Intelligence"
     },
     {
       "slug": "openclash",
-      "title": "OpenClash -yunshu"
+      "title": "OpenClash"
     },
     {
       "slug": "passwall",
-      "title": "Overview -yunshu"
+      "title": "Overview"
     }
   ],
   "styles": {
