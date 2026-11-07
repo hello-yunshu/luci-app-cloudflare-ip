@@ -2335,3 +2335,12 @@ msgstr "未知状态码"
 
 msgid "OpenClash apply failed."
 msgstr "OpenClash 应用失败。"
+
+msgid "All"
+msgstr "全部"
+
+msgid "Filter"
+msgstr "过滤"
+
+msgid "No matching log lines."
+msgstr "没有匹配的日志行。"
