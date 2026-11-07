@@ -6,7 +6,7 @@ Device: `Microsoft Virtual Machine`, x86_64, OpenWrt `25.12.5`, apk-tools `3.0.5
 ## Baseline before install
 
 - Installed package: `luci-app-cloudflare-ip 1.8.3-r1`; service enabled (`/etc/rc.d/S99cf_ip`); `mode=openclash`, `enabled=1`.
-- `openclash.config=/yunshu/clash/clash-proxies.yaml` (exists, root-owned, mode 600); `cron_interval=custom`, `cron_custom='30 7,18,23 * * *'`.
+- `openclash.config=/opt/clash/clash-proxies.yaml` (exists, root-owned, mode 600); `cron_interval=custom`, `cron_custom='30 7,18,23 * * *'`.
 - No `cfst` binary; PassWall not installed; OpenClash installed and running.
 - Config and package files backed up on device (`/tmp/cfip-backup-20261107`) and locally (`device-backup-20261107`).
 

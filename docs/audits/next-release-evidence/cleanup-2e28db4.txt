@@ -15,5 +15,5 @@ Removed temp paths:
 No temporary git branch was created.
 Retained:
 - docs/audits/next-release-evidence/** (screenshots, harness, JSON/TSV)
-- existing /Users/yunshu/Documents/GitHub/r6-container-evidence-20261103 (prior goal)
+- existing /Users/<user>/Documents/GitHub/r6-container-evidence-20261103 (prior goal)
 No product code changed; no tag/Release created; no push performed.

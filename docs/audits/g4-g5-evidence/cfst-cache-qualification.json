@@ -51,7 +51,7 @@
     "full download/resource/concurrency/KILL/retention matrix OPEN",
     "full G4/G5 and exact-SHA SDK/migration/offline/native UI gates OPEN"
   ],
-  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/cfst-cache-qualification",
+  "rawEvidence": "/Users/<user>/Downloads/cfip-g4-g5-evidence/cfst-cache-qualification",
   "sha256": {
     "fallback.log": "d329659b590142c5c190f6a4ce80bd0388026f1144e110278aa086c2a815ca7d",
     "security.log": "de8767cb363c7193796a7a61344a74bd58a5bc81c72ed0003b6e4123e268b8f9",

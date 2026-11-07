@@ -96,7 +96,7 @@
     "no automatic dead-transaction rollback or physical power-loss claim",
     "full G4/G5 and current exact-SHA package qualification remain OPEN"
   ],
-  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/writer-lock-recovery",
+  "rawEvidence": "/Users/<user>/Downloads/cfip-g4-g5-evidence/writer-lock-recovery",
   "files": {
     "ack.json": "4f52faf428970649f5c9b04e5fac3a1419bd799160c51149ba4951a28c79e60e",
     "after.json": "653671f0376d5015238d09c73eaa289c81543272418842d452365fb05650e76d",

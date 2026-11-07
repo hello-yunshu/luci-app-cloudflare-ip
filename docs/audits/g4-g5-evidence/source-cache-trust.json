@@ -11,10 +11,10 @@
     "Complete G4/G5 and final SHA qualification remain OPEN"
   ],
   "evidence": {
-    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/source-cache/before.log": "8a253ff37bf3138405d77300e039dabc1a9725f95cb018070947499a39e0819d",
-    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/source-cache/counterfactual.log": "8a253ff37bf3138405d77300e039dabc1a9725f95cb018070947499a39e0819d",
-    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/source-cache/after.log": "3acac069a4dd99d0b658e4750f37df41566ff6dbb9e4074330aa675d4d26e124",
-    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/source-cache/tls-after.json": "8eb2d60744c30e99861c84cb7705ae641bc815a644cfbda0f148f668122cd691",
-    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/source-cache/engine-after.log": "9c303855e33ef322d79228c54502a0344a7115663965e7b637e54ebc36390d37"
+    "/Users/<user>/Downloads/cfip-g4-g5-evidence/source-cache/before.log": "8a253ff37bf3138405d77300e039dabc1a9725f95cb018070947499a39e0819d",
+    "/Users/<user>/Downloads/cfip-g4-g5-evidence/source-cache/counterfactual.log": "8a253ff37bf3138405d77300e039dabc1a9725f95cb018070947499a39e0819d",
+    "/Users/<user>/Downloads/cfip-g4-g5-evidence/source-cache/after.log": "3acac069a4dd99d0b658e4750f37df41566ff6dbb9e4074330aa675d4d26e124",
+    "/Users/<user>/Downloads/cfip-g4-g5-evidence/source-cache/tls-after.json": "8eb2d60744c30e99861c84cb7705ae641bc815a644cfbda0f148f668122cd691",
+    "/Users/<user>/Downloads/cfip-g4-g5-evidence/source-cache/engine-after.log": "9c303855e33ef322d79228c54502a0344a7115663965e7b637e54ebc36390d37"
   }
 }

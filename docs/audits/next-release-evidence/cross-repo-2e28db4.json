@@ -5,7 +5,7 @@
     "main_date": "2026-11-02T18:09:20Z",
     "open_prs": [
       {
-        "headRefName": "yunshu/keep-feed-release-independent",
+        "headRefName": "<user>/keep-feed-release-independent",
         "number": 2,
         "title": "ci(rill): keep feed release independent",
         "updatedAt": "2026-08-31T12:35:30Z"

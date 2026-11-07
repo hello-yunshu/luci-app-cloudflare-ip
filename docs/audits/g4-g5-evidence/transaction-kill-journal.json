@@ -3,7 +3,7 @@
   "baselineSource": "0841ed0115daf6f99c31d0c5ccbc4fd344c2c5b1",
   "before": "all four killed prepared/mutated PassWall/OpenClash journals ignored; new transaction accepted",
   "afterCases": 7,
-  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/native-vm.EsMjO7/transaction-kill-journal",
+  "rawEvidence": "/Users/<user>/Downloads/cfip-g4-g5-evidence/native-vm.EsMjO7/transaction-kill-journal",
   "native": "actual Bash, real UCI isolated -c/-t root, actual filesystem/atomic rename/SIGKILL process group; no network",
   "openclash": "disabled service observation/check callbacks are fixtures; actual journal/publication functions run",
   "assertions": [

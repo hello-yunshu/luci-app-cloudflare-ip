@@ -2,7 +2,7 @@
   "scope": "G5d actual UCI/netifd/procd/uhttpd LAN address changes; no synthetic event or network-policy fixture",
   "baselineSource": "559070a8770548f3f44b1e36a7f0d70619639435",
   "publisherSourceSha256": "18a86c0478df804e3deabaefcee195b26e5d7fda32963cee928a8dc1445a1912",
-  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/native-vm.EsMjO7/native-netifd-publisher",
+  "rawEvidence": "/Users/<user>/Downloads/cfip-g4-g5-evidence/native-vm.EsMjO7/native-netifd-publisher",
   "cases": [
     "real initial LAN HTTP marker",
     "UCI/netifd add auxiliary address and real event rebind",

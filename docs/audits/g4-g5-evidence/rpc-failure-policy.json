@@ -21,7 +21,7 @@
     "actual refresh handler four failure/success cases in isolated DOM/RPC module fixture",
     "existing OpenClash RPC render/failure, backup roundtrip, shared lock, security, cron semantic/disabled, LuCI ready/readback/singleflight regressions"
   ],
-  "evidenceDirectory": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/rpc-failure-policy",
+  "evidenceDirectory": "/Users/<user>/Downloads/cfip-g4-g5-evidence/rpc-failure-policy",
   "limitations": [
     "Backend/UCI/init/jsonfilter in dispatcher matrix are fixtures; native rpcd session ACL proof NOT EVALUATED",
     "UI is module fixture, browser/keyboard/responsive eight-view acceptance remains OPEN",

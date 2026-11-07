@@ -2,7 +2,7 @@
   "scope": "G5d private publisher workspace recovery checkpoint",
   "baselineSha": "f146b02a36a9b63bf70e2f8e0fcdbf96642bc6e8",
   "status": "PASS for listed host and isolated OpenWrt cases; G4/G5 OPEN",
-  "evidenceDirectory": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-workspace-leases",
+  "evidenceDirectory": "/Users/<user>/Downloads/cfip-g4-g5-evidence/publisher-workspace-leases",
   "cases": [
     "KILL before pointer switch and next-publication orphan reclaim",
     "live PID and unknown or linked data preserved",

@@ -16,7 +16,7 @@
     "real UCI config-event propagation",
     "remaining G4/G5 and new exact-SHA hosted/artifact qualification"
   ],
-  "evidenceDirectory": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-missing-metadata",
+  "evidenceDirectory": "/Users/<user>/Downloads/cfip-g4-g5-evidence/publisher-missing-metadata",
   "logs": {
     "status.log": "a12672f4353ad68cc27031acc99145be20c96e484916aa8774b6ad407ae4533c",
     "before.log": "c3c95707e48c2e9bc545595f2a57372749329e5fea31ecd29a890b7986495e15",

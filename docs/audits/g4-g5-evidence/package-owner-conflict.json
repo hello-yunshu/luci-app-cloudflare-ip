@@ -3,7 +3,7 @@
   "baselineSource": "c304caf811566e4f99d91adf7060fc2ebb3116de",
   "inputPackageSha256": "e3749a7b71bd9000d16847e70d2eb1e3a94902f13a359c3b1f61df3d33fd8911",
   "nativeIpk": "PASS actual opkg in network-disabled private guest root; real cfip-owner-fixture package installed before candidate",
-  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/native-vm.EsMjO7/package-owner-conflict",
+  "rawEvidence": "/Users/<user>/Downloads/cfip-g4-g5-evidence/native-vm.EsMjO7/package-owner-conflict",
   "assertions": [
     "nonzero candidate install",
     "explicit file clash diagnostic",

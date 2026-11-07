@@ -52,7 +52,7 @@
 - **风险**：破坏性操作假成功，用户误以为备份已删除。
 - **当前行为**：[`openclash.js`](../../package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js) L162–L167 只判断 `result.error`；`{success:false}` 无 error 时仍提示 `Backup deleted` 并 `location.reload()`。
 - **复现**：
-  1. `cd /Users/yunshu/Documents/GitHub/luci-app-cloudflare-ip`
+  1. `cd /Users/<user>/Documents/GitHub/luci-app-cloudflare-ip`
   2. `node docs/audits/next-release-evidence/repro-2e28db4/repro-risks.cjs`
   3. 读取 `openclash_delete`：`row_delete_buttons=1`、`modal_delete_buttons=1`、`backend={success:false}`、`notifications[0].text="Backup deleted"`、`reload_calls=1`、`false_success=true`。
 - **影响**：旧备份可能仍存在，或权限/存储失败被掩盖；用户可能据此做错误清理/保留决策。

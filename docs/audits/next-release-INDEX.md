@@ -61,7 +61,7 @@
 - **放在主仓库的 `docs/` 树内**，不另建独立 docs 仓库。理由：审计结论必须与代码 SHA、CI run、包哈希同仓绑定；评审时一次干净检出即可复核；docs 变更与代码变更走同一条 CI/PR 门禁。
 - `cfip-docs-evidence` 是本仓库的 linked worktree（同一 `.git`，分支 `phase-b/next-release-fixes`），不是独立远端仓库。阶段 A–E 的大部分证据已复制回主仓库；仅四个体量较大的历史视觉归档保留在 worktree：`ui-refinement-7c13b1d/`（28 MB）、`ui-skill-audit/`（21 MB）、`visual-phase-b/`（5.6 MB）、`visual-phase-c/`（6.0 MB）。
 - 主仓库 `docs/audits/next-release-evidence/` 现有 **35 MB**，包含当前候选的 phase-d/e/f、matrix、zoom/zh、visual-2e28db4 基线；足以自证 r8 审计。上述四个归档是阶段 B/C/refinement 的历史过程材料，不是 r8 发布证据，因此不归位主仓库。
-- 访问方式（仅本机）：`git -C /Users/yunshu/Documents/GitHub/luci-app-cloudflare-ip worktree list` 可看到 `/Users/yunshu/Documents/GitHub/cfip-docs-evidence`（分支 `phase-b/next-release-fixes`）；直接在该目录查看。
+- 访问方式（仅本机）：`git -C /Users/<user>/Documents/GitHub/luci-app-cloudflare-ip worktree list` 可看到 `/Users/<user>/Documents/GitHub/cfip-docs-evidence`（分支 `phase-b/next-release-fixes`）；直接在该目录查看。
 - **可复现性结论：是（2026-11-05 收口，已从零 clone 验证）。** git push 大 pack 被 GitHub HTTPS 重置后，改用 GitHub Git Data API 逐 blob 创建归档分支：`evidence/ui-refinement-archive`、`evidence/ui-skill-audit-archive`、`evidence/visual-phase-b-archive`、`evidence/visual-phase-c-archive`。验证输出见 `next-release-evidence/archive-access.md`。
 - 获取与验证：<br>`git fetch origin evidence/ui-refinement-archive:refs/remotes/origin/evidence/ui-refinement-archive`<br>`git rev-parse origin/evidence/ui-refinement-archive:docs/audits/next-release-evidence/ui-refinement-7c13b1d`<br>应与 `archive-manifest.md` 记录的 tree SHA 一致；其余三个分支同理。`archive-manifest.md` 位于 `docs/audits/next-release-evidence/`。
 - 本地 bundle 仍可作为离线备份：`git bundle create /tmp/cfip-evidence.bundle phase-b/next-release-fixes`，但不再是唯一获取方式。这四个归档不是 r8/r9 发布证据；主仓库 `docs/audits/next-release-evidence/` 已足以自证发布审计。

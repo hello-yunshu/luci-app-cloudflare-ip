@@ -1,7 +1,7 @@
 {
   "scope": "G5a commit journal cleanup failure and truthful sync failure result",
   "baselineSource": "469452f50e8e7e692f1d7c238fb297eb8bd93179",
-  "beforeLog": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/transaction-commit-cleanup-before.log",
+  "beforeLog": "/Users/<user>/Downloads/cfip-g4-g5-evidence/transaction-commit-cleanup-before.log",
   "before": "failed journal rm returns successful commit and clears path; next preparation would refuse the orphan",
   "repair": [
     "mark committed configuration before cleanup",
@@ -24,7 +24,7 @@
     "TERM rollback",
     "v2 transaction semantics"
   ],
-  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/transaction-commit-cleanup",
+  "rawEvidence": "/Users/<user>/Downloads/cfip-g4-g5-evidence/transaction-commit-cleanup",
   "limits": [
     "command deletion failure injected",
     "no automatic orphan adoption/deletion",

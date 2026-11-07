@@ -62,7 +62,7 @@ Stable Gate 自检也已完成容器可做部分：硬件/架构矩阵、zstd �
 
 - 主仓库 `docs/audits/next-release-evidence/` 现有 **35 MB**，包含 phase-d/e/f、矩阵、缩放/中文、visual-2e28db4 基线；足以自证 r8 审计。
 - 四个历史归档保留在 linked worktree：`ui-refinement-7c13b1d/` 28 MB、`ui-skill-audit/` 21 MB、`visual-phase-b/` 5.6 MB、`visual-phase-c/` 6.0 MB。它们不是 r8 发布证据，**不归位主仓库**。
-- 访问方式：`git worktree list` → `/Users/yunshu/Documents/GitHub/cfip-docs-evidence`，分支 `phase-b/next-release-fixes`；该分支未推远端，干净克隆不可得。2026-11-05 follow-up 尝试推送该分支（24 commits / 约 85 MiB pack），GitHub HTTPS 连续返回 `Connection reset by peer`，仍未推送。INDEX 已记录 bundle 导出/传输/回填的可执行恢复步骤。
+- 访问方式：`git worktree list` → `/Users/<user>/Documents/GitHub/cfip-docs-evidence`，分支 `phase-b/next-release-fixes`；该分支未推远端，干净克隆不可得。2026-11-05 follow-up 尝试推送该分支（24 commits / 约 85 MiB pack），GitHub HTTPS 连续返回 `Connection reset by peer`，仍未推送。INDEX 已记录 bundle 导出/传输/回填的可执行恢复步骤。
 
 ## 2. 下一阶段：Stable Gate
 

@@ -4,8 +4,8 @@
   "attempt": 1,
   "rawFailureSource": "6f9415b0fba30b31e30255233d40827f6134993e",
   "rawManager": "ownership error and nonzero exit; candidate nevertheless registered and other payload extracted",
-  "rawFailureEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/run-39628261369/apk-migration/package-migration-details/apk-negative-owner-conflict",
-  "admissionEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/apk-ownership-admission",
+  "rawFailureEvidence": "/Users/<user>/Downloads/cfip-g4-g5-evidence/run-39628261369/apk-migration/package-migration-details/apk-negative-owner-conflict",
+  "admissionEvidence": "/Users/<user>/Downloads/cfip-g4-g5-evidence/apk-ownership-admission",
   "actualReader": "official native apk-tools through existing network-isolated adapter",
   "actualReaderCases": [
     "foreign ownership rejected",

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-ROOT=/Users/yunshu/Documents/GitHub/luci-app-cloudflare-ip
+ROOT=/Users/<user>/Documents/GitHub/luci-app-cloudflare-ip
 SHOT="$ROOT/docs/audits/next-release-evidence/visual-2e28db4"
 BASE=http://127.0.0.1:18080/cgi-bin/luci/admin/services/cf_ip
 PAGES=(overview settings sources intelligence openclash passwall advanced logs)

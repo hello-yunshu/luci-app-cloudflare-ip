@@ -99,7 +99,7 @@
     "Actual native rpcd/BusyBox/procd, process signal matrix and new browser acceptance NOT EVALUATED: Docker socket unavailable",
     "Remaining G4/G5 and final exact-SHA hosted/artifact/offline qualification OPEN"
   ],
-  "evidenceDirectory": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/rpc-run-acknowledgement",
+  "evidenceDirectory": "/Users/<user>/Downloads/cfip-g4-g5-evidence/rpc-run-acknowledgement",
   "logs": {
     "before.json": "551490fc243195e0234aa835a5633f7b9103585e20b5e10e7554718c2c6dbe52",
     "dash.json": "4f52faf428970649f5c9b04e5fac3a1419bd799160c51149ba4951a28c79e60e",

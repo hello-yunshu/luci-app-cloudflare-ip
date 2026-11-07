@@ -39,7 +39,7 @@
     "installedCliSha256": "3ebadff963254fe66f2c9dae3db7f1be1d95b6cd38c33f6c80303331e6f8e7c8"
   },
   "remaining": "New exact-head qualification, rebuilt-package UI and remaining G4/G5 original gates OPEN",
-  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/run-39715543215/native-ui",
+  "rawEvidence": "/Users/<user>/Downloads/cfip-g4-g5-evidence/run-39715543215/native-ui",
   "files": {
     "disabled-apply-after.png": "4d80bfa29cad784dd8c99d10e044d0ce4b487a528c4276cbf3b3cbeeeab725d1",
     "disabled-apply-before.png": "9969a309cfe62f12f5e25b5969db19a4a626a9a468b2eb60c1db7c8fd660af7d",

@@ -80,10 +80,10 @@
     "No device writes or publication"
   ],
   "evidence": {
-    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/source-streaming/before.log": "6e7966e739ea1298fa45c4dc704a97713d9db299c6f65ffa226ee68dedadea4c",
-    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/source-streaming/counterfactual.log": "ed09253684e1073070efd9fd3fd696552e055dbdeb1dd31ceffed998c2aa0539",
-    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/source-streaming/after.log": "b2a0c3883fe48a3713eeeb92b4709210dc347a3a28f76ea9b570dd52da5192ef",
-    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/source-streaming/openwrt-busybox-sink.log": "57bfd4cfc3408772f967ee89d537b564443d3366da9ceb021887e765ce50a158",
-    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/source-streaming/source-engine-after.log": "e976a70e413adf7fc6e1b37f6effa665f55a6f842db97799f8389b87f2c69a59"
+    "/Users/<user>/Downloads/cfip-g4-g5-evidence/source-streaming/before.log": "6e7966e739ea1298fa45c4dc704a97713d9db299c6f65ffa226ee68dedadea4c",
+    "/Users/<user>/Downloads/cfip-g4-g5-evidence/source-streaming/counterfactual.log": "ed09253684e1073070efd9fd3fd696552e055dbdeb1dd31ceffed998c2aa0539",
+    "/Users/<user>/Downloads/cfip-g4-g5-evidence/source-streaming/after.log": "b2a0c3883fe48a3713eeeb92b4709210dc347a3a28f76ea9b570dd52da5192ef",
+    "/Users/<user>/Downloads/cfip-g4-g5-evidence/source-streaming/openwrt-busybox-sink.log": "57bfd4cfc3408772f967ee89d537b564443d3366da9ceb021887e765ce50a158",
+    "/Users/<user>/Downloads/cfip-g4-g5-evidence/source-streaming/source-engine-after.log": "e976a70e413adf7fc6e1b37f6effa665f55a6f842db97799f8389b87f2c69a59"
   }
 }

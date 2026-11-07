@@ -1,7 +1,7 @@
 {
   "scope": "G5 status observation source/component/native LuCI evidence",
   "baselineSha": "feb384f77c9f68a06c6d44f0e5a1a6385b3adb5e",
-  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/native-vm.EsMjO7/status-observation",
+  "rawEvidence": "/Users/<user>/Downloads/cfip-g4-g5-evidence/native-vm.EsMjO7/status-observation",
   "hostMetadataCases": 8,
   "nativeMetadataCases": 8,
   "baselinePassed": 2,
