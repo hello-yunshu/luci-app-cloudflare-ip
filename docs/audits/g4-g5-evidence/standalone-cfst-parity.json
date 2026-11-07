@@ -1,7 +1,7 @@
 {
   "scope": "G5c standalone CFST installer/cache/download parity; harmless archive/script fixtures",
   "baselineSha": "858922c0bdee3236391c954cce1bb28e811afcac",
-  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/standalone-cfst-parity",
+  "rawEvidence": "/Users/<user>/Downloads/cfip-g4-g5-evidence/standalone-cfst-parity",
   "baselineCache": {
     "passed": 23,
     "failed": 11,

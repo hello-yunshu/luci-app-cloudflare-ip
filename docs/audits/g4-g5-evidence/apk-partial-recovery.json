@@ -9,7 +9,7 @@
   "rawConflict": "foreign file collision; candidate registered and other payload extracted",
   "recoveryExit": 0,
   "afterRecovery": "all seven pre-existing payload records identical; no additional regular payload files except package-manager diagnostic log; installed names identical; foreign file retained",
-  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/native-vm.EsMjO7/apk-partial-recovery",
+  "rawEvidence": "/Users/<user>/Downloads/cfip-g4-g5-evidence/native-vm.EsMjO7/apk-partial-recovery",
   "archiveSha256": "6c2feb114adb3c15a56ac295f48dd1d66a7ca1623161f6fe2d11a1607a8cdd2d",
   "limits": [
     "initial candidate absent before failure",

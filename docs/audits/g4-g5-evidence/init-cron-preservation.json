@@ -2,8 +2,8 @@
   "scope": "G5e actual init cron functions with controlled crontab; cron reload/enable/start callbacks stubbed",
   "baselineSource": "6f9415b0fba30b31e30255233d40827f6134993e",
   "before": "actual removal deletes user comments and custom commands by substring; baseline cmp failure retained",
-  "baselineLog": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/init-cron-before.log",
-  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/native-vm.EsMjO7/init-cron-preservation",
+  "baselineLog": "/Users/<user>/Downloads/cfip-g4-g5-evidence/init-cron-before.log",
+  "rawEvidence": "/Users/<user>/Downloads/cfip-g4-g5-evidence/native-vm.EsMjO7/init-cron-preservation",
   "host": "PASS",
   "nativeBusyBoxAsh": "PASS",
   "cases": [

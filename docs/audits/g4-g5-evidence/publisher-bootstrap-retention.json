@@ -15,7 +15,7 @@
     "physical ENOSPC/power-loss and full resource/process lifecycle matrix",
     "remaining G4/G5 and final exact-SHA hosted/artifact/offline qualification"
   ],
-  "evidenceDirectory": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/publisher-bootstrap-retention",
+  "evidenceDirectory": "/Users/<user>/Downloads/cfip-g4-g5-evidence/publisher-bootstrap-retention",
   "logs": {
     "native.log": "ea2e4b80f113c83eb11322c4da2dcf9e792a07cf6346017b030bf1d4a2160df1",
     "http.log": "2a7e999d3f5ecbbc633a8001767c28c3b7ec633da7b13146d5fed57735e613b3",

@@ -95,7 +95,7 @@
     "no physical power-loss or full resource-exhaustion claim",
     "full G4/G5 and exact-SHA package/offline qualification remain OPEN"
   ],
-  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/source-cache-workspaces",
+  "rawEvidence": "/Users/<user>/Downloads/cfip-g4-g5-evidence/source-cache-workspaces",
   "sha256": {
     "cache.log": "cbfda77d10c21dea7a2cf4dddf046631398d15ea86694988d37ba3541f897c73",
     "publication.log": "eab35edf6a9e58a1f4b9683b47bacf7ff691a9e5acf7e6a5904e36cecb90afc1",

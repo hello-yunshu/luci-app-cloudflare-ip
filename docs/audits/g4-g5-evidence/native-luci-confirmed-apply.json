@@ -64,7 +64,7 @@
     "client menu cache can retain old links until a fresh login; server index cache was invalidated inside guest",
     "latest changed-source SDK/migration, rebuilt package/native acceptance and offline preflight NOT EVALUATED; previous run cannot qualify these edits"
   ],
-  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/native-vm.EsMjO7/ui",
+  "rawEvidence": "/Users/<user>/Downloads/cfip-g4-g5-evidence/native-vm.EsMjO7/ui",
   "sourceSha256": {
     "package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/cloudflare-ip.css": "6acb2a0674f6cafddf18018b0372d552fb66f634ee1c288dcbb22bb797a7b18c",
     "package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js": "b86c81253f400ccda8fd5f131507a1d302a2e585780077fa7345a39f5fb4a99f",

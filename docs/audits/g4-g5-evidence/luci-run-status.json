@@ -31,7 +31,7 @@
   "evidenceScope": "actual source JS modules with DOM/RPC fixtures; not native LuCI browser proof",
   "nativeBrowser": "NOT EVALUATED; complete eight-view responsive/keyboard/actions remains OPEN",
   "remaining": "full G4/G5, exact-SHA hosted/package/offline qualification and terminal storage-failure policy remain OPEN",
-  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/luci-run-status",
+  "rawEvidence": "/Users/<user>/Downloads/cfip-g4-g5-evidence/luci-run-status",
   "sha256": {
     "after.json": "c2af85a03f58c0fa1c1a59ec364edb6952c4b9c94a7da2bc7cb4d4d6b84ca409",
     "before.log": "3f9a0781817bfd7c01a5be26eca26d2ae2da8e3aac30d9b9fd1685d7851c1211"

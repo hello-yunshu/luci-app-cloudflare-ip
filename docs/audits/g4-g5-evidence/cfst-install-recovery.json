@@ -71,7 +71,7 @@
     "full download/timeout/architecture and concurrent installer matrix",
     "full G4/G5 and current-SHA package/offline qualification"
   ],
-  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/cfst-install-recovery",
+  "rawEvidence": "/Users/<user>/Downloads/cfip-g4-g5-evidence/cfst-install-recovery",
   "sha256": {
     "fallback.log": "d329659b590142c5c190f6a4ce80bd0388026f1144e110278aa086c2a815ca7d",
     "before.json": "41492edd01578038767f6dc01368680586ac5b05c9311ca709a388d337c19182",

@@ -31,7 +31,7 @@
     "Native rpcd/procd/UCI fixture for current changes NOT EVALUATED: Docker unavailable",
     "Remaining G4/G5 and new exact-SHA hosted/artifact/offline qualification"
   ],
-  "evidenceDirectory": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/run-early-failure-status",
+  "evidenceDirectory": "/Users/<user>/Downloads/cfip-g4-g5-evidence/run-early-failure-status",
   "logs": {
     "before.json": "d4fe326cf5b9fb86598fac31a2e7a0e11f6946c8b0cc2007f14ec2cbb4f81f83",
     "rpc-matrix.json": "accb7fb81eda1f23af41caaa83ab8f186fb1046d7721c3d2d6c380a3bf9c9eda",

@@ -25,7 +25,7 @@
 ## 风险复现
 
 ```sh
-cd /Users/yunshu/Documents/GitHub/luci-app-cloudflare-ip
+cd /Users/<user>/Documents/GitHub/luci-app-cloudflare-ip
 node docs/audits/next-release-evidence/repro-2e28db4/repro-risks.cjs \
   > docs/audits/next-release-evidence/repro-2e28db4/repro-output.json
 ```

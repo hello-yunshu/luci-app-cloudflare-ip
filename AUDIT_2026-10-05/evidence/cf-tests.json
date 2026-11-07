@@ -9,7 +9,7 @@
     "test": "adaptive-deterministic-exploration.sh",
     "rc": 127,
     "seconds": 1.38,
-    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/adaptive-measurement.sh: line 118: sha256sum: command not found\n"
+    "output": "/c/Users/<user>/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/adaptive-measurement.sh: line 118: sha256sum: command not found\n"
   },
   {
     "test": "adaptive-evidence-byte-cap.sh",
@@ -39,7 +39,7 @@
     "test": "adaptive-measurement.sh",
     "rc": 1,
     "seconds": 2.69,
-    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/adaptive-measurement.sh: line 118: sha256sum: command not found\n/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/adaptive-measurement.sh: line 118: 16#: invalid integer constant (error token is \"16#\")\n"
+    "output": "/c/Users/<user>/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/adaptive-measurement.sh: line 118: sha256sum: command not found\n/c/Users/<user>/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/adaptive-measurement.sh: line 118: 16#: invalid integer constant (error token is \"16#\")\n"
   },
   {
     "test": "adaptive-multi-ip-qualification.sh",
@@ -51,7 +51,7 @@
     "test": "adaptive-off-no-side-effect.sh",
     "rc": 1,
     "seconds": 1.53,
-    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/adaptive-measurement.sh: line 118: sha256sum: command not found\n/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/adaptive-measurement.sh: line 118: 16#: invalid integer constant (error token is \"16#\")\n"
+    "output": "/c/Users/<user>/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/adaptive-measurement.sh: line 118: sha256sum: command not found\n/c/Users/<user>/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/adaptive-measurement.sh: line 118: 16#: invalid integer constant (error token is \"16#\")\n"
   },
   {
     "test": "adaptive-preprobe-feature-contract.sh",
@@ -75,7 +75,7 @@
     "test": "adaptive-shadow-no-influence.sh",
     "rc": 1,
     "seconds": 1.94,
-    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/adaptive-measurement.sh: line 118: sha256sum: command not found\n/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/adaptive-measurement.sh: line 118: 16#: invalid integer constant (error token is \"16#\")\n"
+    "output": "/c/Users/<user>/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/adaptive-measurement.sh: line 118: sha256sum: command not found\n/c/Users/<user>/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/adaptive-measurement.sh: line 118: 16#: invalid integer constant (error token is \"16#\")\n"
   },
   {
     "test": "cfst-version-contract.sh",
@@ -159,7 +159,7 @@
     "test": "ipv6-prefix-contract.sh",
     "rc": "TIMEOUT",
     "seconds": 55,
-    "output": "Command '['C:\\\\Users\\\\hello\\\\.cache\\\\codex-runtimes\\\\codex-primary-runtime\\\\dependencies\\\\native\\\\git\\\\usr\\\\bin\\\\sh.exe', '-c', 'export PATH=/c/Users/hello/Documents/Codex/2026-10-05/new-chat/work/bin:/usr/bin:$PATH; bash tests/ipv6-prefix-contract.sh']' timed out after 55 seconds"
+    "output": "Command '['C:\\\\Users\\\\hello\\\\.cache\\\\codex-runtimes\\\\codex-primary-runtime\\\\dependencies\\\\native\\\\git\\\\usr\\\\bin\\\\sh.exe', '-c', 'export PATH=/c/Users/<user>/Documents/Codex/2026-10-05/new-chat/work/bin:/usr/bin:$PATH; bash tests/ipv6-prefix-contract.sh']' timed out after 55 seconds"
   },
   {
     "test": "luci-staged-validation.sh",
@@ -231,7 +231,7 @@
     "test": "operational-immediate-refresh.sh",
     "rc": "TIMEOUT",
     "seconds": 55,
-    "output": "Command '['C:\\\\Users\\\\hello\\\\.cache\\\\codex-runtimes\\\\codex-primary-runtime\\\\dependencies\\\\native\\\\git\\\\usr\\\\bin\\\\sh.exe', '-c', 'export PATH=/c/Users/hello/Documents/Codex/2026-10-05/new-chat/work/bin:/usr/bin:$PATH; bash tests/operational-immediate-refresh.sh']' timed out after 55 seconds"
+    "output": "Command '['C:\\\\Users\\\\hello\\\\.cache\\\\codex-runtimes\\\\codex-primary-runtime\\\\dependencies\\\\native\\\\git\\\\usr\\\\bin\\\\sh.exe', '-c', 'export PATH=/c/Users/<user>/Documents/Codex/2026-10-05/new-chat/work/bin:/usr/bin:$PATH; bash tests/operational-immediate-refresh.sh']' timed out after 55 seconds"
   },
   {
     "test": "operational-null-sample-contract.sh",
@@ -327,13 +327,13 @@
     "test": "reuse-policy-contract.sh",
     "rc": 127,
     "seconds": 0.52,
-    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/reuse.sh: line 28: sha256sum: command not found\njq: error: writing output failed: Invalid argument\n"
+    "output": "/c/Users/<user>/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/reuse.sh: line 28: sha256sum: command not found\njq: error: writing output failed: Invalid argument\n"
   },
   {
     "test": "reuse-runtime-independence.sh",
     "rc": 127,
     "seconds": 0.53,
-    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/reuse.sh: line 28: sha256sum: command not found\njq: error: writing output failed: Invalid argument\n"
+    "output": "/c/Users/<user>/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/reuse.sh: line 28: sha256sum: command not found\njq: error: writing output failed: Invalid argument\n"
   },
   {
     "test": "rill-addon-compat-meta.sh",
@@ -351,7 +351,7 @@
     "test": "rill-assisted-continuous-qualification.sh",
     "rc": 1,
     "seconds": 1.58,
-    "output": "tests/rill-assisted-continuous-qualification.sh: line 8: seq: command not found\njq: error: Could not open file C:/Users/hello/AppData/Local/Temp/tmp.1VYnd0as3g/qualification.json: No such file or directory\n"
+    "output": "tests/rill-assisted-continuous-qualification.sh: line 8: seq: command not found\njq: error: Could not open file C:/Users/<user>/AppData/Local/Temp/tmp.1VYnd0as3g/qualification.json: No such file or directory\n"
   },
   {
     "test": "rill-assisted-holdout.sh",
@@ -381,37 +381,37 @@
     "test": "rill-confidence-single-source.sh",
     "rc": 127,
     "seconds": 4.97,
-    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 91: sha256sum: command not found\n"
+    "output": "/c/Users/<user>/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 91: sha256sum: command not found\n"
   },
   {
     "test": "rill-context-change-reset.sh",
     "rc": 127,
     "seconds": 2.58,
-    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 97: sha256sum: command not found\n"
+    "output": "/c/Users/<user>/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 97: sha256sum: command not found\n"
   },
   {
     "test": "rill-context-fingerprint.sh",
     "rc": 127,
     "seconds": 5.75,
-    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 91: sha256sum: command not found\n"
+    "output": "/c/Users/<user>/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 91: sha256sum: command not found\n"
   },
   {
     "test": "rill-context-lineage-rotation.sh",
     "rc": 127,
     "seconds": 3.31,
-    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 97: sha256sum: command not found\n"
+    "output": "/c/Users/<user>/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 97: sha256sum: command not found\n"
   },
   {
     "test": "rill-context-nonmaterial-config-change.sh",
     "rc": 127,
     "seconds": 3.39,
-    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 97: sha256sum: command not found\n"
+    "output": "/c/Users/<user>/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 97: sha256sum: command not found\n"
   },
   {
     "test": "rill-context-pending-feedback-isolation.sh",
     "rc": 127,
     "seconds": 2.83,
-    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 97: sha256sum: command not found\n"
+    "output": "/c/Users/<user>/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 97: sha256sum: command not found\n"
   },
   {
     "test": "rill-context-requalification-lifecycle.sh",
@@ -447,7 +447,7 @@
     "test": "rill-evidence-store.sh",
     "rc": 1,
     "seconds": 2.84,
-    "output": "tests/rill-evidence-store.sh: line 9: seq: command not found\njq: error: Could not open file C:/Users/hello/AppData/Local/Temp/tmp.VFMqWUQRCZ/rill-evidence.json: No such file or directory\n"
+    "output": "tests/rill-evidence-store.sh: line 9: seq: command not found\njq: error: Could not open file C:/Users/<user>/AppData/Local/Temp/tmp.VFMqWUQRCZ/rill-evidence.json: No such file or directory\n"
   },
   {
     "test": "rill-feedback-integration.sh",
@@ -495,7 +495,7 @@
     "test": "rill-holdout-evaluation-no-feedback.sh",
     "rc": 127,
     "seconds": 4.27,
-    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 91: sha256sum: command not found\n"
+    "output": "/c/Users/<user>/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 91: sha256sum: command not found\n"
   },
   {
     "test": "rill-holdout-global-cadence.sh",
@@ -555,13 +555,13 @@
     "test": "rill-qualification-context-reset.sh",
     "rc": 127,
     "seconds": 0.78,
-    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 97: sha256sum: command not found\n"
+    "output": "/c/Users/<user>/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 97: sha256sum: command not found\n"
   },
   {
     "test": "rill-qualification-rolling.sh",
     "rc": 1,
     "seconds": 0.47,
-    "output": "tests/rill-qualification-rolling.sh: line 16: seq: command not found\njq: error: Could not open file C:/Users/hello/AppData/Local/Temp/tmp.B7piejuZJx/qualification.json: No such file or directory\n"
+    "output": "tests/rill-qualification-rolling.sh: line 16: seq: command not found\njq: error: Could not open file C:/Users/<user>/AppData/Local/Temp/tmp.B7piejuZJx/qualification.json: No such file or directory\n"
   },
   {
     "test": "rill-reward-v2.sh",
@@ -579,13 +579,13 @@
     "test": "rill-single-learner-contract.sh",
     "rc": 0,
     "seconds": 3.16,
-    "output": "Candidate-only Runtime learner contract passed\n/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 97: sha256sum: command not found\n/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 60: sha256sum: command not found\n"
+    "output": "Candidate-only Runtime learner contract passed\n/c/Users/<user>/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 97: sha256sum: command not found\n/c/Users/<user>/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 60: sha256sum: command not found\n"
   },
   {
     "test": "rill-state-and-delayed.sh",
     "rc": 127,
     "seconds": 7.0,
-    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 97: sha256sum: command not found\n/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 60: sha256sum: command not found\n/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 97: sha256sum: command not found\n/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 60: sha256sum: command not found\ntests/rill-state-and-delayed.sh: line 40: chmod: command not found\n"
+    "output": "/c/Users/<user>/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 97: sha256sum: command not found\n/c/Users/<user>/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 60: sha256sum: command not found\n/c/Users/<user>/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 97: sha256sum: command not found\n/c/Users/<user>/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/candidate-rill.sh: line 60: sha256sum: command not found\ntests/rill-state-and-delayed.sh: line 40: chmod: command not found\n"
   },
   {
     "test": "rill-status-timeout.sh",
@@ -603,13 +603,13 @@
     "test": "scheduler-deterministic.sh",
     "rc": 1,
     "seconds": 0.5,
-    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/source.sh: line 390: sha256sum: command not found\n"
+    "output": "/c/Users/<user>/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/source.sh: line 390: sha256sum: command not found\n"
   },
   {
     "test": "security-contract.sh",
     "rc": 1,
     "seconds": 48.16,
-    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/source.sh: line 401: sha256sum: command not found\n"
+    "output": "/c/Users/<user>/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/source.sh: line 401: sha256sum: command not found\n"
   },
   {
     "test": "semantic-config-validation.sh",
@@ -657,13 +657,13 @@
     "test": "source-size-cap.sh",
     "rc": 127,
     "seconds": 1.8,
-    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/source.sh: line 237: sha256sum: command not found\n"
+    "output": "/c/Users/<user>/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/source.sh: line 237: sha256sum: command not found\n"
   },
   {
     "test": "special-address-contract.sh",
     "rc": "TIMEOUT",
     "seconds": 55,
-    "output": "Command '['C:\\\\Users\\\\hello\\\\.cache\\\\codex-runtimes\\\\codex-primary-runtime\\\\dependencies\\\\native\\\\git\\\\usr\\\\bin\\\\sh.exe', '-c', 'export PATH=/c/Users/hello/Documents/Codex/2026-10-05/new-chat/work/bin:/usr/bin:$PATH; bash tests/special-address-contract.sh']' timed out after 55 seconds"
+    "output": "Command '['C:\\\\Users\\\\hello\\\\.cache\\\\codex-runtimes\\\\codex-primary-runtime\\\\dependencies\\\\native\\\\git\\\\usr\\\\bin\\\\sh.exe', '-c', 'export PATH=/c/Users/<user>/Documents/Codex/2026-10-05/new-chat/work/bin:/usr/bin:$PATH; bash tests/special-address-contract.sh']' timed out after 55 seconds"
   },
   {
     "test": "status-running-timeout.sh",
@@ -705,7 +705,7 @@
     "test": "v2-cfst-exact-input.sh",
     "rc": "TIMEOUT",
     "seconds": 55,
-    "output": "Command '['C:\\\\Users\\\\hello\\\\.cache\\\\codex-runtimes\\\\codex-primary-runtime\\\\dependencies\\\\native\\\\git\\\\usr\\\\bin\\\\sh.exe', '-c', 'export PATH=/c/Users/hello/Documents/Codex/2026-10-05/new-chat/work/bin:/usr/bin:$PATH; bash tests/v2-cfst-exact-input.sh']' timed out after 55 seconds"
+    "output": "Command '['C:\\\\Users\\\\hello\\\\.cache\\\\codex-runtimes\\\\codex-primary-runtime\\\\dependencies\\\\native\\\\git\\\\usr\\\\bin\\\\sh.exe', '-c', 'export PATH=/c/Users/<user>/Documents/Codex/2026-10-05/new-chat/work/bin:/usr/bin:$PATH; bash tests/v2-cfst-exact-input.sh']' timed out after 55 seconds"
   },
   {
     "test": "v2-lan-publisher.sh",
@@ -717,7 +717,7 @@
     "test": "v2-measurement-deadline.sh",
     "rc": 0,
     "seconds": 0.73,
-    "output": "v2 global measurement deadline contract passed\n/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/common.sh: line 424: sleep: command not found\n/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/common.sh: line 429: sleep: command not found\n/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/common.sh: line 389: sleep: command not found\n"
+    "output": "v2 global measurement deadline contract passed\n/c/Users/<user>/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/common.sh: line 424: sleep: command not found\n/c/Users/<user>/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/common.sh: line 429: sleep: command not found\n/c/Users/<user>/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/common.sh: line 389: sleep: command not found\n"
   },
   {
     "test": "v2-observation.sh",
@@ -747,7 +747,7 @@
     "test": "v2-source-engine.sh",
     "rc": 1,
     "seconds": 22.5,
-    "output": "/c/Users/hello/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/source.sh: line 390: sha256sum: command not found\n"
+    "output": "/c/Users/<user>/Documents/Codex/2026-10-05/new-chat/outputs/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/source.sh: line 390: sha256sum: command not found\n"
   },
   {
     "test": "v2-status.sh",

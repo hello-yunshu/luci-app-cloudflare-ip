@@ -1,7 +1,7 @@
 {
   "scope": "G5e actual short-lived rpcd read-only session and uhttpd ubus permission enforcement",
   "sourceSha": "850464eb5dba77a3467e139a59e84f0e3dd69a7d",
-  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/native-vm.EsMjO7/native-readonly-session",
+  "rawEvidence": "/Users/<user>/Downloads/cfip-g4-g5-evidence/native-vm.EsMjO7/native-readonly-session",
   "readMethodsAllowed": 14,
   "writeMethodsDenied": 13,
   "httpReadCases": [

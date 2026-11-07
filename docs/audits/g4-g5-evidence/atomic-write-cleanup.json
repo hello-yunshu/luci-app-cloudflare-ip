@@ -30,12 +30,12 @@
     "No final exact-SHA hosted qualification"
   ],
   "evidence": {
-    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/atomic-write-cleanup/before.log": "3d4b161d3b90b169ba2ae5eb1c965a77a77682199dcdbdb981acf347637eeb61",
-    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/atomic-write-cleanup/after.log": "c8a8479bf4fedb5e15d6e7f162e922ef08e687c4921f491126a20e1a2068e0ca",
-    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/atomic-write-cleanup/openwrt-after.log": "3a06bdb396e3ef40e168645a7b9a005f8abf46aa84af96686a06eb4cdd35c3fd",
-    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/atomic-write-cleanup/transaction-after.log": "9c39f74c160838e6d2f73bef985892b679827369a969424608e776dc54b1deab",
-    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/atomic-write-cleanup/publisher-after.log": "c588d21e1c7336dc6508c715dfa6ddb922fa42ed6cc88502da995d85936c4dc5",
-    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/atomic-write-cleanup/status-after.log": "64d946744aabf6cf9653ff8273c911466b0a7826cb2bbeb8a6d78b540319a7c5",
-    "/Users/yunshu/Downloads/cfip-g4-g5-evidence/atomic-write-cleanup/prior-apk-failed.log": "cf192961d4115551940f22068921ad8c7710e5091eaf7b82753fcde902f94649"
+    "/Users/<user>/Downloads/cfip-g4-g5-evidence/atomic-write-cleanup/before.log": "3d4b161d3b90b169ba2ae5eb1c965a77a77682199dcdbdb981acf347637eeb61",
+    "/Users/<user>/Downloads/cfip-g4-g5-evidence/atomic-write-cleanup/after.log": "c8a8479bf4fedb5e15d6e7f162e922ef08e687c4921f491126a20e1a2068e0ca",
+    "/Users/<user>/Downloads/cfip-g4-g5-evidence/atomic-write-cleanup/openwrt-after.log": "3a06bdb396e3ef40e168645a7b9a005f8abf46aa84af96686a06eb4cdd35c3fd",
+    "/Users/<user>/Downloads/cfip-g4-g5-evidence/atomic-write-cleanup/transaction-after.log": "9c39f74c160838e6d2f73bef985892b679827369a969424608e776dc54b1deab",
+    "/Users/<user>/Downloads/cfip-g4-g5-evidence/atomic-write-cleanup/publisher-after.log": "c588d21e1c7336dc6508c715dfa6ddb922fa42ed6cc88502da995d85936c4dc5",
+    "/Users/<user>/Downloads/cfip-g4-g5-evidence/atomic-write-cleanup/status-after.log": "64d946744aabf6cf9653ff8273c911466b0a7826cb2bbeb8a6d78b540319a7c5",
+    "/Users/<user>/Downloads/cfip-g4-g5-evidence/atomic-write-cleanup/prior-apk-failed.log": "cf192961d4115551940f22068921ad8c7710e5091eaf7b82753fcde902f94649"
   }
 }

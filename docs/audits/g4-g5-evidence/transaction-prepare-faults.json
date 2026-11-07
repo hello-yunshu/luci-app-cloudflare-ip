@@ -63,7 +63,7 @@
     "TERM rollback",
     "v2 transaction semantics"
   ],
-  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/transaction-prepare-faults",
+  "rawEvidence": "/Users/<user>/Downloads/cfip-g4-g5-evidence/transaction-prepare-faults",
   "limits": [
     "command failure fixtures and actual kernel storage cases separately recorded",
     "OpenClash service state is a disabled fixture; no proxy lifecycle executed",

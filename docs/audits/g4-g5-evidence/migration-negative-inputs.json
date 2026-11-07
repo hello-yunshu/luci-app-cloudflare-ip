@@ -23,7 +23,7 @@
   "nativeStatus": "NOT EVALUATED locally: neither manager nor Docker is available; current-SHA hosted migration must execute these checks",
   "boundary": "early invalid-input refusal only; no claim of mid-install rollback, owner-conflict, uninstall/lifecycle or real proxy/Runtime install coverage",
   "remaining": "full G4/G5 and exact-SHA hosted package/offline qualification remain OPEN",
-  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/migration-negative-inputs",
+  "rawEvidence": "/Users/<user>/Downloads/cfip-g4-g5-evidence/migration-negative-inputs",
   "sha256": {
     "binding.log": "e7e3bce11ec7ee8f5cd8c3d4663fef5c10c9fa18238b44815edd1e984f9e9e4b",
     "identity.log": "2202ecdaacbf5b5bd68ee92a87c76139746f2a88608924346b284dc94d2c700e",

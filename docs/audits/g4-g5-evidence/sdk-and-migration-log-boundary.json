@@ -16,7 +16,7 @@
         "dynamic": true,
         "architecture": "x86_64"
       },
-      "receipt": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/run-39239175319/writer-lock-v24.10.5-ipk/receipt.json",
+      "receipt": "/Users/<user>/Downloads/cfip-g4-g5-evidence/run-39239175319/writer-lock-v24.10.5-ipk/receipt.json",
       "receiptSha256": "d3a094c95ff98e0a34fbbab95704077fdc286891cf799fa118e5ed9946afb7d0"
     },
     {
@@ -31,7 +31,7 @@
         "dynamic": true,
         "architecture": "x86_64"
       },
-      "receipt": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/run-39239175319/writer-lock-v24.10.8-ipk/receipt.json",
+      "receipt": "/Users/<user>/Downloads/cfip-g4-g5-evidence/run-39239175319/writer-lock-v24.10.8-ipk/receipt.json",
       "receiptSha256": "e3a4b3e19fcf6407310ec38e9e7c1df2bb3f975f0f2d9fd1cbc90832f4f029e7"
     },
     {
@@ -46,7 +46,7 @@
         "dynamic": true,
         "architecture": "x86_64"
       },
-      "receipt": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/run-39239175319/writer-lock-v25.12.0-apk/receipt.json",
+      "receipt": "/Users/<user>/Downloads/cfip-g4-g5-evidence/run-39239175319/writer-lock-v25.12.0-apk/receipt.json",
       "receiptSha256": "673ca55a9d8c7db44e64ba9ab505e7b443a9aa341d9445dc9d5eb51df22f4a71"
     },
     {
@@ -61,7 +61,7 @@
         "dynamic": true,
         "architecture": "x86_64"
       },
-      "receipt": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/run-39239175319/writer-lock-v25.12.5-apk/receipt.json",
+      "receipt": "/Users/<user>/Downloads/cfip-g4-g5-evidence/run-39239175319/writer-lock-v25.12.5-apk/receipt.json",
       "receiptSha256": "e3ed73571657a7d327f1b700620f1b24c0ea4cc584bc7226f1572c7e393ac49d"
     }
   ],
@@ -100,7 +100,7 @@
     "fullNativeNegativeMatrix": "FAIL/INCOMPLETE; truncated case not reached"
   },
   "change": "exclude only var/log/apk.log from payload fingerprints; retain manager log before/after as separate diagnostics; all installed DB/info/ownership and other payload/user checks remain required",
-  "replayEvidenceDirectory": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/run-39239175319/apk-migration/package-migration-details/apk-negative-missing",
+  "replayEvidenceDirectory": "/Users/<user>/Downloads/cfip-g4-g5-evidence/run-39239175319/apk-migration/package-migration-details/apk-negative-missing",
   "ipkMatrixSha256": "6ad87de185d41d89757d8377a3b4dfce62aea18486370f3e92ba3860d64d812b",
   "beforeSnapshotSha256": "c10e645864201d3d4a12273348b6584e8052be24e2505a9bbd188ed3d328a2ce",
   "afterSnapshotSha256": "b7bd769385c626b6c14c5567a26034574263a2470ca284ebc0c0fdc27b3a5754",

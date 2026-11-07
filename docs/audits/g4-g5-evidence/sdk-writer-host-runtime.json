@@ -90,7 +90,7 @@
   },
   "nativeTargetUtility": "NOT EVALUATED for corrected source until new hosted execution",
   "remaining": "current-SHA full G4/G5 SDK/migration/native LuCI/package/offline qualification OPEN",
-  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/sdk-writer-host-runtime",
+  "rawEvidence": "/Users/<user>/Downloads/cfip-g4-g5-evidence/sdk-writer-host-runtime",
   "sha256": {
     "apk-job-clean.log": "14adf00206a4398bb497ec0da03c55b42cfb65daea2ff1554f0b8e7d3dc79a0c",
     "host-no-jq.json": "653671f0376d5015238d09c73eaa289c81543272418842d452365fb05650e76d",

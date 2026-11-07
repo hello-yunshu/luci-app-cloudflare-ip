@@ -1,7 +1,7 @@
 {
   "scope": "G5e lifecycle error propagation and package prerm refusal",
   "baselineSource": "2aa0272dc3fb5df4b4cf0c1050de85fdef05f71e",
-  "hostBaseline": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/prerm-before.log",
+  "hostBaseline": "/Users/<user>/Downloads/cfip-g4-g5-evidence/prerm-before.log",
   "confirmedFailures": [
     "prerm ignores stop/publisher-stop/disable failures and returns 0",
     "rc.common procd start/stop wrappers overwrite start_service/stop_service errors"
@@ -14,7 +14,7 @@
   "nativeStartWithWriterLockExit": 1,
   "nativeOpkgRemoveExit": 255,
   "nativeResult": "package remains installed; complete owned payload/config/status preserved; repeated refusal retains the already recorded package state",
-  "rawEvidence": "/Users/yunshu/Downloads/cfip-g4-g5-evidence/native-vm.EsMjO7/prerm-failure",
+  "rawEvidence": "/Users/<user>/Downloads/cfip-g4-g5-evidence/native-vm.EsMjO7/prerm-failure",
   "platformBoundary": "SDK default_prerm still disables init links after package hook refuses; original two enabled states explicitly restored in fixture; no boot-state atomicity claim opkg retains requested deinstall intent (deinstall user installed); repeating install without --force-reinstall does not reset it. This is disclosed diagnostic/intent state, not full package-manager rollback.",
   "environmentRecovery": "Initial native baseline actually removed the private test package because rc.common masked stop failure. Canonical old package reinstalled; UCI/status exact hashes verified; current developer sources restored. Initial environment-flag hypothesis disproven by helper and rc.common source plus logs.",
   "limits": [

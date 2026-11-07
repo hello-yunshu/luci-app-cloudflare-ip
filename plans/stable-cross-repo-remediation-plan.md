@@ -2,7 +2,7 @@
 
 审计日期：2026-10-15（Asia/Shanghai）。结论：**Stable NO-GO；规划完成，修复未开始**。
 
-执行依据：/Users/yunshu/Downloads/luci-app-cloudflare-ip-cross-repo-stable-planning-prompt.md。本轮仅阅读、隔离验证及撰写本文件；没有改业务源码、测试、锁文件、配方、工作流、发布元数据，没有 push、PR、tag、Release、远程 dispatch、生产安装或真实代理写入。以下“修改/安装/晋级”均为未来工作。
+执行依据：/Users/<user>/Downloads/luci-app-cloudflare-ip-cross-repo-stable-planning-prompt.md。本轮仅阅读、隔离验证及撰写本文件；没有改业务源码、测试、锁文件、配方、工作流、发布元数据，没有 push、PR、tag、Release、远程 dispatch、生产安装或真实代理写入。以下“修改/安装/晋级”均为未来工作。
 
 ## 1. 执行结论
 
@@ -488,7 +488,7 @@ P0（身份矛盾、不可追溯资产、安全准入未处理、必要CI失败�
 **下段仅为未来执行文本，本轮没有运行。只做G0轻量复核+G1，完成验收后停止。**
 
 ~~~text
-在 /Users/yunshu/Documents/GitHub/luci-app-cloudflare-ip 执行
+在 /Users/<user>/Documents/GitHub/luci-app-cloudflare-ip 执行
 plans/stable-cross-repo-remediation-plan.md 的 G0 基线刷新与 G1。
 
 目标：统一产品版本/真实IPK与APK身份/资格校验数据流，消除当前版本断言漂移，
