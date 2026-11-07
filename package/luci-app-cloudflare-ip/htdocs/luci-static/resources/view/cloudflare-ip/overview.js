@@ -182,42 +182,11 @@ function buildDepSection(missingDeps, pkgManager) {
 	var installCmd = pkgManager === 'apk' ?
 		'apk add --allow-untrusted ' + missingDeps.join(' ') :
 		'opkg install ' + missingDeps.join(' ');
-	section.appendChild(E('p', { 'style': 'color:var(--warning-color, #d89b00);margin-bottom:0.5em' },
+	section.appendChild(E('p', { 'class': 'cfi-dependency-warning' },
 		'\u2718 ' + _('Missing dependencies: ') + missingDeps.join(', ')));
 	section.appendChild(E('div', { 'class': 'cfi-cmd-box' }, installCmd));
 	return section;
 }
-
-var css = `
-	.cfi-status-banner {
-		display: flex; align-items: center; gap: 1.2em;
-		padding: 1.5em; margin-bottom: 1.5em;
-	}
-	.cfi-status-banner.running { border-left: 5px solid var(--success-color, #3aa657); }
-	.cfi-status-banner.stopped { border-left: 5px solid var(--warning-color, #d89b00); }
-	.cfi-status-banner.running-test { border-left: 5px solid var(--main-color, #0069d9); }
-	.cfi-status-icon { font-size: 2.5em; line-height: 1; flex-shrink: 0; }
-	.cfi-status-icon.running { color: var(--cfi-success-text); }
-	.cfi-status-icon.stopped { color: var(--cfi-warning-text); }
-	.cfi-status-icon.running-test { color: var(--cfi-link); animation: cfi-pulse 1.5s ease-in-out infinite; }
-	.cfi-status-text h3 { margin: 0 0 0.2em 0; font-size: 1.3em; }
-	.cfi-status-text h3.running { color: var(--cfi-success-text); }
-	.cfi-status-text h3.stopped { color: var(--cfi-warning-text); }
-	.cfi-status-text h3.running-test { color: var(--cfi-link); }
-	@keyframes cfi-pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
-	@media (prefers-reduced-motion: reduce) {
-		.cfi-status-icon.running-test { animation: none; }
-	}
-	.cfi-status-text p { margin: 0; color: var(--cfi-muted); font-size: 0.9em; }
-	@media (max-width: 600px) {
-		.cfi-status-banner {
-			flex-wrap: wrap; gap: 0.6em; padding: 1em;
-		}
-		.cfi-status-icon { font-size: 1.8em; }
-		.cfi-status-text h3 { font-size: 1.1em; }
-		.cfi-status-text p { font-size: 0.85em; }
-	}
-	`;
 
 return view.extend({
 	/* Actions use their own RPC controls; this view has no editable UCI map. */
@@ -259,7 +228,6 @@ return view.extend({
 		var envUpdatedAt = environment.updated_at || '';
 
 		var container = E('div', { 'class': 'cbi-map cfi-dashboard' });
-		container.appendChild(E('style', {}, css));
 
 		container.appendChild(E('h2', { 'class': 'cbi-map-title' }, _('Overview')));
 
@@ -305,7 +273,7 @@ return view.extend({
 
 		var statsGrid = E('div', { 'class': 'cfi-stats-grid' });
 
-		var ipCountClass = ipCount > 0 ? 'cfi-stat-value green' : 'cfi-stat-value red';
+		var ipCountClass = ipCount > 0 ? 'cfi-stat-value green' : 'cfi-stat-value';
 		statsGrid.appendChild(E('div', { 'class': 'cbi-section cfi-stat-card' }, [
 			E('div', { 'class': ipCountClass }, String(ipCount)),
 			E('div', { 'class': 'cfi-stat-label' }, _('Best IP Count'))
@@ -319,11 +287,6 @@ return view.extend({
 		statsGrid.appendChild(E('div', { 'class': 'cbi-section cfi-stat-card' }, [
 			E('div', { 'class': 'cfi-stat-value' }, speedtestProtocol.toUpperCase()),
 			E('div', { 'class': 'cfi-stat-label' }, _('Speed Test Protocol'))
-		]));
-
-		statsGrid.appendChild(E('div', { 'class': 'cbi-section cfi-stat-card' }, [
-			E('div', { 'class': 'cfi-stat-value' }, cfstVersion),
-			E('div', { 'class': 'cfi-stat-label' }, _('CFST Version'))
 		]));
 
 		container.appendChild(statsGrid);
@@ -516,10 +479,10 @@ return view.extend({
 		infoTable.appendChild(E('tr', { 'class': 'tr' }, [
 			E('th', { 'class': 'th' }, _('GitHub')),
 			E('td', { 'class': 'td' }, E('a', {
+				'class': 'cfi-inline-underline',
 				'href': 'https://github.com/hello-yunshu/luci-app-cloudflare-ip',
 				'target': '_blank',
-				'rel': 'noopener',
-				'style': 'text-decoration:underline'
+				'rel': 'noopener'
 			}, 'hello-yunshu/luci-app-cloudflare-ip'))
 		]));
 
@@ -574,7 +537,7 @@ return view.extend({
 
 		envSection.appendChild(E('div', { 'class': 'cfi-table-wrap' }, envTable));
 
-		var envBtnBar = E('div', { 'class': 'cfi-btn-group', 'style': 'margin-top:1em' });
+		var envBtnBar = E('div', { 'class': 'cfi-btn-group cfi-mt-1' });
 		envBtnBar.appendChild(E('button', {
 			'class': 'cbi-button cbi-button-apply',
 			'click': function() {
