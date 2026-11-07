@@ -3,7 +3,7 @@
   "sha": "4659503",
   "container": "cfip-ui-qc",
   "base": "http://127.0.0.1:18080",
-  "evidence": "/Users/yunshu/Documents/GitHub/luci-ui-p0p1-worktree/docs/audits/next-release-evidence/ui-gate-4659503",
+  "evidence": "docs/audits/next-release-evidence/ui-gate-4659503",
   "scenarios": [
     {
       "name": "sources-refresh-preserves-draft",
