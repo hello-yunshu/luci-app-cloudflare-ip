@@ -18,13 +18,13 @@ Each row must produce artifacts (log/screenshot/JSON), not just an assertion.
 
 | # | Work | Who | Equipment | Method | Acceptance line |
 |---|---|---|---|---|---|
-| E1 | Physical install/upgrade | user/owner or maintainer with hardware | one supported OpenWrt 24.10.x device, serial/SSH | install r9, upgrade from r8, rollback with `--force-downgrade`; capture firmware/arch/opkg logs | version r9 after install/upgrade, config preserved, rollback works |
-| E2 | Hardware matrix | user/owner | at least x86_64 and aarch64 devices | repeat E1 + page load per architecture | every declared architecture either passes or is explicitly scoped out |
-| E3 | 24h soak | user/owner | same device, continuous power | run scheduled updates/proxy updates for 24h; record memory, errors, cron, publisher state | no crash/leak; publisher remains ready; logs archived |
+| E1 | Device install/upgrade (**KVM accepted**) | user/owner or maintainer with KVM/device | one supported OpenWrt device, SSH | install/upgrade/reinstall the exact-SHA package; capture firmware/arch/apk logs | version r9 after install/replacement, config preserved, rollback works |
+| E2 | Hardware matrix | user/owner | at least x86_64 and aarch64 | repeat E1 + page load per architecture | every declared architecture either passes or is explicitly scoped out |
+| E3 | 12h soak | user/owner | same KVM/device, continuous power | run scheduled updates/proxy updates for 12h; record memory, errors, cron, publisher state | no crash/leak; publisher remains ready; logs archived |
 | E4 | PassWall real proxy network | user/owner | device + working PassWall node | start/stop/refresh through the real proxy | node updates and connectivity verified on the real network |
 | E5 | OpenClash real controller | user/owner | device with OpenClash + mihomo + Ruby | backup/restore/delete and target update | all three controller actions succeed on device |
-| E6 | Touch/keyboard matrix | user/owner | real touch device (tablet/panel) | tap-only navigation, soft keyboard, 200% zoom, gestures | no dead control; no overflow; keyboard focus complete |
-| E7 | Power cut / ENOSPC on device | user/owner | device with recoverable boot / serial | back up `/usr/lib/opkg/status`, fill overlay, cut power during upgrade, restore per [ROLLBACK_AND_RECOVERY.md](ROLLBACK_AND_RECOVERY.md) | opkg usable after restore; config intact; procedure followed |
+| E6 | Touch/keyboard matrix | user/owner | real touch device (tablet/panel) | browser-emulated 8/8 touch pages + 3/3 at 200% done; physical taps, soft keyboard and gestures still need a real device | no dead control; no overflow; keyboard focus complete |
+| E7 | Power cut / ENOSPC on device | user/owner | device with recoverable boot / serial | ENOSPC write-path drill done on the KVM DUT (2026-11-07); a real power cut needs recoverable boot/serial or hypervisor control | opkg usable after restore; config intact; procedure followed |
 
 ## C. Build and release gate (maintainer, after A/B)
 
@@ -39,9 +39,9 @@ Each row must produce artifacts (log/screenshot/JSON), not just an assertion.
 
 ## D. Current count
 
-- Device/owner work still required: **E1–E7 = 7 items**.
-- User decisions still required: **D1–D2 = 2 items** (D3 optional boundary acceptance).
-- Build/release steps: **R1–R6**, executable by the maintainer after the above.
+- Device/owner work still required: **4 items** — E3 12h soak completion, E4 PassWall, E6 physical touch, E7 real power cut. E1 is closed under the KVM decision; E2 is x86_64-DUT pass + aarch64 emulated-only; E5 OpenClash controller passed on the DUT.
+- User decisions still required: **D1–D2 = 2 items**. D3 is now only about accepting container evidence for a real power cut, since the device ENOSPC drill passed.
+- Build/release steps: **R1–R6**, executable by the maintainer after the above. R1–R3 already pass for `d1e36f3`; no rebuild is needed unless code changes.
 - Container evidence already green: publisher fixtures, IPK/APK r8→r9 upgrade + fresh install + rollback/ENOSPC/power-loss drills on 24.10.8 and 25.12.x, matrix, i18n, UI Gate. These are **not** device evidence.
 
 **Conclusion: NOT READY. No Stable action may be executed from this page.**
