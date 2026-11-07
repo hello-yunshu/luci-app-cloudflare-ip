@@ -110,7 +110,7 @@ validate_config() {
     [[ -z "$CFIP_PUBLISH_BIND" || "$CFIP_PUBLISH_BIND" != 0.0.0.0 ]] || { cfip_json_error "LAN publisher may not bind 0.0.0.0"; return 1; }
     cfip_managed_work_dir_safe "$CFIP_WORK_DIR" || { cfip_json_error "work_dir must be root-owned /usr/bin or /usr/share/cf-ip"; return 1; }
     cfip_managed_rill_state_safe "$CFIP_RILL_STATE" || { cfip_json_error "rill state_file must stay under /etc/cf_ip and be root-owned/non-symlink"; return 1; }
-    cfip_managed_openclash_config_safe "$CFIP_OPENCLASH_CONFIG" || { cfip_json_error "openclash.config must stay under /etc/openclash and be root-owned/non-symlink"; return 1; }
+    cfip_managed_openclash_config_safe "$CFIP_OPENCLASH_CONFIG" || { cfip_json_error "openclash.config must be an existing root-owned/non-symlink file, or a new path under /etc/openclash"; return 1; }
     if [[ -n "${CFIP_RILL_RUNTIME_BIN:-}" ]]; then
         # Process-local test/qualification seam; never read from UCI.
         cfip_path_regular_root_safe "$CFIP_RILL_RUNTIME" || { cfip_json_error "rill runtime override must be an executable regular file"; return 1; }

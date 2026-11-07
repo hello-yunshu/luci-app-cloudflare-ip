@@ -1,0 +1,78 @@
+MODEL=Microsoft Corporation Virtual Machine
+BOARD=microsoft-corporation-virtual-machine
+=== pkg files
+luci-app-cloudflare-ip-1.8.3-r1 contains:
+etc/config/cf_ip
+etc/init.d/cf_ip
+lib/apk/packages/luci-app-cloudflare-ip.conffiles
+lib/apk/packages/luci-app-cloudflare-ip.conffiles_static
+lib/apk/packages/luci-app-cloudflare-ip.list
+lib/upgrade/keep.d/luci-app-cloudflare-ip
+usr/bin/cf-ip-auto
+usr/lib/lua/luci/controller/cloudflare-ip.lua
+usr/lib/lua/luci/i18n/cloudflare-ip.zh-cn.lmo
+usr/libexec/rpcd/cf_ip
+usr/share/luci/menu.d/luci-app-cloudflare-ip.json
+usr/share/rpcd/acl.d/luci-app-cloudflare-ip.json
+www/luci-static/resources/cloudflare-ip/cloudflare-ip.css
+www/luci-static/resources/cloudflare-ip/utils.js
+www/luci-static/resources/view/cloudflare-ip/advanced.js
+www/luci-static/resources/view/cloudflare-ip/diagnostics.js
+www/luci-static/resources/view/cloudflare-ip/openclash.js
+www/luci-static/resources/view/cloudflare-ip/overview.js
+www/luci-static/resources/view/cloudflare-ip/passwall.js
+www/luci-static/resources/view/cloudflare-ip/settings.js
+
+=== passwall/openclash
+luci-app-openclash-0.47.156 noarch {feeds/base/new/OpenClash/luci-app-openclash} () [installed]
+=== cf config sections
+cf_ip.main=<redacted>
+cf_ip.main.enabled=<redacted>
+cf_ip.main.mode=<redacted>
+cf_ip.main.ip_count=<redacted>
+cf_ip.main.ip_type=<redacted>
+cf_ip.main.speedtest_protocol=<redacted>
+cf_ip.main.speedtest_dn=<redacted>
+cf_ip.main.speedtest_tll=<redacted>
+cf_ip.main.stop_service=<redacted>
+cf_ip.main.auto_update=<redacted>
+cf_ip.main.self_update_url=<redacted>
+cf_ip.main.download_retries=<redacted>
+cf_ip.main.download_retry_delay=<redacted>
+cf_ip.main.verbose=<redacted>
+cf_ip.main.cron_interval=<redacted>
+cf_ip.main.cron_custom=<redacted>
+cf_ip.main.cfst_persist=<redacted>
+cf_ip.passwall=<redacted>
+cf_ip.passwall.name_suffix=<redacted>
+cf_ip.openclash=<redacted>
+cf_ip.openclash.config=<redacted>
+cf_ip.openclash.name_suffix=<redacted>
+cf_ip.openclash.backup_count=<redacted>
+cf_ip.openclash.target_domain=<redacted>
+cf_ip.openclash.transport_filter=<redacted>
+=== cf config file mode
+600 0 0 861
+600 0 0 933
+=== apk cache
+-rw-r--r--    1 root     root        110847 Oct 11 21:53 APKINDEX.0ab301e0.tar.gz
+-rw-r--r--    1 root     root         11688 Oct 11 21:53 APKINDEX.14976fd6.tar.gz
+-rw-r--r--    1 root     root          6980 Oct 11 21:53 APKINDEX.14e19273.tar.gz
+-rw-r--r--    1 root     root        112619 Oct 11 21:53 APKINDEX.214401cd.tar.gz
+-rw-r--r--    1 root     root        748137 Oct 11 21:53 APKINDEX.995215f6.tar.gz
+-rw-r--r--    1 root     root         11831 Oct 11 21:53 APKINDEX.c121efb1.tar.gz
+-rw-r--r--    1 root     root        382803 Oct 11 21:53 APKINDEX.ce57181a.tar.gz
+-rw-r--r--    1 root     root         14980 Oct 11 21:53 APKINDEX.ee7bca2c.tar.gz
+-rw-r--r--    1 root     root        161574 Oct 11 21:53 APKINDEX.f0930753.tar.gz
+=== feeds
+=== cfst files
+/tmp/cfip-soak-work-20261024-a85008c/cfst
+/tmp/cfip-soak-work-20261024-a85008c/cfst/cfst_linux_amd64.tar.gz.meta
+/tmp/cfip-soak-work-20261024-a85008c/cfst/cfst_linux_amd64.tar.gz
+/tmp/cfip-soak-work-20261024-a85008c/cfst/cfst_version.txt
+/tmp/cfip-soak-work-20261024-a85008c/cfst/cfst
+/tmp/cfip-soak-work-20261024-c9b3cde/cfst
+/tmp/cfip-soak-work-20261024-c9b3cde/cfst/cfst_linux_amd64.tar.gz.meta
+/tmp/cfip-soak-work-20261024-c9b3cde/cfst/cfst_linux_amd64.tar.gz
+/tmp/cfip-soak-work-20261024-c9b3cde/cfst/cfst_version.txt
+/tmp/cfip-soak-work-20261024-c9b3cde/cfst/cfst
