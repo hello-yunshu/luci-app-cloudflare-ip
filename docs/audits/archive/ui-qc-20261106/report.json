@@ -1,0 +1,2007 @@
+{
+  "schemaVersion": 1,
+  "sha": "local",
+  "environment": "real OpenWrt 24.10.8 rootfs (uhttpd/rpcd/LuCI, Aurora 1.4.0) + Chromium",
+  "method": {
+    "zh": "LuCI uci main.lang=zh_cn with po2lmo-compiled cloudflare-ip.zh-cn.lmo; page text, tab labels, screenshots, EN/ZH pixel diff",
+    "zoom": "device metrics: physical 1280x900 window => 1024x720 @DPR1.25 (125%) and 640x450 @DPR2 (200%); layout-equivalent to browser zoom, not chrome://settings zoom",
+    "states": "real LuCI CBI + rpcd; failure states use transport fault injection on the cf_ip RPC endpoint",
+    "preferences": "Chromium prefers-reduced-motion=reduce; computed animation-name probe against the shared CSS"
+  },
+  "limitations": [
+    "zoom uses device-metrics emulation, not Chrome settings-page zoom",
+    "failure state is transport/RPC fault injection, not a broken backend package",
+    "physical router, 24h soak, PassWall/OpenClash real networks are out of scope",
+    "OCR not run (tesseract absent locally); zh evidence uses rendered DOM text + screenshots + EN/ZH pixel diff"
+  ],
+  "zh": [
+    {
+      "theme": "bootstrap-light",
+      "width": 375,
+      "page": "overview",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 375,
+        "height": 1585,
+        "inkRatio": 0.14619894847528916
+      },
+      "pixelDiff": {
+        "ratio": 0.49514868559411146,
+        "heightDelta": -72,
+        "comparedHeight": 1585
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 375,
+      "page": "settings",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 375,
+        "height": 2299,
+        "inkRatio": 0.1313997390169639
+      },
+      "pixelDiff": {
+        "ratio": 0.23229230100043496,
+        "heightDelta": -162,
+        "comparedHeight": 2299
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 375,
+      "page": "sources",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 375,
+        "height": 2726,
+        "inkRatio": 0.12696600635852287
+      },
+      "pixelDiff": {
+        "ratio": 0.22964147713377353,
+        "heightDelta": -157,
+        "comparedHeight": 2726
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 375,
+      "page": "intelligence",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 375,
+        "height": 3406,
+        "inkRatio": 0.10205519671168527
+      },
+      "pixelDiff": {
+        "ratio": 0.18888001565864163,
+        "heightDelta": -81,
+        "comparedHeight": 3406
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 375,
+      "page": "openclash",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 375,
+        "height": 1585,
+        "inkRatio": 0.14619894847528916
+      },
+      "pixelDiff": {
+        "ratio": 0.49514868559411146,
+        "heightDelta": -72,
+        "comparedHeight": 1585
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 375,
+      "page": "passwall",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 375,
+        "height": 1585,
+        "inkRatio": 0.14619894847528916
+      },
+      "pixelDiff": {
+        "ratio": 0.49514868559411146,
+        "heightDelta": -72,
+        "comparedHeight": 1585
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 375,
+      "page": "advanced",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 375,
+        "height": 2135,
+        "inkRatio": 0.13200187353629977
+      },
+      "pixelDiff": {
+        "ratio": 0.2295032006245121,
+        "heightDelta": -123,
+        "comparedHeight": 2135
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 375,
+      "page": "logs",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 375,
+        "height": 1520,
+        "inkRatio": 0.1187017543859649
+      },
+      "pixelDiff": {
+        "ratio": 0.30939122807017544,
+        "heightDelta": -41,
+        "comparedHeight": 1520
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 1280,
+      "page": "overview",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 1318,
+        "inkRatio": 0.09270793816388467
+      },
+      "pixelDiff": {
+        "ratio": 0.022471310698027314,
+        "heightDelta": 0,
+        "comparedHeight": 1318
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 1280,
+      "page": "settings",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 1769,
+        "inkRatio": 0.07239480285472018
+      },
+      "pixelDiff": {
+        "ratio": 0.13482105002826456,
+        "heightDelta": -60,
+        "comparedHeight": 1769
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 1280,
+      "page": "sources",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 1817,
+        "inkRatio": 0.07465430654925702
+      },
+      "pixelDiff": {
+        "ratio": 0.18809120459548706,
+        "heightDelta": -60,
+        "comparedHeight": 1817
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 1280,
+      "page": "intelligence",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 2781,
+        "inkRatio": 0.05353290183387271
+      },
+      "pixelDiff": {
+        "ratio": 0.06425718042071198,
+        "heightDelta": -20,
+        "comparedHeight": 2781
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 1280,
+      "page": "openclash",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 1318,
+        "inkRatio": 0.09270793816388467
+      },
+      "pixelDiff": {
+        "ratio": 0.022471310698027314,
+        "heightDelta": 0,
+        "comparedHeight": 1318
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 1280,
+      "page": "passwall",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 1318,
+        "inkRatio": 0.09270793816388467
+      },
+      "pixelDiff": {
+        "ratio": 0.022471310698027314,
+        "heightDelta": 0,
+        "comparedHeight": 1318
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 1280,
+      "page": "advanced",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 1657,
+        "inkRatio": 0.07313810727217863
+      },
+      "pixelDiff": {
+        "ratio": 0.1355037341581171,
+        "heightDelta": -60,
+        "comparedHeight": 1657
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 1280,
+      "page": "logs",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 1457,
+        "inkRatio": 0.06536815803019903
+      },
+      "pixelDiff": {
+        "ratio": 0.0162142887783116,
+        "heightDelta": 0,
+        "comparedHeight": 1457
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 375,
+      "page": "overview",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 375,
+        "height": 1609,
+        "inkRatio": 0.18426351771286514
+      },
+      "pixelDiff": {
+        "ratio": 0.2891783716594158,
+        "heightDelta": -105,
+        "comparedHeight": 1609
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 375,
+      "page": "settings",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 375,
+        "height": 2198,
+        "inkRatio": 0.10852047315741584
+      },
+      "pixelDiff": {
+        "ratio": 0.18744070367000304,
+        "heightDelta": -108,
+        "comparedHeight": 2198
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 375,
+      "page": "sources",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 375,
+        "height": 3210,
+        "inkRatio": 0.11278006230529596
+      },
+      "pixelDiff": {
+        "ratio": 0.18940228452751817,
+        "heightDelta": -152,
+        "comparedHeight": 3210
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 375,
+      "page": "intelligence",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 375,
+        "height": 3754,
+        "inkRatio": 0.09018149529390872
+      },
+      "pixelDiff": {
+        "ratio": 0.1768737346830048,
+        "heightDelta": -102,
+        "comparedHeight": 3754
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 375,
+      "page": "openclash",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 375,
+        "height": 1609,
+        "inkRatio": 0.18426351771286514
+      },
+      "pixelDiff": {
+        "ratio": 0.2891783716594158,
+        "heightDelta": -105,
+        "comparedHeight": 1609
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 375,
+      "page": "passwall",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 375,
+        "height": 1609,
+        "inkRatio": 0.18426351771286514
+      },
+      "pixelDiff": {
+        "ratio": 0.2891783716594158,
+        "heightDelta": -105,
+        "comparedHeight": 1609
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 375,
+      "page": "advanced",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 375,
+        "height": 2279,
+        "inkRatio": 0.10902091560626005
+      },
+      "pixelDiff": {
+        "ratio": 0.195874213836478,
+        "heightDelta": -107,
+        "comparedHeight": 2279
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 375,
+      "page": "logs",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 375,
+        "height": 1704,
+        "inkRatio": 0.08997026604068857
+      },
+      "pixelDiff": {
+        "ratio": 0.20989671361502346,
+        "heightDelta": -75,
+        "comparedHeight": 1704
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 1280,
+      "page": "overview",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 1601,
+        "inkRatio": 0.09179663101186758
+      },
+      "pixelDiff": {
+        "ratio": 0.01866704403497814,
+        "heightDelta": 0,
+        "comparedHeight": 1601
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 1280,
+      "page": "settings",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 1741,
+        "inkRatio": 0.05615486789201608
+      },
+      "pixelDiff": {
+        "ratio": 0.035774159965537046,
+        "heightDelta": 0,
+        "comparedHeight": 1741
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 1280,
+      "page": "sources",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 2115,
+        "inkRatio": 0.05845079787234043
+      },
+      "pixelDiff": {
+        "ratio": 0.03713689420803783,
+        "heightDelta": 0,
+        "comparedHeight": 2115
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 1280,
+      "page": "intelligence",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 3035,
+        "inkRatio": 0.04748069398682043
+      },
+      "pixelDiff": {
+        "ratio": 0.08896931630971994,
+        "heightDelta": -14,
+        "comparedHeight": 3035
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 1280,
+      "page": "openclash",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 1601,
+        "inkRatio": 0.09179663101186758
+      },
+      "pixelDiff": {
+        "ratio": 0.01866704403497814,
+        "heightDelta": 0,
+        "comparedHeight": 1601
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 1280,
+      "page": "passwall",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 1601,
+        "inkRatio": 0.09179663101186758
+      },
+      "pixelDiff": {
+        "ratio": 0.01866704403497814,
+        "heightDelta": 0,
+        "comparedHeight": 1601
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 1280,
+      "page": "advanced",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 1812,
+        "inkRatio": 0.057802152317880794
+      },
+      "pixelDiff": {
+        "ratio": 0.03655404939293598,
+        "heightDelta": 0,
+        "comparedHeight": 1812
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 1280,
+      "page": "logs",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 1652,
+        "inkRatio": 0.059047272245762714
+      },
+      "pixelDiff": {
+        "ratio": 0.014521224273607749,
+        "heightDelta": 0,
+        "comparedHeight": 1652
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 375,
+      "page": "overview",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 375,
+        "height": 1609,
+        "inkRatio": 0.5267702506732961
+      },
+      "pixelDiff": {
+        "ratio": 0.4040306608659623,
+        "heightDelta": -105,
+        "comparedHeight": 1609
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 375,
+      "page": "settings",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 375,
+        "height": 2198,
+        "inkRatio": 0.4704482863208978
+      },
+      "pixelDiff": {
+        "ratio": 0.3627261146496815,
+        "heightDelta": -108,
+        "comparedHeight": 2198
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 375,
+      "page": "sources",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 375,
+        "height": 3210,
+        "inkRatio": 0.33202326064382137
+      },
+      "pixelDiff": {
+        "ratio": 0.28266832814122533,
+        "heightDelta": -152,
+        "comparedHeight": 3210
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 375,
+      "page": "intelligence",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 375,
+        "height": 3754,
+        "inkRatio": 0.336546972118629
+      },
+      "pixelDiff": {
+        "ratio": 0.30739690996270647,
+        "heightDelta": -102,
+        "comparedHeight": 3754
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 375,
+      "page": "openclash",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 375,
+        "height": 1609,
+        "inkRatio": 0.5267702506732961
+      },
+      "pixelDiff": {
+        "ratio": 0.4040306608659623,
+        "heightDelta": -105,
+        "comparedHeight": 1609
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 375,
+      "page": "passwall",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 375,
+        "height": 1609,
+        "inkRatio": 0.5267702506732961
+      },
+      "pixelDiff": {
+        "ratio": 0.4040306608659623,
+        "heightDelta": -105,
+        "comparedHeight": 1609
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 375,
+      "page": "advanced",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 375,
+        "height": 2279,
+        "inkRatio": 0.45148807956706155
+      },
+      "pixelDiff": {
+        "ratio": 0.3991926283457657,
+        "heightDelta": -107,
+        "comparedHeight": 2279
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 375,
+      "page": "logs",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 375,
+        "height": 1704,
+        "inkRatio": 0.3420203442879499
+      },
+      "pixelDiff": {
+        "ratio": 0.3400798122065728,
+        "heightDelta": -75,
+        "comparedHeight": 1704
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 1280,
+      "page": "overview",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 1601,
+        "inkRatio": 0.4093096111805122
+      },
+      "pixelDiff": {
+        "ratio": 0.01888077763897564,
+        "heightDelta": 0,
+        "comparedHeight": 1601
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 1280,
+      "page": "settings",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 1741,
+        "inkRatio": 0.44276816484778864
+      },
+      "pixelDiff": {
+        "ratio": 0.035721657811602525,
+        "heightDelta": 0,
+        "comparedHeight": 1741
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 1280,
+      "page": "sources",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 2115,
+        "inkRatio": 0.3740938977541371
+      },
+      "pixelDiff": {
+        "ratio": 0.03719673463356974,
+        "heightDelta": 0,
+        "comparedHeight": 2115
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 1280,
+      "page": "intelligence",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 3035,
+        "inkRatio": 0.3048198105436573
+      },
+      "pixelDiff": {
+        "ratio": 0.11591304571663921,
+        "heightDelta": -14,
+        "comparedHeight": 3035
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 1280,
+      "page": "openclash",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 1601,
+        "inkRatio": 0.4093096111805122
+      },
+      "pixelDiff": {
+        "ratio": 0.01888077763897564,
+        "heightDelta": 0,
+        "comparedHeight": 1601
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 1280,
+      "page": "passwall",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 1601,
+        "inkRatio": 0.4093096111805122
+      },
+      "pixelDiff": {
+        "ratio": 0.018875897876327295,
+        "heightDelta": 0,
+        "comparedHeight": 1601
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 1280,
+      "page": "advanced",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 1812,
+        "inkRatio": 0.4415631898454746
+      },
+      "pixelDiff": {
+        "ratio": 0.03645315949227373,
+        "heightDelta": 0,
+        "comparedHeight": 1812
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 1280,
+      "page": "logs",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 1652,
+        "inkRatio": 0.32503263090193707
+      },
+      "pixelDiff": {
+        "ratio": 0.014629993946731234,
+        "heightDelta": 0,
+        "comparedHeight": 1652
+      },
+      "ocr": "unavailable",
+      "consoleErrors": []
+    }
+  ],
+  "zoom": [
+    {
+      "factor": 1.25,
+      "css": [
+        1024,
+        720
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "bootstrap-light",
+      "page": "overview",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 1648,
+        "inkRatio": 0.11700261680825243
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 1.25,
+      "css": [
+        1024,
+        720
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "bootstrap-light",
+      "page": "settings",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 2286,
+        "inkRatio": 0.09264203302712161
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 1.25,
+      "css": [
+        1024,
+        720
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "bootstrap-light",
+      "page": "sources",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 2346,
+        "inkRatio": 0.09165101502557545
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 1.25,
+      "css": [
+        1024,
+        720
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "bootstrap-light",
+      "page": "intelligence",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 3501,
+        "inkRatio": 0.07063450621251072
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 1.25,
+      "css": [
+        1024,
+        720
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "bootstrap-light",
+      "page": "openclash",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 1648,
+        "inkRatio": 0.11700261680825243
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 1.25,
+      "css": [
+        1024,
+        720
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "bootstrap-light",
+      "page": "passwall",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 1648,
+        "inkRatio": 0.11700261680825243
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 1.25,
+      "css": [
+        1024,
+        720
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "bootstrap-light",
+      "page": "advanced",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 2146,
+        "inkRatio": 0.09154677306616962
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 1.25,
+      "css": [
+        1024,
+        720
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "bootstrap-light",
+      "page": "logs",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 1821,
+        "inkRatio": 0.07840429365733113
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 2,
+      "css": [
+        640,
+        450
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "bootstrap-light",
+      "page": "overview",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 3148,
+        "inkRatio": 0.10766880757623888
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 2,
+      "css": [
+        640,
+        450
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "bootstrap-light",
+      "page": "settings",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 4058,
+        "inkRatio": 0.0960059604484968
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 2,
+      "css": [
+        640,
+        450
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "bootstrap-light",
+      "page": "sources",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 5168,
+        "inkRatio": 0.08054267245549536
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 2,
+      "css": [
+        640,
+        450
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "bootstrap-light",
+      "page": "intelligence",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 5838,
+        "inkRatio": 0.0781615332733813
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 2,
+      "css": [
+        640,
+        450
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "bootstrap-light",
+      "page": "openclash",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 3148,
+        "inkRatio": 0.10766880757623888
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 2,
+      "css": [
+        640,
+        450
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "bootstrap-light",
+      "page": "passwall",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 3148,
+        "inkRatio": 0.10766880757623888
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 2,
+      "css": [
+        640,
+        450
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "bootstrap-light",
+      "page": "advanced",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 3754,
+        "inkRatio": 0.09728331446457113
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 2,
+      "css": [
+        640,
+        450
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "bootstrap-light",
+      "page": "logs",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 2950,
+        "inkRatio": 0.08936996822033898
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 1.25,
+      "css": [
+        1024,
+        720
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "aurora-light",
+      "page": "overview",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 1999,
+        "inkRatio": 0.1197153264132066
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 1.25,
+      "css": [
+        1024,
+        720
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "aurora-light",
+      "page": "settings",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 2194,
+        "inkRatio": 0.06883403600729261
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 1.25,
+      "css": [
+        1024,
+        720
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "aurora-light",
+      "page": "sources",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 2679,
+        "inkRatio": 0.0700127146323255
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 1.25,
+      "css": [
+        1024,
+        720
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "aurora-light",
+      "page": "intelligence",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 3845,
+        "inkRatio": 0.058163198959687905
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 1.25,
+      "css": [
+        1024,
+        720
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "aurora-light",
+      "page": "openclash",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 1999,
+        "inkRatio": 0.1197153264132066
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 1.25,
+      "css": [
+        1024,
+        720
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "aurora-light",
+      "page": "passwall",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 1999,
+        "inkRatio": 0.1197153264132066
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 1.25,
+      "css": [
+        1024,
+        720
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "aurora-light",
+      "page": "advanced",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 2318,
+        "inkRatio": 0.06827477890422778
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 1.25,
+      "css": [
+        1024,
+        720
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "aurora-light",
+      "page": "logs",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 2063,
+        "inkRatio": 0.06736738063499757
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 2,
+      "css": [
+        640,
+        450
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "aurora-light",
+      "page": "overview",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 3274,
+        "inkRatio": 0.16691952695479537
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 2,
+      "css": [
+        640,
+        450
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "aurora-light",
+      "page": "settings",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 3788,
+        "inkRatio": 0.07775190568901795
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 2,
+      "css": [
+        640,
+        450
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "aurora-light",
+      "page": "sources",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 5972,
+        "inkRatio": 0.07612321039852646
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 2,
+      "css": [
+        640,
+        450
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "aurora-light",
+      "page": "intelligence",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 6222,
+        "inkRatio": 0.0669727880906461
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 2,
+      "css": [
+        640,
+        450
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "aurora-light",
+      "page": "openclash",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 3274,
+        "inkRatio": 0.16691952695479537
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 2,
+      "css": [
+        640,
+        450
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "aurora-light",
+      "page": "passwall",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 3274,
+        "inkRatio": 0.1669202428222358
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 2,
+      "css": [
+        640,
+        450
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "aurora-light",
+      "page": "advanced",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 3914,
+        "inkRatio": 0.07757389339550332
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 2,
+      "css": [
+        640,
+        450
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "aurora-light",
+      "page": "logs",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 3446,
+        "inkRatio": 0.06431437717643645
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 1.25,
+      "css": [
+        1024,
+        720
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "aurora-dark",
+      "page": "overview",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 1999,
+        "inkRatio": 0.4353860524012006
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 1.25,
+      "css": [
+        1024,
+        720
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "aurora-dark",
+      "page": "settings",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 2194,
+        "inkRatio": 0.44843607566089333
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 1.25,
+      "css": [
+        1024,
+        720
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "aurora-dark",
+      "page": "sources",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 2679,
+        "inkRatio": 0.37462410181037703
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 1.25,
+      "css": [
+        1024,
+        720
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "aurora-dark",
+      "page": "intelligence",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 3845,
+        "inkRatio": 0.3131341433680104
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 1.25,
+      "css": [
+        1024,
+        720
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "aurora-dark",
+      "page": "openclash",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 1999,
+        "inkRatio": 0.4353860524012006
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 1.25,
+      "css": [
+        1024,
+        720
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "aurora-dark",
+      "page": "passwall",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 1999,
+        "inkRatio": 0.4353880065032516
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 1.25,
+      "css": [
+        1024,
+        720
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "aurora-dark",
+      "page": "advanced",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 2318,
+        "inkRatio": 0.43664123166522867
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 1.25,
+      "css": [
+        1024,
+        720
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "aurora-dark",
+      "page": "logs",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 2063,
+        "inkRatio": 0.3274278205283568
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 2,
+      "css": [
+        640,
+        450
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "aurora-dark",
+      "page": "overview",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 3274,
+        "inkRatio": 0.5290708995113012
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 2,
+      "css": [
+        640,
+        450
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "aurora-dark",
+      "page": "settings",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 3788,
+        "inkRatio": 0.42942845828933474
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 2,
+      "css": [
+        640,
+        450
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "aurora-dark",
+      "page": "sources",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 5972,
+        "inkRatio": 0.2836948729487609
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 2,
+      "css": [
+        640,
+        450
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "aurora-dark",
+      "page": "intelligence",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 6222,
+        "inkRatio": 0.31184129901960783
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 2,
+      "css": [
+        640,
+        450
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "aurora-dark",
+      "page": "openclash",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 3274,
+        "inkRatio": 0.5290708995113012
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 2,
+      "css": [
+        640,
+        450
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "aurora-dark",
+      "page": "passwall",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 3274,
+        "inkRatio": 0.5290708995113012
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 2,
+      "css": [
+        640,
+        450
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "aurora-dark",
+      "page": "advanced",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 3914,
+        "inkRatio": 0.4148742894098109
+      },
+      "consoleErrors": []
+    },
+    {
+      "factor": 2,
+      "css": [
+        640,
+        450
+      ],
+      "physical": [
+        1280,
+        900
+      ],
+      "theme": "aurora-dark",
+      "page": "logs",
+      "result": "PASS",
+      "failures": [],
+      "pixel": {
+        "width": 1280,
+        "height": 3446,
+        "inkRatio": 0.33771651008415554
+      },
+      "consoleErrors": []
+    }
+  ],
+  "states": [
+    {
+      "interaction": "settings-save",
+      "state": "success",
+      "result": "PASS",
+      "detail": "applied 4 -> 5",
+      "evidence": "states/settings-success.png"
+    },
+    {
+      "interaction": "settings-save",
+      "state": "cancel",
+      "result": "PASS",
+      "detail": "draft_reverted_to=5 applied=5",
+      "evidence": "states/settings-cancel.png"
+    },
+    {
+      "interaction": "settings-save",
+      "state": "failure",
+      "result": "PASS",
+      "detail": "aborted_rpc=1 applied_preserved=5",
+      "evidence": "states/settings-failure.png"
+    },
+    {
+      "interaction": "settings-save",
+      "state": "rollback",
+      "result": "PASS",
+      "detail": "fresh_session_value=5 applied=5 pending_before_revert=[] pending_after_revert=[]",
+      "evidence": "states/settings-rollback.png"
+    },
+    {
+      "interaction": "logs-clear",
+      "state": "cancel",
+      "result": "PASS",
+      "detail": "log_preserved=true",
+      "evidence": "states/logs-cancel.png"
+    },
+    {
+      "interaction": "logs-clear",
+      "state": "success",
+      "result": "PASS",
+      "detail": "log_bytes=0",
+      "evidence": "states/logs-success.png"
+    },
+    {
+      "interaction": "logs-clear",
+      "state": "failure",
+      "result": "PASS",
+      "detail": "aborted_rpc=1 log_preserved=true",
+      "evidence": "states/logs-failure.png"
+    },
+    {
+      "interaction": "logs-clear",
+      "state": "rollback",
+      "result": "NOT_APPLICABLE",
+      "detail": "log clearing is destructive with no undo; failure/cancel preserve the file",
+      "evidence": "states/logs-cancel.png"
+    }
+  ],
+  "preferences": [
+    {
+      "preference": "prefers-reduced-motion",
+      "result": "PASS",
+      "detail": "animation-name=none"
+    }
+  ],
+  "errors": []
+}
