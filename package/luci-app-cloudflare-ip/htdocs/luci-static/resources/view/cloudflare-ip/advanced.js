@@ -82,7 +82,7 @@ return view.extend({
 		o = s.option(form.Value, 'measurement_timeout', _('Measurement Deadline (seconds)'),
 			_('Measurement deadline for stop, CFST, probes, apply and normal restart. Recovery has a separate deadline.'));
 		o.datatype = 'range(20,300)';
-		o.default = '60';
+		o.default = '180';
 		o.rmempty = false;
 
 		o = s.option(form.Value, 'recovery_timeout', _('Recovery Deadline (seconds)'),
