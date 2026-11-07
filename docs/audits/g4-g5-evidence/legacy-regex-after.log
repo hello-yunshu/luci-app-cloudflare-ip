@@ -5,12 +5,12 @@
 [cloudflare-ip] ERROR: OpenClash core started externally before node write
 [cloudflare-ip] ERROR: OpenClash core started externally before node write
 [cloudflare-ip] updating OpenClash config: /var/folders/ng/57pdwsd97zl6qbjwh_sqrts80000gn/T/tmp.9NY9IGikBd/clash-proxies.yaml
-[cloudflare-ip] OpenClash proxy 'VLESS-ws' selected as template for uicbrmo.hey.run; generating 2 marked variant(s)
-[cloudflare-ip] OpenClash proxy 'VLESS-ws' -> 'VLESS-ws [CF-1]-172.64.53.65'; server -> 172.64.53.65; domain kept as uicbrmo.hey.run
-[cloudflare-ip] OpenClash proxy 'VLESS-ws' -> 'VLESS-ws [CF-2]-172.64.229.52'; server -> 172.64.229.52; domain kept as uicbrmo.hey.run
+[cloudflare-ip] OpenClash proxy 'VLESS-ws' selected as template for proxy.example.com; generating 2 marked variant(s)
+[cloudflare-ip] OpenClash proxy 'VLESS-ws' -> 'VLESS-ws [CF-1]-172.64.53.65'; server -> 172.64.53.65; domain kept as proxy.example.com
+[cloudflare-ip] OpenClash proxy 'VLESS-ws' -> 'VLESS-ws [CF-2]-172.64.229.52'; server -> 172.64.229.52; domain kept as proxy.example.com
 [cloudflare-ip] OpenClash config updated, backup saved to /var/folders/ng/57pdwsd97zl6qbjwh_sqrts80000gn/T/tmp.9NY9IGikBd/clash-proxies.yaml.bak.20261017020041
 [cloudflare-ip] updating OpenClash config: /var/folders/ng/57pdwsd97zl6qbjwh_sqrts80000gn/T/tmp.9NY9IGikBd/clash-proxies.yaml
-[cloudflare-ip] OpenClash proxy 'VLESS-ws [CF-1]-172.64.53.65' server -> 172.64.53.65; domain kept as uicbrmo.hey.run
-[cloudflare-ip] OpenClash proxy 'VLESS-ws [CF-2]-172.64.229.52' server -> 172.64.229.52; domain kept as uicbrmo.hey.run
+[cloudflare-ip] OpenClash proxy 'VLESS-ws [CF-1]-172.64.53.65' server -> 172.64.53.65; domain kept as proxy.example.com
+[cloudflare-ip] OpenClash proxy 'VLESS-ws [CF-2]-172.64.229.52' server -> 172.64.229.52; domain kept as proxy.example.com
 [cloudflare-ip] OpenClash config updated, backup saved to /var/folders/ng/57pdwsd97zl6qbjwh_sqrts80000gn/T/tmp.9NY9IGikBd/clash-proxies.yaml.bak.20261017020041.1
 ok regex and {ip} suffix tests

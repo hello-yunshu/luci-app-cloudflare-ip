@@ -31,7 +31,7 @@ tmp_dir="$(mktemp -d)"
 trap 'rm -rf "$tmp_dir"' EXIT
 
 OPENCLASH_CONFIG="$tmp_dir/clash-proxies.yaml"
-OPENCLASH_TARGET_DOMAIN="uicbrmo.hey.run"
+OPENCLASH_TARGET_DOMAIN="proxy.example.com"
 OPENCLASH_TRANSPORT_FILTER=""
 OPENCLASH_NAME_SUFFIX=" [CF-{n}]-{ip}"
 FAST_IPS=("172.64.53.65" "172.64.229.52")
@@ -58,7 +58,7 @@ cat >"$OPENCLASH_CONFIG" <<'YAML'
 proxies:
   - name: VLESS-ws
     type: vless
-    server: uicbrmo.hey.run
+    server: proxy.example.com
     port: 443
     tls: true
     network: ws
