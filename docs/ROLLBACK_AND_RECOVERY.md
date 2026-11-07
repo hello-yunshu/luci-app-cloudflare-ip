@@ -83,8 +83,9 @@ cp -p "/root/apk-installed.$stamp" /lib/apk/db/installed
 apk add --allow-untrusted /tmp/luci-app-cloudflare-ip-<version>.apk
 ```
 
-APK ENOSPC/power-loss drills are **not** covered by the current container
-evidence; only IPK was drilled.
+APK rollback, ENOSPC and power-loss drills passed in the 25.12.5 container
+(`/audit-p1-p2-20261106/p1-1-apk-summary.txt`, 7/7 PASS); real-device flash
+behaviour and a real power cut remain device-level work.
 
 ## 5. Evidence
 
@@ -93,4 +94,5 @@ restores the pre-upgrade backup, and asserts opkg lists the same package count.
 It runs in the `publisher-runtime` CI job against a disposable 24.10.8 rootfs.
 
 **Not covered:** real flash corruption, failsafe mode, a real power cut, and
-APK recovery. These remain device-level work.
+restoring the APK database after a real device failure. These remain
+device-level work.
