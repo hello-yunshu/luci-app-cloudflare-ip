@@ -1,0 +1,10 @@
+Pre-install config: device-backup-20261107/cf_ip
+Post-test config: cf_ip.final
+Changed option names (values not printed):
+  measurement_timeout
+  self_update_url
+  work_dir
+All pre-existing user options preserved except self_update_url (repo rename migration): True
+cron_interval=custom cron_custom='30 7,18,23 * * *'
+mode=openclash enabled=1
+openclash config path preserved (value withheld; see diff): True

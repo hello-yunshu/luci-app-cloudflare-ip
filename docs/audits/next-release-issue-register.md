@@ -194,3 +194,18 @@
 ### P3-02 设计 token/footer 一致性
 - **证据**：78 张截图；自定义 `--cfi-radius:12px`、shadow、`ys-tool-footer` 与 LuCI 原生控件混用。
 - **建议**：按用户视觉方向决定：回退 v1.8.3 原版观感，或保留 2.x 语言只做 token/间距/层级收口；不要无理由整站重构。
+
+## 7. 真机轮新增问题（2026-11-07）
+
+### P1-07 升级迁移重置用户 OpenClash 路径与自定义 cron
+- **发现**：在 OpenWrt 25.12.5 设备上从 `1.8.3-r1` 升级到候选 `2.6.0-r9` 后，`migrate-managed-config.sh` 把已存在且 root 私有的 `openclash.config`（位于 `/etc/openclash` 之外）重置为不存在的默认路径；同时把 `cron_interval=custom` 重置为 `6h`，尽管 `cron_custom` 是合法表达式。
+- **影响**：升级后 OpenClash 模式无法通过路径校验，且用户的自定义调度被静默改变。
+- **修复**：已存在、root 私有、无符号链接的 OpenClash 配置允许保留；`custom` 调度仅在 `cron_custom` 缺失或非法时回退。新增 `tests/managed-path-policy.sh` 迁移回归断言。
+- **证据**：`next-release-evidence/device-20261107/`（`config-preservation.txt`、`install-candidate.log`）。
+- **状态**：FIXED（分支 `fix/device-upgrade-config-20261107`，待 PR/CI）。
+
+### P2-10 默认 `measurement_timeout=60` 在真机负载下不足
+- **发现**：同一设备使用出厂默认 60 s 时，`cf_ip run` 在 `CloudflareSpeedTest` 阶段超时失败；完整一轮约需 140 s。把该值调到 300 s 后成功选出 2/2 IP 并重启 OpenClash。
+- **影响**：默认配置下本设备开箱不可用；升级用户若保留旧配置也会命中。
+- **建议**：由发布负责人决定提高默认值/按候选规模自适应；本轮仅在设备上以 `300` 作为可回滚的临时 workaround，未改包内默认。
+- **状态**：OPEN — DEVICE_CONFIRMED。

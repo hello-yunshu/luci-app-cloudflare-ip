@@ -152,21 +152,24 @@ cfip_managed_rill_state_safe() {
     return 0
 }
 
-# OpenClash owns this directory; only files below it may be read or replaced.
+# OpenClash owns this directory, but an upgrade must keep an existing
+# user-configured file even when it lives outside /etc/openclash. Existing
+# targets are accepted only when root-owned, private and symlink-free; new
+# files outside /etc/openclash are never created by this package.
 cfip_managed_openclash_config_safe() {
     local path="${1:-}" parent
     [[ -n "$path" ]] || return 1
     cfip_path_absolute_safe "$path" || return 1
-    cfip_path_under /etc/openclash "$path" || return 1
     cfip_path_symlink_component "$path" && return 1
     if [[ -e "$path" || -L "$path" ]]; then
         cfip_path_regular_root_safe "$path" || return 1
-    else
-        parent="${path%/*}"
-        [[ -n "$parent" ]] || return 1
-        if [[ -e "$parent" || -L "$parent" ]]; then
-            cfip_path_directory_root_safe "$parent" || return 1
-        fi
+        return 0
+    fi
+    cfip_path_under /etc/openclash "$path" || return 1
+    parent="${path%/*}"
+    [[ -n "$parent" ]] || return 1
+    if [[ -e "$parent" || -L "$parent" ]]; then
+        cfip_path_directory_root_safe "$parent" || return 1
     fi
     return 0
 }
