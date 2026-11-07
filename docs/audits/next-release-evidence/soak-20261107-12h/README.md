@@ -7,7 +7,7 @@ observation.
 
 | Item | Value |
 |---|---|
-| Device | OpenWrt 25.12.5 x86_64 Microsoft KVM DUT (192.168.2.1) |
+| Device | OpenWrt 25.12.5 x86_64 Microsoft KVM DUT (192.168.1.1) |
 | Package | `luci-app-cloudflare-ip 2.6.0-r9`, exact SHA `d1e36f378ab488c75b336a29e991c723556b45f2` |
 | Window start | 2026-11-07 23:13:57 CST (epoch `1794064437`) |
 | Window end | 2026-11-08 11:13:57 CST (epoch `1794107637`) |

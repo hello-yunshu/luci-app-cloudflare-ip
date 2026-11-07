@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "base": "http://192.168.2.1",
+  "base": "http://192.168.1.1",
   "sha": "66dcc19",
   "language": "zh-cn",
   "method": "CSS viewport 1280/zoom with deviceScaleFactor=zoom",

@@ -8,7 +8,7 @@
     "authorized": true,
     "blocksG6G7Completion": false,
     "candidateAcceptance": "NOT RUN",
-    "scope": "Available 192.168.2.1 OpenWrt deployment; report actual coverage separately",
+    "scope": "Available 192.168.1.1 OpenWrt deployment; report actual coverage separately",
     "requiresBackupAndRecoveryBeforeMutation": true
   },
   "soak": {
