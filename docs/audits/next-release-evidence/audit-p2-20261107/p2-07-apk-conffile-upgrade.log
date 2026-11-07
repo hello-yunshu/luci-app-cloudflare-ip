@@ -1,0 +1,223 @@
+=== environment ===
+apk-tools 3.0.5, compiled for x86_64.
+--- protected paths ---
+no protected_paths.d
+=== install released r8 ===
+( 1/20) Installing terminfo (6.4-r3)
+( 2/20) Installing libncurses6 (6.4-r3)
+( 3/20) Installing libreadline8 (8.3-r1)
+( 4/20) Installing bash (5.3-r5)
+( 5/20) Installing ca-certificates (20260816-r2)
+( 6/20) Installing libnghttp2-14 (1.70.0-r1)
+( 7/20) Installing libcurl4 (8.23.0-r1)
+( 8/20) Installing curl (8.23.0-r1)
+( 9/20) Installing flock (2.41.5-r1)
+(10/20) Installing jq (1.8.1-r2)
+(11/20) Installing libbz2-1.0 (1.0.8-r1)
+(12/20) Installing bzip2 (1.0.8-r1)
+(13/20) Installing libattr (2.5.2-r3)
+(14/20) Installing libacl (2.3.2-r2)
+(15/20) Installing libzstd (1.5.7-r1)
+(16/20) Installing liblzma (5.8.3-r1)
+(17/20) Installing xz-utils (5.8.3-r1)
+(18/20) Installing xz (5.8.3-r1)
+(19/20) Installing tar (1.35-r1)
+(20/20) Installing luci-app-cloudflare-ip (2.6.0-r8)
+OK: 16.6 MiB in 156 packages
+luci-app-cloudflare-ip-2.6.0-r8 description:
+OpenWrt plugin for automatically selecting the fastest Cloudflare IPs using CloudflareSpeedTest, and updating PassWall or OpenClash proxy configurations. Includes Native, Adaptive Measurement, Operational Health, and the optional Candidate Rill consumer integration. The Rill Runtime binary remains an independently packaged optional dependency.
+
+luci-app-cloudflare-ip-2.6.0-r8 webpage:
+--- shipped r8 default config ---
+c634290b9e3e177a90a19b7e2c538ddbeaac4d696426b44488399ec1ad3bbe5a  /etc/config/cf_ip
+config service 'main'
+	option enabled '0'
+	option mode 'passwall'
+	option ip_count '4'
+	option ip_type 'ipv4'
+	option speedtest_protocol 'tcp'
+	option speedtest_cfcolo ''
+	option speedtest_dn '8'
+	option speedtest_dt '6'
+	option speedtest_threads '200'
+	option speedtest_ping_count '3'
+	option speedtest_tll '40'
+	option speedtest_tl ''
+	option stop_service '1'
+	option startup_delay ''
+	option auto_update '0'
+	# Deprecated: legacy self-update is disabled; kept for migration compatibility.
+	option self_update_url ''
+	option download_retries '3'
+	option download_retry_delay '5'
+	option github_mirror ''
+	option verbose '0'
+	option work_dir ''
+	option cron_interval '6h'
+	option cron_custom ''
+	option cfst_persist '1'
+	option candidate_budget '128'
+	option probe_top_count '8'
+	option probe_concurrency '4'
+	option probe_timeout '5'
+	option measurement_timeout '60'
+	option recovery_timeout '30'
+	option probe_batch_size '4'
+	option max_probe_count '8'
+	option early_stop_enabled '1'
+	option adaptive_measurement_enabled '1'
+	option adaptive_measurement_mode 'shadow'
+	option adaptive_target_ratio_percent '25'
+	option adaptive_min_probe_count '8'
+	option adaptive_exploration_ratio_percent '10'
+	option adaptive_min_evidence '50'
+	option adaptive_evidence_window '100'
+	option adaptive_evaluation_max_age_seconds '604800'
+	option adaptive_audit_interval '20'
+	option adaptive_max_probe_count '60'
+	option adaptive_expansion_batch_size '8'
+	option source_policy 'balanced'
+	option reuse_enabled '1'
+	option max_full_optimize_interval '86400'
+	option reuse_validation_timeout '5'
+	option reuse_loss_limit '0.25'
+	option reuse_ttfb_limit '3000'
+	option reuse_total_limit '5000'
+	list builtin_sources 'cloudflare-official-v4'
+	list builtin_sources 'cloudflare-official-v6'
+
+config rill 'rill'
+	option enabled '0'
+	option mode 'shadow'
+	option runtime '/usr/bin/rill-runtime'
+	option state_file '/etc/cf_ip/rill-state.json'
+	option timeout_ms '2000'
+	option safe_top_k '3'
+	option min_feedback_samples '30'
+	option delayed_feedback_minutes '10'
+	option evaluation_max_age_seconds '86400'
+
+config lan 'lan'
+	option enabled '0'
+	option bind_address ''
+	option port '12345'
+
+config passwall 'passwall'
+	option target_domain ''
+	option name_suffix ' [CF-{n}]'
+
+config openclash 'openclash'
+	option config '/etc/openclash/config/config.yaml'
+	option target_domain ''
+	option name_suffix ' [CF-{n}]'
+	option transport_filter ''
+	option backup_count '3'
+=== user edits config ===
+=== upgrade r8 -> r9 ===
+(1/1) Upgrading luci-app-cloudflare-ip (2.6.0-r8 -> 2.6.0-r9)
+  Installing file to etc/config/cf_ip.apk-new
+OK: 16.6 MiB in 156 packages
+luci-app-cloudflare-ip-2.6.0-r9 description:
+OpenWrt plugin for automatically selecting the fastest Cloudflare IPs using CloudflareSpeedTest, and updating PassWall or OpenClash proxy configurations. Includes Native, Adaptive Measurement, Operational Health, and the optional Candidate Rill consumer integration. The Rill Runtime binary remains an independently packaged optional dependency.
+
+luci-app-cloudflare-ip-2.6.0-r9 webpage:
+=== files after upgrade ===
+-rw-------    1 root     root            66 Nov  7 05:45 cf_ip
+-rw-------    1 root     root          2446 Mar  3  2026 cf_ip.apk-new
+/work/run-apk-conffile.sh: line 32: stat: not found
+-- /etc/config/cf_ip (mode )
+config global 'global'
+	option custom_user_marker 'p2-7-conffile'
+/work/run-apk-conffile.sh: line 32: stat: not found
+-- /etc/config/cf_ip.apk-new (mode )
+config service 'main'
+	option enabled '0'
+	option mode 'passwall'
+	option ip_count '4'
+	option ip_type 'ipv4'
+	option speedtest_protocol 'tcp'
+	option speedtest_cfcolo ''
+	option speedtest_dn '8'
+	option speedtest_dt '6'
+	option speedtest_threads '200'
+	option speedtest_ping_count '3'
+	option speedtest_tll '40'
+	option speedtest_tl ''
+	option stop_service '1'
+	option startup_delay ''
+	option auto_update '0'
+	# Deprecated: legacy self-update is disabled; kept for migration compatibility.
+	option self_update_url ''
+	option download_retries '3'
+	option download_retry_delay '5'
+	option github_mirror ''
+	option verbose '0'
+	option work_dir ''
+	option cron_interval '6h'
+	option cron_custom ''
+	option cfst_persist '1'
+	option candidate_budget '128'
+	option probe_top_count '8'
+	option probe_concurrency '4'
+	option probe_timeout '5'
+	option measurement_timeout '60'
+	option recovery_timeout '30'
+	option probe_batch_size '4'
+	option max_probe_count '8'
+	option early_stop_enabled '1'
+	option adaptive_measurement_enabled '1'
+	option adaptive_measurement_mode 'shadow'
+	option adaptive_target_ratio_percent '25'
+	option adaptive_min_probe_count '8'
+	option adaptive_exploration_ratio_percent '10'
+	option adaptive_min_evidence '50'
+	option adaptive_evidence_window '100'
+	option adaptive_evaluation_max_age_seconds '604800'
+	option adaptive_audit_interval '20'
+	option adaptive_max_probe_count '60'
+	option adaptive_expansion_batch_size '8'
+	option source_policy 'balanced'
+	option reuse_enabled '1'
+	option max_full_optimize_interval '86400'
+	option reuse_validation_timeout '5'
+	option reuse_loss_limit '0.25'
+	option reuse_ttfb_limit '3000'
+	option reuse_total_limit '5000'
+	list builtin_sources 'cloudflare-official-v4'
+	list builtin_sources 'cloudflare-official-v6'
+
+config rill 'rill'
+	option enabled '0'
+	option mode 'shadow'
+	option runtime '/usr/bin/rill-runtime'
+	option state_file '/etc/cf_ip/rill-state.json'
+	option timeout_ms '2000'
+	option safe_top_k '3'
+	option min_feedback_samples '30'
+	option delayed_feedback_minutes '10'
+	option evaluation_max_age_seconds '86400'
+
+config lan 'lan'
+	option enabled '0'
+	option bind_address ''
+	option port '12345'
+
+config passwall 'passwall'
+	option target_domain ''
+	option name_suffix ' [CF-{n}]'
+
+config openclash 'openclash'
+	option config '/etc/openclash/config/config.yaml'
+	option target_domain ''
+	option name_suffix ' [CF-{n}]'
+	option transport_filter ''
+	option backup_count '3'
+=== user config unchanged? ===
+/etc/config/cf_ip: OK
+USER_CONFIG_PRESERVED=true
+=== apk audit ===
+=== fresh root install of r9 (no pre-existing config) ===
+ERROR: Unable to lock database: No such file or directory
+ERROR: Failed to open apk database: No such file or directory
+fresh install did not write /etc/config/cf_ip (dependencies unavailable in fresh root)
+=== done ===

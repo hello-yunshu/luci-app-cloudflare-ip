@@ -1,0 +1,11 @@
+# P2-9 sysupgrade atomic rewrite: local run
+2026年11月 7日 星期六 05时47分51秒 UTC
+PASS: add creates a 644 keep-list entry
+PASS: add is idempotent and preserves unrelated lines
+PASS: remove deletes only the target line
+PASS: remove of the last entry leaves an empty file
+PASS: remove on a missing file is a no-op
+PASS: failed rewrite leaves the original file intact
+PASS: 20 concurrent adds keep exactly one entry
+sysupgrade-config-atomic: 7 PASS
+exit=0

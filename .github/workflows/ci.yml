@@ -170,6 +170,7 @@ jobs:
           bash tests/installed-routing-contract.sh
           bash tests/disabled-cron-contract.sh
           bash tests/init-cron-preservation.sh
+          bash tests/sysupgrade-config-atomic.sh
           bash tests/evidence-manifest-default.sh
           bash tests/qualification-evidence-validator.sh
           bash tests/openwrt-package-metadata.sh
@@ -912,7 +913,9 @@ jobs:
       - name: Lint workflows
         run: "${{ runner.temp }}/bin/actionlint"
       - name: Verify every local test is wired into CI
-        run: python3 -B tests/ci-test-inventory.py
+        run: |
+          python3 -B tests/ci-test-inventory.py --self-test
+          python3 -B tests/ci-test-inventory.py
 
   real-cfst-smoke:
     runs-on: ubuntu-latest
