@@ -33,7 +33,7 @@ Status: **prepared, not executed.** `v2.6.0-8` and the P1-06 fix `v2.6.0-9` are 
 - [ ] Full keyboard/touch matrix on a real touch device.
 - [ ] Power-loss / ENOSPC / rollback drill on device.
 
-Current status (2026-11-07): the exact-SHA `d1e36f3` APK was installed on the user's OpenWrt 25.12.5 x86_64 KVM device, upgraded over the previously installed package, and reinstalled to the exact candidate bytes; config was preserved. **Device row is now met under the KVM-equivalence decision.** The 12-hour soak is **IN PROGRESS**, not complete; a manual touch-test side effect caused a short service restart around 23:35–23:38, recorded in the evidence. PassWall real network is **NOT RUN** (not installed). arm64 now has exact-SHA r9 install + 6 core pages + 2 conditional routes + 200% evidence in an emulated aarch64 container. Touch is browser-emulated (8/8 pages + 3/3 at 200%); physical touch, soft keyboard and multi-finger gestures remain **BLOCKED**. ENOSPC write-path drill passed on the DUT; a real power cut remains **BLOCKED** (no hypervisor control and it would interrupt the soak). These remaining items still require evidence or an explicit scope decision.
+Current status (2026-11-08): the exact-SHA `4659503` APK (same `2.6.0-r9` version number) replaced `d1e36f3` on the OpenWrt 25.12.5 x86_64 KVM device; config hashes and Samba4/OpenClash state were unchanged. **Device row is met under the KVM-equivalence decision.** The first 12-hour window (`d1e36f3`, start 2026-11-07 23:13:57) was stopped at 33.8% (49 samples) and is recorded as a **partial observation with no pass verdict**; the new 12-hour window on `4659503` runs 2026-11-08 03:16:08 → 15:16:08 CST and is **IN PROGRESS**. PassWall real network is **NOT RUN** (not installed). arm64 now has exact-SHA r9 install + 6 core pages + 2 conditional routes + 200% evidence in an emulated aarch64 container. Touch is browser-emulated (8/8 pages + 3/3 at 200%); physical touch, soft keyboard and multi-finger gestures remain **BLOCKED**. ENOSPC write-path drill passed on the DUT; a real power cut remains **BLOCKED** (no hypervisor control and it would interrupt the soak). These remaining items still require evidence or an explicit scope decision.
 
 ### C. Security and dependency boundary
 
@@ -166,7 +166,7 @@ No automatic promotion. `release.yml` intentionally refuses non-`prerelease` cha
 | Blocker | Status | Required decision |
 |---|---|---|
 | Device / hardware matrix | KVM DUT accepted as equivalent (2026-11-07); x86_64 device PASS | aarch64 and other arches still need evidence or scope decision |
-| 12h soak | **IN PROGRESS** `2026-11-07 23:13:57` → `2026-11-08 11:13:57` (device local time; 5-min samples) | complete 12h and archive samples |
+| 12h soak | **IN PROGRESS** on `4659503` `2026-11-08 03:16:08` → `15:16:08` (device local time; 5-min samples). Previous `d1e36f3` window stopped at 33.8%, 49 samples, **no verdict** | complete 12h and archive samples |
 | PassWall real proxy network | **NOT RUN** | run on device |
 | arm64 beyond install/page load | exact-SHA r9 install/page PASS in an emulated aarch64 container; no aarch64 DUT | run on an aarch64 device or explicitly scope-exclude |
 | Full touch/keyboard matrix | browser-emulated 8/8 + 3/3 at 200% PASS; physical touch **BLOCKED** | run on touch device or explicitly scope-exclude |
@@ -186,8 +186,8 @@ No automatic promotion. `release.yml` intentionally refuses non-`prerelease` cha
 | OpenClash real controller | user/owner | device with OpenClash + mihomo + Ruby | backup/restore/delete and target update against the real controller | §2 B OpenClash row (partially closed on the x86_64 KVM DUT) |
 | Touch/keyboard matrix | user/owner | real touch device (tablet/panel) | tap-only navigation, soft keyboard, gestures, 200% zoom | §2 B full touch row |
 | Power cut / ENOSPC on device | user/owner | device with serial or recoverable boot; small overlay | ENOSPC write-path drill done (2026-11-07); a real power cut needs hypervisor/recovery control and would interrupt the soak | §2 B rollback drill row (only ENOSPC closed) |
-| zstd boundary / release build | user decides; maintainer executes | none for decision; build host | accept §2A.3 option 1/2/3; exact-SHA `d1e36f3` r9 is already built and qualified, so only a later code change needs a rebuild | §2 C full-workspace row |
+| zstd boundary / release build | user decides; maintainer executes | none for decision; build host | accept §2A.3 option 1/2/3; exact-SHA `4659503` r9 (same version as `d1e36f3`) is already built and qualified | §2 C full-workspace row |
 
-Minimum remaining: **soak completion, PassWall real network, physical touch and a real power-cut/device-rollback drill** (4 device/owner items), plus **2 user decisions** (zstd boundary, channel change). aarch64 has exact-SHA install/page evidence but not a DUT; treat it as an evidence gap or an explicit scope decision. The `d1e36f3` r9 build and qualification are done; no new build is needed unless code changes. The Stable Gate cannot be executed before these.
+Minimum remaining: **soak completion, PassWall real network, physical touch and a real power-cut/device-rollback drill** (4 device/owner items), plus **2 user decisions** (zstd boundary, channel change). aarch64 has exact-SHA install/page evidence but not a DUT; treat it as an evidence gap or an explicit scope decision. The `4659503` r9 build and qualification are done; no new build is needed unless code changes. The Stable Gate cannot be executed before these.
 
 **Conclusion: remain Pre-release; do not execute the Stable Gate.**
