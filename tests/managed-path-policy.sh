@@ -107,7 +107,8 @@ echo 'PASS default managed paths validate'
 
 # Migration regression (needs real uci): an existing external OpenClash config
 # and a valid custom cron expression must survive the upgrade unchanged.
-if command -v uci >/dev/null 2>&1 && [ -d /etc/config ] && [ -w /usr/bin ]; then
+if command -v uci >/dev/null 2>&1 && [ -d /etc/config ] && [ -w /usr/bin ] \
+   && [ ! -e /usr/bin/cf-ip-auto ]; then
     printf 'port: 7890\n' >"$TMP/legacy.yaml"
     chmod 600 "$TMP/legacy.yaml"
     cp -p /etc/config/cf_ip "$TMP/cf_ip.before" 2>/dev/null || true
@@ -121,11 +122,12 @@ config openclash 'openclash'
 	option config '$TMP/legacy.yaml'
 CONFIG
     ln -sf "$CLI" /usr/bin/cf-ip-auto
-    CFIP_LIB_DIR="$LIB" CFIP_STATUS_DIR=/etc/cf_ip \
+    CFIP_LIB_DIR="$LIB" CFIP_STATUS_DIR="$TMP/status" \
       bash "$LIB/migrate-managed-config.sh" >/dev/null
     [[ "$(uci -q get cf_ip.main.cron_interval)" = custom ]]
     [[ "$(uci -q get cf_ip.openclash.config)" = "$TMP/legacy.yaml" ]]
     echo 'PASS migration keeps custom cron and external OpenClash config'
+    rm -f /usr/bin/cf-ip-auto
     if [ -f "$TMP/cf_ip.before" ]; then
         cp -p "$TMP/cf_ip.before" /etc/config/cf_ip
     else
