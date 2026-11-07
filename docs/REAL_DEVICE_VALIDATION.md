@@ -4,6 +4,12 @@
 
 2026-10-24 当前政策：用户允许实机验证，并明确本地实机验证不阻塞 G6/G7 完成。最终软件候选 `371bf78b772540f5829e5700f4f09a73e33888c1`（run `41411391996` attempt 1）的实机与新 24h Soak 未执行，记 NOT RUN / NOT STARTED；不改写为 PASS。策略原文见 [device-policy-20261024.json](audits/g6-g7-evidence/device-policy-20261024.json)。历史测试及历史 Soak 豁免均不冒充当前候选结果；候选身份与软件证据见 [final-candidate-371bf78.json](audits/g6-g7-evidence/final-candidate-371bf78.json)。
 
+**2026-11-07 政策更新（用户决策，替代上文的设备与 soak 边界）：**
+- KVM 虚拟机与物理实体机等同，可用于完整的设备级验证。当前设备为 OpenWrt 25.12.5 x86_64（Microsoft KVM）。
+- soak 时长由 24 小时改为 **12 小时**。
+- 该更新只影响 2026-11-07 之后的候选验证；上文历史记录不追溯改写。
+- 当前证据：exact-SHA `d1e36f3` 在 DUT 上完成同版本替换与配置保留；120/120 视觉矩阵 + 8/8 缩放；12 小时 soak 于 `2026-11-07 23:13:57`（设备本地时间）启动；arm64、触摸与 ENOSPC 结果见 [next-release-evidence](audits/next-release-evidence/)。PassWall 未安装，保持 NOT RUN。
+
 ## Matrix
 
 | OpenWrt | Arch | Proxy / protocol | Required scenarios | Evidence |
@@ -23,7 +29,7 @@
 5. Restart the service between queue and delayed-feedback processing. Capture accepted, expired and schema/generation-rejected entries.
 6. Preserve `/etc/cf_ip/status.json`, `/etc/cf_ip/rill-*.json`, `/etc/cf_ip/reuse-policy.json`, relevant logs, proxy readback and crontab as artifacts.
 
-物理设备状态：未执行。没有物理设备安装、proxy readback 或真实 network probe 证据前，不写“真机通过”。72h/7d Soak：按用户批准跳过。
+物理设备状态（2026-10-24 历史口径）：未执行。没有物理设备安装、proxy readback 或真实 network probe 证据前，不写“真机通过”。72h/7d Soak：按用户批准跳过。2026-11-07 起上述口径已由用户决策替代：KVM 设备视为设备级，证据见 [next-release-evidence](audits/next-release-evidence/)；上文历史记录保留不改写。
 
 ## Docker-backed validation record (historical)
 

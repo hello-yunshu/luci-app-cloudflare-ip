@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "arch": "aarch64_generic",
+  "openwrt": "24.10.8",
+  "image": "cfip-owrt-arm64:24.10.8 (official armsr/armv8 rootfs, imported with docker import --platform linux/arm64)",
+  "isDevice": false,
+  "package": "luci-app-cloudflare-ip 2.6.0-r9 (IPK all)",
+  "commit": "d1e36f378ab488c75b336a29e991c723556b45f2",
+  "runId": 42353699937,
+  "runAttempt": 1,
+  "artifactId": 13566913851,
+  "ipkSha256": "9ea6679e2804f84301444a93d088a5c9a52dc8f023dbaeb419a74d2b4c97c7ee",
+  "install": {
+    "result": "PASS",
+    "mode": "fresh install then same-version force-reinstall",
+    "opkgListInstalled": "luci-app-cloudflare-ip - 2.6.0-r9",
+    "note": "opkg keeps the modified /etc/config/cf_ip and writes cf_ip-opkg; the package's own config was not overwritten"
+  },
+  "cli": {
+    "version": {"success": true, "version": "2.6.0", "script_version": "2.6.0", "package_release": "9", "package_version": "2.6.0-r9", "engine_schema": 2, "runtime_api_version": 3},
+    "validate_config": {"success": true, "valid": true, "mode": "passwall", "cron_interval": "6h"},
+    "status": "reads a fresh status file; no procd run was executed"
+  },
+  "ui": {
+    "result": "PASS",
+    "corePages": 6,
+    "corePagesPassed": 6,
+    "conditionalRoutes": 2,
+    "conditionalNote": "openclash/passwall paths render the overview state because neither service is installed; not counted as those views",
+    "zoom": "3/3 at 200% (640x450 viewport, deviceScaleFactor 2)",
+    "overflow": 0,
+    "language": "zh_cn, bootstrap-light",
+    "harness": "uhttpd + rpcd + procd started in the container; /etc/board.json and luci.main.* set manually",
+    "evidence": "arm64-ui.json, 1280x900-*.png, 200pct-*.png, conditional-*.png"
+  },
+  "limits": [
+    "emulated aarch64 container, not an aarch64 device",
+    "no proxy network, no passwall/openclash service",
+    "not covered by this run: touch, soft keyboard, real power cut"
+  ]
+}

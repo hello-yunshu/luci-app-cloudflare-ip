@@ -1,0 +1,752 @@
+{
+  "schemaVersion": 1,
+  "device": "OpenWrt 25.12.5 x86_64 KVM (DUT)",
+  "method": "Playwright Chromium hasTouch=true; tap events dispatched by the browser",
+  "notCovered": [
+    "physical touch panel",
+    "soft keyboard / IME",
+    "multi-finger pinch/zoom gesture",
+    "stylus pressure"
+  ],
+  "rows": [
+    {
+      "page": "overview",
+      "result": "PASS",
+      "failures": [],
+      "action": {
+        "tap": "refresh",
+        "response": true
+      },
+      "metrics": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "overflow": false,
+        "mainLength": 531,
+        "loading": false,
+        "clickables": 20,
+        "smallTargets": [
+          {
+            "w": 68,
+            "h": 38,
+            "tag": "BUTTON",
+            "text": "▶ 启动"
+          },
+          {
+            "w": 68,
+            "h": 38,
+            "tag": "BUTTON",
+            "text": "↻ 重启"
+          },
+          {
+            "w": 104,
+            "h": 38,
+            "tag": "BUTTON",
+            "text": "↻ 更新 CFST"
+          },
+          {
+            "w": 247,
+            "h": 19,
+            "tag": "A",
+            "text": "hello-yunshu/luci-app-cloudflare-ip"
+          },
+          {
+            "w": 124,
+            "h": 38,
+            "tag": "BUTTON",
+            "text": "↻ 刷新环境检测"
+          },
+          {
+            "w": 32,
+            "h": 21,
+            "tag": "A",
+            "text": "项目"
+          },
+          {
+            "w": 59,
+            "h": 21,
+            "tag": "A",
+            "text": "GitHub"
+          },
+          {
+            "w": 65,
+            "h": 21,
+            "tag": "A",
+            "text": "@云云舒"
+          }
+        ],
+        "title": "概览 -yunshu"
+      },
+      "consoleErrors": []
+    },
+    {
+      "page": "settings",
+      "result": "PASS",
+      "failures": [],
+      "action": {
+        "tap": "none",
+        "note": "form controls measured but not tapped to avoid writing config"
+      },
+      "metrics": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "overflow": false,
+        "mainLength": 900,
+        "loading": false,
+        "clickables": 25,
+        "smallTargets": [
+          {
+            "w": 16,
+            "h": 16,
+            "tag": "INPUT",
+            "text": "1"
+          },
+          {
+            "w": 400,
+            "h": 38,
+            "tag": "SELECT",
+            "text": "每 6 小时（推荐）\n每小时\n每 30 分钟\n每 15 分钟\n每天凌晨 3:00"
+          },
+          {
+            "w": 400,
+            "h": 38,
+            "tag": "SELECT",
+            "text": "OpenClash"
+          },
+          {
+            "w": 400,
+            "h": 38,
+            "tag": "SELECT",
+            "text": "IPv4\nIPv6\n双栈"
+          },
+          {
+            "w": 400,
+            "h": 38,
+            "tag": "SELECT",
+            "text": "TCPing\nHTTPing"
+          },
+          {
+            "w": 16,
+            "h": 16,
+            "tag": "INPUT",
+            "text": "1"
+          },
+          {
+            "w": 16,
+            "h": 16,
+            "tag": "INPUT",
+            "text": "1"
+          },
+          {
+            "w": 32,
+            "h": 21,
+            "tag": "A",
+            "text": "项目"
+          }
+        ],
+        "title": "设置 -yunshu"
+      },
+      "consoleErrors": []
+    },
+    {
+      "page": "sources",
+      "result": "PASS",
+      "failures": [],
+      "action": null,
+      "metrics": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "overflow": false,
+        "mainLength": 1293,
+        "loading": false,
+        "clickables": 21,
+        "smallTargets": [
+          {
+            "w": 54,
+            "h": 38,
+            "tag": "BUTTON",
+            "text": "添加"
+          },
+          {
+            "w": 82,
+            "h": 34,
+            "tag": "BUTTON",
+            "text": "刷新来源"
+          },
+          {
+            "w": 32,
+            "h": 21,
+            "tag": "A",
+            "text": "项目"
+          },
+          {
+            "w": 59,
+            "h": 21,
+            "tag": "A",
+            "text": "GitHub"
+          },
+          {
+            "w": 65,
+            "h": 21,
+            "tag": "A",
+            "text": "@云云舒"
+          },
+          {
+            "w": 132,
+            "h": 34,
+            "tag": "DIV",
+            "text": "保存并应用\n▾"
+          },
+          {
+            "w": 54,
+            "h": 34,
+            "tag": "BUTTON",
+            "text": "保存"
+          },
+          {
+            "w": 54,
+            "h": 34,
+            "tag": "BUTTON",
+            "text": "重置"
+          }
+        ],
+        "title": "候选 IP 来源 -yunshu"
+      },
+      "consoleErrors": []
+    },
+    {
+      "page": "intelligence",
+      "result": "PASS",
+      "failures": [],
+      "action": null,
+      "metrics": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "overflow": false,
+        "mainLength": 1197,
+        "loading": false,
+        "clickables": 27,
+        "smallTargets": [
+          {
+            "w": 400,
+            "h": 38,
+            "tag": "SELECT",
+            "text": "均衡\n官方优先\n历史优先\n多样性优先\n社区优先"
+          },
+          {
+            "w": 16,
+            "h": 16,
+            "tag": "INPUT",
+            "text": "1"
+          },
+          {
+            "w": 16,
+            "h": 16,
+            "tag": "INPUT",
+            "text": "1"
+          },
+          {
+            "w": 400,
+            "h": 38,
+            "tag": "SELECT",
+            "text": "关\n影子模式\n受保护（仅资格校验通过时）"
+          },
+          {
+            "w": 51,
+            "h": 32,
+            "tag": "BUTTON",
+            "text": "复制"
+          },
+          {
+            "w": 51,
+            "h": 32,
+            "tag": "BUTTON",
+            "text": "复制"
+          },
+          {
+            "w": 51,
+            "h": 32,
+            "tag": "BUTTON",
+            "text": "复制"
+          },
+          {
+            "w": 116,
+            "h": 32,
+            "tag": "A",
+            "text": "打开日志与记录"
+          }
+        ],
+        "title": "智能优选 -yunshu"
+      },
+      "consoleErrors": []
+    },
+    {
+      "page": "openclash",
+      "result": "PASS",
+      "failures": [],
+      "action": null,
+      "metrics": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "overflow": false,
+        "mainLength": 554,
+        "loading": false,
+        "clickables": 22,
+        "smallTargets": [
+          {
+            "w": 72,
+            "h": 38,
+            "tag": "BUTTON",
+            "text": "↩ 恢复"
+          },
+          {
+            "w": 56,
+            "h": 38,
+            "tag": "BUTTON",
+            "text": "删除"
+          },
+          {
+            "w": 72,
+            "h": 38,
+            "tag": "BUTTON",
+            "text": "↩ 恢复"
+          },
+          {
+            "w": 56,
+            "h": 38,
+            "tag": "BUTTON",
+            "text": "删除"
+          },
+          {
+            "w": 32,
+            "h": 21,
+            "tag": "A",
+            "text": "项目"
+          },
+          {
+            "w": 59,
+            "h": 21,
+            "tag": "A",
+            "text": "GitHub"
+          },
+          {
+            "w": 65,
+            "h": 21,
+            "tag": "A",
+            "text": "@云云舒"
+          },
+          {
+            "w": 132,
+            "h": 34,
+            "tag": "DIV",
+            "text": "保存并应用\n▾"
+          }
+        ],
+        "title": "OpenClash -yunshu"
+      },
+      "consoleErrors": []
+    },
+    {
+      "page": "passwall",
+      "result": "PASS",
+      "failures": [],
+      "action": null,
+      "metrics": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "overflow": false,
+        "mainLength": 531,
+        "loading": false,
+        "clickables": 20,
+        "smallTargets": [
+          {
+            "w": 68,
+            "h": 38,
+            "tag": "BUTTON",
+            "text": "▶ 启动"
+          },
+          {
+            "w": 68,
+            "h": 38,
+            "tag": "BUTTON",
+            "text": "↻ 重启"
+          },
+          {
+            "w": 104,
+            "h": 38,
+            "tag": "BUTTON",
+            "text": "↻ 更新 CFST"
+          },
+          {
+            "w": 247,
+            "h": 19,
+            "tag": "A",
+            "text": "hello-yunshu/luci-app-cloudflare-ip"
+          },
+          {
+            "w": 124,
+            "h": 38,
+            "tag": "BUTTON",
+            "text": "↻ 刷新环境检测"
+          },
+          {
+            "w": 32,
+            "h": 21,
+            "tag": "A",
+            "text": "项目"
+          },
+          {
+            "w": 59,
+            "h": 21,
+            "tag": "A",
+            "text": "GitHub"
+          },
+          {
+            "w": 65,
+            "h": 21,
+            "tag": "A",
+            "text": "@云云舒"
+          }
+        ],
+        "title": "概览 -yunshu"
+      },
+      "consoleErrors": []
+    },
+    {
+      "page": "advanced",
+      "result": "PASS",
+      "failures": [],
+      "action": null,
+      "metrics": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "overflow": false,
+        "mainLength": 749,
+        "loading": false,
+        "clickables": 20,
+        "smallTargets": [
+          {
+            "w": 16,
+            "h": 16,
+            "tag": "INPUT",
+            "text": "1"
+          },
+          {
+            "w": 16,
+            "h": 16,
+            "tag": "INPUT",
+            "text": "1"
+          },
+          {
+            "w": 32,
+            "h": 21,
+            "tag": "A",
+            "text": "项目"
+          },
+          {
+            "w": 59,
+            "h": 21,
+            "tag": "A",
+            "text": "GitHub"
+          },
+          {
+            "w": 65,
+            "h": 21,
+            "tag": "A",
+            "text": "@云云舒"
+          },
+          {
+            "w": 132,
+            "h": 34,
+            "tag": "DIV",
+            "text": "保存并应用\n▾"
+          },
+          {
+            "w": 54,
+            "h": 34,
+            "tag": "BUTTON",
+            "text": "保存"
+          },
+          {
+            "w": 54,
+            "h": 34,
+            "tag": "BUTTON",
+            "text": "重置"
+          }
+        ],
+        "title": "高级 -yunshu"
+      },
+      "consoleErrors": []
+    },
+    {
+      "page": "logs",
+      "result": "PASS",
+      "failures": [],
+      "action": {
+        "tap": "refresh",
+        "response": true
+      },
+      "metrics": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "overflow": false,
+        "mainLength": 8837,
+        "loading": false,
+        "clickables": 19,
+        "smallTargets": [
+          {
+            "w": 110,
+            "h": 38,
+            "tag": "A",
+            "text": "打开智能优选"
+          },
+          {
+            "w": 68,
+            "h": 38,
+            "tag": "BUTTON",
+            "text": "↻ 刷新"
+          },
+          {
+            "w": 95,
+            "h": 38,
+            "tag": "BUTTON",
+            "text": "✖ 清除日志"
+          },
+          {
+            "w": 68,
+            "h": 38,
+            "tag": "BUTTON",
+            "text": "↻ 刷新"
+          },
+          {
+            "w": 32,
+            "h": 21,
+            "tag": "A",
+            "text": "项目"
+          },
+          {
+            "w": 59,
+            "h": 21,
+            "tag": "A",
+            "text": "GitHub"
+          },
+          {
+            "w": 65,
+            "h": 21,
+            "tag": "A",
+            "text": "@云云舒"
+          },
+          {
+            "w": 285,
+            "h": 15,
+            "tag": "A",
+            "text": "LuCI openwrt-25.12 branch (26.218.70234~"
+          }
+        ],
+        "title": "日志与记录 -yunshu"
+      },
+      "consoleErrors": []
+    },
+    {
+      "page": "overview",
+      "zoom": "200%",
+      "zoomPass": true,
+      "result": "PASS",
+      "metrics": {
+        "width": 640,
+        "scrollWidth": 640,
+        "overflow": false,
+        "mainLength": 531,
+        "loading": false,
+        "clickables": 17,
+        "smallTargets": [
+          {
+            "w": 74,
+            "h": 38,
+            "tag": "BUTTON",
+            "text": "▶ 启动"
+          },
+          {
+            "w": 74,
+            "h": 38,
+            "tag": "BUTTON",
+            "text": "↻ 重启"
+          },
+          {
+            "w": 115,
+            "h": 38,
+            "tag": "BUTTON",
+            "text": "↻ 更新 CFST"
+          },
+          {
+            "w": 216,
+            "h": 17,
+            "tag": "A",
+            "text": "hello-yunshu/luci-app-cloudflare-ip"
+          },
+          {
+            "w": 138,
+            "h": 38,
+            "tag": "BUTTON",
+            "text": "↻ 刷新环境检测"
+          },
+          {
+            "w": 32,
+            "h": 21,
+            "tag": "A",
+            "text": "项目"
+          },
+          {
+            "w": 59,
+            "h": 21,
+            "tag": "A",
+            "text": "GitHub"
+          },
+          {
+            "w": 65,
+            "h": 21,
+            "tag": "A",
+            "text": "@云云舒"
+          }
+        ],
+        "title": "概览 -yunshu"
+      }
+    },
+    {
+      "page": "settings",
+      "zoom": "200%",
+      "zoomPass": true,
+      "result": "PASS",
+      "metrics": {
+        "width": 640,
+        "scrollWidth": 640,
+        "overflow": false,
+        "mainLength": 900,
+        "loading": false,
+        "clickables": 22,
+        "smallTargets": [
+          {
+            "w": 16,
+            "h": 16,
+            "tag": "INPUT",
+            "text": "1"
+          },
+          {
+            "w": 368,
+            "h": 38,
+            "tag": "SELECT",
+            "text": "每 6 小时（推荐）\n每小时\n每 30 分钟\n每 15 分钟\n每天凌晨 3:00"
+          },
+          {
+            "w": 368,
+            "h": 38,
+            "tag": "SELECT",
+            "text": "OpenClash"
+          },
+          {
+            "w": 368,
+            "h": 38,
+            "tag": "SELECT",
+            "text": "IPv4\nIPv6\n双栈"
+          },
+          {
+            "w": 368,
+            "h": 38,
+            "tag": "SELECT",
+            "text": "TCPing\nHTTPing"
+          },
+          {
+            "w": 16,
+            "h": 16,
+            "tag": "INPUT",
+            "text": "1"
+          },
+          {
+            "w": 16,
+            "h": 16,
+            "tag": "INPUT",
+            "text": "1"
+          },
+          {
+            "w": 32,
+            "h": 21,
+            "tag": "A",
+            "text": "项目"
+          }
+        ],
+        "title": "设置 -yunshu"
+      }
+    },
+    {
+      "page": "logs",
+      "zoom": "200%",
+      "zoomPass": true,
+      "result": "PASS",
+      "metrics": {
+        "width": 640,
+        "scrollWidth": 640,
+        "overflow": false,
+        "mainLength": 8837,
+        "loading": false,
+        "clickables": 16,
+        "smallTargets": [
+          {
+            "w": 122,
+            "h": 38,
+            "tag": "A",
+            "text": "打开智能优选"
+          },
+          {
+            "w": 74,
+            "h": 38,
+            "tag": "BUTTON",
+            "text": "↻ 刷新"
+          },
+          {
+            "w": 105,
+            "h": 38,
+            "tag": "BUTTON",
+            "text": "✖ 清除日志"
+          },
+          {
+            "w": 74,
+            "h": 38,
+            "tag": "BUTTON",
+            "text": "↻ 刷新"
+          },
+          {
+            "w": 32,
+            "h": 21,
+            "tag": "A",
+            "text": "项目"
+          },
+          {
+            "w": 59,
+            "h": 21,
+            "tag": "A",
+            "text": "GitHub"
+          },
+          {
+            "w": 65,
+            "h": 21,
+            "tag": "A",
+            "text": "@云云舒"
+          },
+          {
+            "w": 285,
+            "h": 15,
+            "tag": "A",
+            "text": "LuCI openwrt-25.12 branch (26.218.70234~"
+          }
+        ],
+        "title": "日志与记录 -yunshu"
+      }
+    }
+  ],
+  "errors": [],
+  "menuTap": {
+    "attempted": true,
+    "servicesTapped": true,
+    "pluginTapped": false,
+    "url": "http://192.168.2.1/cgi-bin/luci/"
+  }
+}

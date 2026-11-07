@@ -1,0 +1,21 @@
+Removing package luci-app-cloudflare-ip from root...
+{"success":true,"running":false,"scheduled":false,"jobRunning":false}
+Command failed: ubus call service delete { "name": "cf_ip" } (Not found)
+Command failed: ubus call service delete { "name": "cf_ip_publisher" } (Not found)
+{"success":true,"running":false,"scheduled":false,"jobRunning":false}
+Command failed: ubus call service delete { "name": "cf_ip" } (Not found)
+Command failed: ubus call service delete { "name": "cf_ip_publisher" } (Not found)
+Collected errors:
+ * resolve_conffiles: Existing conffile /etc/config/cf_ip is different from the conffile in the new package. The new conffile will be placed at /etc/config/cf_ip-opkg.
+Not deleting modified conffile /etc/config/cf_ip.
+Installing luci-app-cloudflare-ip (2.6.0-r9) to root...
+Configuring luci-app-cloudflare-ip.
+RC=0
+---VERSION---
+{"success":true,"version":"2.6.0","script_version":"2.6.0","package_release":"9","package_version":"2.6.0-r9","engine_schema":2,"runtime_api_version":3}
+---VALIDATE---
+{"success":true,"valid":true,"mode":"passwall","cron_interval":"6h"}
+---OPKG---
+luci-app-cloudflare-ip - 2.6.0-r9
+---UNAME---
+aarch64

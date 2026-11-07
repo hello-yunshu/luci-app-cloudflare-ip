@@ -24,16 +24,16 @@ Status: **prepared, not executed.** `v2.6.0-8` and the P1-06 fix `v2.6.0-9` are 
 
 ### B. Real-device and network coverage
 
-- [ ] Physical OpenWrt device install/upgrade test (not container/VM).
+- [x] OpenWrt device install/upgrade test. **KVM virtual machine is accepted as equivalent to physical hardware by user decision (2026-11-07).**
 - [ ] Hardware matrix: at least the documented supported devices/architectures.
-- [ ] 24-hour soak on the physical device.
+- [ ] **12-hour soak** on the same device (changed from 24 hours by user decision 2026-11-07).
 - [ ] PassWall **real proxy network** end-to-end (not only fixture/container).
 - [ ] OpenClash real controller matrix on device.
-- [ ] Architectures beyond x86_64: at least aarch64 package install + runtime page load; other declared architectures or explicitly excluded.
+- [x] Architectures beyond x86_64: at least aarch64 package install + runtime page load (exact-SHA r9 in an emulated `aarch64_generic` container, 2026-11-07); other declared architectures or explicitly excluded.
 - [ ] Full keyboard/touch matrix on a real touch device.
 - [ ] Power-loss / ENOSPC / rollback drill on device.
 
-Current status: physical device and 24h soak are **PASS-BY-USER-DECISION (2026-11-04)** only for the pre-release boundary; they are **NOT RUN** as fresh evidence. PassWall real network is **NOT RUN**. arm64 is install/page-load only. Touch matrix is partial. These do not satisfy a Stable Gate without a new explicit user decision.
+Current status (2026-11-07): the exact-SHA `d1e36f3` APK was installed on the user's OpenWrt 25.12.5 x86_64 KVM device, upgraded over the previously installed package, and reinstalled to the exact candidate bytes; config was preserved. **Device row is now met under the KVM-equivalence decision.** The 12-hour soak is **IN PROGRESS**, not complete; a manual touch-test side effect caused a short service restart around 23:35–23:38, recorded in the evidence. PassWall real network is **NOT RUN** (not installed). arm64 now has exact-SHA r9 install + 6 core pages + 2 conditional routes + 200% evidence in an emulated aarch64 container. Touch is browser-emulated (8/8 pages + 3/3 at 200%); physical touch, soft keyboard and multi-finger gestures remain **BLOCKED**. ENOSPC write-path drill passed on the DUT; a real power cut remains **BLOCKED** (no hypervisor control and it would interrupt the soak). These remaining items still require evidence or an explicit scope decision.
 
 ### C. Security and dependency boundary
 
@@ -53,8 +53,10 @@ Current status: full-workspace non-shipped zstd advisories remain an open user d
 
 ## 2A. Self-work completed on 2026-11-05
 
-These items were done without a physical device. They reduce the number of
-unknowns but do **not** satisfy the device criteria in §2 B.
+These items were done without a physical device at the time (2026-11-05). They
+reduce the number of unknowns but did **not** satisfy the device criteria in §2 B
+then. Since 2026-11-07 the KVM device closes the device row under the user's
+equivalence decision; the rows below record which evidence is still emulated.
 
 ### 2A.1 Hardware / architecture matrix
 
@@ -65,22 +67,23 @@ are architecture-independent; installability still depends on the target's
 | Target | Package | Install/upgrade evidence | LuCI page load | Real device | Status |
 |---|---|---|---|---|---|
 | OpenWrt 24.10.8 x86_64 | IPK `all` | fresh r9, r8→r9, r9→r8 forced rollback, ENOSPC, power-loss (container) PASS; historical r6→r8/r8→r6 PASS | Real LuCI UI Gate PASS | VM only (`3bf0ec1`), not physical | install PASS; device NOT RUN |
-| OpenWrt 25.12.5 x86_64 | APK `all` | fresh r9, r8→r9, r9→r8 rollback, ENOSPC, power-loss (container) PASS | same LuCI frontend; no separate UI run | none | install PASS; device NOT RUN |
-| OpenWrt 24.10.8 aarch64_generic | IPK `all` | r7 install PASS (container/emulated), r8 not separately run | r7 8 pages, 0 overflow | none | partial; r8 NOT RUN |
+| OpenWrt 25.12.5 x86_64 | APK `all` | container drills PASS; exact-SHA `d1e36f3` install + same-version replacement on DUT, config preserved | 120/120 matrix + 8/8 zoom on DUT at zh-CN (2026-11-07) | **KVM DUT accepted as equivalent (2026-11-07)** | **device PASS under new boundary** |
+| OpenWrt 24.10.8 aarch64_generic | IPK `all` | r7 install PASS; exact-SHA `d1e36f3` r9 install + same-version reinstall PASS (emulated aarch64 container) | exact-SHA r9 8/8 pages, 0 overflow, 3/3 at 200% (2026-11-07) | emulated aarch64 container (not a device) | install/page PASS; still not a device |
 | Other declared arches (armv7, mips*, riscv64) | IPK/APK `all` | not built or tested | not tested | none | NOT RUN / scope decision required |
 | OpenWrt < 24.10 | not supported | — | — | — | out of scope |
 
-Hardware matrix conclusion: only x86_64 has end-to-end container evidence;
-aarch64 has r7 install/page evidence; every other architecture is unproven. A
-Stable claim must either add evidence per row or explicitly scope the release.
+Hardware matrix conclusion: x86_64 has end-to-end DUT evidence under the
+KVM-equivalence decision (2026-11-07); aarch64 has exact-SHA r9 install/page
+evidence in an emulated container only; every other architecture is unproven.
+A Stable claim must either add evidence per row or explicitly scope the release.
 
 ### 2A.2 Touch / keyboard ceiling reachable in a browser
 
 | Area | Evidence | Browser-reachable limit |
 |---|---|---|
 | Keyboard focus | 312/312 real Tab focus sweep PASS; 16/16 keyboard at 200%; 51-point matrix focus states | Chromium covers tab order, focus ring, keyboard activation; OS-level IME and screen-reader output are not proven |
-| Touch | 375×900 `hasTouch` tap to Sources and tap Refresh (notification) | Chromium emulates single-finger taps; multi-touch gestures, palm rejection, touch latency and mobile WebKit/Firefox are not covered |
-| Remaining | full touch matrix, soft-keyboard layout, real touch device | requires a physical touch device; cannot be closed in headless Chromium |
+| Touch | exact-SHA r9 DUT: 1024×768 `hasTouch` 8/8 pages PASS; tap Refresh on overview/logs; 3/3 at 200%; settings form controls measured but not tapped (a tap showed a save/restart side effect) | Chromium emulates single-finger taps; multi-touch gestures, palm rejection, touch latency, soft keyboard and mobile WebKit/Firefox are not covered |
+| Remaining | full physical touch matrix, soft-keyboard layout, real touch device | **BLOCKED** — requires a physical touch device; cannot be closed in headless Chromium |
 
 ### 2A.3 Security / dependency boundary material
 
@@ -161,13 +164,13 @@ No automatic promotion. `release.yml` intentionally refuses non-`prerelease` cha
 
 | Blocker | Status | Required decision |
 |---|---|---|
-| Physical device / hardware matrix | matrix material prepared (§2A.1); device **NOT RUN** | new device evidence or explicit Stable-boundary acceptance |
-| 24h soak | **NOT RUN** (historical SKIPPED/NOT STARTED) | run soak or explicitly accept |
+| Device / hardware matrix | KVM DUT accepted as equivalent (2026-11-07); x86_64 device PASS | aarch64 and other arches still need evidence or scope decision |
+| 12h soak | **IN PROGRESS** `2026-11-07 23:13:57` → `2026-11-08 11:13:57` (device local time; 5-min samples) | complete 12h and archive samples |
 | PassWall real proxy network | **NOT RUN** | run on device |
-| arm64 beyond install/page load | r7 install/page only; r8 **NOT RUN** | expand or scope-exclude |
-| Full touch/keyboard matrix | keyboard at browser ceiling; full touch **NOT RUN** | run on touch device |
+| arm64 beyond install/page load | exact-SHA r9 install/page PASS in an emulated aarch64 container; no aarch64 DUT | run on an aarch64 device or explicitly scope-exclude |
+| Full touch/keyboard matrix | browser-emulated 8/8 + 3/3 at 200% PASS; physical touch **BLOCKED** | run on touch device or explicitly scope-exclude |
 | Full-workspace non-shipped zstd advisories | decision material prepared (§2A.3) | user accept boundary or upgrade |
-| Rollback / ENOSPC / power-loss on device | container IPK+APK drills PASS; device **NOT RUN** | device drill plus opkg status backup procedure |
+| Rollback / ENOSPC / power-loss on device | container IPK+APK drills PASS; device ENOSPC write-path PASS (2026-11-07); device rollback and real power cut **NOT RUN/BLOCKED** | device rollback drill; power cut needs hypervisor/recovery control |
 | P1-06 in released bytes | fixed by the P1-06 Pre-release (`v2.6.0-9`); the r9 bytes are the current Stable candidate | use the r9 bytes for a Stable claim |
 | Channel change to stable | not authorized | explicit user authorization; do not bypass guard |
 
@@ -175,15 +178,15 @@ No automatic promotion. `release.yml` intentionally refuses non-`prerelease` cha
 
 | Work | Who | Equipment | How | Gates that flip green |
 |---|---|---|---|---|
-| Physical device install/upgrade | user/release owner or a maintainer with hardware | one supported OpenWrt 24.10.x device (x86_64 or aarch64), serial/SSH access | flash/install r8 (or r9), run install + upgrade + rollback, capture firmware/arch/opkg logs | §2 B physical device row; increases §2 A evidence quality |
-| Hardware matrix | same | at least one device per declared arch (x86_64, aarch64; scope others) | repeat install/page/proxy checks per row of §2A.1 | §2 B hardware matrix + arm64 rows |
-| 24h soak | user/owner | same device powered continuously | run the service/update loop for 24h, record memory, errors, cron, publisher status | §2 B soak row |
+| Device install/upgrade | user/release owner or a maintainer with a KVM/device | one supported OpenWrt device (x86_64 or aarch64), SSH access | install/upgrade/reinstall the exact-SHA package, capture firmware/arch/apk logs | §2 B device row (KVM accepted 2026-11-07) |
+| Hardware matrix | same | at least x86_64 and aarch64 | repeat install/page/proxy checks per row of §2A.1 | §2 B hardware matrix + arm64 rows |
+| 12h soak | user/owner | same KVM/device powered continuously | run the service/update loop for 12h, record memory, errors, cron, publisher status | §2 B soak row |
 | PassWall real proxy network | user/owner | device + a working PassWall node/subscription | start/stop/refresh through a real proxy, verify node updates and connectivity | §2 B PassWall row |
-| OpenClash real controller | user/owner | device with OpenClash + mihomo + Ruby | backup/restore/delete and target update against the real controller | §2 B OpenClash row (already partially closed on aarch64) |
+| OpenClash real controller | user/owner | device with OpenClash + mihomo + Ruby | backup/restore/delete and target update against the real controller | §2 B OpenClash row (partially closed on the x86_64 KVM DUT) |
 | Touch/keyboard matrix | user/owner | real touch device (tablet/panel) | tap-only navigation, soft keyboard, gestures, 200% zoom | §2 B full touch row |
-| Power cut / ENOSPC on device | user/owner | device with serial or recoverable boot; small overlay | fill overlay, cut power during upgrade, recover; back up `/usr/lib/opkg/status` first | §2 B rollback drill row |
-| zstd boundary / release build | user decides; maintainer executes | none for decision; build host for r9 | accept §2A.3 option 1/2/3; then rebuild r9 and repeat the exact-SHA cycle | §2 C full-workspace row; P1-06 leaves the shipped bytes |
+| Power cut / ENOSPC on device | user/owner | device with serial or recoverable boot; small overlay | ENOSPC write-path drill done (2026-11-07); a real power cut needs hypervisor/recovery control and would interrupt the soak | §2 B rollback drill row (only ENOSPC closed) |
+| zstd boundary / release build | user decides; maintainer executes | none for decision; build host | accept §2A.3 option 1/2/3; exact-SHA `d1e36f3` r9 is already built and qualified, so only a later code change needs a rebuild | §2 C full-workspace row |
 
-Minimum remaining after all container self-work: **7 device/owner items** (physical device + matrix, soak, PassWall, OpenClash, touch, power/ENOSPC) plus **2 user decisions** (zstd boundary, channel change) and **one new build** (P1-06/r9). The Stable Gate cannot be executed before them.
+Minimum remaining: **soak completion, PassWall real network, physical touch and a real power-cut/device-rollback drill** (4 device/owner items), plus **2 user decisions** (zstd boundary, channel change). aarch64 has exact-SHA install/page evidence but not a DUT; treat it as an evidence gap or an explicit scope decision. The `d1e36f3` r9 build and qualification are done; no new build is needed unless code changes. The Stable Gate cannot be executed before these.
 
 **Conclusion: remain Pre-release; do not execute the Stable Gate.**
