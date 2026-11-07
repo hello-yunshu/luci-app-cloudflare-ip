@@ -6,10 +6,13 @@
  *
  * This is intentionally not a fake-DOM fixture: it drives a browser against a
  * real OpenWrt uhttpd/LuCI instance provisioned by
- * tests/real-luci-ui-provision.sh. It asserts the two Phase B interactions that
- * cannot be proven by tests/luci-*.cjs:
+ * tests/real-luci-ui-provision.sh. It asserts interactions that cannot be
+ * proven by tests/luci-*.cjs:
  *   1. refreshing sources does not reload the page and keeps a typed draft;
- *   2. a rejected cf_ip RPC is shown as an error, not as an empty/not-installed
+ *   2. log/command text stays readable and Clear Logs uses a LuCI modal whose
+ *      cancel path has no side effects;
+ *   3. prefers-reduced-motion removes the running status pulse;
+ *   4. a rejected cf_ip RPC is shown as an error, not as an empty/not-installed
  *      state.
  */
 
@@ -111,7 +114,69 @@ async function run() {
 		await page.screenshot({ path: path.join(evidence, sha + '-sources-refresh.png') });
 		scenario('sources-refresh-preserves-draft', 'PASS', 'draft=' + draft + ', reload=false');
 
-		/* Scenario 2: a rejected cf_ip RPC must render an explicit error. */
+		/* Scenario 2: readability and LuCI-native destructive confirmation. */
+		await page.goto(base + '/cgi-bin/luci/admin/services/cf_ip/logs', { waitUntil: 'domcontentloaded' });
+		await page.locator('#log-area').waitFor({ timeout: 30000 });
+		await page.waitForTimeout(500);
+		const logFont = await page.locator('#log-area').evaluate(el => parseFloat(getComputedStyle(el).fontSize));
+		if (!(logFont >= 12))
+			throw new Error('log textarea font-size below 12px: ' + logFont);
+		const cmdFont = await page.evaluate(() => {
+			const el = document.createElement('div');
+			el.className = 'cfi-cmd-box';
+			el.textContent = 'opkg install curl jq tar';
+			document.querySelector('#maincontent').appendChild(el);
+			const size = parseFloat(getComputedStyle(el).fontSize);
+			el.remove();
+			return size;
+		});
+		if (!(cmdFont >= 12))
+			throw new Error('command box font-size below 12px: ' + cmdFont);
+		let nativeDialogs = 0;
+		let clearRequests = 0;
+		page.on('dialog', dialog => {
+			nativeDialogs++;
+			dialog.dismiss().catch(() => {});
+		});
+		page.on('request', request => {
+			if ((request.postData() || '').includes('clear-log'))
+				clearRequests++;
+		});
+		await page.locator('button:has-text("Clear Logs")').click();
+		const modal = page.locator('#modal_overlay .modal[role="dialog"]');
+		await modal.waitFor({ timeout: 10000 });
+		const modalCount = await modal.count();
+		await page.locator('#modal_overlay button:has-text("Cancel")').click();
+		await page.waitForTimeout(400);
+		const modalClosed = (await page.locator('#modal_overlay .modal:visible').count()) === 0;
+		if (!modalCount || !modalClosed || nativeDialogs || clearRequests)
+			throw new Error('confirm is not a side-effect-free LuCI modal');
+		await page.screenshot({ path: path.join(evidence, sha + '-logs-confirm-modal.png') });
+		scenario('luci-modal-and-readable-text', 'PASS', 'log=' + logFont + 'px, cmd=' + cmdFont + 'px');
+
+		/* Scenario 3: prefers-reduced-motion removes the real status pulse. */
+		const reduced = await browser.newContext({
+			viewport: { width: 1280, height: 900 },
+			reducedMotion: 'reduce'
+		});
+		const reducedPage = await reduced.newPage();
+		try {
+			await login(reducedPage);
+			await reducedPage.goto(base + '/cgi-bin/luci/admin/services/cf_ip/overview', { waitUntil: 'domcontentloaded' });
+			await reducedPage.locator('.cfi-status-icon').waitFor({ timeout: 30000 });
+			const motion = await reducedPage.evaluate(() => {
+				const icon = document.querySelector('.cfi-status-icon');
+				icon.classList.add('running-test');
+				return getComputedStyle(icon).animationName;
+			});
+			if (motion !== 'none')
+				throw new Error('reduced motion still animates the status icon: ' + motion);
+			scenario('reduced-motion-disables-pulse', 'PASS', 'animation=' + motion);
+		} finally {
+			await reduced.close();
+		}
+
+		/* Scenario 4: a rejected cf_ip RPC must render an explicit error. */
 		dockerExec('mv /usr/libexec/rpcd/cf_ip /tmp/cf_ip.disabled && /etc/init.d/rpcd restart >/dev/null 2>&1');
 		for (let attempt = 0; attempt < 20; attempt++) {
 			if (dockerExec('ubus list | grep -qx cf_ip && echo present || echo absent').trim() === 'absent')

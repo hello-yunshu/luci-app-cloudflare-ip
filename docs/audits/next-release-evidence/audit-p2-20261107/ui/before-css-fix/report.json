@@ -1,0 +1,934 @@
+{
+  "schemaVersion": 1,
+  "environment": "real OpenWrt 24.10.8 rootfs, uhttpd/rpcd/LuCI, bootstrap + Aurora 1.4.0, Chromium Playwright",
+  "language": "zh-cn",
+  "method": {
+    "zoom": "CSS viewport = physical 1280 / zoom, deviceScaleFactor = zoom (125% => 1024@1.25, 200% => 640@2); browser-zoom-equivalent layout, not a physical browser UI zoom",
+    "reducedMotion": "Chromium emulateMedia({ reducedMotion: \"reduce\" })"
+  },
+  "results": {
+    "theme-bootstrap-light": {
+      "widths": {
+        "overview@1280-100": {
+          "status": "PASS",
+          "metrics": {
+            "page": "overview",
+            "innerWidth": 1280,
+            "dpr": 1,
+            "overflow": false,
+            "themeLinks": [
+              "http://127.0.0.1:18081/luci-static/bootstrap/cascade.css?v=26.301.70438~aa4865e",
+              "http://127.0.0.1:18081/luci-static/bootstrap/mobile.css?v=26.301.70438~aa4865e",
+              "http://127.0.0.1:18081/luci-static/bootstrap/logo_48.png",
+              "http://127.0.0.1:18081/luci-static/bootstrap/logo.svg"
+            ],
+            "darkMode": "false",
+            "chinese": true,
+            "englishLabel": false,
+            "logBox": null,
+            "cmdBox": null,
+            "cfiFontSizes": [
+              "32.5px",
+              "13px",
+              "23.4px",
+              "11.05px"
+            ]
+          }
+        },
+        "logs@1280-100": {
+          "status": "PASS",
+          "metrics": {
+            "page": "logs",
+            "innerWidth": 1280,
+            "dpr": 1,
+            "overflow": false,
+            "themeLinks": [
+              "http://127.0.0.1:18081/luci-static/bootstrap/cascade.css?v=26.301.70438~aa4865e",
+              "http://127.0.0.1:18081/luci-static/bootstrap/mobile.css?v=26.301.70438~aa4865e",
+              "http://127.0.0.1:18081/luci-static/bootstrap/logo_48.png",
+              "http://127.0.0.1:18081/luci-static/bootstrap/logo.svg"
+            ],
+            "darkMode": "false",
+            "chinese": true,
+            "englishLabel": false,
+            "logBox": {
+              "fontSize": "12px",
+              "fontFamily": "monospace"
+            },
+            "cmdBox": null,
+            "cfiFontSizes": [
+              "13px",
+              "12px"
+            ]
+          }
+        },
+        "overview@1024-125": {
+          "status": "PASS",
+          "metrics": {
+            "page": "overview",
+            "innerWidth": 1024,
+            "dpr": 1.25,
+            "overflow": false,
+            "themeLinks": [
+              "http://127.0.0.1:18081/luci-static/bootstrap/cascade.css?v=26.301.70438~aa4865e",
+              "http://127.0.0.1:18081/luci-static/bootstrap/mobile.css?v=26.301.70438~aa4865e",
+              "http://127.0.0.1:18081/luci-static/bootstrap/logo_48.png",
+              "http://127.0.0.1:18081/luci-static/bootstrap/logo.svg"
+            ],
+            "darkMode": "false",
+            "chinese": true,
+            "englishLabel": false,
+            "logBox": null,
+            "cmdBox": null,
+            "cfiFontSizes": [
+              "32.5px",
+              "13px",
+              "23.4px",
+              "11.05px"
+            ]
+          }
+        },
+        "logs@1024-125": {
+          "status": "PASS",
+          "metrics": {
+            "page": "logs",
+            "innerWidth": 1024,
+            "dpr": 1.25,
+            "overflow": false,
+            "themeLinks": [
+              "http://127.0.0.1:18081/luci-static/bootstrap/cascade.css?v=26.301.70438~aa4865e",
+              "http://127.0.0.1:18081/luci-static/bootstrap/mobile.css?v=26.301.70438~aa4865e",
+              "http://127.0.0.1:18081/luci-static/bootstrap/logo_48.png",
+              "http://127.0.0.1:18081/luci-static/bootstrap/logo.svg"
+            ],
+            "darkMode": "false",
+            "chinese": true,
+            "englishLabel": false,
+            "logBox": {
+              "fontSize": "12px",
+              "fontFamily": "monospace"
+            },
+            "cmdBox": null,
+            "cfiFontSizes": [
+              "13px",
+              "12px"
+            ]
+          }
+        },
+        "overview@640-200": {
+          "status": "PASS",
+          "metrics": {
+            "page": "overview",
+            "innerWidth": 640,
+            "dpr": 2,
+            "overflow": false,
+            "themeLinks": [
+              "http://127.0.0.1:18081/luci-static/bootstrap/cascade.css?v=26.301.70438~aa4865e",
+              "http://127.0.0.1:18081/luci-static/bootstrap/mobile.css?v=26.301.70438~aa4865e",
+              "http://127.0.0.1:18081/luci-static/bootstrap/logo_48.png",
+              "http://127.0.0.1:18081/luci-static/bootstrap/logo.svg"
+            ],
+            "darkMode": "false",
+            "chinese": true,
+            "englishLabel": false,
+            "logBox": null,
+            "cmdBox": null,
+            "cfiFontSizes": [
+              "32.5px",
+              "13px",
+              "23.4px",
+              "11.05px"
+            ]
+          }
+        },
+        "logs@640-200": {
+          "status": "PASS",
+          "metrics": {
+            "page": "logs",
+            "innerWidth": 640,
+            "dpr": 2,
+            "overflow": false,
+            "themeLinks": [
+              "http://127.0.0.1:18081/luci-static/bootstrap/cascade.css?v=26.301.70438~aa4865e",
+              "http://127.0.0.1:18081/luci-static/bootstrap/mobile.css?v=26.301.70438~aa4865e",
+              "http://127.0.0.1:18081/luci-static/bootstrap/logo_48.png",
+              "http://127.0.0.1:18081/luci-static/bootstrap/logo.svg"
+            ],
+            "darkMode": "false",
+            "chinese": true,
+            "englishLabel": false,
+            "logBox": {
+              "fontSize": "12px",
+              "fontFamily": "monospace"
+            },
+            "cmdBox": null,
+            "cfiFontSizes": [
+              "13px",
+              "12px"
+            ]
+          }
+        },
+        "overview@768-100": {
+          "status": "PASS",
+          "metrics": {
+            "page": "overview",
+            "innerWidth": 768,
+            "dpr": 1,
+            "overflow": false,
+            "themeLinks": [
+              "http://127.0.0.1:18081/luci-static/bootstrap/cascade.css?v=26.301.70438~aa4865e",
+              "http://127.0.0.1:18081/luci-static/bootstrap/mobile.css?v=26.301.70438~aa4865e",
+              "http://127.0.0.1:18081/luci-static/bootstrap/logo_48.png",
+              "http://127.0.0.1:18081/luci-static/bootstrap/logo.svg"
+            ],
+            "darkMode": "false",
+            "chinese": true,
+            "englishLabel": false,
+            "logBox": null,
+            "cmdBox": null,
+            "cfiFontSizes": [
+              "32.5px",
+              "13px",
+              "23.4px",
+              "11.05px"
+            ]
+          }
+        },
+        "logs@768-100": {
+          "status": "PASS",
+          "metrics": {
+            "page": "logs",
+            "innerWidth": 768,
+            "dpr": 1,
+            "overflow": false,
+            "themeLinks": [
+              "http://127.0.0.1:18081/luci-static/bootstrap/cascade.css?v=26.301.70438~aa4865e",
+              "http://127.0.0.1:18081/luci-static/bootstrap/mobile.css?v=26.301.70438~aa4865e",
+              "http://127.0.0.1:18081/luci-static/bootstrap/logo_48.png",
+              "http://127.0.0.1:18081/luci-static/bootstrap/logo.svg"
+            ],
+            "darkMode": "false",
+            "chinese": true,
+            "englishLabel": false,
+            "logBox": {
+              "fontSize": "12px",
+              "fontFamily": "monospace"
+            },
+            "cmdBox": null,
+            "cfiFontSizes": [
+              "13px",
+              "12px"
+            ]
+          }
+        },
+        "overview@375-100": {
+          "status": "PASS",
+          "metrics": {
+            "page": "overview",
+            "innerWidth": 375,
+            "dpr": 1,
+            "overflow": false,
+            "themeLinks": [
+              "http://127.0.0.1:18081/luci-static/bootstrap/cascade.css?v=26.301.70438~aa4865e",
+              "http://127.0.0.1:18081/luci-static/bootstrap/mobile.css?v=26.301.70438~aa4865e",
+              "http://127.0.0.1:18081/luci-static/bootstrap/logo_48.png",
+              "http://127.0.0.1:18081/luci-static/bootstrap/logo.svg"
+            ],
+            "darkMode": "false",
+            "chinese": true,
+            "englishLabel": false,
+            "logBox": null,
+            "cmdBox": null,
+            "cfiFontSizes": [
+              "23.4px",
+              "13px",
+              "18.2px",
+              "10.14px",
+              "11.05px"
+            ]
+          }
+        },
+        "logs@375-100": {
+          "status": "PASS",
+          "metrics": {
+            "page": "logs",
+            "innerWidth": 375,
+            "dpr": 1,
+            "overflow": false,
+            "themeLinks": [
+              "http://127.0.0.1:18081/luci-static/bootstrap/cascade.css?v=26.301.70438~aa4865e",
+              "http://127.0.0.1:18081/luci-static/bootstrap/mobile.css?v=26.301.70438~aa4865e",
+              "http://127.0.0.1:18081/luci-static/bootstrap/logo_48.png",
+              "http://127.0.0.1:18081/luci-static/bootstrap/logo.svg"
+            ],
+            "darkMode": "false",
+            "chinese": true,
+            "englishLabel": false,
+            "logBox": {
+              "fontSize": "16px",
+              "fontFamily": "monospace"
+            },
+            "cmdBox": null,
+            "cfiFontSizes": [
+              "13px",
+              "12px"
+            ]
+          }
+        }
+      }
+    },
+    "theme-bootstrap-light-matrix": {
+      "status": "PASS",
+      "detail": {
+        "total": 10,
+        "passed": 10
+      }
+    },
+    "theme-aurora-light": {
+      "widths": {
+        "overview@1280-100": {
+          "status": "PASS",
+          "metrics": {
+            "page": "overview",
+            "innerWidth": 1280,
+            "dpr": 1,
+            "overflow": false,
+            "themeLinks": [
+              "http://127.0.0.1:18081/luci-static/aurora/main.css?v=1.4.0",
+              "http://127.0.0.1:18081/luci-static/aurora/fonts/lato-v24-latin-regular.woff2",
+              "http://127.0.0.1:18081/luci-static/aurora/images/logo.svg?v=0",
+              "http://127.0.0.1:18081/luci-static/aurora/images/favicon.ico"
+            ],
+            "darkMode": "false",
+            "chinese": true,
+            "englishLabel": false,
+            "logBox": null,
+            "cmdBox": null,
+            "cfiFontSizes": [
+              "35px",
+              "14px",
+              "25.2px",
+              "11.9px",
+              "13.6px"
+            ]
+          }
+        },
+        "logs@1280-100": {
+          "status": "PASS",
+          "metrics": {
+            "page": "logs",
+            "innerWidth": 1280,
+            "dpr": 1,
+            "overflow": false,
+            "themeLinks": [
+              "http://127.0.0.1:18081/luci-static/aurora/main.css?v=1.4.0",
+              "http://127.0.0.1:18081/luci-static/aurora/fonts/lato-v24-latin-regular.woff2",
+              "http://127.0.0.1:18081/luci-static/aurora/images/logo.svg?v=0",
+              "http://127.0.0.1:18081/luci-static/aurora/images/favicon.ico"
+            ],
+            "darkMode": "false",
+            "chinese": true,
+            "englishLabel": false,
+            "logBox": {
+              "fontSize": "12px",
+              "fontFamily": "monospace"
+            },
+            "cmdBox": null,
+            "cfiFontSizes": [
+              "14px",
+              "12px"
+            ]
+          }
+        },
+        "overview@1024-125": {
+          "status": "PASS",
+          "metrics": {
+            "page": "overview",
+            "innerWidth": 1024,
+            "dpr": 1.25,
+            "overflow": false,
+            "themeLinks": [
+              "http://127.0.0.1:18081/luci-static/aurora/main.css?v=1.4.0",
+              "http://127.0.0.1:18081/luci-static/aurora/fonts/lato-v24-latin-regular.woff2",
+              "http://127.0.0.1:18081/luci-static/aurora/images/logo.svg?v=0",
+              "http://127.0.0.1:18081/luci-static/aurora/images/favicon.ico"
+            ],
+            "darkMode": "false",
+            "chinese": true,
+            "englishLabel": false,
+            "logBox": null,
+            "cmdBox": null,
+            "cfiFontSizes": [
+              "35px",
+              "14px",
+              "25.2px",
+              "11.9px",
+              "13.6px"
+            ]
+          }
+        },
+        "logs@1024-125": {
+          "status": "PASS",
+          "metrics": {
+            "page": "logs",
+            "innerWidth": 1024,
+            "dpr": 1.25,
+            "overflow": false,
+            "themeLinks": [
+              "http://127.0.0.1:18081/luci-static/aurora/main.css?v=1.4.0",
+              "http://127.0.0.1:18081/luci-static/aurora/fonts/lato-v24-latin-regular.woff2",
+              "http://127.0.0.1:18081/luci-static/aurora/images/logo.svg?v=0",
+              "http://127.0.0.1:18081/luci-static/aurora/images/favicon.ico"
+            ],
+            "darkMode": "false",
+            "chinese": true,
+            "englishLabel": false,
+            "logBox": {
+              "fontSize": "12px",
+              "fontFamily": "monospace"
+            },
+            "cmdBox": null,
+            "cfiFontSizes": [
+              "14px",
+              "12px"
+            ]
+          }
+        },
+        "overview@640-200": {
+          "status": "PASS",
+          "metrics": {
+            "page": "overview",
+            "innerWidth": 640,
+            "dpr": 2,
+            "overflow": false,
+            "themeLinks": [
+              "http://127.0.0.1:18081/luci-static/aurora/main.css?v=1.4.0",
+              "http://127.0.0.1:18081/luci-static/aurora/fonts/lato-v24-latin-regular.woff2",
+              "http://127.0.0.1:18081/luci-static/aurora/images/logo.svg?v=0",
+              "http://127.0.0.1:18081/luci-static/aurora/images/favicon.ico"
+            ],
+            "darkMode": "false",
+            "chinese": true,
+            "englishLabel": false,
+            "logBox": null,
+            "cmdBox": null,
+            "cfiFontSizes": [
+              "35px",
+              "14px",
+              "25.2px",
+              "11.9px"
+            ]
+          }
+        },
+        "logs@640-200": {
+          "status": "PASS",
+          "metrics": {
+            "page": "logs",
+            "innerWidth": 640,
+            "dpr": 2,
+            "overflow": false,
+            "themeLinks": [
+              "http://127.0.0.1:18081/luci-static/aurora/main.css?v=1.4.0",
+              "http://127.0.0.1:18081/luci-static/aurora/fonts/lato-v24-latin-regular.woff2",
+              "http://127.0.0.1:18081/luci-static/aurora/images/logo.svg?v=0",
+              "http://127.0.0.1:18081/luci-static/aurora/images/favicon.ico"
+            ],
+            "darkMode": "false",
+            "chinese": true,
+            "englishLabel": false,
+            "logBox": {
+              "fontSize": "12px",
+              "fontFamily": "monospace"
+            },
+            "cmdBox": null,
+            "cfiFontSizes": [
+              "14px",
+              "12px"
+            ]
+          }
+        },
+        "overview@768-100": {
+          "status": "PASS",
+          "metrics": {
+            "page": "overview",
+            "innerWidth": 768,
+            "dpr": 1,
+            "overflow": false,
+            "themeLinks": [
+              "http://127.0.0.1:18081/luci-static/aurora/main.css?v=1.4.0",
+              "http://127.0.0.1:18081/luci-static/aurora/fonts/lato-v24-latin-regular.woff2",
+              "http://127.0.0.1:18081/luci-static/aurora/images/logo.svg?v=0",
+              "http://127.0.0.1:18081/luci-static/aurora/images/favicon.ico"
+            ],
+            "darkMode": "false",
+            "chinese": true,
+            "englishLabel": false,
+            "logBox": null,
+            "cmdBox": null,
+            "cfiFontSizes": [
+              "35px",
+              "14px",
+              "25.2px",
+              "11.9px",
+              "13.6px"
+            ]
+          }
+        },
+        "logs@768-100": {
+          "status": "PASS",
+          "metrics": {
+            "page": "logs",
+            "innerWidth": 768,
+            "dpr": 1,
+            "overflow": false,
+            "themeLinks": [
+              "http://127.0.0.1:18081/luci-static/aurora/main.css?v=1.4.0",
+              "http://127.0.0.1:18081/luci-static/aurora/fonts/lato-v24-latin-regular.woff2",
+              "http://127.0.0.1:18081/luci-static/aurora/images/logo.svg?v=0",
+              "http://127.0.0.1:18081/luci-static/aurora/images/favicon.ico"
+            ],
+            "darkMode": "false",
+            "chinese": true,
+            "englishLabel": false,
+            "logBox": {
+              "fontSize": "12px",
+              "fontFamily": "monospace"
+            },
+            "cmdBox": null,
+            "cfiFontSizes": [
+              "14px",
+              "12px"
+            ]
+          }
+        },
+        "overview@375-100": {
+          "status": "PASS",
+          "metrics": {
+            "page": "overview",
+            "innerWidth": 375,
+            "dpr": 1,
+            "overflow": false,
+            "themeLinks": [
+              "http://127.0.0.1:18081/luci-static/aurora/main.css?v=1.4.0",
+              "http://127.0.0.1:18081/luci-static/aurora/fonts/lato-v24-latin-regular.woff2",
+              "http://127.0.0.1:18081/luci-static/aurora/images/logo.svg?v=0",
+              "http://127.0.0.1:18081/luci-static/aurora/images/favicon.ico"
+            ],
+            "darkMode": "false",
+            "chinese": true,
+            "englishLabel": false,
+            "logBox": null,
+            "cmdBox": null,
+            "cfiFontSizes": [
+              "25.2px",
+              "14px",
+              "19.6px",
+              "10.92px",
+              "11.9px"
+            ]
+          }
+        },
+        "logs@375-100": {
+          "status": "PASS",
+          "metrics": {
+            "page": "logs",
+            "innerWidth": 375,
+            "dpr": 1,
+            "overflow": false,
+            "themeLinks": [
+              "http://127.0.0.1:18081/luci-static/aurora/main.css?v=1.4.0",
+              "http://127.0.0.1:18081/luci-static/aurora/fonts/lato-v24-latin-regular.woff2",
+              "http://127.0.0.1:18081/luci-static/aurora/images/logo.svg?v=0",
+              "http://127.0.0.1:18081/luci-static/aurora/images/favicon.ico"
+            ],
+            "darkMode": "false",
+            "chinese": true,
+            "englishLabel": false,
+            "logBox": {
+              "fontSize": "12px",
+              "fontFamily": "monospace"
+            },
+            "cmdBox": null,
+            "cfiFontSizes": [
+              "14px",
+              "12px"
+            ]
+          }
+        }
+      }
+    },
+    "theme-aurora-light-matrix": {
+      "status": "PASS",
+      "detail": {
+        "total": 10,
+        "passed": 10
+      }
+    },
+    "theme-aurora-dark": {
+      "widths": {
+        "overview@1280-100": {
+          "status": "PASS",
+          "metrics": {
+            "page": "overview",
+            "innerWidth": 1280,
+            "dpr": 1,
+            "overflow": false,
+            "themeLinks": [
+              "http://127.0.0.1:18081/luci-static/aurora/main.css?v=1.4.0",
+              "http://127.0.0.1:18081/luci-static/aurora/fonts/lato-v24-latin-regular.woff2",
+              "http://127.0.0.1:18081/luci-static/aurora/images/logo.svg?v=0",
+              "http://127.0.0.1:18081/luci-static/aurora/images/favicon.ico"
+            ],
+            "darkMode": "true",
+            "chinese": true,
+            "englishLabel": false,
+            "logBox": null,
+            "cmdBox": null,
+            "cfiFontSizes": [
+              "35px",
+              "14px",
+              "25.2px",
+              "11.9px",
+              "13.6px"
+            ]
+          }
+        },
+        "logs@1280-100": {
+          "status": "PASS",
+          "metrics": {
+            "page": "logs",
+            "innerWidth": 1280,
+            "dpr": 1,
+            "overflow": false,
+            "themeLinks": [
+              "http://127.0.0.1:18081/luci-static/aurora/main.css?v=1.4.0",
+              "http://127.0.0.1:18081/luci-static/aurora/fonts/lato-v24-latin-regular.woff2",
+              "http://127.0.0.1:18081/luci-static/aurora/images/logo.svg?v=0",
+              "http://127.0.0.1:18081/luci-static/aurora/images/favicon.ico"
+            ],
+            "darkMode": "true",
+            "chinese": true,
+            "englishLabel": false,
+            "logBox": {
+              "fontSize": "12px",
+              "fontFamily": "monospace"
+            },
+            "cmdBox": null,
+            "cfiFontSizes": [
+              "14px",
+              "12px"
+            ]
+          }
+        },
+        "overview@1024-125": {
+          "status": "PASS",
+          "metrics": {
+            "page": "overview",
+            "innerWidth": 1024,
+            "dpr": 1.25,
+            "overflow": false,
+            "themeLinks": [
+              "http://127.0.0.1:18081/luci-static/aurora/main.css?v=1.4.0",
+              "http://127.0.0.1:18081/luci-static/aurora/fonts/lato-v24-latin-regular.woff2",
+              "http://127.0.0.1:18081/luci-static/aurora/images/logo.svg?v=0",
+              "http://127.0.0.1:18081/luci-static/aurora/images/favicon.ico"
+            ],
+            "darkMode": "true",
+            "chinese": true,
+            "englishLabel": false,
+            "logBox": null,
+            "cmdBox": null,
+            "cfiFontSizes": [
+              "35px",
+              "14px",
+              "25.2px",
+              "11.9px",
+              "13.6px"
+            ]
+          }
+        },
+        "logs@1024-125": {
+          "status": "PASS",
+          "metrics": {
+            "page": "logs",
+            "innerWidth": 1024,
+            "dpr": 1.25,
+            "overflow": false,
+            "themeLinks": [
+              "http://127.0.0.1:18081/luci-static/aurora/main.css?v=1.4.0",
+              "http://127.0.0.1:18081/luci-static/aurora/fonts/lato-v24-latin-regular.woff2",
+              "http://127.0.0.1:18081/luci-static/aurora/images/logo.svg?v=0",
+              "http://127.0.0.1:18081/luci-static/aurora/images/favicon.ico"
+            ],
+            "darkMode": "true",
+            "chinese": true,
+            "englishLabel": false,
+            "logBox": {
+              "fontSize": "12px",
+              "fontFamily": "monospace"
+            },
+            "cmdBox": null,
+            "cfiFontSizes": [
+              "14px",
+              "12px"
+            ]
+          }
+        },
+        "overview@640-200": {
+          "status": "PASS",
+          "metrics": {
+            "page": "overview",
+            "innerWidth": 640,
+            "dpr": 2,
+            "overflow": false,
+            "themeLinks": [
+              "http://127.0.0.1:18081/luci-static/aurora/main.css?v=1.4.0",
+              "http://127.0.0.1:18081/luci-static/aurora/fonts/lato-v24-latin-regular.woff2",
+              "http://127.0.0.1:18081/luci-static/aurora/images/logo.svg?v=0",
+              "http://127.0.0.1:18081/luci-static/aurora/images/favicon.ico"
+            ],
+            "darkMode": "true",
+            "chinese": true,
+            "englishLabel": false,
+            "logBox": null,
+            "cmdBox": null,
+            "cfiFontSizes": [
+              "35px",
+              "14px",
+              "25.2px",
+              "11.9px"
+            ]
+          }
+        },
+        "logs@640-200": {
+          "status": "PASS",
+          "metrics": {
+            "page": "logs",
+            "innerWidth": 640,
+            "dpr": 2,
+            "overflow": false,
+            "themeLinks": [
+              "http://127.0.0.1:18081/luci-static/aurora/main.css?v=1.4.0",
+              "http://127.0.0.1:18081/luci-static/aurora/fonts/lato-v24-latin-regular.woff2",
+              "http://127.0.0.1:18081/luci-static/aurora/images/logo.svg?v=0",
+              "http://127.0.0.1:18081/luci-static/aurora/images/favicon.ico"
+            ],
+            "darkMode": "true",
+            "chinese": true,
+            "englishLabel": false,
+            "logBox": {
+              "fontSize": "12px",
+              "fontFamily": "monospace"
+            },
+            "cmdBox": null,
+            "cfiFontSizes": [
+              "14px",
+              "12px"
+            ]
+          }
+        },
+        "overview@768-100": {
+          "status": "PASS",
+          "metrics": {
+            "page": "overview",
+            "innerWidth": 768,
+            "dpr": 1,
+            "overflow": false,
+            "themeLinks": [
+              "http://127.0.0.1:18081/luci-static/aurora/main.css?v=1.4.0",
+              "http://127.0.0.1:18081/luci-static/aurora/fonts/lato-v24-latin-regular.woff2",
+              "http://127.0.0.1:18081/luci-static/aurora/images/logo.svg?v=0",
+              "http://127.0.0.1:18081/luci-static/aurora/images/favicon.ico"
+            ],
+            "darkMode": "true",
+            "chinese": true,
+            "englishLabel": false,
+            "logBox": null,
+            "cmdBox": null,
+            "cfiFontSizes": [
+              "35px",
+              "14px",
+              "25.2px",
+              "11.9px",
+              "13.6px"
+            ]
+          }
+        },
+        "logs@768-100": {
+          "status": "PASS",
+          "metrics": {
+            "page": "logs",
+            "innerWidth": 768,
+            "dpr": 1,
+            "overflow": false,
+            "themeLinks": [
+              "http://127.0.0.1:18081/luci-static/aurora/main.css?v=1.4.0",
+              "http://127.0.0.1:18081/luci-static/aurora/fonts/lato-v24-latin-regular.woff2",
+              "http://127.0.0.1:18081/luci-static/aurora/images/logo.svg?v=0",
+              "http://127.0.0.1:18081/luci-static/aurora/images/favicon.ico"
+            ],
+            "darkMode": "true",
+            "chinese": true,
+            "englishLabel": false,
+            "logBox": {
+              "fontSize": "12px",
+              "fontFamily": "monospace"
+            },
+            "cmdBox": null,
+            "cfiFontSizes": [
+              "14px",
+              "12px"
+            ]
+          }
+        },
+        "overview@375-100": {
+          "status": "PASS",
+          "metrics": {
+            "page": "overview",
+            "innerWidth": 375,
+            "dpr": 1,
+            "overflow": false,
+            "themeLinks": [
+              "http://127.0.0.1:18081/luci-static/aurora/main.css?v=1.4.0",
+              "http://127.0.0.1:18081/luci-static/aurora/fonts/lato-v24-latin-regular.woff2",
+              "http://127.0.0.1:18081/luci-static/aurora/images/logo.svg?v=0",
+              "http://127.0.0.1:18081/luci-static/aurora/images/favicon.ico"
+            ],
+            "darkMode": "true",
+            "chinese": true,
+            "englishLabel": false,
+            "logBox": null,
+            "cmdBox": null,
+            "cfiFontSizes": [
+              "25.2px",
+              "14px",
+              "19.6px",
+              "10.92px",
+              "11.9px"
+            ]
+          }
+        },
+        "logs@375-100": {
+          "status": "PASS",
+          "metrics": {
+            "page": "logs",
+            "innerWidth": 375,
+            "dpr": 1,
+            "overflow": false,
+            "themeLinks": [
+              "http://127.0.0.1:18081/luci-static/aurora/main.css?v=1.4.0",
+              "http://127.0.0.1:18081/luci-static/aurora/fonts/lato-v24-latin-regular.woff2",
+              "http://127.0.0.1:18081/luci-static/aurora/images/logo.svg?v=0",
+              "http://127.0.0.1:18081/luci-static/aurora/images/favicon.ico"
+            ],
+            "darkMode": "true",
+            "chinese": true,
+            "englishLabel": false,
+            "logBox": {
+              "fontSize": "12px",
+              "fontFamily": "monospace"
+            },
+            "cmdBox": null,
+            "cfiFontSizes": [
+              "14px",
+              "12px"
+            ]
+          }
+        }
+      }
+    },
+    "theme-aurora-dark-matrix": {
+      "status": "PASS",
+      "detail": {
+        "total": 10,
+        "passed": 10
+      }
+    },
+    "p2-04-log-area-min-12px": {
+      "status": "PASS",
+      "detail": {
+        "measured": [
+          12,
+          12,
+          12,
+          12,
+          16
+        ]
+      }
+    },
+    "p2-04-cmd-box-css": {
+      "status": "FAIL",
+      "detail": {
+        "measured375": {
+          "fontSize": "10.4px",
+          "fontFamily": "monospace",
+          "width": 363
+        },
+        "measured1280": {
+          "fontSize": "11.7px",
+          "fontFamily": "monospace",
+          "width": 938
+        },
+        "realCommandBoxes": 0,
+        "source": ".cfi-cmd-box is 0.9em, dropping to 0.8em at <=768px in the shipped stylesheet"
+      }
+    },
+    "p2-05-log-readback": {
+      "status": "PASS",
+      "detail": {
+        "readback": "p2-05 marker before clear"
+      }
+    },
+    "p2-05-cancel-is-side-effect-free": {
+      "status": "PASS",
+      "detail": {
+        "modalGoneAfterCancel": true,
+        "hashChanged": false,
+        "clearCalls": 0,
+        "dialogs": 0
+      }
+    },
+    "p2-05-escape-no-side-effect": {
+      "status": "PASS",
+      "detail": {
+        "modalClosedByEscape": true,
+        "hashChanged": false,
+        "clearCalls": 0,
+        "note": "Escape handling belongs to LuCI ui.showModal, not the plugin"
+      }
+    }
+  },
+  "screenshots": [
+    "bootstrap-light-1280-100-overview.png",
+    "bootstrap-light-1280-100-logs.png",
+    "bootstrap-light-1024-125-overview.png",
+    "bootstrap-light-1024-125-logs.png",
+    "bootstrap-light-640-200-overview.png",
+    "bootstrap-light-640-200-logs.png",
+    "bootstrap-light-375-100-overview.png",
+    "bootstrap-light-375-100-logs.png",
+    "aurora-light-1280-100-overview.png",
+    "aurora-light-1280-100-logs.png",
+    "aurora-light-1024-125-overview.png",
+    "aurora-light-1024-125-logs.png",
+    "aurora-light-640-200-overview.png",
+    "aurora-light-640-200-logs.png",
+    "aurora-light-375-100-overview.png",
+    "aurora-light-375-100-logs.png",
+    "aurora-dark-1280-100-overview.png",
+    "aurora-dark-1280-100-logs.png",
+    "aurora-dark-1024-125-overview.png",
+    "aurora-dark-1024-125-logs.png",
+    "aurora-dark-640-200-overview.png",
+    "aurora-dark-640-200-logs.png",
+    "aurora-dark-375-100-overview.png",
+    "aurora-dark-375-100-logs.png",
+    "p2-04-cfi-cmd-box-375.png",
+    "p2-04-cfi-cmd-box-1280.png",
+    "p2-05-confirm-modal.png"
+  ],
+  "openwrt": "24.10.8 x86_64",
+  "luci": "26.301.70438~aa4865e",
+  "aurora": "1.4.0-r20260920",
+  "fatal": "locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('.modal').first().locator('button:has-text(\"确认\")')\n\n    at /private/tmp/cfip-ui/p2-ui-evidence.cjs:221:77"
+}
