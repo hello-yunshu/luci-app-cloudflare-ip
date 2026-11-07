@@ -1,0 +1,218 @@
+{
+  "schemaVersion": 1,
+  "arch": "aarch64_generic",
+  "openwrt": "24.10.8",
+  "package": "2.6.0-r9",
+  "rows": [
+    {
+      "page": "overview",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 1280,
+        "scrollWidth": 1280,
+        "overflow": false,
+        "mainLength": 391,
+        "loading": false,
+        "hasMain": true,
+        "title": "7aad94414901 - LuCI",
+        "themeLoaded": true,
+        "navItems": 24,
+        "zhMenu": true,
+        "truncated": []
+      },
+      "consoleErrors": []
+    },
+    {
+      "page": "settings",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 1280,
+        "scrollWidth": 1280,
+        "overflow": false,
+        "mainLength": 834,
+        "loading": false,
+        "hasMain": true,
+        "title": "7aad94414901 - LuCI",
+        "themeLoaded": true,
+        "navItems": 24,
+        "zhMenu": true,
+        "truncated": []
+      },
+      "consoleErrors": []
+    },
+    {
+      "page": "sources",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 1280,
+        "scrollWidth": 1280,
+        "overflow": false,
+        "mainLength": 1096,
+        "loading": false,
+        "hasMain": true,
+        "title": "7aad94414901 - LuCI",
+        "themeLoaded": true,
+        "navItems": 24,
+        "zhMenu": true,
+        "truncated": []
+      },
+      "consoleErrors": []
+    },
+    {
+      "page": "intelligence",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 1280,
+        "scrollWidth": 1280,
+        "overflow": false,
+        "mainLength": 1000,
+        "loading": false,
+        "hasMain": true,
+        "title": "7aad94414901 - LuCI",
+        "themeLoaded": true,
+        "navItems": 24,
+        "zhMenu": true,
+        "truncated": []
+      },
+      "consoleErrors": []
+    },
+    {
+      "page": "advanced",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 1280,
+        "scrollWidth": 1280,
+        "overflow": false,
+        "mainLength": 650,
+        "loading": false,
+        "hasMain": true,
+        "title": "7aad94414901 - LuCI",
+        "themeLoaded": true,
+        "navItems": 24,
+        "zhMenu": true,
+        "truncated": []
+      },
+      "consoleErrors": []
+    },
+    {
+      "page": "logs",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 1280,
+        "scrollWidth": 1280,
+        "overflow": false,
+        "mainLength": 2533,
+        "loading": false,
+        "hasMain": true,
+        "title": "7aad94414901 - LuCI",
+        "themeLoaded": true,
+        "navItems": 24,
+        "zhMenu": true,
+        "truncated": []
+      },
+      "consoleErrors": []
+    },
+    {
+      "page": "openclash",
+      "result": "PASS",
+      "conditional": true,
+      "redirectedTo": null,
+      "metrics": {
+        "width": 1280,
+        "scrollWidth": 1280,
+        "overflow": false,
+        "mainLength": 391,
+        "loading": false,
+        "hasMain": true,
+        "title": "7aad94414901 - LuCI",
+        "themeLoaded": true,
+        "navItems": 24,
+        "zhMenu": true,
+        "truncated": []
+      }
+    },
+    {
+      "page": "passwall",
+      "result": "PASS",
+      "conditional": true,
+      "redirectedTo": null,
+      "metrics": {
+        "width": 1280,
+        "scrollWidth": 1280,
+        "overflow": false,
+        "mainLength": 391,
+        "loading": false,
+        "hasMain": true,
+        "title": "7aad94414901 - LuCI",
+        "themeLoaded": true,
+        "navItems": 24,
+        "zhMenu": true,
+        "truncated": []
+      }
+    },
+    {
+      "page": "overview",
+      "zoom": "200%",
+      "result": "PASS",
+      "metrics": {
+        "width": 640,
+        "scrollWidth": 640,
+        "overflow": false,
+        "mainLength": 391,
+        "loading": false,
+        "hasMain": true,
+        "title": "7aad94414901 - LuCI",
+        "themeLoaded": true,
+        "navItems": 24,
+        "zhMenu": true,
+        "truncated": []
+      },
+      "zoomPass": true
+    },
+    {
+      "page": "settings",
+      "zoom": "200%",
+      "result": "PASS",
+      "metrics": {
+        "width": 640,
+        "scrollWidth": 640,
+        "overflow": false,
+        "mainLength": 834,
+        "loading": false,
+        "hasMain": true,
+        "title": "7aad94414901 - LuCI",
+        "themeLoaded": true,
+        "navItems": 24,
+        "zhMenu": true,
+        "truncated": []
+      },
+      "zoomPass": true
+    },
+    {
+      "page": "sources",
+      "zoom": "200%",
+      "result": "PASS",
+      "metrics": {
+        "width": 640,
+        "scrollWidth": 640,
+        "overflow": false,
+        "mainLength": 1080,
+        "loading": false,
+        "hasMain": true,
+        "title": "7aad94414901 - LuCI",
+        "themeLoaded": true,
+        "navItems": 24,
+        "zhMenu": true,
+        "truncated": []
+      },
+      "zoomPass": true
+    }
+  ],
+  "errors": []
+}

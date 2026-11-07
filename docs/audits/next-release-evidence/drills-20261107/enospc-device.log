@@ -1,0 +1,21 @@
+2045+0 records in
+2044+0 records out
+Filesystem           1K-blocks      Used Available Use% Mounted on
+tmpfs                     2048      2048         0 100% /tmp/cfip-enospc
+---WRITE-TEST---
+cat: write error: No space left on device
+RC=1
+---VERIFY---
+{"seed":true}
+drwxrwxrwt    2 root     root            80 Nov  7 23:29 .
+drwxrwxrwt   38 root     root          1620 Nov  7 23:29 ..
+-rw-r--r--    1 root     root       2093056 Nov  7 23:29 fill.bin
+-rw-r--r--    1 root     root            14 Nov  7 23:29 status.json
+---CLI-STATUS---
+{
+  "seed": true,
+  "script_version": "2.6.0",
+  "package_version": "2.6.0-r9",
+  "env": {
+RC=0
+CLEANED

@@ -202,7 +202,7 @@
 - **影响**：升级后 OpenClash 模式无法通过路径校验，且用户的自定义调度被静默改变。
 - **修复**：已存在、root 私有、无符号链接的 OpenClash 配置允许保留；`custom` 调度仅在 `cron_custom` 缺失或非法时回退。新增 `tests/managed-path-policy.sh` 迁移回归断言。
 - **证据**：`next-release-evidence/device-20261107/`（`config-preservation.txt`、`install-candidate.log`）。
-- **状态**：FIXED（分支 `fix/device-upgrade-config-20261107`，待 PR/CI）。
+- **状态**：FIXED（PR #36 已合并到 `d1e36f3`；exact-SHA 证据见 `next-release-evidence/device-20261107/`）。
 
 ### P2-10 默认 `measurement_timeout=60` 在真机负载下不足
 - **发现**：同一设备使用出厂默认 60 s 时，`cf_ip run` 在 `CloudflareSpeedTest` 阶段超时失败；完整一轮约需 140 s。把该值调到 300 s 后成功选出 2/2 IP 并重启 OpenClash。
