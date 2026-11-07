@@ -17,10 +17,10 @@
 |---|---:|---|
 | P0 | 1 | CLOSED / FIXED |
 | P1 | 6 | 5 CLOSED / FIXED；1 PASS-BY-USER-DECISION |
-| P2 | 9 | 3 CLOSED；6 OPEN / SOURCE_CONFIRMED |
+| P2 | 9 | 6 CLOSED；3 OPEN / SOURCE_CONFIRMED |
 | P3 | 2 | OPEN / SOURCE_CONFIRMED |
 
-> 本表保留阶段 A 的复现结构；P0/P1 状态已按发布后修复更新。P1-06 是发布后由 live 容器 fixture 发现的真实运行时缺陷，已在 `main` 修复，**未包含在 v2.6.0-8 资产中**；该修复已随 `v2.6.0-9`（2026-11-05，tag `1bbb3d7`）作为 pre-release 发布。P2-07/P2-08/P2-09 已关闭，其余 P2/P3 仍未关闭。
+> 本表保留阶段 A 的复现结构；P0/P1 状态已按发布后修复更新。P1-06 是发布后由 live 容器 fixture 发现的真实运行时缺陷，已在 `main` 修复，**未包含在 v2.6.0-8 资产中**；该修复已随 `v2.6.0-9`（2026-11-05，tag `1bbb3d7`）作为 pre-release 发布。P2-04/P2-05/P2-06 的复验与修复证据在 `next-release-evidence/audit-p2-20261107/ui/`；P2-07/P2-08/P2-09 已关闭，其余 P2/P3 仍未关闭。
 
 ## 2. 索引
 
@@ -36,9 +36,9 @@
 | P2-01 | P2 | 600/900px media query 与容器宽度风险 | OPEN — SOURCE_CONFIRMED | `cloudflare-ip.css` |
 | P2-02 | P2 | Overview 内联 CSS 重复 | OPEN — SOURCE_CONFIRMED | `overview.js` |
 | P2-03 | P2 | 深色主题变量双来源/硬编码 | OPEN — SOURCE_CONFIRMED | `cloudflare-ip.css` |
-| P2-04 | P2 | 日志 9–10px 字号 | OPEN — SOURCE_CONFIRMED | `cloudflare-ip.css` |
-| P2-05 | P2 | `confirm()` 与 LuCI modal 割裂 | OPEN — SOURCE_CONFIRMED | `diagnostics.js` / `intelligence.js` |
-| P2-06 | P2 | 缺少 reduced-motion 处理 | OPEN — SOURCE_CONFIRMED | `cloudflare-ip.css` |
+| P2-04 | P2 | 日志 9–10px 字号 | CLOSED — 部分误报；真实 `.cfi-cmd-box` 已修为 12px | `audit-p2-20261107/ui/before-css-fix`、`after-fix` |
+| P2-05 | P2 | `confirm()` 与 LuCI modal 割裂 | CLOSED — VERIFIED（既有 `utils.confirmAction` → `ui.showModal`） | `audit-p2-20261107/ui/after-fix/report.json` |
+| P2-06 | P2 | 缺少 reduced-motion 处理 | CLOSED — FIXED（内联 CSS 覆盖已修） | `audit-p2-20261107/ui/after-fix/report.json` |
 | P2-07 | P2 | 320px 顶部导航 tab 裁切 | CLOSED — VERIFIED（320 tab 换行，8 项全部可见） | `phase-f/zoom-zh/reflow-320-*.png` |
 | P2-08 | P2 | README 仍称 r6“正在重新资格化” | CLOSED — DOC UPDATED（90dfc13） | `README.md` |
 | P2-09 | P2 | rill-ml pin 落后 main，存在未合并 PR | CLOSED — 保持 `da8389f`，理由见 `phase-d/openclash-ruby/cross-repo.md` | `cross-repo.md` |
@@ -147,19 +147,24 @@
 - **建议**：以 LuCI/Aurora 的 theme class 为准；fallback 仅在无主题 class 时生效；补对比度扫描。
 
 ### P2-04 日志 9–10px 字号
-- **文件**：[`cloudflare-ip.css`](../../package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/cloudflare-ip.css) L190（10px）、L421（9px）。
-- **风险**：375/768 下诊断/日志可读性差；长 JSON 难复制。
-- **建议**：提高到可读字号（≥12px 或 rem），保留滚动/等宽/复制；三主题截图对比。
+- **文件**：[`cloudflare-ip.css`](../../package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/cloudflare-ip.css) L190、L486、L628。
+- **复验（2026-11-07，真实 OpenWrt 24.10.8 + LuCI）**：审计所称“日志 9–10px”**不可复现**。`#log-area` 在 375/768/1024(125%)/1280/640(200%) 下 computed font-size 实测 `[12,12,12,12,16]` px，三个主题（bootstrap-light、aurora-light、aurora-dark）均为 12px。真实低于 12px 的是 `.cfi-cmd-box`：`0.9em`（375 下 10.4px、1280 下 11.7px）与移动分支 `0.8em`；该 box 在当前 v2 status 的 `missing_deps` 场景才出现，属 legacy/缺依赖修复命令路径。
+- **修复**：三处 `.cfi-cmd-box` 字号改为 `12px`，不改变布局/等宽/换行。
+- **证据**：`next-release-evidence/audit-p2-20261107/ui/before-css-fix/`（修复前 10.4/11.7px）、`ui/after-fix/`（修复后 375=12px、1280=12px；18 项检查 PASS）。
+- **状态**：CLOSED — 部分误报；真实子项已修复。正式 gate `tests/real-luci-ui.cjs` 场景 2 断言 `#log-area` 与 `.cfi-cmd-box` 均 ≥12px。
 
 ### P2-05 `confirm()` 与 LuCI modal 割裂
-- **文件**：[`diagnostics.js`](../../package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/diagnostics.js) L146；[`intelligence.js`](../../package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js) L288。
-- **风险**：外观/键盘体验不一致；自动化与可访问性差。
-- **建议**：统一 LuCI modal；保留 Esc/Enter/Tab；补确认/取消测试。
+- **文件**：[`diagnostics.js`](../../package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/diagnostics.js) L172；[`intelligence.js`](../../package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js) L377。
+- **复验**：审计指向的行号是 `refreshLogs`（L146）/旧状态渲染（L288），不是确认逻辑；当前代码已无原生 `confirm(` 调用。清日志经 `utils.confirmAction`（[`utils.js`](../../package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js) L312）调用 `ui.showModal`，Rill reset 同样走该封装。
+- **真实交互证据**（zh-CN，真实容器）：模态位于 `#modal_overlay .modal[role=dialog]`；Cancel 关闭后日志哈希不变、`clear-log` 请求 0 次、原生 dialog 0 次；Escape 关闭且无副作用；确认成功 `clearCalls=1`、文件大小 0；注入 `chmod -x /usr/bin/cf-ip-auto` 失败后提示“无法清空日志”且日志哈希保持不变。Escape/Tab 行为来自 LuCI `ui.showModal`，非插件实现。
+- **状态**：CLOSED — VERIFIED（既有实现已满足，缺的是回归测试）。正式 gate 场景 2 覆盖 Cancel 路径，`after-fix/report.json` 覆盖成功/失败/取消/回退。
 
 ### P2-06 缺少 reduced-motion 处理
-- **文件**：`cloudflare-ip.css` 的 `cfi-pulse` 动画。
-- **风险**：触摸/低动态偏好用户体验；无 `prefers-reduced-motion` 分支。
-- **建议**：加入 reduced-motion 禁用/弱化动画；三主题验证。
+- **文件**：共享 CSS 的 `cfi-pulse`（[`cloudflare-ip.css`](../../package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/cloudflare-ip.css) L420）与 [`overview.js`](../../package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js) L207 的内联 `@keyframes cfi-pulse`。
+- **真实缺陷**：共享 CSS 已有 `prefers-reduced-motion: reduce` 分支，但 overview 页面在运行时注入内联 `<style>`（同 specificity、后应用），其 `.cfi-status-icon.running-test { animation: cfi-pulse ... }` 覆盖了外部媒体查询。`reducedMotion=reduce` 下实测 `animationName` 仍为 `cfi-pulse`。
+- **修复**：在 overview.js 内联样式中补同款 `@media (prefers-reduced-motion: reduce)`；修复后实测 `animationName = none`，默认（无该偏好）仍为 `cfi-pulse`。
+- **证据**：`ui/after-fix/report.json`（`p2-06-default-animates`、`p2-06-reduced-motion-disables`、`p2-06-reduced-motion-no-plugin-transitions`）。
+- **状态**：CLOSED — FIXED（插件真实 bug，已修）。正式 gate 场景 3 覆盖。
 
 ### P2-07 320px 顶部导航 tab 裁切
 - **证据**：`visual-2e28db4/aurora-light/320x900/overview.png` 等 3 张；`Candidate IP` 右侧被裁切，页面 `overflow=false`。

@@ -1,0 +1,49 @@
+=== environment ===
+opkg version 38eccbb1fd694d4798ac1baf88f9ba83d1eac616 (2024-10-16)
+dest root /
+dest ram /tmp
+lists_dir ext /var/opkg-lists
+option overlay_root /overlay
+option check_signature
+=== install released r8 ===
+.
+Configuring curl.
+Configuring xz-utils.
+Configuring xz.
+Configuring bzip2.
+Configuring tar.
+Configuring ca-certificates.
+Configuring luci-app-cloudflare-ip.
+Package: luci-app-cloudflare-ip
+Version: 2.6.0-r8
+Depends: libc, luci-base, bash, flock, curl, tar, jq, ca-bundle, ca-certificates
+Status: install user installed
+=== user edits config ===
+=== upgrade r8 -> r9 ===
+Failed to connect to ubus
+Failed to connect to ubus
+{"success":true,"running":false,"scheduled":false,"jobRunning":false}
+Failed to connect to ubus
+Failed to connect to ubus
+Failed to connect to ubus
+Failed to connect to ubus
+Collected errors:
+ * resolve_conffiles: Existing conffile /etc/config/cf_ip is different from the conffile in the new package. The new conffile will be placed at /etc/config/cf_ip-opkg.
+Configuring luci-app-cloudflare-ip.
+=== files after upgrade ===
+-rw-------    1 root     root            66 Nov  7 05:47 cf_ip
+-rw-------    1 root     root          2446 Dec 17  2025 cf_ip-opkg
+-- /etc/config/cf_ip
+config global 'global'
+	option custom_user_marker 'p2-7-conffile'
+-- /etc/config/cf_ip-opkg
+config service 'main'
+	option enabled '0'
+	option mode 'passwall'
+	option ip_count '4'
+	option ip_type 'ipv4'
+	option speedtest_protocol 'tcp'
+=== user config unchanged? ===
+/etc/config/cf_ip: OK
+USER_CONFIG_PRESERVED=true
+=== done ===

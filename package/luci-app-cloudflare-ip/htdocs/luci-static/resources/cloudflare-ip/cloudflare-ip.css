@@ -187,7 +187,7 @@
 	padding: 0.8em 1em; border-radius: var(--cfi-radius-card);
 	background: var(--background-color-low, color-mix(in srgb, var(--background-color-high, var(--background-color-a)) 85%, var(--main-color, #0069d9)));
 	border: 1px solid var(--border-color);
-	font-family: monospace; font-size: 0.9em;
+	font-family: monospace; font-size: 12px;
 	overflow-x: auto; white-space: pre-wrap; word-break: break-all;
 }
 .table .tr.cfi-no-hover:hover { background: none !important; }
@@ -483,7 +483,7 @@
 		font-size: 12px;
 	}
 	.cfi-cmd-box {
-		font-size: 0.8em;
+		font-size: 12px;
 		padding: 0.6em 0.8em;
 	}
 	.cfi-table-wrap > .table th,
@@ -625,7 +625,7 @@
 		.cfi-btn-group { gap: 0.5em; }
 		.cfi-btn-group .cbi-button { font-size: 0.85em; padding: 0.4em 0.8em; }
 		.cfi-log-area { font-size: 12px; }
-		.cfi-cmd-box { font-size: 0.8em; padding: 0.6em 0.8em; }
+		.cfi-cmd-box { font-size: 12px; padding: 0.6em 0.8em; }
 		.cfi-table-wrap > .table th,
 		.cfi-table-wrap > .table td { padding: 0.55rem 0.6rem; }
 	}
