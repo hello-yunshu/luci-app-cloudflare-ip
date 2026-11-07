@@ -1,0 +1,2433 @@
+{
+  "schemaVersion": 1,
+  "sha": "66dcc19",
+  "environment": "real OpenWrt 24.10.8 rootfs with uhttpd/rpcd/LuCI; Chromium Playwright",
+  "method": "initial views, five CSS viewport widths, installed Bootstrap and Aurora 1.4.0 themes",
+  "notCovered": [
+    "real 200% browser zoom",
+    "complete 51-point interaction matrix",
+    "physical router",
+    "Material theme",
+    "zh_cn rendering"
+  ],
+  "pages": [
+    "overview",
+    "settings",
+    "sources",
+    "intelligence",
+    "openclash",
+    "passwall",
+    "advanced",
+    "logs"
+  ],
+  "widths": [
+    320,
+    375,
+    640,
+    768,
+    1280
+  ],
+  "rows": [
+    {
+      "theme": "bootstrap-light",
+      "width": 320,
+      "page": "overview",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 320,
+        "scrollWidth": 320,
+        "overflow": false,
+        "mainLength": 453,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 320,
+      "page": "settings",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 320,
+        "scrollWidth": 320,
+        "overflow": false,
+        "mainLength": 762,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 320,
+      "page": "sources",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 320,
+        "scrollWidth": 320,
+        "overflow": false,
+        "mainLength": 1103,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 320,
+      "page": "intelligence",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 320,
+        "scrollWidth": 320,
+        "overflow": false,
+        "mainLength": 46,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 320,
+      "page": "openclash",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 320,
+        "scrollWidth": 320,
+        "overflow": false,
+        "mainLength": 442,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 320,
+      "page": "passwall",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 320,
+        "scrollWidth": 320,
+        "overflow": false,
+        "mainLength": 453,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 320,
+      "page": "advanced",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 320,
+        "scrollWidth": 320,
+        "overflow": false,
+        "mainLength": 611,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 320,
+      "page": "logs",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 320,
+        "scrollWidth": 320,
+        "overflow": false,
+        "mainLength": 7302,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 375,
+      "page": "overview",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 375,
+        "scrollWidth": 375,
+        "overflow": false,
+        "mainLength": 453,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 375,
+      "page": "settings",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 375,
+        "scrollWidth": 375,
+        "overflow": false,
+        "mainLength": 762,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 375,
+      "page": "sources",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 375,
+        "scrollWidth": 375,
+        "overflow": false,
+        "mainLength": 1103,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 375,
+      "page": "intelligence",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 375,
+        "scrollWidth": 375,
+        "overflow": false,
+        "mainLength": 46,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 375,
+      "page": "openclash",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 375,
+        "scrollWidth": 375,
+        "overflow": false,
+        "mainLength": 442,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 375,
+      "page": "passwall",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 375,
+        "scrollWidth": 375,
+        "overflow": false,
+        "mainLength": 453,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 375,
+      "page": "advanced",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 375,
+        "scrollWidth": 375,
+        "overflow": false,
+        "mainLength": 611,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 375,
+      "page": "logs",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 375,
+        "scrollWidth": 375,
+        "overflow": false,
+        "mainLength": 7302,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 640,
+      "page": "overview",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 640,
+        "scrollWidth": 640,
+        "overflow": false,
+        "mainLength": 494,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 640,
+      "page": "settings",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 640,
+        "scrollWidth": 640,
+        "overflow": false,
+        "mainLength": 803,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 640,
+      "page": "sources",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 640,
+        "scrollWidth": 640,
+        "overflow": false,
+        "mainLength": 1180,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 640,
+      "page": "intelligence",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 640,
+        "scrollWidth": 640,
+        "overflow": false,
+        "mainLength": 46,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 640,
+      "page": "openclash",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 640,
+        "scrollWidth": 640,
+        "overflow": false,
+        "mainLength": 483,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 640,
+      "page": "passwall",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 640,
+        "scrollWidth": 640,
+        "overflow": false,
+        "mainLength": 494,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 640,
+      "page": "advanced",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 640,
+        "scrollWidth": 640,
+        "overflow": false,
+        "mainLength": 652,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 640,
+      "page": "logs",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 640,
+        "scrollWidth": 640,
+        "overflow": false,
+        "mainLength": 7343,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 768,
+      "page": "overview",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 768,
+        "scrollWidth": 768,
+        "overflow": false,
+        "mainLength": 494,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 768,
+      "page": "settings",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 768,
+        "scrollWidth": 768,
+        "overflow": false,
+        "mainLength": 803,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 768,
+      "page": "sources",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 768,
+        "scrollWidth": 768,
+        "overflow": false,
+        "mainLength": 1180,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 768,
+      "page": "intelligence",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 768,
+        "scrollWidth": 768,
+        "overflow": false,
+        "mainLength": 46,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 768,
+      "page": "openclash",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 768,
+        "scrollWidth": 768,
+        "overflow": false,
+        "mainLength": 483,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 768,
+      "page": "passwall",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 768,
+        "scrollWidth": 768,
+        "overflow": false,
+        "mainLength": 494,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 768,
+      "page": "advanced",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 768,
+        "scrollWidth": 768,
+        "overflow": false,
+        "mainLength": 652,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 768,
+      "page": "logs",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 768,
+        "scrollWidth": 768,
+        "overflow": false,
+        "mainLength": 7343,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 1280,
+      "page": "overview",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 1280,
+        "scrollWidth": 1280,
+        "overflow": false,
+        "mainLength": 494,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 1280,
+      "page": "settings",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 1280,
+        "scrollWidth": 1280,
+        "overflow": false,
+        "mainLength": 803,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 1280,
+      "page": "sources",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 1280,
+        "scrollWidth": 1280,
+        "overflow": false,
+        "mainLength": 1197,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 1280,
+      "page": "intelligence",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 1280,
+        "scrollWidth": 1280,
+        "overflow": false,
+        "mainLength": 46,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 1280,
+      "page": "openclash",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 1280,
+        "scrollWidth": 1280,
+        "overflow": false,
+        "mainLength": 499,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 1280,
+      "page": "passwall",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 1280,
+        "scrollWidth": 1280,
+        "overflow": false,
+        "mainLength": 494,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 1280,
+      "page": "advanced",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 1280,
+        "scrollWidth": 1280,
+        "overflow": false,
+        "mainLength": 652,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "bootstrap-light",
+      "width": 1280,
+      "page": "logs",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 1280,
+        "scrollWidth": 1280,
+        "overflow": false,
+        "mainLength": 7343,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 320,
+      "page": "overview",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 320,
+        "scrollWidth": 320,
+        "overflow": false,
+        "mainLength": 552,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 320,
+      "page": "settings",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 320,
+        "scrollWidth": 320,
+        "overflow": false,
+        "mainLength": 860,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 320,
+      "page": "sources",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 320,
+        "scrollWidth": 320,
+        "overflow": false,
+        "mainLength": 1201,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 320,
+      "page": "intelligence",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 320,
+        "scrollWidth": 320,
+        "overflow": false,
+        "mainLength": 144,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 320,
+      "page": "openclash",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 320,
+        "scrollWidth": 320,
+        "overflow": false,
+        "mainLength": 537,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 320,
+      "page": "passwall",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 320,
+        "scrollWidth": 320,
+        "overflow": false,
+        "mainLength": 552,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 320,
+      "page": "advanced",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 320,
+        "scrollWidth": 320,
+        "overflow": false,
+        "mainLength": 709,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 320,
+      "page": "logs",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 320,
+        "scrollWidth": 320,
+        "overflow": false,
+        "mainLength": 7401,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 375,
+      "page": "overview",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 375,
+        "scrollWidth": 375,
+        "overflow": false,
+        "mainLength": 552,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 375,
+      "page": "settings",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 375,
+        "scrollWidth": 375,
+        "overflow": false,
+        "mainLength": 860,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 375,
+      "page": "sources",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 375,
+        "scrollWidth": 375,
+        "overflow": false,
+        "mainLength": 1201,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 375,
+      "page": "intelligence",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 375,
+        "scrollWidth": 375,
+        "overflow": false,
+        "mainLength": 144,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 375,
+      "page": "openclash",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 375,
+        "scrollWidth": 375,
+        "overflow": false,
+        "mainLength": 537,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 375,
+      "page": "passwall",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 375,
+        "scrollWidth": 375,
+        "overflow": false,
+        "mainLength": 552,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 375,
+      "page": "advanced",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 375,
+        "scrollWidth": 375,
+        "overflow": false,
+        "mainLength": 709,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 375,
+      "page": "logs",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 375,
+        "scrollWidth": 375,
+        "overflow": false,
+        "mainLength": 7401,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 640,
+      "page": "overview",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 640,
+        "scrollWidth": 640,
+        "overflow": false,
+        "mainLength": 592,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 640,
+      "page": "settings",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 640,
+        "scrollWidth": 640,
+        "overflow": false,
+        "mainLength": 900,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 640,
+      "page": "sources",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 640,
+        "scrollWidth": 640,
+        "overflow": false,
+        "mainLength": 1241,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 640,
+      "page": "intelligence",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 640,
+        "scrollWidth": 640,
+        "overflow": false,
+        "mainLength": 144,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 640,
+      "page": "openclash",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 640,
+        "scrollWidth": 640,
+        "overflow": false,
+        "mainLength": 577,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 640,
+      "page": "passwall",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 640,
+        "scrollWidth": 640,
+        "overflow": false,
+        "mainLength": 592,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 640,
+      "page": "advanced",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 640,
+        "scrollWidth": 640,
+        "overflow": false,
+        "mainLength": 749,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 640,
+      "page": "logs",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 640,
+        "scrollWidth": 640,
+        "overflow": false,
+        "mainLength": 7441,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 768,
+      "page": "overview",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 768,
+        "scrollWidth": 768,
+        "overflow": false,
+        "mainLength": 592,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 768,
+      "page": "settings",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 768,
+        "scrollWidth": 768,
+        "overflow": false,
+        "mainLength": 900,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 768,
+      "page": "sources",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 768,
+        "scrollWidth": 768,
+        "overflow": false,
+        "mainLength": 1276,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 768,
+      "page": "intelligence",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 768,
+        "scrollWidth": 768,
+        "overflow": false,
+        "mainLength": 144,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 768,
+      "page": "openclash",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 768,
+        "scrollWidth": 768,
+        "overflow": false,
+        "mainLength": 577,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 768,
+      "page": "passwall",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 768,
+        "scrollWidth": 768,
+        "overflow": false,
+        "mainLength": 592,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 768,
+      "page": "advanced",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 768,
+        "scrollWidth": 768,
+        "overflow": false,
+        "mainLength": 749,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 768,
+      "page": "logs",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 768,
+        "scrollWidth": 768,
+        "overflow": false,
+        "mainLength": 7441,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 1280,
+      "page": "overview",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 1280,
+        "scrollWidth": 1280,
+        "overflow": false,
+        "mainLength": 592,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 1280,
+      "page": "settings",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 1280,
+        "scrollWidth": 1280,
+        "overflow": false,
+        "mainLength": 900,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 1280,
+      "page": "sources",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 1280,
+        "scrollWidth": 1280,
+        "overflow": false,
+        "mainLength": 1293,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 1280,
+      "page": "intelligence",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 1280,
+        "scrollWidth": 1280,
+        "overflow": false,
+        "mainLength": 144,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 1280,
+      "page": "openclash",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 1280,
+        "scrollWidth": 1280,
+        "overflow": false,
+        "mainLength": 588,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 1280,
+      "page": "passwall",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 1280,
+        "scrollWidth": 1280,
+        "overflow": false,
+        "mainLength": 592,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 1280,
+      "page": "advanced",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 1280,
+        "scrollWidth": 1280,
+        "overflow": false,
+        "mainLength": 749,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-light",
+      "width": 1280,
+      "page": "logs",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 1280,
+        "scrollWidth": 1280,
+        "overflow": false,
+        "mainLength": 144,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "false",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 320,
+      "page": "overview",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 320,
+        "scrollWidth": 320,
+        "overflow": false,
+        "mainLength": 552,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 320,
+      "page": "settings",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 320,
+        "scrollWidth": 320,
+        "overflow": false,
+        "mainLength": 860,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 320,
+      "page": "sources",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 320,
+        "scrollWidth": 320,
+        "overflow": false,
+        "mainLength": 1201,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 320,
+      "page": "intelligence",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 320,
+        "scrollWidth": 320,
+        "overflow": false,
+        "mainLength": 144,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 320,
+      "page": "openclash",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 320,
+        "scrollWidth": 320,
+        "overflow": false,
+        "mainLength": 537,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 320,
+      "page": "passwall",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 320,
+        "scrollWidth": 320,
+        "overflow": false,
+        "mainLength": 552,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 320,
+      "page": "advanced",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 320,
+        "scrollWidth": 320,
+        "overflow": false,
+        "mainLength": 709,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 320,
+      "page": "logs",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 320,
+        "scrollWidth": 320,
+        "overflow": false,
+        "mainLength": 7401,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 375,
+      "page": "overview",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 375,
+        "scrollWidth": 375,
+        "overflow": false,
+        "mainLength": 552,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 375,
+      "page": "settings",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 375,
+        "scrollWidth": 375,
+        "overflow": false,
+        "mainLength": 860,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 375,
+      "page": "sources",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 375,
+        "scrollWidth": 375,
+        "overflow": false,
+        "mainLength": 1201,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 375,
+      "page": "intelligence",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 375,
+        "scrollWidth": 375,
+        "overflow": false,
+        "mainLength": 144,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 375,
+      "page": "openclash",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 375,
+        "scrollWidth": 375,
+        "overflow": false,
+        "mainLength": 537,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 375,
+      "page": "passwall",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 375,
+        "scrollWidth": 375,
+        "overflow": false,
+        "mainLength": 552,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 375,
+      "page": "advanced",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 375,
+        "scrollWidth": 375,
+        "overflow": false,
+        "mainLength": 709,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 375,
+      "page": "logs",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 375,
+        "scrollWidth": 375,
+        "overflow": false,
+        "mainLength": 7401,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 640,
+      "page": "overview",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 640,
+        "scrollWidth": 640,
+        "overflow": false,
+        "mainLength": 592,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 640,
+      "page": "settings",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 640,
+        "scrollWidth": 640,
+        "overflow": false,
+        "mainLength": 900,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 640,
+      "page": "sources",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 640,
+        "scrollWidth": 640,
+        "overflow": false,
+        "mainLength": 1241,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 640,
+      "page": "intelligence",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 640,
+        "scrollWidth": 640,
+        "overflow": false,
+        "mainLength": 144,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 640,
+      "page": "openclash",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 640,
+        "scrollWidth": 640,
+        "overflow": false,
+        "mainLength": 577,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 640,
+      "page": "passwall",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 640,
+        "scrollWidth": 640,
+        "overflow": false,
+        "mainLength": 592,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 640,
+      "page": "advanced",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 640,
+        "scrollWidth": 640,
+        "overflow": false,
+        "mainLength": 749,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 640,
+      "page": "logs",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 640,
+        "scrollWidth": 640,
+        "overflow": false,
+        "mainLength": 7441,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 768,
+      "page": "overview",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 768,
+        "scrollWidth": 768,
+        "overflow": false,
+        "mainLength": 592,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 768,
+      "page": "settings",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 768,
+        "scrollWidth": 768,
+        "overflow": false,
+        "mainLength": 900,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 768,
+      "page": "sources",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 768,
+        "scrollWidth": 768,
+        "overflow": false,
+        "mainLength": 1276,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 768,
+      "page": "intelligence",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 768,
+        "scrollWidth": 768,
+        "overflow": false,
+        "mainLength": 144,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 768,
+      "page": "openclash",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 768,
+        "scrollWidth": 768,
+        "overflow": false,
+        "mainLength": 577,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 768,
+      "page": "passwall",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 768,
+        "scrollWidth": 768,
+        "overflow": false,
+        "mainLength": 592,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 768,
+      "page": "advanced",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 768,
+        "scrollWidth": 768,
+        "overflow": false,
+        "mainLength": 749,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 768,
+      "page": "logs",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 768,
+        "scrollWidth": 768,
+        "overflow": false,
+        "mainLength": 7441,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 1280,
+      "page": "overview",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 1280,
+        "scrollWidth": 1280,
+        "overflow": false,
+        "mainLength": 592,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 1280,
+      "page": "settings",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 1280,
+        "scrollWidth": 1280,
+        "overflow": false,
+        "mainLength": 900,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 1280,
+      "page": "sources",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 1280,
+        "scrollWidth": 1280,
+        "overflow": false,
+        "mainLength": 1293,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 1280,
+      "page": "intelligence",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 1280,
+        "scrollWidth": 1280,
+        "overflow": false,
+        "mainLength": 144,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 1280,
+      "page": "openclash",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 1280,
+        "scrollWidth": 1280,
+        "overflow": false,
+        "mainLength": 588,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 1280,
+      "page": "passwall",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 1280,
+        "scrollWidth": 1280,
+        "overflow": false,
+        "mainLength": 592,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 1280,
+      "page": "advanced",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 1280,
+        "scrollWidth": 1280,
+        "overflow": false,
+        "mainLength": 749,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    },
+    {
+      "theme": "aurora-dark",
+      "width": 1280,
+      "page": "logs",
+      "result": "PASS",
+      "failures": [],
+      "metrics": {
+        "width": 1280,
+        "scrollWidth": 1280,
+        "overflow": false,
+        "mainLength": 144,
+        "loading": false,
+        "hasMain": true,
+        "themeLoaded": true,
+        "darkMode": "true",
+        "truncated": [],
+        "tabLinks": 7
+      },
+      "consoleErrors": []
+    }
+  ],
+  "errors": []
+}
