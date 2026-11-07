@@ -1,0 +1,227 @@
+{
+  "mode": "before",
+  "viewport": "1280x900",
+  "theme": "aurora-light",
+  "pages": [
+    {
+      "slug": "overview",
+      "title": "Overview"
+    },
+    {
+      "slug": "settings",
+      "title": "Settings"
+    },
+    {
+      "slug": "sources",
+      "title": "Candidate IP Sources"
+    },
+    {
+      "slug": "intelligence",
+      "title": "Intelligence"
+    },
+    {
+      "slug": "openclash",
+      "title": "OpenClash"
+    },
+    {
+      "slug": "passwall",
+      "title": "Overview"
+    }
+  ],
+  "styles": {
+    "overview": {
+      "mapTitle": {
+        "fontSize": "26.56px",
+        "fontWeight": "700",
+        "letterSpacing": "-0.3984px"
+      },
+      "sectionTitle": {
+        "fontSize": "16.8px",
+        "fontWeight": "700",
+        "letterSpacing": "-0.168px"
+      },
+      "label": null,
+      "input": null,
+      "mapButton": {
+        "minHeight": "37.6px",
+        "borderRadius": "8px",
+        "fontWeight": "600",
+        "transform": "none",
+        "transitionProperty": "transform, box-shadow, filter"
+      },
+      "badge": {
+        "color": "rgb(165, 32, 32)",
+        "backgroundColor": "color(srgb 0.85098 0.294118 0.294118 / 0.15)",
+        "fontWeight": "500",
+        "display": "inline-flex"
+      },
+      "statValue": {
+        "fontSize": "25.2px",
+        "fontWeight": "700",
+        "color": "rgb(23, 105, 170)"
+      },
+      "emptyState": null,
+      "sectionGap": {
+        "marginBottom": "20px"
+      },
+      "summaryRow": null
+    },
+    "settings": {
+      "mapTitle": null,
+      "sectionTitle": {
+        "fontSize": "16.8px",
+        "fontWeight": "700",
+        "letterSpacing": "-0.168px"
+      },
+      "label": {
+        "fontWeight": "600"
+      },
+      "input": {
+        "minHeight": "37.6px",
+        "borderRadius": "8px",
+        "fontWeight": "400"
+      },
+      "mapButton": null,
+      "badge": null,
+      "statValue": null,
+      "emptyState": null,
+      "sectionGap": null,
+      "summaryRow": null
+    },
+    "sources": {
+      "mapTitle": null,
+      "sectionTitle": {
+        "fontSize": "16.8px",
+        "fontWeight": "700",
+        "letterSpacing": "-0.168px"
+      },
+      "label": {
+        "fontWeight": "600"
+      },
+      "input": {
+        "minHeight": "37.6px",
+        "borderRadius": "8px",
+        "fontWeight": "400"
+      },
+      "mapButton": {
+        "minHeight": "37.6px",
+        "borderRadius": "8px",
+        "fontWeight": "600",
+        "transform": "none",
+        "transitionProperty": "transform, box-shadow, filter"
+      },
+      "badge": {
+        "color": "rgb(23, 107, 49)",
+        "backgroundColor": "color(srgb 0.227451 0.65098 0.341176 / 0.15)",
+        "fontWeight": "500",
+        "display": "inline-flex"
+      },
+      "statValue": null,
+      "emptyState": null,
+      "sectionGap": null,
+      "summaryRow": null
+    },
+    "intelligence": {
+      "mapTitle": null,
+      "sectionTitle": {
+        "fontSize": "16.8px",
+        "fontWeight": "700",
+        "letterSpacing": "-0.168px"
+      },
+      "label": {
+        "fontWeight": "600"
+      },
+      "input": {
+        "minHeight": "37.6px",
+        "borderRadius": "8px",
+        "fontWeight": "400"
+      },
+      "mapButton": {
+        "minHeight": "32px",
+        "borderRadius": "8px",
+        "fontWeight": "600",
+        "transform": "none",
+        "transitionProperty": "transform, box-shadow, filter"
+      },
+      "badge": null,
+      "statValue": null,
+      "emptyState": null,
+      "sectionGap": null,
+      "summaryRow": null
+    },
+    "openclash": {
+      "mapTitle": null,
+      "sectionTitle": {
+        "fontSize": "16.8px",
+        "fontWeight": "700",
+        "letterSpacing": "-0.168px"
+      },
+      "label": {
+        "fontWeight": "600"
+      },
+      "input": {
+        "minHeight": "37.6px",
+        "borderRadius": "8px",
+        "fontWeight": "400"
+      },
+      "mapButton": {
+        "minHeight": "37.6px",
+        "borderRadius": "8px",
+        "fontWeight": "600",
+        "transform": "none",
+        "transitionProperty": "transform, box-shadow, filter"
+      },
+      "badge": null,
+      "statValue": null,
+      "emptyState": null,
+      "sectionGap": {
+        "marginBottom": "20px"
+      },
+      "summaryRow": null
+    },
+    "passwall": {
+      "mapTitle": {
+        "fontSize": "26.56px",
+        "fontWeight": "700",
+        "letterSpacing": "-0.3984px"
+      },
+      "sectionTitle": {
+        "fontSize": "16.8px",
+        "fontWeight": "700",
+        "letterSpacing": "-0.168px"
+      },
+      "label": null,
+      "input": null,
+      "mapButton": {
+        "minHeight": "37.6px",
+        "borderRadius": "8px",
+        "fontWeight": "600",
+        "transform": "none",
+        "transitionProperty": "transform, box-shadow, filter"
+      },
+      "badge": {
+        "color": "rgb(165, 32, 32)",
+        "backgroundColor": "color(srgb 0.85098 0.294118 0.294118 / 0.15)",
+        "fontWeight": "500",
+        "display": "inline-flex"
+      },
+      "statValue": {
+        "fontSize": "25.2px",
+        "fontWeight": "700",
+        "color": "rgb(23, 105, 170)"
+      },
+      "emptyState": null,
+      "sectionGap": {
+        "marginBottom": "20px"
+      },
+      "summaryRow": null
+    },
+    "hoverProbe": {
+      "transform": "matrix(1, 0, 0, 1, 0, -1)",
+      "boxShadow": "color(srgb 0.0745098 0.133333 0.219608 / 0.14) 0px 3px 10px 0px",
+      "transitionProperty": "transform, box-shadow, filter"
+    }
+  },
+  "technicalToggleCount": 0,
+  "consoleErrors": []
+}

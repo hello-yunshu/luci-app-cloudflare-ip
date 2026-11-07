@@ -2344,3 +2344,27 @@ msgstr "过滤"
 
 msgid "No matching log lines."
 msgstr "没有匹配的日志行。"
+
+msgid "Adaptive Readouts"
+msgstr "自适应读数"
+
+msgid "Time"
+msgstr "时间"
+
+msgid "Result"
+msgstr "结果"
+
+msgid "Probes"
+msgstr "探测次数"
+
+msgid "Fallback"
+msgstr "回退"
+
+msgid "Duration"
+msgstr "耗时"
+
+msgid "Measurement & Ranking"
+msgstr "测量与排序"
+
+msgid "Service Handling"
+msgstr "服务处理"
