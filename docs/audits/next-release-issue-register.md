@@ -17,7 +17,7 @@
 |---|---:|---|
 | P0 | 1 | CLOSED / FIXED |
 | P1 | 6 | 5 CLOSED / FIXED；1 PASS-BY-USER-DECISION |
-| P2 | 9 | 6 CLOSED；3 OPEN / SOURCE_CONFIRMED |
+| P2 | 11 | 7 CLOSED / FIXED；3 OPEN / SOURCE_CONFIRMED；1 OPEN — ACCEPTED（2026-11-08，深色徽标对比度） |
 | P3 | 2 | OPEN / SOURCE_CONFIRMED |
 
 > 本表保留阶段 A 的复现结构；P0/P1 状态已按发布后修复更新。P1-06 是发布后由 live 容器 fixture 发现的真实运行时缺陷，已在 `main` 修复，**未包含在 v2.6.0-8 资产中**；该修复已随 `v2.6.0-9`（2026-11-05，tag `1bbb3d7`）作为 pre-release 发布。P2-04/P2-05/P2-06 的复验与修复证据在 `next-release-evidence/audit-p2-20261107/ui/`；P2-07/P2-08/P2-09 已关闭，其余 P2/P3 仍未关闭。
@@ -42,6 +42,8 @@
 | P2-07 | P2 | 320px 顶部导航 tab 裁切 | CLOSED — VERIFIED（320 tab 换行，8 项全部可见） | `phase-f/zoom-zh/reflow-320-*.png` |
 | P2-08 | P2 | README 仍称 r6“正在重新资格化” | CLOSED — DOC UPDATED（90dfc13） | `README.md` |
 | P2-09 | P2 | rill-ml pin 落后 main，存在未合并 PR | CLOSED — 保持 `da8389f`，理由见 `phase-d/openclash-ruby/cross-repo.md` | `cross-repo.md` |
+| P2-10 | P2 | 默认 `measurement_timeout=60` 在真机负载下不足 | FIXED（默认改 180 s） | 见 §7 |
+| P2-11 | P2 | 深色下 danger 徽标文本对比度 3.6:1 | OPEN — ACCEPTED（待主题侧提亮 `--danger-color`） | `docs/ui/ui-refresh-2026-11-08-p2/after/evidence-dark.json` |
 | P3-01 | P3 | 缺少统一中文术语表 | OPEN — SOURCE_CONFIRMED | `i18n-2e28db4/` |
 | P3-02 | P3 | 设计 token/footer 一致性待收口 | OPEN — RUNTIME/视觉 | 78 张截图 |
 
@@ -212,3 +214,13 @@
 - **决策（2026-11-07，发布负责人）**：包内默认值由 60 s 改为 **180 s**；允许范围保持 **20–300 s** 不变；**不采用**按候选数自适应。依据是同一台 DUT 上 32/64/128 候选测速均为 **63–65 s**、完整一轮 **130–145 s**、**60 s 没有可行余量**。设备上现有的 `measurement_timeout=300` 继续保留为可回滚 workaround，不修改设备配置。
 - **落地内容**：`root/etc/config/cf_ip`、`root/usr/bin/cf-ip-auto-v2` 的 UCI 兜底默认、`htdocs/.../advanced.js` 的 `o.default` 同步为 180；`migrate-managed-config.sh` 的 `clamp_int ... 20 300` 与 CLI 校验 `20..300` 未变，已有用户值（包括 300）不会被重置。
 - **状态**：FIXED — 默认值已改为 180 s；未升版本号、未打 tag、未发布、未改 `release-channel.json`；设备配置与 12h soak 未受影响。
+
+## 8. P2 视觉收尾新增问题（2026-11-08）
+
+### P2-11 深色下 danger 徽标文本对比度不足（3.6:1）
+- **发现**：P2-7 按规范把徽标文本从写死的 `--cfi-danger-text:#ffabab`（深色专用）改为语义变量 `var(--danger-color, #d94b4b)` 后，Aurora 深色背景 `rgb(38,38,36)` 下实测对比度约 **3.6:1**，低于 WCAG AA 正文/小字要求的 4.5:1。亮色下 `#a52020 → #d94b4b` 无此问题。
+- **影响**：低视力或强光环境下红色“错误/失败”徽标更难辨认；不影响功能、RPC 与配置。
+- **建议修法（首选，主题侧）**：由主题在深色变量块内提亮 `--danger-color`，使相对亮度满足 ≥ 4.5:1（`#ff8a8a` 量级可作为验证起点），应用侧不改代码、不引入第二套色板。
+- **备选（需主题 owner 同意）**：应用侧仅在 `@media (prefers-color-scheme: dark)` 内对 `--danger-color` 做 `color-mix` 提亮。该做法会重新引入局部色板分叉，与 P2-7 的收口目标冲突，因此不默认采用。
+- **证据**：`docs/ui/ui-refresh-2026-11-08-p2/before/evidence-dark.json`、`after/evidence-dark.json`（`styles.overview.badge.color`）；`after/overview-dark.png`、`after/sources-dark.png`。
+- **状态**：OPEN — ACCEPTED。已记录，等待主题侧修复；本次 P2 不为此发散改动，避免重新分叉色板。
