@@ -9,6 +9,7 @@ CRONTAB_FILE="/etc/crontabs/root"
 CF_IP_AUTO_BIN="${CF_IP_AUTO_BIN:-/usr/bin/cf-ip-auto}"
 CF_IP_RUNTIME_DIR="${CF_IP_RUNTIME_DIR:-/tmp/cf_ip}"
 CF_IP_STATUS_DIR="${CF_IP_STATUS_DIR:-/etc/cf_ip}"
+CF_IP_SYSUPGRADE_CONF="${CF_IP_SYSUPGRADE_CONF:-/etc/sysupgrade.conf}"
 
 cf_ip_write_status_json() {
 	local enabled="$1" enabled_json=false phase="$2" result="$3" error="$4" dir="$CF_IP_STATUS_DIR" tmp base='{}'
@@ -36,6 +37,33 @@ cf_ip_write_disabled_status() {
 cf_ip_write_start_failure() {
 	local reason="$1"
 	cf_ip_write_status_json 1 validation_failed error "$reason" || true
+}
+
+# Rewrite the sysupgrade keep-list through a temporary file and rename, so a
+# concurrent start or a power cut can only leave the old or the new file, never
+# a half-written line.
+cf_ip_sysupgrade_write() {
+	local action="$1" path="$2" conf="$CF_IP_SYSUPGRADE_CONF" tmp mode="644"
+	[ -n "$path" ] || return 0
+	tmp="$(mktemp "$conf.cfip.XXXXXX")" || return 1
+	if [ -f "$conf" ]; then
+		mode="$(stat -c '%a' "$conf" 2>/dev/null)" || mode=644
+		if [ "$action" = add ]; then
+			cat "$conf" >"$tmp" || { rm -f "$tmp"; return 1; }
+			grep -qxF "$path" "$tmp" || printf '%s\n' "$path" >>"$tmp" || { rm -f "$tmp"; return 1; }
+		else
+			grep -Fvx "$path" "$conf" >"$tmp"
+			case $? in
+				0|1) : ;;
+				*) rm -f "$tmp"; return 1 ;;
+			esac
+		fi
+	else
+		[ "$action" = add ] || { rm -f "$tmp"; return 0; }
+		printf '%s\n' "$path" >"$tmp" || { rm -f "$tmp"; return 1; }
+	fi
+	chmod "$mode" "$tmp" 2>/dev/null || true
+	mv -f "$tmp" "$conf" || { rm -f "$tmp"; return 1; }
 }
 
 cron_ensure_newline() {
@@ -145,12 +173,9 @@ _start_service_unlocked() {
 	cfst_path="${work_dir%/}/cfst/cfst"
 	if [ "$cfst_persist" -eq 1 ]; then
 		mkdir -p "${cfst_path%/*}" 2>/dev/null || true
-		grep -qxF "$cfst_path" /etc/sysupgrade.conf 2>/dev/null || echo "$cfst_path" >> /etc/sysupgrade.conf
+		cf_ip_sysupgrade_write add "$cfst_path" || true
 	else
-		if [ -f /etc/sysupgrade.conf ]; then
-			sysupgrade_tmp="/etc/sysupgrade.conf.cfip.$$"
-			grep -Fvx "$cfst_path" /etc/sysupgrade.conf >"$sysupgrade_tmp" 2>/dev/null && mv "$sysupgrade_tmp" /etc/sysupgrade.conf || rm -f "$sysupgrade_tmp"
-		fi
+		cf_ip_sysupgrade_write remove "$cfst_path" || true
 	fi
 
 

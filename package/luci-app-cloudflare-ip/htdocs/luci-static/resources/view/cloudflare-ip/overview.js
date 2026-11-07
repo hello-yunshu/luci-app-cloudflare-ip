@@ -205,6 +205,9 @@ var css = `
 	.cfi-status-text h3.stopped { color: var(--cfi-warning-text); }
 	.cfi-status-text h3.running-test { color: var(--cfi-link); }
 	@keyframes cfi-pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+	@media (prefers-reduced-motion: reduce) {
+		.cfi-status-icon.running-test { animation: none; }
+	}
 	.cfi-status-text p { margin: 0; color: var(--cfi-muted); font-size: 0.9em; }
 	@media (max-width: 600px) {
 		.cfi-status-banner {
