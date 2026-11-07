@@ -144,9 +144,8 @@ return view.extend({
 			));
 			backupSection.appendChild(E('button', { 'class': 'btn cbi-button', 'click': function() { location.reload(); } }, _('Retry')));
 		} else if (backups.length === 0) {
-			backupSection.appendChild(E('div', {
-				'style': 'color:var(--subtext-color);font-style:italic;padding:0.5em 0'
-			}, _('No backups available. Backups are created automatically when the config is updated.')));
+			backupSection.appendChild(E('div', { 'class': 'cfi-empty-note' },
+				_('No backups available. Backups are created automatically when the config is updated.')));
 		} else {
 			var headers = [_('Backup Time'), _('Size'), _('Actions')];
 			var table = E('table', { 'class': 'table cfi-responsive-table' });

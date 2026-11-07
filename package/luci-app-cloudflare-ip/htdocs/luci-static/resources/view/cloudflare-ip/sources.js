@@ -18,6 +18,18 @@ function statusMap(rows) {
   var out={}; (rows||[]).forEach(function(x){ out[x.id]=x; }); return out;
 }
 
+function stateTone(entry) {
+  if (entry && entry.success === true)
+    return entry.stale ? 'orange' : 'green';
+  if (entry && entry.lastError)
+    return 'red';
+  return 'gray';
+}
+
+function stateBadge(entry, label) {
+  return E('span',{ 'class':'cfi-badge '+stateTone(entry) },label);
+}
+
 return view.extend({
   load:function(){ return Promise.all([uci.load('cf_ip'),callRegistry().catch(rpcFailure),callStatus().catch(rpcFailure)]); },
   render:function(data){
@@ -75,13 +87,13 @@ return view.extend({
     if (!stData._rpcError) {
       reg.forEach(function(x){ var q=st[x.id]||{}, state=q._rpcError?utils.sourceStateLabel(q):(q.success===true?utils.sourceStateLabel(q):_('Not fetched')); seen[x.id]=true; table.appendChild(E('div',{'class':'tr'},[
         E('div',{'class':'td','data-label':_('Source')},x.name),
-        E('div',{'class':'td','data-label':_('State')},state),
+        E('div',{'class':'td','data-label':_('State')},stateBadge(q,state)),
         E('div',{'class':'td','data-label':_('Candidates')},String(q.parsedCount||0)),
         E('div',{'class':'td','data-label':_('Last Error')},utils.sourceErrorNode(q.lastError))
       ])); });
       Object.keys(st).filter(function(id){return !seen[id];}).sort().forEach(function(id){var q=st[id],state=q.success===true?utils.sourceStateLabel(q):_('Error');table.appendChild(E('div',{'class':'tr'},[
         E('div',{'class':'td','data-label':_('Source')},id),
-        E('div',{'class':'td','data-label':_('State')},state),
+        E('div',{'class':'td','data-label':_('State')},q.success===true?stateBadge(q,state):E('span',{'class':'cfi-badge red'},state)),
         E('div',{'class':'td','data-label':_('Candidates')},String(q.parsedCount||0)),
         E('div',{'class':'td','data-label':_('Last Error')},utils.sourceErrorNode(q.lastError))
       ]));});
