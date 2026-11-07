@@ -1,0 +1,71 @@
+{
+  "mode": "before",
+  "viewport": "1280x900",
+  "theme": "aurora-dark (prefers-color-scheme)",
+  "pages": [
+    {
+      "slug": "overview"
+    },
+    {
+      "slug": "sources"
+    },
+    {
+      "slug": "settings"
+    },
+    {
+      "slug": "intelligence"
+    }
+  ],
+  "styles": {
+    "overview": {
+      "bodyBg": {
+        "backgroundColor": "rgb(38, 38, 36)",
+        "color": "rgb(195, 192, 182)"
+      },
+      "badge": {
+        "color": "rgb(255, 171, 171)",
+        "backgroundColor": "color(srgb 0.85098 0.294118 0.294118 / 0.15)"
+      },
+      "sectionTitle": {
+        "fontSize": "16.8px",
+        "fontWeight": "700"
+      }
+    },
+    "sources": {
+      "bodyBg": {
+        "backgroundColor": "rgb(38, 38, 36)",
+        "color": "rgb(195, 192, 182)"
+      },
+      "badge": {
+        "color": "rgb(140, 232, 172)",
+        "backgroundColor": "color(srgb 0.227451 0.65098 0.341176 / 0.15)"
+      },
+      "sectionTitle": {
+        "fontSize": "16.8px",
+        "fontWeight": "700"
+      }
+    },
+    "settings": {
+      "bodyBg": {
+        "backgroundColor": "rgb(38, 38, 36)",
+        "color": "rgb(195, 192, 182)"
+      },
+      "badge": null,
+      "sectionTitle": {
+        "fontSize": "16.8px",
+        "fontWeight": "700"
+      }
+    },
+    "intelligence": {
+      "bodyBg": {
+        "backgroundColor": "rgb(38, 38, 36)",
+        "color": "rgb(195, 192, 182)"
+      },
+      "badge": null,
+      "sectionTitle": {
+        "fontSize": "16.8px",
+        "fontWeight": "700"
+      }
+    }
+  }
+}

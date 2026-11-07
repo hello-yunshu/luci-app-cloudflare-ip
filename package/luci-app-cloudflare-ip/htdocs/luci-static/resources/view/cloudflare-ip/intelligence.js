@@ -60,32 +60,48 @@ function addCopyButton(field, text) {
 	field.appendChild(button);
 }
 
-function decorateIntelligence(node, status) {
+function decorateIntelligence(node, status, diagnostics) {
 	if (!node || typeof node.querySelectorAll !== 'function')
 		return node;
+	diagnostics = diagnostics || {};
+	function runHistoryText() {
+		var rows = diagnostics.recentDecisions || [];
+		function value(value) { return value == null || value === '' ? '—' : String(value); }
+		return rows.slice(-20).map(function(row) {
+			return [value(row.time || row.at), value(row.result), value((row.bestIps || []).join(',') || row.finalIp), value(row.adaptiveMode), value(row.candidateMode), value(row.actualUniqueProbeCount), value(row.fallbackUsed), value(row.measurementDurationMs) + ' ms'].join(' / ');
+		}).join(' | ');
+	}
+	var summaryRow = node.querySelector('.cbi-value[id$="-_runtime_summary"]');
+	if (summaryRow && summaryRow.classList)
+		summaryRow.classList.add('cfi-intel-summary');
 	var copyTargets = ['-_endpoint', '-_run_history', '-_runtime_path', '-_context_policy', '-_resource'];
 	node.querySelectorAll('.cbi-value').forEach(function(row) {
 		if (!copyTargets.some(function(suffix) { return row.id && row.id.endsWith(suffix); }))
 			return;
 		var field = row.querySelector('.cbi-value-field');
 		if (field)
-			addCopyButton(field, field.textContent.trim());
+			addCopyButton(field, row.id.endsWith('-_run_history') ? runHistoryText() : field.textContent.trim());
 	});
 	var runRow = node.querySelector('.cbi-value[id$="-_run_history"]');
 	if (runRow && !runRow.querySelector('.cfi-link-button')) {
+		if (runRow.classList)
+			runRow.classList.add('cfi-run-row');
 		runRow.querySelector('.cbi-value-field').appendChild(E('p', { 'class': 'cfi-inline-link' },
 			E('a', { 'class': 'cbi-button cfi-link-button', 'href': L.url('admin/services/cf_ip/logs') }, _('Open Logs & Records'))));
 	}
-	var liveRow = node.querySelector('.cbi-value[id="cbi-cf_ip-rill-_state"]');
-	var liveSection = liveRow ? liveRow.closest('.cbi-section') : null;
-	if (liveSection && !liveSection.querySelector('.cfi-collapse-toggle')) {
-		var body = E('div', { 'class': 'cfi-collapse-body', 'id': 'cfi-live-state-body' });
-		Array.prototype.slice.call(liveSection.children, 1).forEach(function(child) { body.appendChild(child); });
+	var technicalAnchors = ['cbi-cf_ip-main-_adaptive_state', 'cbi-cf_ip-main-_endpoint', 'cbi-cf_ip-main-_health_state', 'cbi-cf_ip-rill-_state'];
+	var technicalSections = technicalAnchors.map(function(id) {
+		var row = node.querySelector('.cbi-value[id="' + id + '"]');
+		return row ? row.closest('.cbi-section') : null;
+	}).filter(function(section) { return section != null; });
+	var liveSection = technicalSections.length ? technicalSections[technicalSections.length - 1] : null;
+	if (technicalSections.length && !node.querySelector('.cfi-technical-details')) {
+		var body = E('div', { 'class': 'cfi-collapse-body cfi-technical-details', 'id': 'cfi-technical-details-body' });
 		var toggle = E('button', {
 			'class': 'cbi-button cfi-collapse-toggle',
 			'type': 'button',
 			'aria-expanded': 'false',
-			'aria-controls': 'cfi-live-state-body'
+			'aria-controls': 'cfi-technical-details-body'
 		}, _('Show advanced diagnostics'));
 		function apply(open) {
 			body.hidden = !open;
@@ -99,8 +115,9 @@ function decorateIntelligence(node, status) {
 			try { window.localStorage.setItem('cfi.intelligence.liveState', open ? '1' : '0'); } catch (e) {}
 			apply(open);
 		});
-		liveSection.appendChild(toggle);
-		liveSection.appendChild(body);
+		technicalSections.forEach(function(section) { body.appendChild(section); });
+		node.appendChild(toggle);
+		node.appendChild(body);
 		apply(open);
 	}
 	var unknownCodes = utils.collectUnknownStatusCodes(status);
@@ -142,6 +159,11 @@ return view.extend({
 			_('The generic Rill Runtime is supplied by OpenWrt packaging. Cloudflare IP owns candidate validation, ranking policy, reward and proxy transactions.'));
 		var s, o;
 
+		s = m.section(form.NamedSection, 'main', 'service');
+		s.anonymous = true;
+		o = s.option(form.DummyValue, '_runtime_summary', _('Runtime'));
+		o.cfgvalue = function() { return runtimeSummary(status); };
+
 		s = m.section(form.NamedSection, 'main', 'service', _('Measurement Policy'));
 		s.anonymous = true;
 		o = s.option(form.ListValue, 'source_policy', _('Source Strategy'));
@@ -170,6 +192,8 @@ return view.extend({
 		o.value('guarded', _('Guarded (qualified only)'));
 		o.default = 'shadow';
 		o.description = _('Shadow records counterfactual evidence without changing production probe order. Guarded is enabled only after fresh, complete, real audit evidence.');
+		s = m.section(form.NamedSection, 'main', 'service', _('Adaptive Readouts'));
+		s.anonymous = true;
 		o = s.option(form.DummyValue, '_adaptive_state', _('Current State'));
 		o.cfgvalue = function() { return utils.statusLabel('qualification', adaptive.qualificationState || 'insufficient') + ' / ' + utils.statusLabel('mode', adaptive.effectiveMode || 'shadow'); };
 		o = s.option(form.DummyValue, '_adaptive_modes', _('Requested / Effective Mode'));
@@ -215,10 +239,40 @@ return view.extend({
 		o = s.option(form.DummyValue, '_run_history', _('Recent Runs'));
 		o.cfgvalue = function() {
 			var rows = diagnostics.recentDecisions || [];
-            function value(value) { return value == null || value === '' ? '—' : String(value); }
-            return rows.slice(-20).map(function(row) {
-                return [value(row.time || row.at), value(row.result), value((row.bestIps || []).join(',') || row.finalIp), value(row.adaptiveMode), value(row.candidateMode), value(row.actualUniqueProbeCount), value(row.fallbackUsed), value(row.measurementDurationMs) + ' ms'].join(' / ');
-            }).join(' | ') || _('No history');
+			if (!rows.length)
+				return _('No history');
+			function cell(value) {
+				if (value == null || value === '')
+					return null;
+				if (value === '—')
+					return E('span', { 'class': 'cfi-empty-value' }, '—');
+				return String(value);
+			}
+			var body = rows.slice(-20).map(function(row) {
+				return E('tr', {}, [
+					E('td', {}, cell(row.time || row.at)),
+					E('td', {}, cell(row.result)),
+					E('td', {}, cell((row.bestIps || []).join(', ') || row.finalIp)),
+					E('td', {}, cell(row.adaptiveMode)),
+					E('td', {}, cell(row.candidateMode)),
+					E('td', {}, cell(row.actualUniqueProbeCount)),
+					E('td', {}, cell(row.fallbackUsed)),
+					E('td', {}, cell(row.measurementDurationMs == null ? null : row.measurementDurationMs + ' ms'))
+				]);
+			});
+			return E('div', { 'class': 'cfi-table-wrap cfi-run-history' }, E('table', { 'class': 'table' }, [
+				E('thead', {}, E('tr', {}, [
+					E('th', {}, _('Time')),
+					E('th', {}, _('Result')),
+					E('th', {}, _('Best IPs')),
+					E('th', {}, _('Adaptive Measurement')),
+					E('th', {}, _('Candidate Intelligence')),
+					E('th', {}, _('Probes')),
+					E('th', {}, _('Fallback')),
+					E('th', {}, _('Duration'))
+				])),
+				E('tbody', {}, body)
+			]));
 		};
 
 		s = m.section(form.TypedSection, 'rill', _('Rill Runtime Consumer'));
@@ -390,7 +444,7 @@ return view.extend({
 	utils.createHandleSave(m, this);
 	utils.createHandleSaveApply(m, this);
 	var renderContents = m.renderContents.bind(m);
-	m.renderContents = function() { return renderContents().then(function(node) { return decorateIntelligence(node, status); }); };
+	m.renderContents = function() { return renderContents().then(function(node) { return decorateIntelligence(node, status, diagnostics); }); };
 	return utils.renderWithFooter(m.render(), utils.FOOTER_OPTIONS);
 	}
 });
