@@ -14,7 +14,7 @@ Cloudflare IP `2.6.0-r9`（package release r9）· GitHub Pre-release · 源码�
 ## 升级注意事项（重要）
 
 - 升级前按 [升级失败与 opkg status 恢复](../ROLLBACK_AND_RECOVERY.md) 备份 `/usr/lib/opkg/status`（存到 `/root` 或 U 盘，不要只放 `/tmp`）。
-- 升级保留现有 `/etc/config/cf_ip`；新默认配置写入 `/etc/config/cf_ip-opkg`。
+- 升级保留现有 `/etc/config/cf_ip`；新默认配置按包管理器分别落盘：IPK/opkg 写入 `/etc/config/cf_ip-opkg`，APK 写入 `/etc/config/cf_ip.apk-new`（OpenWrt 24.10.8 / opkg 与 25.12.5 / apk 3.0.5 实测）。
 - 如果设备上 r8 的 publisher 一直显示不可用，升级到 r9 后重启服务或重新保存一次配置即可恢复。
 - 不支持降级时直接 `opkg install` 旧包；需要回滚请使用 `--force-downgrade`。
 

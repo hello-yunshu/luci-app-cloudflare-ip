@@ -1,0 +1,51 @@
+# P2-3 ci-test-inventory: before/after
+
+## old implementation (origin/main) scans the whole workflow text
+def workflow_text() -> str:
+    chunks = []
+    for path in sorted(glob.glob(os.path.join(WORKFLOWS, "*.yml"))):
+        with open(path, encoding="utf-8") as handle:
+            chunks.append(handle.read())
+    return "\n".join(chunks)
+
+
+def referenced_paths(text: str) -> tuple[set[str], set[str]]:
+    explicit = set()
+    missing = set()
+    for match in re.finditer(r"tests/[A-Za-z0-9_./*-]+", text):
+        token = match.group(0).rstrip(".,;:)")
+        if "*" in token:
+            for hit in glob.glob(os.path.join(ROOT, token)):
+                if os.path.isfile(hit):
+                    explicit.add(os.path.relpath(hit, ROOT).replace(os.sep, "/"))
+            continue
+        if token.endswith("/"):
+            continue
+        if os.path.isfile(os.path.join(ROOT, token)):
+            explicit.add(token)
+        elif os.path.isdir(os.path.join(ROOT, token)):
+            continue
+        else:
+            missing.add(token)
+    return explicit, missing
+
+## old matcher (faithful reproduction, including glob expansion)
+# Applied to the post-change workflow tree: 256 includes the newly added
+# tests/sysupgrade-config-atomic.sh. The origin/main run reported 255 and exit 0.
+old referenced paths: 256
+startup-race.sh counted: True
+only textual mentions of startup-race.sh:
+.github/workflows/ci.yml:766:  startup-race:
+.github/workflows/ci.yml:777:          # installs the dependencies and then runs tests/startup-race.sh.
+.github/workflows/ci.yml:778:          timeout 900 docker run --rm --privileged -v "$PWD:/src" -w /src openwrt/rootfs:x86_64-24.10.8 sh /src/tests/startup-race-container.sh
+
+## new parser self-test
+ci-test-inventory self-test: PASS
+
+## new inventory
+CI test inventory
+  local test files: 260
+  referenced by workflows: 255
+  documented exclusions: 12
+  all executable tests are wired or documented
+exit=0
