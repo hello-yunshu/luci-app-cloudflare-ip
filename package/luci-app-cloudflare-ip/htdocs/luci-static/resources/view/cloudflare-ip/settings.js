@@ -54,9 +54,6 @@ return view.extend({
 		o.placeholder = '6h';
 		o.depends('cron_interval', 'custom');
 
-		s = m.section(form.TypedSection, 'service', _('Speed Test'));
-		s.anonymous = true;
-
 		o = s.option(form.ListValue, 'mode', _('Mode'),
 			_('Select which proxy service to update.'));
 		if (passwallInstalled)
@@ -75,19 +72,8 @@ return view.extend({
 		o.default = passwallInstalled ? 'passwall' : (openclashInstalled ? 'openclash' : (uci.get('cf_ip', 'main', 'mode') === 'openclash' ? 'openclash' : 'passwall'));
 		o.rmempty = false;
 
-		o = s.option(form.Value, 'ip_count', _('IP Count'),
-			_('Number of best IPs to keep. If fewer IPs qualify, the result reports degraded candidate count and never duplicates an IP.'));
-		o.datatype = 'range(1,20)';
-		o.placeholder = '4';
-		o.rmempty = false;
-
-		o = s.option(form.ListValue, 'ip_type', _('IP Type'),
-			_('Select which IP addresses to test.'));
-		o.value('ipv4', 'IPv4');
-		o.value('ipv6', 'IPv6');
-		o.value('both', _('Both'));
-		o.default = 'ipv4';
-		o.rmempty = false;
+		s = m.section(form.TypedSection, 'service', _('Speed Test'));
+		s.anonymous = true;
 
 		o = s.option(form.ListValue, 'speedtest_protocol', _('Speed Test Protocol'),
 			_('HTTPing supports data center filtering; TCPing does not.'));
@@ -119,6 +105,23 @@ return view.extend({
 		o.default = '200';
 		o.rmempty = false;
 
+		s = m.section(form.TypedSection, 'service', _('Measurement & Ranking'));
+		s.anonymous = true;
+
+		o = s.option(form.Value, 'ip_count', _('IP Count'),
+			_('Number of best IPs to keep. If fewer IPs qualify, the result reports degraded candidate count and never duplicates an IP.'));
+		o.datatype = 'range(1,20)';
+		o.placeholder = '4';
+		o.rmempty = false;
+
+		o = s.option(form.ListValue, 'ip_type', _('IP Type'),
+			_('Select which IP addresses to test.'));
+		o.value('ipv4', 'IPv4');
+		o.value('ipv6', 'IPv6');
+		o.value('both', _('Both'));
+		o.default = 'ipv4';
+		o.rmempty = false;
+
 		o = s.option(form.Value, 'speedtest_ping_count', _('Ping Count'),
 			_('Number of latency samples per candidate.'));
 		o.datatype = 'range(1,20)';
@@ -136,6 +139,9 @@ return view.extend({
 		o.datatype = 'range(1,9999)';
 		o.placeholder = '200';
 		o.rmempty = true;
+
+		s = m.section(form.TypedSection, 'service', _('Service Handling'));
+		s.anonymous = true;
 
 		o = s.option(form.Flag, 'stop_service', _('Stop Service Before Test'),
 			_('Stop the proxy service before speed testing to avoid interference, and restart after updating.'));

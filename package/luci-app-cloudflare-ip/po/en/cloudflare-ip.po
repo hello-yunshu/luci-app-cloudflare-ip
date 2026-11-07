@@ -2241,3 +2241,27 @@ msgstr "Filter"
 
 msgid "No matching log lines."
 msgstr "No matching log lines."
+
+msgid "Adaptive Readouts"
+msgstr "Adaptive Readouts"
+
+msgid "Time"
+msgstr "Time"
+
+msgid "Result"
+msgstr "Result"
+
+msgid "Probes"
+msgstr "Probes"
+
+msgid "Fallback"
+msgstr "Fallback"
+
+msgid "Duration"
+msgstr "Duration"
+
+msgid "Measurement & Ranking"
+msgstr "Measurement & Ranking"
+
+msgid "Service Handling"
+msgstr "Service Handling"

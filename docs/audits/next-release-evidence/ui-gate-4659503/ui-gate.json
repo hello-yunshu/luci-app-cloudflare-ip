@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "sha": "4659503",
+  "container": "cfip-ui-qc",
+  "base": "http://127.0.0.1:18080",
+  "evidence": "docs/audits/next-release-evidence/ui-gate-4659503",
+  "scenarios": [
+    {
+      "name": "sources-refresh-preserves-draft",
+      "status": "PASS",
+      "details": "draft=256, reload=false"
+    },
+    {
+      "name": "luci-modal-and-readable-text",
+      "status": "PASS",
+      "details": "log=12px, cmd=12px"
+    },
+    {
+      "name": "reduced-motion-disables-pulse",
+      "status": "PASS",
+      "details": "animation=none"
+    },
+    {
+      "name": "sources-rpc-error-visible",
+      "status": "PASS",
+      "details": "explicit error + Retry"
+    }
+  ],
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 403 (Forbidden)",
+    "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  ],
+  "openwrt": "24.10.8 x86_64",
+  "luci": "26.301.70438~aa4865e"
+}
