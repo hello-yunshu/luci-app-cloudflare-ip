@@ -80,8 +80,8 @@
 		"cfColoRestriction": "",
 		"ipType": "ipv4",
 		"normalizedTargetDomains": [
-			"assets.hey.run",
-			"static.hey.run"
+			"assets.example.com",
+			"static.example.com"
 		],
 		"speedtestProtocol": "http"
 	},
@@ -103,8 +103,8 @@
 			"cfColoRestriction": "",
 			"ipType": "ipv4",
 			"normalizedTargetDomains": [
-				"assets.hey.run",
-				"static.hey.run"
+				"assets.example.com",
+				"static.example.com"
 			],
 			"speedtestProtocol": "http"
 		},

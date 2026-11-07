@@ -39,7 +39,7 @@ trap 'rm -rf "$tmp_dir"' EXIT
 [[ "$(lower xhttp)" == "xhttp" ]] || fail "lower xhttp should stay xhttp"
 
 OPENCLASH_CONFIG="$tmp_dir/clash-proxies.yaml"
-OPENCLASH_TARGET_DOMAIN="uicbrmo.hey.run"
+OPENCLASH_TARGET_DOMAIN="proxy.example.com"
 OPENCLASH_TRANSPORT_FILTER="xhttp"
 OPENCLASH_NAME_SUFFIX=" [CF-{n}]"
 FAST_IPS=("172.64.53.65" "172.64.229.52" "162.159.33.150" "162.159.39.96")
@@ -50,7 +50,7 @@ cat >"$OPENCLASH_CONFIG" <<'YAML'
 proxies:
   - name: VLESS-ws
     type: vless
-    server: uicbrmo.hey.run
+    server: proxy.example.com
     port: 443
     tls: true
     network: ws
@@ -58,7 +58,7 @@ proxies:
       path: /ws
   - name: VLESS-xhttp
     type: vless
-    server: uicbrmo.hey.run
+    server: proxy.example.com
     port: 443
     tls: true
     network: xhttp
@@ -77,11 +77,11 @@ assert_blank_before '  - name: VLESS-xhttp [CF-1]' "$OPENCLASH_CONFIG"
 assert_blank_before '  - name: VLESS-xhttp [CF-2]' "$OPENCLASH_CONFIG"
 assert_blank_before '  - name: VLESS-xhttp [CF-3]' "$OPENCLASH_CONFIG"
 assert_blank_before '  - name: VLESS-xhttp [CF-4]' "$OPENCLASH_CONFIG"
-grep -q 'server: uicbrmo.hey.run' "$OPENCLASH_CONFIG" || fail "ws proxy should stay unchanged"
-[[ "$(grep -c 'servername: uicbrmo.hey.run' "$OPENCLASH_CONFIG")" == "4" ]] || fail "servername should stay as the domain on all generated proxies"
-[[ "$(grep -c 'Host: uicbrmo.hey.run' "$OPENCLASH_CONFIG")" == "4" ]] || fail "xhttp Host should stay as the domain on all generated proxies"
+grep -q 'server: proxy.example.com' "$OPENCLASH_CONFIG" || fail "ws proxy should stay unchanged"
+[[ "$(grep -c 'servername: proxy.example.com' "$OPENCLASH_CONFIG")" == "4" ]] || fail "servername should stay as the domain on all generated proxies"
+[[ "$(grep -c 'Host: proxy.example.com' "$OPENCLASH_CONFIG")" == "4" ]] || fail "xhttp Host should stay as the domain on all generated proxies"
 [[ "$(find "$tmp_dir" -name 'clash-proxies.yaml.bak.*' | wc -l | tr -d ' ')" == "1" ]] || fail "successful update should create one backup"
-grep -q 'server: uicbrmo.hey.run' "$(find "$tmp_dir" -name 'clash-proxies.yaml.bak.*' | head -n 1)" || fail "backup should contain the pre-update config"
+grep -q 'server: proxy.example.com' "$(find "$tmp_dir" -name 'clash-proxies.yaml.bak.*' | head -n 1)" || fail "backup should contain the pre-update config"
 
 rm -f "$tmp_dir"/no-match.yaml.bak.*
 OPENCLASH_CONFIG="$tmp_dir/no-match.yaml"
@@ -110,23 +110,23 @@ proxies:
     server: 162.159.13.39
     port: 443
     tls: true
-    servername: uicbrmo.hey.run
+    servername: proxy.example.com
     network: ws
     ws-opts:
       path: /ws
       headers:
-        Host: uicbrmo.hey.run
+        Host: proxy.example.com
   - name: VLESS-xhttp [CF-1]
     type: vless
     server: 162.159.38.42
     port: 443
     tls: true
-    servername: uicbrmo.hey.run
+    servername: proxy.example.com
     network: xhttp
     xhttp-opts:
       path: /xhttp
       headers:
-        Host: uicbrmo.hey.run
+        Host: proxy.example.com
 YAML
 
 update_openclash
@@ -146,7 +146,7 @@ cat >"$OPENCLASH_CONFIG" <<'YAML'
 proxies:
   - name: VLESS-xhttp
     type: vless
-    server: uicbrmo.hey.run
+    server: proxy.example.com
     port: 443
     tls: true
     network: xhttp

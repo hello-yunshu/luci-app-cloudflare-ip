@@ -28,7 +28,7 @@ IP_COUNT=1
 target_domains=()
 for type in vless vmess trojan; do
     for network in ws xhttp grpc h2 http; do
-        target_domains+=("${network}.${type}.uicbrmo.hey.run")
+        target_domains+=("${network}.${type}.proxy.example.com")
     done
 done
 OPENCLASH_TARGET_DOMAIN="$(IFS=,; printf '%s' "${target_domains[*]}")"
@@ -37,7 +37,7 @@ OPENCLASH_TARGET_DOMAIN="$(IFS=,; printf '%s' "${target_domains[*]}")"
     printf 'proxies:\n'
     for type in vless vmess trojan; do
         for network in ws xhttp grpc h2 http; do
-            domain="${network}.${type}.uicbrmo.hey.run"
+            domain="${network}.${type}.proxy.example.com"
             printf '  - name: %s-%s\n' "$type" "$network"
             printf '    type: %s\n' "$type"
             printf '    server: %s\n' "$domain"

@@ -69,8 +69,11 @@
 | `main` 截图 | 23 张 | 同上 |
 | PR #39 截图 + SPEC.md | 28 文件 | `c008959` |
 | PR #40 截图 | 20 张 | `50b9c1f` |
+| 合并后复检残留私有域名 | 6 文件 / 27 行 | `fix/privacy-domain-redaction-20261108` |
 
-复核：修复后对改动图片重新 OCR，主机名、私有域名、非 Cloudflare IPv4 均为 0；JSON 全部可解析；`tests/publisher-lan-policy.sh` PASS。
+首轮脱敏漏掉了文本中的私有域名。合并后对 `main` 二次 `git grep`，在 6 个文件中发现：`AUDIT_2026-10-05/evidence/cf-tests.json`、`docs/audits/g4-g5-evidence/legacy-regex-after.log`、`docs/audits/next-release-evidence/device-20261107/run-status.json`、`tests/openclash-protocol-matrix.sh`、`tests/openclash-xhttp-filter.sh`、`tests/regex-ip-suffix.sh`。在本分支统一替换为 `proxy.example.com` / `assets.example.com` / `static.example.com`。
+
+复核：修复后对改动图片重新 OCR，主机名、私有域名、非 Cloudflare IPv4 均为 0；JSON 全部可解析；`tests/openclash-protocol-matrix.sh`、`tests/openclash-xhttp-filter.sh`、`tests/regex-ip-suffix.sh`、`tests/publisher-lan-policy.sh` 全部 PASS；`git grep hey[.]run` 在 `main` + 本分支为 0。
 
 ## 4. 疑似（保留，非识别性）
 
@@ -92,7 +95,7 @@
 
 1. **历史 commit 仍含旧内容**：449 个提交中，`/Users/<user>/` 等路径字符串与旧版截图 blob 仍在 `.git` 历史里。GitHub 公开仓库可通过历史/API 访问。彻底清除需 `git filter-repo` 重写历史 + force push，会改变所有 SHA 并影响其他工作区，**未执行**。
 2. **未合并的归档分支当前树仍含旧文本**：`phase-b/next-release-fixes`（66 文件）、`evidence/ui-refinement-archive`（62）、`evidence/visual-phase-b-archive`（61）、`audit/ui-skill-review`（58）、`codex/reliability-contracts`（53）仍保留 `/Users/<user>/` 路径文本；`origin/evidence/ui-skill-audit-archive` 另含 2 张旧截图（`ui-skill-audit/matrix/aurora-*/320x900/overview.png`）。均为本地用户名路径，无密钥。
-3. **工作区未跟踪文件**：`rill-adapter/target/` 构建产物与 `docs/... 2.*` 重复文件含本机路径，均未提交、不在远端。
+3. **工作区未跟踪文件**：`rill-adapter/target/` 为本地构建产物；`docs/... 2.*` 共 507 个重复副本已于 2026-11-08 删除（未提交、不在远端，其中 15 个仍含旧路径/域名文本）。
 4. 已修复的图片 blob 旧版本仍存在于历史提交中（见第 1 条），当前各分支 tip 的 OCR 复核为干净。
 
 建议：把第 1、2 条作为独立的“历史清理”决策；若决定重写历史，需冻结所有并行工作区并重新推送所有分支。
