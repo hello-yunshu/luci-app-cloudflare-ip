@@ -1,0 +1,302 @@
+{
+	"schemaVersion": 2,
+	"running": true,
+	"enabled": true,
+	"scheduled": true,
+	"disabled": false,
+	"active_run": false,
+	"jobRunning": false,
+	"speedtestCompleted": false,
+	"runId": "",
+	"requestId": null,
+	"phase": "scheduled",
+	"last_result": "scheduled",
+	"error": "",
+	"mode": "openclash",
+	"ip_type": "ipv4",
+	"ip_count": 0,
+	"requested_ip_count": 2,
+	"speedtest_protocol": "http",
+	"best_ips": [
+		
+	],
+	"script_version": "2.6.0",
+	"package_version": "2.6.0-r9",
+	"cfst_version": "v2.3.5",
+	"candidate_budget": 128,
+	"measurement_input_count": 0,
+	"candidate_count": 0,
+	"eligible_count": 0,
+	"degraded_candidate_count": true,
+	"probeMetrics": {
+		
+	},
+	"efficiency": {
+		
+	},
+	"sourcePolicy": {
+		"requested": "balanced",
+		"effective": "balanced",
+		"registry": [
+			{
+				"id": "balanced",
+				"official": 0.5,
+				"community": 0.29999999999999999,
+				"carrier": 0.10000000000000001,
+				"measured": 0.10000000000000001
+			},
+			{
+				"id": "official-heavy",
+				"official": 0.75,
+				"community": 0.10000000000000001,
+				"carrier": 0.050000000000000003,
+				"measured": 0.10000000000000001
+			},
+			{
+				"id": "history-heavy",
+				"official": 0.34999999999999998,
+				"community": 0.34999999999999998,
+				"carrier": 0.10000000000000001,
+				"measured": 0.20000000000000001
+			},
+			{
+				"id": "diversity-heavy",
+				"official": 0.34999999999999998,
+				"community": 0.25,
+				"carrier": 0.25,
+				"measured": 0.14999999999999999
+			},
+			{
+				"id": "community-heavy",
+				"official": 0.34999999999999998,
+				"community": 0.45000000000000001,
+				"carrier": 0.14999999999999999,
+				"measured": 0.050000000000000003
+			}
+		],
+		"deterministic": true
+	},
+	"learningContext": {
+		"cfColoRestriction": "",
+		"ipType": "ipv4",
+		"normalizedTargetDomains": [
+			"assets.hey.run",
+			"static.hey.run"
+		],
+		"speedtestProtocol": "http"
+	},
+	"evidenceAggregate": {
+		"comparableDecisions": 0,
+		"wins": 0,
+		"ties": 0,
+		"losses": 0,
+		"winRate": null,
+		"meanRewardDelta": null,
+		"medianRewardDelta": null,
+		"severeRegressionCount": 0,
+		"assistedSelections": 0,
+		"holdoutCount": 0,
+		"holdoutFailures": 0,
+		"currentContextFingerprint": "588dc8e189f9b284dec79295168a843637985fc640af6a9b23dc6697a68bcb7c",
+		"currentLineageId": null,
+		"contextSummary": {
+			"cfColoRestriction": "",
+			"ipType": "ipv4",
+			"normalizedTargetDomains": [
+				"assets.hey.run",
+				"static.hey.run"
+			],
+			"speedtestProtocol": "http"
+		},
+		"contextChangedAt": null
+	},
+	"adaptiveMeasurement": {
+		"schemaVersion": 1,
+		"requestedMode": "shadow",
+		"effectiveMode": "shadow",
+		"qualificationState": "insufficient",
+		"qualificationReason": "no_eligible_audit_evidence",
+		"evidenceCount": 0,
+		"freshAt": null,
+		"contextFingerprint": null,
+		"lastContextFingerprint": "588dc8e189f9b284dec79295168a843637985fc640af6a9b23dc6697a68bcb7c",
+		"schedulerVersion": 1,
+		"featureContractVersion": 1,
+		"targetRatioPercent": 25,
+		"minProbeCount": 8,
+		"explorationRatioPercent": 10,
+		"selectedK": 0,
+		"lastRunId": "1794035416-6661-23227",
+		"runCount": 1,
+		"auditSequence": 0,
+		"lastAuditAt": null,
+		"lastAuditDue": false,
+		"lastFallbackReason": null,
+		"lastExpansionCount": 0,
+		"updatedAt": 1794035510,
+		"evidenceWindowSize": 0,
+		"evidenceFreshAt": null,
+		"available": true,
+		"partition": "native-adaptive-measurement",
+		"aggregate": {
+			"available": false,
+			"reason": "insufficient"
+		},
+		"contextPolicy": {
+			"schemaVersion": 1,
+			"policyId": "conservative-default",
+			"supported": false,
+			"reason": "insufficient_context_evidence",
+			"context": {
+				"ipFamily": "ipv4",
+				"poolBucket": "small",
+				"ipCount": 2
+			},
+			"targetRatioPercent": 25,
+			"minProbeCount": 8,
+			"auditInterval": 10,
+			"explorationRatioPercent": 10,
+			"allowedAdjustments": [
+				"targetRatioPercent",
+				"minProbeCount",
+				"auditInterval",
+				"explorationRatioPercent"
+			],
+			"protectedBoundaries": [
+				"nativeEligibility",
+				"transactionHealth",
+				"rillSafeTopK",
+				"rollbackPolicy"
+			]
+		},
+		"lastFullAudit": null,
+		"nextAuditInRuns": 9
+	},
+	"operationalHealth": {
+		"schemaVersion": 1,
+		"state": "warning",
+		"reasonCodes": [
+			
+		],
+		"adaptiveState": "insufficient",
+		"candidateState": "off",
+		"reuseState": "FULL_OPTIMIZE",
+		"rolling": {
+			"sampleCounts": {
+				"runOutcome": 2,
+				"fallback": 1,
+				"expansion": 1,
+				"reuse": 0,
+				"audit": 0
+			},
+			"meaningfulByMetric": {
+				"runOutcome": false,
+				"fallback": false,
+				"expansion": false,
+				"reuse": false,
+				"audit": false
+			},
+			"windowSize": 2,
+			"minimumMeaningfulSamples": 5,
+			"meaningful": false,
+			"runFailureMeaningful": false,
+			"fallbackMeaningful": false,
+			"expansionMeaningful": false,
+			"reuseMeaningful": false,
+			"auditMeaningful": false,
+			"runFailureRate": 0.5,
+			"fallbackRate": 0,
+			"expansionRunRate": 0,
+			"reuseValidationFailureRate": null,
+			"comparableAuditCount": 0,
+			"winnerRecallMean": null,
+			"topNRecallMean": null,
+			"severeMissRate": null,
+			"adaptiveRegression": false,
+			"candidateRegression": false
+		},
+		"lastFullOptimizeAt": 1794035559,
+		"lastAuditAt": null,
+		"lastFallbackAt": 1794035341,
+		"recommendedAction": "increase_audit_frequency_and_validate_reuse",
+		"updatedAt": 1794035559,
+		"lastEvent": {
+			"name": "full-optimize-success",
+			"reason": "full_optimize_completed",
+			"at": 1794035559
+		}
+	},
+	"whyThisRun": "Native measurement: Rill Shadow or disabled",
+	"tar": true,
+	"jq": true,
+	"cfst_installed": true,
+	"passwall_installed": false,
+	"passwall_running": false,
+	"openclash_installed": true,
+	"openclash_running": true,
+	"service": {
+		"target": "openclash",
+		"expectedEnabled": null,
+		"speedtestCompleted": false,
+		"initiallyRunning": false,
+		"initiallyHealthy": false,
+		"stoppedByCf": false,
+		"nodeFileWritten": false,
+		"serviceApplied": false,
+		"deferredUntilServiceStart": false,
+		"recoveryAttempted": false,
+		"recoveryVerified": false,
+		"error": null
+	},
+	"env": {
+		"tar": true,
+		"jq": true,
+		"cfst_installed": true,
+		"passwall_installed": false,
+		"passwall_running": null,
+		"openclash_installed": true,
+		"openclash_running": null
+	},
+	"sources": [
+		
+	],
+	"publisher": {
+		"success": false,
+		"state": "disabled",
+		"listenerReady": false,
+		"observedAt": 1794035799.881983
+	},
+	"intelligence": {
+		"available": false,
+		"state": "disabled",
+		"mode": "off",
+		"channel": "preview",
+		"partitionKey": "candidate",
+		"featureSchemaVersion": 2,
+		"modelGeneration": 2
+	},
+	"decision": {
+		
+	},
+	"confidenceLevel": null,
+	"confidenceReasons": [
+		
+	],
+	"requestedMode": null,
+	"effectiveMode": null,
+	"fallbackReason": null,
+	"authorityActionId": null,
+	"nativeRillTop1Agreement": null,
+	"rillTop3Overlap": null,
+	"transaction": {
+		
+	},
+	"recovery": {
+		"active": false,
+		"remaining": 86400,
+		"error": null
+	},
+	"status_updated_at": "2026-11-07T07:16:40Z",
+	"last_completed_run_at": "2026-11-07T07:12:39Z",
+	"last_run": "2026-11-07T07:12:39Z"
+}

@@ -127,7 +127,14 @@ if [[ -n "$mirror" && ("$mirror" != https://* || "$mirror" != */) ]]; then
 fi
 
 interval="$(uci -q get cf_ip.main.cron_interval 2>/dev/null)" || interval=""
-if [[ -z "$interval" ]] || ! /usr/bin/cf-ip-auto --to-cron "$interval" >/dev/null 2>&1; then
+custom="$(uci -q get cf_ip.main.cron_custom 2>/dev/null)" || custom=""
+if [[ "$interval" == custom ]]; then
+    # Legacy installs stored the expression in cron_custom; keep it rather
+    # than silently replacing a user schedule with the 6h default.
+    if [[ -z "$custom" ]] || ! /usr/bin/cf-ip-auto --to-cron custom "$custom" >/dev/null 2>&1; then
+        set_value cf_ip.main.cron_interval "$interval" "6h"
+    fi
+elif [[ -z "$interval" ]] || ! /usr/bin/cf-ip-auto --to-cron "$interval" >/dev/null 2>&1; then
     set_value cf_ip.main.cron_interval "$interval" "6h"
 fi
 

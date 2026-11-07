@@ -1,0 +1,14 @@
+305f01de969a97389f412989180240d4cb22016c20ad9fefb79e331bf7bfdbf8  /tmp/luci-app-cloudflare-ip-2.6.0-r9.apk
+=== install
+(1/1) Upgrading luci-app-cloudflare-ip (1.8.3-r1 -> 2.6.0-r9)
+  Executing luci-app-cloudflare-ip-2.6.0-r9.pre-upgrade
+  Installing file to etc/config/cf_ip.apk-new
+  Executing luci-app-cloudflare-ip-2.6.0-r9.post-upgrade
+  * /etc/cf_ip/backups/pre-upgrade-20261107150111.12975
+OK: 212.7 MiB in 474 packages
+install_rc=0
+=== installed
+luci-app-cloudflare-ip-2.6.0-r9 noarch {feeds/base/luci-app-cloudflare-ip} (GPL-3.0) [installed]
+=== config
+f27b82f9b859f3ade9bf24a46b626e326309d3a06f2b5a2b4926801c31de1327  /etc/config/cf_ip
+c634290b9e3e177a90a19b7e2c538ddbeaac4d696426b44488399ec1ad3bbe5a  /etc/config/cf_ip.apk-new
