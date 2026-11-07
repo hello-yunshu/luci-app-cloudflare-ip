@@ -117,7 +117,8 @@ This is a user/release-owner decision; the maintainer cannot accept it alone.
 
 ### 2A.4 Rollback / ENOSPC / power-loss drill (container)
 
-See `docs/audits/next-release-evidence/phase-i/stable-gate-drills.md` for raw
+See `docs/audits/next-release-evidence/phase-i/stable-gate-drills.md` and
+`docs/audits/next-release-evidence/audit-p1-p2-20261106/` (APK 7/7) for raw
 commands and outputs. Summary:
 
 - r8→r9 upgrade (IPK and APK): rc 0, custom UCI values and `/etc/config/cf_ip`
