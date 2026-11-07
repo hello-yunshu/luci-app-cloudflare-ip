@@ -1,0 +1,232 @@
+{
+  "mode": "after",
+  "viewport": "1280x900",
+  "theme": "aurora-light",
+  "pages": [
+    {
+      "slug": "overview",
+      "title": "Overview -yunshu"
+    },
+    {
+      "slug": "settings",
+      "title": "Settings -yunshu"
+    },
+    {
+      "slug": "sources",
+      "title": "Candidate IP Sources -yunshu"
+    },
+    {
+      "slug": "intelligence",
+      "title": "Intelligence -yunshu"
+    },
+    {
+      "slug": "openclash",
+      "title": "OpenClash -yunshu"
+    },
+    {
+      "slug": "passwall",
+      "title": "Overview -yunshu"
+    }
+  ],
+  "styles": {
+    "overview": {
+      "mapTitle": {
+        "fontSize": "24px",
+        "fontWeight": "600",
+        "letterSpacing": "-0.6px"
+      },
+      "sectionTitle": {
+        "fontSize": "20px",
+        "fontWeight": "600",
+        "letterSpacing": "-0.5px"
+      },
+      "label": null,
+      "input": null,
+      "mapButton": {
+        "minHeight": "auto",
+        "borderRadius": "12px",
+        "fontWeight": "500",
+        "transform": "none",
+        "transitionProperty": "background-color, border-color, transform"
+      },
+      "badge": {
+        "color": "rgb(217, 75, 75)",
+        "backgroundColor": "color(srgb 0.85098 0.294118 0.294118 / 0.15)",
+        "fontWeight": "500",
+        "display": "inline-flex"
+      },
+      "statValue": {
+        "fontSize": "25.2px",
+        "fontWeight": "700",
+        "color": "rgb(23, 105, 170)"
+      },
+      "emptyState": null,
+      "sectionGap": {
+        "marginBottom": "21px"
+      },
+      "summaryRow": null
+    },
+    "settings": {
+      "mapTitle": null,
+      "sectionTitle": {
+        "fontSize": "20px",
+        "fontWeight": "600",
+        "letterSpacing": "-0.5px"
+      },
+      "label": {
+        "fontWeight": "500"
+      },
+      "input": {
+        "minHeight": "0px",
+        "borderRadius": "16px",
+        "fontWeight": "400"
+      },
+      "mapButton": null,
+      "badge": null,
+      "statValue": null,
+      "emptyState": null,
+      "sectionGap": null,
+      "summaryRow": null
+    },
+    "sources": {
+      "mapTitle": null,
+      "sectionTitle": {
+        "fontSize": "20px",
+        "fontWeight": "600",
+        "letterSpacing": "-0.5px"
+      },
+      "label": {
+        "fontWeight": "500"
+      },
+      "input": {
+        "minHeight": "0px",
+        "borderRadius": "16px",
+        "fontWeight": "400"
+      },
+      "mapButton": {
+        "minHeight": "auto",
+        "borderRadius": "12px",
+        "fontWeight": "500",
+        "transform": "none",
+        "transitionProperty": "background-color, border-color, transform"
+      },
+      "badge": {
+        "color": "rgb(58, 166, 87)",
+        "backgroundColor": "color(srgb 0.227451 0.65098 0.341176 / 0.15)",
+        "fontWeight": "500",
+        "display": "inline-flex"
+      },
+      "statValue": null,
+      "emptyState": null,
+      "sectionGap": null,
+      "summaryRow": null
+    },
+    "intelligence": {
+      "mapTitle": null,
+      "sectionTitle": {
+        "fontSize": "20px",
+        "fontWeight": "600",
+        "letterSpacing": "-0.5px"
+      },
+      "label": {
+        "fontWeight": "500"
+      },
+      "input": {
+        "minHeight": "0px",
+        "borderRadius": "16px",
+        "fontWeight": "400"
+      },
+      "mapButton": {
+        "minHeight": "32px",
+        "borderRadius": "12px",
+        "fontWeight": "600",
+        "transform": "none",
+        "transitionProperty": "background-color, border-color, transform"
+      },
+      "badge": null,
+      "statValue": null,
+      "emptyState": null,
+      "sectionGap": null,
+      "summaryRow": {
+        "fontWeight": "400"
+      }
+    },
+    "openclash": {
+      "mapTitle": null,
+      "sectionTitle": {
+        "fontSize": "20px",
+        "fontWeight": "600",
+        "letterSpacing": "-0.5px"
+      },
+      "label": {
+        "fontWeight": "500"
+      },
+      "input": {
+        "minHeight": "0px",
+        "borderRadius": "16px",
+        "fontWeight": "400"
+      },
+      "mapButton": {
+        "minHeight": "0px",
+        "borderRadius": "12px",
+        "fontWeight": "500",
+        "transform": "none",
+        "transitionProperty": "background-color, border-color, transform"
+      },
+      "badge": null,
+      "statValue": null,
+      "emptyState": null,
+      "sectionGap": {
+        "marginBottom": "21px"
+      },
+      "summaryRow": null
+    },
+    "passwall": {
+      "mapTitle": {
+        "fontSize": "24px",
+        "fontWeight": "600",
+        "letterSpacing": "-0.6px"
+      },
+      "sectionTitle": {
+        "fontSize": "20px",
+        "fontWeight": "600",
+        "letterSpacing": "-0.5px"
+      },
+      "label": null,
+      "input": null,
+      "mapButton": {
+        "minHeight": "auto",
+        "borderRadius": "12px",
+        "fontWeight": "500",
+        "transform": "none",
+        "transitionProperty": "background-color, border-color, transform"
+      },
+      "badge": {
+        "color": "rgb(217, 75, 75)",
+        "backgroundColor": "color(srgb 0.85098 0.294118 0.294118 / 0.15)",
+        "fontWeight": "500",
+        "display": "inline-flex"
+      },
+      "statValue": {
+        "fontSize": "25.2px",
+        "fontWeight": "700",
+        "color": "rgb(23, 105, 170)"
+      },
+      "emptyState": null,
+      "sectionGap": {
+        "marginBottom": "21px"
+      },
+      "summaryRow": null
+    },
+    "hoverProbe": {
+      "transform": "none",
+      "boxShadow": "none",
+      "transitionProperty": "background-color, border-color, transform"
+    }
+  },
+  "technicalToggleCount": 1,
+  "technicalToggle": "Hide advanced diagnostics",
+  "technicalRows": 19,
+  "runTableRows": 4,
+  "consoleErrors": []
+}

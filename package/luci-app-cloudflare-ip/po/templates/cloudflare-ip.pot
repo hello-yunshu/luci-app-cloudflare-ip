@@ -2320,3 +2320,27 @@ msgstr ""
 
 msgid "No matching log lines."
 msgstr ""
+
+msgid "Adaptive Readouts"
+msgstr ""
+
+msgid "Time"
+msgstr ""
+
+msgid "Result"
+msgstr ""
+
+msgid "Probes"
+msgstr ""
+
+msgid "Fallback"
+msgstr ""
+
+msgid "Duration"
+msgstr ""
+
+msgid "Measurement & Ranking"
+msgstr ""
+
+msgid "Service Handling"
+msgstr ""
