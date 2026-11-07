@@ -2311,3 +2311,12 @@ msgstr ""
 
 msgid "OpenClash apply failed."
 msgstr ""
+
+msgid "All"
+msgstr ""
+
+msgid "Filter"
+msgstr ""
+
+msgid "No matching log lines."
+msgstr ""

@@ -49,16 +49,8 @@
 	letter-spacing: -0.015em;
 }
 
-.cfi-dashboard .cbi-section,
-.cfi-form-map .cbi-section {
-		background: var(--cfi-surface);
-		border: 1px solid var(--cfi-border-soft);
-		border-radius: var(--cfi-radius);
-		box-shadow: var(--cfi-shadow);
-}
-
-/* Stat cards are nested sections; keep their compact 8px radius instead of
- * inheriting the 12px surface radius. */
+/* Sections stay flat like the native LuCI panel; only the stat cards keep a
+ * compact 8px radius. */
 .cfi-dashboard .cbi-section.cfi-stat-card {
 		border-radius: var(--cfi-radius-card);
 }
@@ -175,8 +167,10 @@
 	margin-bottom: 1.25rem;
 }
 .cfi-badge {
-	display: inline-block; padding: 0.15em 0.6em; border-radius: var(--cfi-radius-chip);
-	font-size: 0.85em; font-weight: 500;
+	display: inline-flex; align-items: center; justify-content: center;
+	padding: 0.18em 0.6em; border-radius: var(--cfi-radius-chip);
+	font-size: 0.85em; font-weight: 500; line-height: 1.35;
+	vertical-align: middle;
 }
 .cfi-badge.green { background: color-mix(in srgb, var(--success-color, #3aa657) 15%, transparent); color: var(--cfi-success-text); }
 .cfi-badge.red { background: color-mix(in srgb, var(--danger-color, #d94b4b) 15%, transparent); color: var(--cfi-danger-text); }
@@ -213,14 +207,6 @@
 		border-radius: var(--cfi-radius-card);
 		overflow: hidden;
 }
-.cfi-table-wrap > .table th {
-		background: var(--cfi-surface-muted);
-		color: var(--cfi-muted-strong);
-		font-size: 0.8rem;
-		font-weight: 700;
-		letter-spacing: 0.02em;
-		text-transform: uppercase;
-}
 .cfi-table-wrap > .table th,
 .cfi-table-wrap > .table td {
 		padding: 0.7rem 0.8rem;
@@ -248,12 +234,6 @@
 .cfi-source-table > .tr > .td {
 	min-width: 0;
 }
-.cfi-source-table > .tr > .th {
-	color: var(--cfi-muted-strong);
-}
-.cfi-form-map .cbi-section-table th {
-	color: var(--cfi-muted-strong);
-}
 .cfi-kv-table th {
 	width: 12em;
 	white-space: nowrap;
@@ -262,6 +242,7 @@
 }
 .cfi-kv-table td {
 	word-break: break-word;
+	overflow-wrap: anywhere;
 }
 .cfi-actions {
 	display: flex;
@@ -344,13 +325,65 @@
 	font-size: 0.85em;
 }
 
-.cfi-status-banner,
-.cfi-stat-card,
-.cfi-cmd-box {
-		background: var(--cfi-surface);
-		border: 1px solid var(--cfi-border-soft);
-		box-shadow: var(--cfi-shadow);
+/* Status banner (moved from overview.js inline styles). */
+.cfi-status-banner {
+	display: flex;
+	align-items: center;
+	gap: 1.2em;
+	padding: 1.5em;
+	margin-bottom: 1.5em;
 }
+.cfi-status-banner.running { border-left: 5px solid var(--success-color, #3aa657); }
+.cfi-status-banner.stopped { border-left: 5px solid var(--warning-color, #d89b00); }
+.cfi-status-banner.running-test { border-left: 5px solid var(--main-color, #0069d9); }
+.cfi-status-icon {
+	font-size: 2.5em;
+	line-height: 1;
+	flex-shrink: 0;
+}
+.cfi-status-icon.running { color: var(--cfi-success-text); }
+.cfi-status-icon.stopped { color: var(--cfi-warning-text); }
+.cfi-status-icon.running-test { color: var(--cfi-link); animation: cfi-pulse 1.5s ease-in-out infinite; }
+.cfi-status-text h3 { margin: 0 0 0.2em 0; font-size: 1.3em; }
+.cfi-status-text h3.running { color: var(--cfi-success-text); }
+.cfi-status-text h3.stopped { color: var(--cfi-warning-text); }
+.cfi-status-text h3.running-test { color: var(--cfi-link); }
+.cfi-status-text p { margin: 0; color: var(--cfi-muted); font-size: 0.9em; }
+@keyframes cfi-pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+
+/* Read-only pre blocks (moved from diagnostics.js / utils.js). */
+.cfi-log-pre {
+	white-space: pre-wrap;
+	max-height: 12em;
+	overflow: auto;
+	margin: 0.5em 0;
+}
+.cfi-log-pre.cfi-log-pre-tall { max-height: 28em; }
+
+/* IP history table (moved from diagnostics.js). */
+.cfi-ip-table { width: 100%; }
+.cfi-table-wrap > .cfi-ip-table { min-width: 0; }
+.cfi-ip-table th:first-child,
+.cfi-ip-table td:first-child { width: 3em; text-align: center; }
+.cfi-ip-table td { font-family: monospace; word-break: break-all; }
+
+/* Inline text notes that used to carry a style attribute. */
+.cfi-dependency-warning { color: var(--warning-color, #c68014); margin-bottom: 0.5em; }
+.cfi-empty-note { color: var(--subtext-color); font-style: italic; padding: 0.5em 0; }
+.cfi-empty-cell { color: var(--subtext-color); font-style: italic; }
+.cfi-inline-underline { text-decoration: underline; }
+.cfi-mt-1 { margin-top: 1em; }
+
+/* Log filter row. */
+.cfi-log-controls {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.6em;
+	margin-bottom: 1em;
+}
+.cfi-log-controls .cfi-log-filter { flex: 1 1 12em; min-width: 0; }
+.cfi-log-controls .cfi-log-level { flex: 0 0 auto; }
 
 .ys-tool-footer {
 	display: flex;
@@ -423,16 +456,6 @@
 	.cfi-dashboard .cbi-button { transition: none; }
 }
 
-/* The theme tab row scrolls horizontally on narrow screens, clipping later
- * tabs. Wrap instead so every page label stays readable at 320px and at the
- * 640px effective width of 1280px @ 200%. */
-@media (max-width: 900px) {
-	#tabmenu .tabs,
-	#tabmenu .cbi-tabmenu { flex-wrap: wrap; overflow-x: visible; }
-	#tabmenu .tabs > li,
-	#tabmenu .cbi-tabmenu > li { max-width: 100%; }
-}
-
 /* Bootstrap drops the focus ring on tab links; restore a visible one without
  * changing the tab visual language. */
 #tabmenu .tabs a:focus-visible,
@@ -443,6 +466,15 @@
 }
 
 @media (max-width: 600px) {
+	.cfi-status-banner {
+		flex-wrap: wrap;
+		gap: 0.6em;
+		padding: 1em;
+	}
+	.cfi-status-icon { font-size: 1.8em; }
+	.cfi-status-text h3 { font-size: 1.1em; }
+	.cfi-status-text p { font-size: 0.85em; }
+	.cfi-ip-table td { font-size: 0.85em; }
 	.cfi-stats-grid { grid-template-columns: repeat(2, 1fr); gap: 0.6em; }
 	.cfi-stat-card { padding: 0.8rem 0.55rem; }
 	.cfi-stat-card .cfi-stat-value { font-size: 1.4em; }
@@ -602,6 +634,15 @@
 	.cfi-form-map { container-type: inline-size; }
 
 	@container (max-width: 600px) {
+		.cfi-status-banner {
+			flex-wrap: wrap;
+			gap: 0.6em;
+			padding: 1em;
+		}
+		.cfi-status-icon { font-size: 1.8em; }
+		.cfi-status-text h3 { font-size: 1.1em; }
+		.cfi-status-text p { font-size: 0.85em; }
+		.cfi-ip-table td { font-size: 0.85em; }
 		.cfi-stats-grid { grid-template-columns: repeat(2, 1fr); gap: 0.6em; }
 		.cfi-stat-card { padding: 0.8rem 0.55rem; }
 		.cfi-stat-card .cfi-stat-value { font-size: 1.4em; }

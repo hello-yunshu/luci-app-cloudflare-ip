@@ -9,29 +9,6 @@ var callClearLog = rpc.declare({ object: 'cf_ip', method: 'clear-log', expect: {
 var callIpHistory = rpc.declare({ object: 'cf_ip', method: 'ip-history', expect: { '': {} } });
 var callRillDiagnostics = rpc.declare({ object: 'cf_ip', method: 'rill-diagnostics', expect: { '': {} } });
 
-var css = `
-	.cfi-ip-table {
-		width: 100%;
-	}
-	.cfi-table-wrap > .cfi-ip-table {
-		min-width: 0;
-	}
-	.cfi-ip-table th:first-child,
-	.cfi-ip-table td:first-child {
-		width: 3em;
-		text-align: center;
-	}
-	.cfi-ip-table td {
-		font-family: monospace;
-		word-break: break-all;
-	}
-	@media (max-width: 600px) {
-		.cfi-ip-table td {
-			font-size: 0.85em;
-		}
-	}
-`;
-
 return view.extend({
 	/* Actions use their own RPC controls; this view has no editable UCI map. */
 	handleSave: null,
@@ -59,7 +36,6 @@ return view.extend({
 		var diagnostics = data.diagnostics || {};
 
 		var container = E('div', { 'class': 'cbi-map cfi-dashboard' });
-		container.appendChild(E('style', {}, css));
 
 		container.appendChild(E('h2', { 'class': 'cbi-map-title' }, _('Logs & Records')));
 
@@ -73,11 +49,11 @@ return view.extend({
 				E('p', {}, _('Diagnostics unavailable. Refresh the page or check the service status, then try again.')),
 				E('details', {}, [
 					E('summary', {}, _('Technical details')),
-					E('pre', { 'class': 'cfi-log-area', 'style': 'white-space:pre-wrap;max-height:12em;overflow:auto;margin:0.5em 0 0' }, diagnostics.error || _('Unknown'))
+					E('pre', { 'class': 'cfi-log-area cfi-log-pre' }, diagnostics.error || _('Unknown'))
 				])
 			]));
 		} else {
-			var diagnosticsPre = E('pre', { 'class': 'cfi-log-area', 'style': 'white-space:pre-wrap;max-height:28em;overflow:auto' }, JSON.stringify({
+			var diagnosticsPre = E('pre', { 'class': 'cfi-log-area cfi-log-pre cfi-log-pre-tall' }, JSON.stringify({
 				runtime: diagnostics.runtime || {},
 				qualification: diagnostics.qualification || {},
 				sourcePolicy: diagnostics.sourcePolicy || {},
@@ -103,11 +79,61 @@ return view.extend({
 		}, '');
 		var logDetails = E('details', { 'class': 'cfi-error-details', 'hidden': true });
 
+		var logLevel = E('select', { 'class': 'cbi-input-select cfi-log-level' }, [
+			E('option', { 'value': 'all' }, _('All')),
+			E('option', { 'value': 'error' }, _('Error')),
+			E('option', { 'value': 'warning' }, _('Warning'))
+		]);
+		var logKeyword = E('input', {
+			'class': 'cbi-input-text cfi-log-filter',
+			'type': 'text',
+			'placeholder': _('Filter')
+		});
+		var rawLogs = null;
+
 		function setLogText(text) {
 			logArea.value = text;
 		}
 
+		function matchingLines(text) {
+			var keyword = (logKeyword.value || '').trim().toLowerCase();
+			var level = logLevel.value;
+			return text.split('\n').filter(function(line) {
+				if (keyword && line.toLowerCase().indexOf(keyword) === -1)
+					return false;
+				if (level === 'error' && !/\b(error|failed|failure|fatal|exception)\b/i.test(line))
+					return false;
+				if (level === 'warning' && !/\bwarn(?:ing|ings)?\b/i.test(line))
+					return false;
+				return true;
+			}).join('\n');
+		}
+
+		function applyLogFilter() {
+			if (rawLogs === null)
+				return;
+			if (!rawLogs || !rawLogs.trim()) {
+				logArea.className = 'cbi-input-textarea cfi-log-area is-empty';
+				setLogText(_('No logs found.'));
+				return;
+			}
+			var filtered = matchingLines(rawLogs);
+			if (!filtered.trim()) {
+				logArea.className = 'cbi-input-textarea cfi-log-area is-empty';
+				setLogText(_('No matching log lines.'));
+				return;
+			}
+			logArea.className = 'cbi-input-textarea cfi-log-area';
+			setLogText(filtered);
+			var filteredView = logLevel.value !== 'all' || (logKeyword.value || '').trim() !== '';
+			logArea.scrollTop = filteredView ? 0 : logArea.scrollHeight;
+		}
+
+		logLevel.addEventListener('change', applyLogFilter);
+		logKeyword.addEventListener('input', applyLogFilter);
+
 		function setLogError(message, error) {
+			rawLogs = null;
 			logArea.className = 'cbi-input-textarea cfi-log-area is-error';
 			setLogText(message);
 			while (logDetails.firstChild)
@@ -127,25 +153,23 @@ return view.extend({
 		function renderLogResult(res) {
 			res = res || {};
 			if (res.success !== true) {
+				rawLogs = null;
 				setLogError(_('Unable to read logs. Check the service status and try again.'), res.error);
 			} else if (res.logs) {
 				clearLogError();
-				logArea.className = 'cbi-input-textarea cfi-log-area';
-				setLogText(res.logs);
-				if (!res.logs.trim())
-					logArea.className = 'cbi-input-textarea cfi-log-area is-empty';
-				else
-					logArea.scrollTop = logArea.scrollHeight;
+				rawLogs = res.logs;
+				applyLogFilter();
 			} else {
 				clearLogError();
-				logArea.className = 'cbi-input-textarea cfi-log-area is-empty';
-				setLogText(_('No logs found.'));
+				rawLogs = '';
+				applyLogFilter();
 			}
 		}
 
 		function refreshLogs(btn) {
 			if (btn)
 				utils.setBusy(btn, _('Loading...'));
+			rawLogs = null;
 			logArea.className = 'cbi-input-textarea cfi-log-area is-loading';
 			setLogText(_('Loading...'));
 			return callReadLog().then(renderLogResult).catch(function(e) {
@@ -156,16 +180,20 @@ return view.extend({
 			});
 		}
 
-		var logBtnBar = E('div', { 'class': 'cfi-btn-group', 'style': 'margin-bottom:1em' });
+		var logBtnBar = E('div', { 'class': 'cfi-log-controls' });
+		var logActions = E('div', { 'class': 'cfi-btn-group' });
+		logBtnBar.appendChild(logLevel);
+		logBtnBar.appendChild(logKeyword);
+		logBtnBar.appendChild(logActions);
 
-		logBtnBar.appendChild(E('button', {
+		logActions.appendChild(E('button', {
 			'class': 'cbi-button cbi-button-apply',
 			'click': function() {
 				return refreshLogs(this);
 			}
 		}, '\u21BB ' + _('Refresh')));
 
-		logBtnBar.appendChild(E('button', {
+		logActions.appendChild(E('button', {
 			'class': 'cbi-button cbi-button-reset',
 			'click': function() {
 				var btn = this;
@@ -174,6 +202,7 @@ return view.extend({
 					return callClearLog().then(function(res) {
 						res = res || {};
 						if (res.success === true) {
+							rawLogs = '';
 							logArea.className = 'cbi-input-textarea cfi-log-area is-empty';
 							setLogText(_('Log file cleared.'));
 						} else {
@@ -223,7 +252,7 @@ return view.extend({
 
 			var ips = res.ips || [];
 			if (!ips.length) {
-				ipTableBody.appendChild(E('tr', { 'class': 'tr cfi-no-hover' }, E('td', { 'class': 'td', 'colspan': '2', 'style': 'color:var(--subtext-color);font-style:italic' }, _('No IP history available'))));
+				ipTableBody.appendChild(E('tr', { 'class': 'tr cfi-no-hover' }, E('td', { 'class': 'td cfi-empty-cell', 'colspan': '2' }, _('No IP history available'))));
 				return;
 			}
 
@@ -236,7 +265,7 @@ return view.extend({
 			});
 		}
 
-		var ipBtnBar = E('div', { 'class': 'cfi-btn-group', 'style': 'margin-bottom:1em' });
+		var ipBtnBar = E('div', { 'class': 'cfi-btn-group cfi-log-controls' });
 		ipBtnBar.appendChild(E('button', {
 			'class': 'cbi-button cbi-button-apply',
 			'click': function() {

@@ -236,7 +236,7 @@ function technicalDetails(error) {
 	var raw = errorText(error);
 	return E('details', { 'class': 'cfi-error-details' }, [
 		E('summary', {}, _('Technical details')),
-		E('pre', { 'class': 'cfi-log-area', 'style': 'white-space:pre-wrap;max-height:12em;overflow:auto;margin:0.5em 0' }, raw),
+		E('pre', { 'class': 'cfi-log-area cfi-log-pre' }, raw),
 		copyButton(raw)
 	]);
 }

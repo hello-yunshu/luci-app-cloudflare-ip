@@ -5,7 +5,7 @@ const path=require('node:path');
 const assert=require('node:assert/strict');
 String.prototype.format=function(...args){let i=0;return this.replace(/%s/g,()=>args[i++]);};
 function E(tag,attrs={},children=[]){
- const n={tag,attrs,children:[],appendChild(c){this.children.push(c);if(c&&typeof c==='object')c.parentNode=this;return c;},removeChild(c){this.children.splice(this.children.indexOf(c),1);return c;},replaceChild(c,old){this.children[this.children.indexOf(old)]=c;c.parentNode=this;},get firstChild(){return this.children[0];}};
+ const n={tag,attrs,children:[],addEventListener(){},appendChild(c){this.children.push(c);if(c&&typeof c==='object')c.parentNode=this;return c;},removeChild(c){this.children.splice(this.children.indexOf(c),1);return c;},replaceChild(c,old){this.children[this.children.indexOf(old)]=c;c.parentNode=this;},get firstChild(){return this.children[0];}};
  for(const c of Array.isArray(children)?children:[children])n.appendChild(c);
  return n;
 }
