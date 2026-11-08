@@ -1,0 +1,23 @@
+=== artifact
+337e680d42b4a3f90359983ec681736fdf908a953f8709004c6e9490512c1304  luci-app-cloudflare-ip-2.6.0-r9.apk
+=== uploaded to device
+337e680d42b4a3f90359983ec681736fdf908a953f8709004c6e9490512c1304  /tmp/luci-app-cloudflare-ip-2.6.0-r9.apk
+=== install
+(1/1) Replacing luci-app-cloudflare-ip (2.6.0-r9 -> 2.6.0-r9)
+  Executing luci-app-cloudflare-ip-2.6.0-r9.pre-upgrade
+  * {"success":true,"running":false,"scheduled":false,"jobRunning":false}
+  * Command failed: ubus call service delete { "name": "cf_ip_publisher" } (Not found)
+  Installing file to etc/config/cf_ip.apk-new
+  Executing luci-app-cloudflare-ip-2.6.0-r9.post-upgrade
+OK: 212.7 MiB in 474 packages
+install_rc=0
+=== installed
+luci-app-cloudflare-ip-2.6.0-r9 noarch {feeds/base/luci-app-cloudflare-ip} (GPL-3.0) [installed]
+=== config after install
+2591b0cb3d332d8b0f8a6be059cf7f2160f4409cef115935c6d28c6a73d93751  /etc/config/cf_ip
+8e97eb380b11340e2931816f340ad8b1bc23fbfa3d0abc6afaa7869218d9633b  /etc/config/openclash
+72d26c8c2cd0378d4849dc247dacb2eeb8ebf7cfc6fa977b77a51baa8b73c090  /etc/init.d/cf_ip
+a7bc679b76527e337748b9e006eafce3600b747f65468dbb10180b59f8e327bb  /usr/bin/cf-ip-auto
+=== services after install
+openclash: running
+samba4: running; /etc/config/samba4 2209dd365396bfca8392517d246f0094aefe2b63f1376f60a995a2c782b9bb2f
