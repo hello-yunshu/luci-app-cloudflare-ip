@@ -1,8 +1,10 @@
-# 12-hour soak — main @ 30d6c31 (final acceptance candidate, in progress)
+# Soak on `main @ 30d6c31` — TERMINATED EARLY BY USER DECISION
 
-**Status: RUNNING — window ends 2026-11-09 03:21:16 CST. No verdict yet.**
-This is the acceptance window for the artifact that would ship (subject to the
-user's release decision after the verdict).
+**Status: window NOT complete — terminated at 7 samples on explicit user
+decision. `SOAK_DONE` was NOT written and no complete-window claim is made.**
+This window does **not** serve as an exact-artifact acceptance window. The
+acceptance basis is the user-adjudicated equivalence recorded in
+`../VERDICT-20261108.md`.
 
 | Item | Value |
 |---|---|
@@ -15,7 +17,17 @@ user's release decision after the verdict).
 | Window end | 2026-11-09 03:21:16 CST (epoch `1794165676`) |
 | Sampling | every 300 s into `/root/cfip-soak-30d6c31-12h/samples.log` |
 | Runner | `/bin/sh /root/cfip-soak-final.sh /root/cfip-soak-30d6c31-12h 1794165676`, PID 31864, **PPID 1** |
-| `SOAK_DONE` | not yet (expected at/after 03:21:16) |
+| `SOAK_DONE` | **absent** — runner killed at 15:52:25, 7 samples collected |
+
+## Termination
+
+- Collected 7 samples, `15:21:16 → 15:51:17`, every 300–301 s.
+- Runner `PID 31864` (PPID 1) stopped at **2026-11-08 15:52** on explicit user
+  decision to release without waiting for a full window.
+- Notes: `mem` 704–741 MB, `procs=2`, `cron=1`, `errors200=2` in all 7 samples —
+  baseline only, **not long enough to support a 12 h stability statement**.
+- Raw data: `samples-early-terminated.log` (7 lines, verbatim, no `SOAK_DONE`).
+
 
 ## Deployment
 
