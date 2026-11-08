@@ -65,7 +65,7 @@ function translateStatus(status) {
 }
 
 function showSpeedtestModal() {
-	var statusNode = E('span', { 'class': 'cfi-badge orange' }, '\u23F3 ' + _('Running'));
+	var statusNode = E('span', { 'class': 'cfi-badge green' }, '\u23F3 ' + _('Running'));
 	var logNode = E('textarea', {
 		'class': 'cbi-input-textarea cfi-log-area is-loading',
 		'rows': 20,
@@ -86,7 +86,7 @@ function showSpeedtestModal() {
 			statusNode.className = 'cfi-badge green';
 			statusNode.textContent = '\u2714 ' + translateStatus(status);
 		} else if (status === 'running') {
-			statusNode.className = 'cfi-badge orange';
+			statusNode.className = 'cfi-badge green';
 			statusNode.textContent = '\u23F3 ' + translateStatus(status);
 		} else if (status === 'error') {
 			statusNode.className = 'cfi-badge red';
@@ -423,7 +423,7 @@ return view.extend({
 		var lastResultBadge;
 		if (lastResult === 'running') {
 			lastResultBadge = E('button', {
-				'class': 'cbi-button cfi-badge orange',
+				'class': 'cbi-button cfi-badge green',
 				'type': 'button',
 				'click': showSpeedtestModal
 			}, '\u23F3 ' + translateStatus(lastResult));
@@ -431,7 +431,7 @@ return view.extend({
 			lastResultBadge = E('span', { 'class': 'cfi-badge orange' }, '\u26A0 ' + translateStatus(lastResult));
 		} else if (lastResult === 'success' || (typeof lastResult === 'string' && lastResult.indexOf('success') === 0)) {
 			lastResultBadge = E('span', { 'class': 'cfi-badge green' }, '\u2714 ' + translateStatus(lastResult));
-		} else if (lastResult === '-' || lastResult === 'unknown') {
+		} else if (lastResult === '-' || lastResult === 'unknown' || lastResult === 'scheduled') {
 			lastResultBadge = E('span', { 'class': 'cfi-badge gray' }, _('Not run yet'));
 		} else {
 			lastResultBadge = E('span', { 'class': 'cfi-badge red' }, '\u2718 ' + translateStatus(lastResult));

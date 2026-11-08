@@ -136,10 +136,20 @@
 	padding: 0.18em 0.6em; border-radius: var(--cfi-radius-chip);
 	font-size: 0.85em; font-weight: 500; line-height: 1.35;
 	vertical-align: middle;
+	/* Semantic text variants: same palette as the 15% tints, darkened for
+	 * light surfaces and lightened for dark surfaces to reach 4.5:1. */
+	--cfi-badge-green-fg: color-mix(in srgb, var(--success-color, #3aa657) 68%, #000);
+	--cfi-badge-red-fg: color-mix(in srgb, var(--danger-color, #d94b4b) 78%, #000);
+	--cfi-badge-orange-fg: color-mix(in srgb, var(--warning-color, #c68014) 68%, #000);
 }
-.cfi-badge.green { background: color-mix(in srgb, var(--success-color, #3aa657) 15%, transparent); color: var(--success-color, #3aa657); }
-.cfi-badge.red { background: color-mix(in srgb, var(--danger-color, #d94b4b) 15%, transparent); color: var(--danger-color, #d94b4b); }
-.cfi-badge.orange { background: color-mix(in srgb, var(--warning-color, #c68014) 15%, transparent); color: var(--warning-color, #c68014); }
+:root[data-darkmode="true"] .cfi-badge {
+	--cfi-badge-green-fg: color-mix(in srgb, var(--success-color, #3aa657) 55%, #fff);
+	--cfi-badge-red-fg: color-mix(in srgb, var(--danger-color, #d94b4b) 65%, #fff);
+	--cfi-badge-orange-fg: color-mix(in srgb, var(--warning-color, #c68014) 65%, #fff);
+}
+.cfi-badge.green { background: color-mix(in srgb, var(--success-color, #3aa657) 15%, transparent); color: var(--cfi-badge-green-fg); }
+.cfi-badge.red { background: color-mix(in srgb, var(--danger-color, #d94b4b) 15%, transparent); color: var(--cfi-badge-red-fg); }
+.cfi-badge.orange { background: color-mix(in srgb, var(--warning-color, #c68014) 15%, transparent); color: var(--cfi-badge-orange-fg); }
 .cfi-badge.gray { background: color-mix(in srgb, var(--cfi-muted) 15%, transparent); color: var(--cfi-muted); }
 .cfi-btn-group { display: flex; flex-wrap: wrap; gap: 0.8em; }
 .cfi-cmd-box {
@@ -335,9 +345,12 @@
 	padding: 1.5em;
 	margin-bottom: 1.5em;
 }
-.cfi-status-banner.running { border-left: 5px solid var(--success-color, #3aa657); }
-.cfi-status-banner.stopped { border-left: 5px solid var(--warning-color, #d89b00); }
-.cfi-status-banner.running-test { border-left: 5px solid var(--main-color, #0069d9); }
+/* Aurora's `#maincontent .cbi-section` (1 id + 1 class) otherwise wins the
+ * border-width/border-color cascade. Match it inside #maincontent with the
+ * extra state class so the 5px semantic edge actually renders. */
+#maincontent .cfi-status-banner.running { border-left: 5px solid var(--success-color, #3aa657); }
+#maincontent .cfi-status-banner.stopped { border-left: 5px solid var(--warning-color, #d89b00); }
+#maincontent .cfi-status-banner.running-test { border-left: 5px solid var(--main-color, #0069d9); }
 .cfi-status-icon {
 	font-size: 2.5em;
 	line-height: 1;
