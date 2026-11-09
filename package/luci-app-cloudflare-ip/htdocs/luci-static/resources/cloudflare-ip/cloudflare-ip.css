@@ -1,10 +1,6 @@
 :root {
-	--cfi-surface: var(--background-color-high, var(--background-color, #fff));
-	--cfi-surface-muted: var(--background-color-low, color-mix(in srgb, var(--cfi-surface) 92%, var(--main-color, #1769aa)));
-	--cfi-border-soft: color-mix(in srgb, var(--border-color, #d9e0e7) 72%, transparent);
 	--cfi-text: var(--text-color, var(--base-color, inherit));
 	--cfi-muted: var(--subtext-color, #586b7e);
-	--cfi-muted-strong: color-mix(in srgb, var(--cfi-muted) 82%, var(--cfi-text));
 	--cfi-link: var(--main-color, #1769aa);
 	--cfi-radius-card: 8px;
 	--cfi-radius-chip: 4px;
@@ -15,8 +11,6 @@
 
 :root[data-darkmode="true"] {
 	--cfi-muted: var(--subtext-color, #aebcca);
-	--cfi-surface: var(--background-color-high, var(--background-color, #222));
-	--cfi-surface-muted: var(--background-color-low, #2c3440);
 	--cfi-link: #9ecbff;
 }
 .cfi-dashboard a:not(.cbi-button),
@@ -30,107 +24,12 @@
 	color: var(--cfi-text);
 }
 
-.cfi-dashboard .cbi-map-title,
-.cfi-form-map .cbi-map-title {
-	margin: 0 0 1.25rem;
-}
-
 /* Sections stay flat like the native LuCI panel; only the stat cards keep a
  * compact 8px radius. */
 .cfi-dashboard .cbi-section.cfi-stat-card {
 		border-radius: var(--cfi-radius-card);
 }
 
-.cfi-dashboard .cbi-section > h3,
-.cfi-form-map .cbi-section > h3 {
-		margin: 0 0 0.9rem;
-}
-
-.cfi-form-map .cbi-section {
-		padding: 1rem 1.2rem;
-}
-
-.cfi-form-map .cbi-value {
-		display: grid;
-		grid-template-columns: minmax(12rem, 0.8fr) minmax(0, 1.7fr);
-		gap: 1rem;
-		align-items: start;
-		margin: 0;
-		padding: 0.85rem 0;
-		border-bottom: 1px solid var(--cfi-border-soft);
-}
-
-.cfi-form-map .cbi-value:last-child {
-		border-bottom: 0;
-}
-
-.cfi-form-map .cbi-value-title,
-.cfi-form-map .cbi-value-field {
-		float: none;
-		width: auto;
-		min-width: 0;
-}
-
-.cfi-form-map .cbi-value-field {
-		overflow-wrap: anywhere;
-		word-break: break-word;
-}
-
-/* MultiValue previews must fit their grid cell on narrow screens. */
-.cfi-form-map .cbi-dropdown:not(.btn):not(.cbi-button) {
-	max-width: 100%;
-	min-width: 0;
-}
-
-.cfi-form-map .cbi-value-title {
-		padding-top: 0.45rem;
-}
-
-.cfi-form-map .cbi-value-description {
-		grid-column: 2;
-		margin-top: -0.45rem;
-		color: var(--cfi-muted);
-		font-size: 0.86rem;
-		line-height: 1.45;
-}
-
-.cfi-form-map .cbi-input-text,
-.cfi-form-map .cbi-input-select,
-.cfi-form-map .cbi-input-password,
-.cfi-form-map select,
-.cfi-form-map input[type='text'],
-.cfi-form-map input:not([type]),
-.cfi-form-map input[type='number'],
-.cfi-form-map input[type='url'] {
-		box-sizing: border-box;
-		width: 100%;
-}
-
-.cfi-form-map .cbi-input-text:focus,
-.cfi-form-map .cbi-input-select:focus,
-.cfi-form-map select:focus,
-.cfi-form-map input:focus {
-		outline: 2px solid var(--cfi-link);
-		outline-offset: 1px;
-}
-
-.cfi-form-map .cbi-page-actions,
-.cfi-form-map .cbi-map-submit {
-		margin-top: 1rem;
-		padding-top: 1rem;
-		border-top: 1px solid var(--cfi-border-soft);
-}
-
-.cfi-form-map .cbi-button:focus-visible,
-.cfi-dashboard .cbi-button:focus-visible,
-.cfi-dashboard a:focus-visible {
-		outline: 2px solid var(--cfi-link);
-		outline-offset: 2px;
-}
-
-.cfi-section {
-	margin-bottom: 1.5em;
-}
 .cfi-badge {
 	display: inline-flex; align-items: center; justify-content: center;
 	padding: 0.18em 0.6em; border-radius: var(--cfi-radius-chip);
@@ -159,7 +58,6 @@
 	font-family: monospace; font-size: 12px;
 	overflow-x: auto; white-space: pre-wrap; word-break: break-all;
 }
-.table .tr.cfi-no-hover:hover { background: none !important; }
 .cfi-log-area {
 	width: 100%; box-sizing: border-box;
 	font-size: 12px;
@@ -173,21 +71,6 @@
 .cfi-value-full .cbi-value-title { float: none; width: auto; }
 .cfi-value-full .cbi-value-field { width: 100%; }
 .cfi-table-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-.cfi-table-wrap > .table {
-		width: 100%;
-		margin: 0;
-		border-collapse: separate;
-		border-spacing: 0;
-		border: 1px solid var(--cfi-border-soft);
-		border-radius: var(--cfi-radius-card);
-		overflow: hidden;
-}
-.cfi-table-wrap > .table th,
-.cfi-table-wrap > .table td {
-		padding: 0.7rem 0.8rem;
-		border-bottom: 1px solid var(--cfi-border-soft);
-}
-.cfi-table-wrap > .table tr:last-child td { border-bottom: 0; }
 .cfi-table-wrap > .table th {
 	white-space: nowrap;
 }
@@ -212,8 +95,6 @@
 .cfi-kv-table th {
 	width: 12em;
 	white-space: nowrap;
-	color: var(--cfi-muted);
-	font-weight: 600;
 }
 .cfi-kv-table td {
 	word-break: break-word;
@@ -246,15 +127,6 @@
 .cfi-empty-state h3 { margin-top: 0; }
 
 /* Intelligence copy/collapse/link affordances. */
-.cfi-form-map .cfi-copy-btn,
-.cfi-form-map .cfi-collapse-toggle,
-.cfi-form-map .cfi-link-button {
-	min-height: 2rem;
-	padding: 0.25rem 0.7rem;
-	font-size: 0.82rem;
-	font-weight: 600;
-	line-height: 1.35;
-}
 .cfi-copy-btn {
 	margin-left: 0.6em;
 	vertical-align: middle;
@@ -394,7 +266,7 @@
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
-	gap: 0.6em;
+	gap: 0.8em;
 	margin-bottom: 1em;
 }
 .cfi-log-controls .cfi-log-filter { flex: 1 1 12em; min-width: 0; }
@@ -492,14 +364,6 @@
 	.cfi-stat-card { padding: 0.8rem 0.55rem; }
 	.cfi-stat-card .cfi-stat-value { font-size: 1.4em; }
 	.cfi-stat-card .cfi-stat-label { font-size: 0.78em; }
-	.cfi-form-map .cbi-section { padding: 0.9rem; }
-	.cfi-form-map .cbi-value {
-		grid-template-columns: 1fr;
-		gap: 0.35rem;
-		padding: 0.75rem 0;
-	}
-	.cfi-form-map .cbi-value label.cbi-value-title { padding-top: 0; text-align: left; }
-	.cfi-form-map .cbi-value-description { grid-column: 1; margin-top: 0; }
 	.ys-tool-footer {
 		gap: 0.5em;
 	}
@@ -517,13 +381,6 @@
 	.ys-tool-footer-links .ys-tool-footer-link.x .ys-tool-footer-link-label {
 		display: none;
 	}
-	.cfi-btn-group {
-		gap: 0.5em;
-	}
-	.cfi-btn-group .cbi-button {
-		font-size: 0.85em;
-		padding: 0.4em 0.8em;
-	}
 	.cfi-log-area {
 		font-size: 12px;
 	}
@@ -531,8 +388,6 @@
 		font-size: 12px;
 		padding: 0.6em 0.8em;
 	}
-	.cfi-table-wrap > .table th,
-	.cfi-table-wrap > .table td { padding: 0.55rem 0.6rem; }
 }
 
 @media (max-width: 900px) {
@@ -660,14 +515,6 @@
 		.cfi-stat-card { padding: 0.8rem 0.55rem; }
 		.cfi-stat-card .cfi-stat-value { font-size: 1.4em; }
 		.cfi-stat-card .cfi-stat-label { font-size: 0.78em; }
-		.cfi-form-map .cbi-section { padding: 0.9rem; }
-		.cfi-form-map .cbi-value {
-			grid-template-columns: 1fr;
-			gap: 0.35rem;
-			padding: 0.75rem 0;
-		}
-		.cfi-form-map .cbi-value label.cbi-value-title { padding-top: 0; text-align: left; }
-		.cfi-form-map .cbi-value-description { grid-column: 1; margin-top: 0; }
 		.ys-tool-footer { gap: 0.5em; }
 		.ys-tool-footer-title,
 		.ys-tool-footer-title-separator,
@@ -676,12 +523,8 @@
 		.ys-tool-footer-links { flex-wrap: wrap; white-space: normal; }
 		.ys-tool-footer-links .ys-tool-footer-link.github .ys-tool-footer-link-label,
 		.ys-tool-footer-links .ys-tool-footer-link.x .ys-tool-footer-link-label { display: none; }
-		.cfi-btn-group { gap: 0.5em; }
-		.cfi-btn-group .cbi-button { font-size: 0.85em; padding: 0.4em 0.8em; }
 		.cfi-log-area { font-size: 12px; }
 		.cfi-cmd-box { font-size: 12px; padding: 0.6em 0.8em; }
-		.cfi-table-wrap > .table th,
-		.cfi-table-wrap > .table td { padding: 0.55rem 0.6rem; }
 	}
 
 	@container (max-width: 900px) {
