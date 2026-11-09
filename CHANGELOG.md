@@ -2,6 +2,17 @@
 
 本文件只记录已闭合、可由 exact-SHA CI 复现的用户可见变更。历史版本详情以对应 GitHub Release 的 `qualification.json` 与 Release notes 为准。
 
+## v2.6.0-11 — 2026-11-09
+
+### 变更
+
+- UI 主题复用收敛（`99fd613`）：删除遮蔽 Aurora 原生 `.cbi-value` 网格、输入框宽度、表格边框/圆角/padding 与窄屏按钮缩放的 158 行自定义覆盖，修复深色表格亮边、设置页子项错位和移动端按钮拥挤；只保留原生样式覆盖不到的横幅、徽标对比度、徽标/统计卡几何与功能版式规则。
+- Rill Runtime 依赖契约推进（PR #32）：`contracts/rill-runtime.json` 将 OpenWrt 包 pin 更新到 `0567336375f4cd3cae29c013699ca9279d0ace52`，qualification run `42169166493`（PASS，attempt 1），`manifestSha256` 同步为 `2b98f49d3154a3388876181f6ced9a923870a2e528061f36abf5b3fda0ae2517`；该候选的 consumer CI 21 个 job 全部通过。
+
+### 备注
+
+- 本版本在 `d0455c2` 的干净工作树上产出，未打 tag、未发布；`release-channel.json` 保持 `stable` 不变。
+
 ## v2.6.0-9 — 2026-11-05
 
 ### 修复
