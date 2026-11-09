@@ -4,7 +4,7 @@
 	--cfi-link: var(--main-color, #1769aa);
 	--cfi-radius-card: 8px;
 	--cfi-radius-chip: 4px;
-	--cfi-footer-border: var(--border-color, #d9e0e7);
+	--cfi-footer-border: var(--hairline, var(--border-color, #d9e0e7));
 	--cfi-footer-chip-bg: color-mix(in srgb, var(--cfi-link) 12%, transparent);
 	--cfi-footer-chip-bg-hover: color-mix(in srgb, var(--cfi-link) 18%, transparent);
 }
