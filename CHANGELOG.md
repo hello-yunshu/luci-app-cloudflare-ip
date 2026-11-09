@@ -2,6 +2,16 @@
 
 本文件只记录已闭合、可由 exact-SHA CI 复现的用户可见变更。历史版本详情以对应 GitHub Release 的 `qualification.json` 与 Release notes 为准。
 
+## v2.6.0-12 — 2026-11-09
+
+### 修复
+
+- 页脚分隔线颜色改用主题 `--hairline`（`--cfi-footer-border: var(--hairline, var(--border-color, #d9e0e7))`）：Aurora 不定义 `--border-color`，旧 fallback 让 1px 分隔线固定为 `rgb(217,224,231)`，深色下对比度约 11.4:1；改用原生 hairline 后深色约 1.25:1，浅色与 Aurora 原生分隔线一致。无 `--hairline` 的主题仍按 `--border-color` → `#d9e0e7` 回退。
+
+### 备注
+
+- 仅 CSS token 变更，未改包内容契约；upnp / nginx 的同类缺失 fallback 另行对齐。
+
 ## v2.6.0-11 — 2026-11-09
 
 ### 变更
