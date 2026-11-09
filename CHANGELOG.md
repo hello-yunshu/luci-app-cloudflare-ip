@@ -2,6 +2,16 @@
 
 本文件只记录已闭合、可由 exact-SHA CI 复现的用户可见变更。历史版本详情以对应 GitHub Release 的 `qualification.json` 与 Release notes 为准。
 
+## v2.6.0-13 — 2026-11-10
+
+### 修复
+
+- 删除工具页页脚上方的 1px 分隔线：移除 `.ys-tool-footer` 的 `border-top` 及仅供其使用的 `--cfi-footer-border` 变量。设备实测该线由本项目声明（命中 `.ys-tool-footer`），Aurora 原生 `footer` 无边框；删除后 `.ys-tool-footer` 的 computed `border-top-width` 为 `0px`（深色/浅色均如此），页脚下方由 LuCI 原生 `.cbi-page-actions` 提供的分隔线保持不变。
+
+### 备注
+
+- v2.6.0-12 为这条线所做的 `--hairline` 配色调整随声明一并失效。回退：在 `.ys-tool-footer` 中恢复 `border-top: 1px solid var(--cfi-footer-border);` 并在 `:root` 恢复 `--cfi-footer-border: var(--hairline, var(--border-color, #d9e0e7));`。
+
 ## v2.6.0-12 — 2026-11-09
 
 ### 修复
