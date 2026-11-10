@@ -1866,6 +1866,10 @@ msgstr "运行时为可选；未安装时仍可使用原生模式。"
 msgid "Scheduler Contract"
 msgstr "调度器契约"
 
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/sources.js
+msgid "Selected: %d"
+msgstr "已选 %d 项"
+
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
 msgid "Selection"
 msgstr "选择"

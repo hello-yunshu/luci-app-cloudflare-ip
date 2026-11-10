@@ -57,6 +57,38 @@ return view.extend({
     if (!o.default)
       o.default=reg.filter(function(x){return x.group==='official';}).map(function(x){return x.id;}).join(' ');
     o.rmempty=false;
+    // Native multiple-select shows at most three chips and hard-clips long
+    // labels (no ellipsis), so 5 or 10 picks look the same as 3. Keep the
+    // native chips while they fit; otherwise show one readable count line and
+    // leave the full checked list in the dropdown.
+    var renderMultiValue=o.renderWidget;
+    o.renderWidget=function(section_id,option_index,cfgvalue){
+      var el=renderMultiValue.call(this,section_id,option_index,cfgvalue);
+      var summary=E('span',{'class':'cfi-sel-summary'},'');
+      el.classList.add('cfi-source-picker');
+      // Keep the native arrow on the right of the summary line.
+      var more=el.querySelector('.more');
+      if (more) el.insertBefore(summary,more); else el.appendChild(summary);
+
+      function sync(){
+        var list=el.querySelector('ul');
+        var names=[].map.call(list?list.querySelectorAll('li[selected]'):[],function(li){return li.textContent.trim();});
+        el.removeAttribute('data-cfi-fold');
+        var shown=list?list.querySelectorAll('li[display]'):[], clipped=false;
+        for(var i=0;i<shown.length;i++)
+          if(shown[i].scrollWidth>shown[i].clientWidth+1){clipped=true;break;}
+        if(names.length>3||clipped)
+          el.setAttribute('data-cfi-fold','');
+        summary.textContent=_('Selected: %d').format(names.length);
+        summary.title=names.join(', ');
+        summary.setAttribute('aria-label',summary.title);
+      }
+
+      el.addEventListener('cbi-dropdown-change',sync);
+      el.addEventListener('cbi-dropdown-close',sync);
+      requestAnimationFrame(function(){sync();if(!el.isConnected)requestAnimationFrame(sync);});
+      return el;
+    };
 
     s=m.section(form.GridSection,'source',_('Custom Sources'),_('Custom sources accept HTTPS text lists containing IP, IP:port, IPv6, bracketed IPv6:port, or CIDR. Only the IP/CIDR is retained; domains are rejected.'));
     s.addremove=true; s.anonymous=false;
