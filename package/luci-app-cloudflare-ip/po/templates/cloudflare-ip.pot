@@ -1483,8 +1483,8 @@ msgstr ""
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/sources.js:26
 msgid ""
-"Official sources are authoritative ranges. Community sources are untrusted "
-"seed IPs and are always re-tested locally."
+"Official sources provide authoritative ranges; community sources are "
+"untrusted and are always re-tested on this device."
 msgstr ""
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/sources.js:28
