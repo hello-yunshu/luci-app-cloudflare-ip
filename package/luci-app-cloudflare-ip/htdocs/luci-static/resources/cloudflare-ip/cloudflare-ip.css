@@ -91,6 +91,33 @@
 .cfi-source-table > .tr > .td {
 	min-width: 0;
 }
+
+/* Native multiple-select caps the closed preview at three chips and clips
+ * longer labels without an ellipsis. When the selection cannot be shown in
+ * full, replace both the closed chips and the open-state clone strip with a
+ * single count line; the complete checked list is still one click away in
+ * the dropdown panel itself. */
+.cfi-form-map .cfi-source-picker > .cfi-sel-summary {
+	display: none;
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	align-items: center;
+	/* Same box metrics as a native chip, so folding never changes the
+	 * control's height. */
+	padding-inline: calc(var(--spacing) * 2);
+	padding-block: calc(var(--spacing) * 1.5);
+}
+.cfi-form-map .cfi-source-picker[data-cfi-fold] > ul:not(.dropdown),
+.cfi-form-map .cfi-source-picker[data-cfi-fold] > ul.preview,
+.cfi-form-map .cfi-source-picker[data-cfi-fold] > .more {
+	display: none !important;
+}
+.cfi-form-map .cfi-source-picker[data-cfi-fold] > .cfi-sel-summary {
+	display: flex;
+}
 .cfi-kv-table th {
 	width: 12em;
 	white-space: nowrap;
