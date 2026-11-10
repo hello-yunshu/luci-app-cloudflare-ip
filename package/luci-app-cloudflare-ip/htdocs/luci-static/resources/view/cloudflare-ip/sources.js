@@ -46,11 +46,16 @@ return view.extend({
     s.anonymous=true;
     o=s.option(form.Value,'candidate_budget',_('CFST Candidate IP Count'),_('Maximum unique IPs supplied to one CFST run. Allocation is automatic: a small local-history share, a majority community share, and the remainder official-range exploration; unused quota flows to the other pools.'));
     o.datatype='range(100,512)'; o.default='128'; o.rmempty=false;
-    o=s.option(form.MultiValue,'builtin_sources',_('Built-in Sources'),_('Official sources are authoritative ranges. Community sources are untrusted seed IPs and are always re-tested locally.'));
+    o=s.option(form.MultiValue,'builtin_sources',_('Built-in Sources'),_('Official sources provide authoritative ranges; community sources are untrusted and are always re-tested on this device.'));
     reg.forEach(function(x){
       var group=x.group==='official'?_('Official'):x.group==='carrier'?_('Carrier-specific'):x.group==='measured'?_('Measured Seeds'):_('Recommended Community');
       o.value(x.id, x.group==='official' ? x.name : group+' · '+x.name);
     });
+    // Empty means "not configured": the engine then falls back to the official
+    // ranges. Show that same default instead of an empty, error-looking field.
+    o.default=reg.filter(function(x){return x.defaultEnabled===true;}).map(function(x){return x.id;}).join(' ');
+    if (!o.default)
+      o.default=reg.filter(function(x){return x.group==='official';}).map(function(x){return x.id;}).join(' ');
     o.rmempty=false;
 
     s=m.section(form.GridSection,'source',_('Custom Sources'),_('Custom sources accept HTTPS text lists containing IP, IP:port, IPv6, bracketed IPv6:port, or CIDR. Only the IP/CIDR is retained; domains are rejected.'));
