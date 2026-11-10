@@ -34,7 +34,9 @@ class ReviewBoundary(unittest.TestCase):
             extra = [json.dumps(refs or [])]
             if (refs or []) and tag_tree:
                 extra.append(json.dumps({'tree': {'sha': tag_tree}}))
-            with patch.object(review.subprocess, 'check_output', side_effect=answers + extra):
+            identity = dict(channel='stable', version='2.6.0', tag='v2.6.0-13')
+            with patch.object(review.subprocess, 'check_output', side_effect=answers + extra), \
+                    patch.object(review, 'source', return_value=identity):
                 return review.prepare(*paths, 'b' * 40, 'hello-yunshu/luci-app-cloudflare-ip')
 
     def test_prepared_receipt_never_grants_publication(self):
