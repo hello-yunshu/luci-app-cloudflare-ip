@@ -37,9 +37,9 @@ return view.extend({
 
 		var container = E('div', { 'class': 'cbi-map cfi-dashboard' });
 
-		container.appendChild(E('h2', { 'class': 'cbi-map-title' }, _('Logs & Records')));
+		container.appendChild(E('h2', { 'name': 'content' }, _('Logs & Records')));
 
-		var intelligenceSection = E('div', { 'class': 'cbi-section cfi-section' });
+		var intelligenceSection = E('div', { 'class': 'cbi-section' });
 		intelligenceSection.appendChild(E('h3', {}, _('Rill Diagnostics')));
 		intelligenceSection.appendChild(E('p', {}, _('This snapshot explains fallback, qualification, delayed feedback, Prefix and Colo intelligence without exposing the internal model.')));
 		intelligenceSection.appendChild(E('p', { 'class': 'cfi-inline-link' },
@@ -68,7 +68,7 @@ return view.extend({
 		container.appendChild(intelligenceSection);
 
 		/* Recent Logs */
-		var logSection = E('div', { 'class': 'cbi-section cfi-section' });
+		var logSection = E('div', { 'class': 'cbi-section' });
 		logSection.appendChild(E('h3', {}, _('Recent Logs')));
 
 		var logArea = E('textarea', {
@@ -79,7 +79,7 @@ return view.extend({
 		}, '');
 		var logDetails = E('details', { 'class': 'cfi-error-details', 'hidden': true });
 
-		var logLevel = E('select', { 'class': 'cbi-input-select cfi-log-level' }, [
+		var logLevel = E('select', { 'class': 'cfi-log-level' }, [
 			E('option', { 'value': 'all' }, _('All')),
 			E('option', { 'value': 'error' }, _('Error')),
 			E('option', { 'value': 'warning' }, _('Warning'))
@@ -181,7 +181,7 @@ return view.extend({
 		}
 
 		var logBtnBar = E('div', { 'class': 'cfi-log-controls' });
-		var logActions = E('div', { 'class': 'cfi-btn-group' });
+		var logActions = E('div', {});
 		logBtnBar.appendChild(logLevel);
 		logBtnBar.appendChild(logKeyword);
 		logBtnBar.appendChild(logActions);
@@ -233,7 +233,7 @@ return view.extend({
 		container.appendChild(logSection);
 
 		/* IP History */
-		var ipSection = E('div', { 'class': 'cbi-section cfi-section' });
+		var ipSection = E('div', { 'class': 'cbi-section' });
 		ipSection.appendChild(E('h3', {}, _('IP History') + ' ' + _('(latest 10)')));
 
 		var ipTableBody = E('tbody');
@@ -244,7 +244,7 @@ return view.extend({
 
 			res = res || {};
 			if (res.success !== true) {
-				ipTableBody.appendChild(E('tr', { 'class': 'tr' }, E('td', { 'class': 'td', 'colspan': '2' },
+				ipTableBody.appendChild(E('tr', {}, E('td', { 'colspan': '2' },
 						utils.errorPanel(_('Unable to load IP history.'), _('Refresh and try again; the previous rows are unchanged.'), res.error)
 					)));
 				return;
@@ -252,20 +252,20 @@ return view.extend({
 
 			var ips = res.ips || [];
 			if (!ips.length) {
-				ipTableBody.appendChild(E('tr', { 'class': 'tr cfi-no-hover' }, E('td', { 'class': 'td cfi-empty-cell', 'colspan': '2' }, _('No IP history available'))));
+				ipTableBody.appendChild(E('tr', {}, E('td', { 'colspan': '2' }, _('No IP history available'))));
 				return;
 			}
 
 			ips.forEach(function(item, i) {
 				var ip = (typeof item === 'string') ? item : (item.ip || '');
-				ipTableBody.appendChild(E('tr', { 'class': 'tr' }, [
-					E('td', { 'class': 'td' }, String(i + 1)),
-					E('td', { 'class': 'td' }, ip)
+				ipTableBody.appendChild(E('tr', {}, [
+					E('td', {}, String(i + 1)),
+					E('td', {}, ip)
 				]));
 			});
 		}
 
-		var ipBtnBar = E('div', { 'class': 'cfi-btn-group cfi-log-controls' });
+		var ipBtnBar = E('div', { 'class': 'cfi-log-controls' });
 		ipBtnBar.appendChild(E('button', {
 			'class': 'cbi-button cbi-button-apply',
 			'click': function() {
@@ -284,15 +284,15 @@ return view.extend({
 
 		renderIpHistory(historyData);
 
-		ipSection.appendChild(E('div', { 'class': 'cfi-table-wrap' }, E('table', { 'class': 'table cfi-ip-table' }, [
-			E('thead', {}, E('tr', { 'class': 'tr' }, [
-				E('th', { 'class': 'th' }, '#'),
-				E('th', { 'class': 'th' }, _('IP Address'))
+		ipSection.appendChild(E('table', { 'class': 'table' }, [
+			E('thead', {}, E('tr', {}, [
+				E('th', {}, '#'),
+				E('th', {}, _('IP Address'))
 			])),
 			ipTableBody
-		])));
+		]));
 		container.appendChild(ipSection);
 
-		return utils.appendFooter(container, utils.FOOTER_OPTIONS);
+		return container;
 	}
 });

@@ -156,7 +156,7 @@ return view.extend({
 		utils.createHandleSave(m, this);
 		utils.createHandleSaveApply(m, this);
 
-		return utils.renderWithFooter(m.render().then(function(node) {
+		return m.render().then(function(node) {
 			if (envError)
 				node.appendChild(utils.errorPanel(
 					_('Unable to check the proxy environment.'),
@@ -164,6 +164,6 @@ return view.extend({
 					env.error
 				));
 			return node;
-		}), utils.FOOTER_OPTIONS);
+		});
 	}
 });

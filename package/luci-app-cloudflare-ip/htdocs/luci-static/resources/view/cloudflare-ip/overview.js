@@ -65,7 +65,7 @@ function translateStatus(status) {
 }
 
 function showSpeedtestModal() {
-	var statusNode = E('span', { 'class': 'cfi-badge green' }, '\u23F3 ' + _('Running'));
+	var statusNode = E('span', { 'class': 'label success' }, '\u23F3 ' + _('Running'));
 	var logNode = E('textarea', {
 		'class': 'cbi-input-textarea cfi-log-area is-loading',
 		'rows': 20,
@@ -83,16 +83,16 @@ function showSpeedtestModal() {
 		var isRunning = status === 'running';
 
 		if (status === 'success' || (typeof status === 'string' && status.indexOf('success') === 0)) {
-			statusNode.className = 'cfi-badge green';
+			statusNode.className = 'label success';
 			statusNode.textContent = '\u2714 ' + translateStatus(status);
 		} else if (status === 'running') {
-			statusNode.className = 'cfi-badge green';
+			statusNode.className = 'label success';
 			statusNode.textContent = '\u23F3 ' + translateStatus(status);
 		} else if (status === 'error') {
-			statusNode.className = 'cfi-badge red';
+			statusNode.className = 'label important';
 			statusNode.textContent = '\u2718 ' + translateStatus(status);
 		} else {
-			statusNode.className = 'cfi-badge gray';
+			statusNode.className = 'label';
 			statusNode.textContent = translateStatus(status);
 		}
 
@@ -123,7 +123,7 @@ function showSpeedtestModal() {
 			E('label', { 'class': 'cbi-value-title' }, _('Status')),
 			E('div', { 'class': 'cbi-value-field' }, statusNode)
 		]),
-		E('div', { 'class': 'cbi-value cfi-value-full' }, [
+		E('div', { 'class': 'cbi-value' }, [
 			E('label', { 'class': 'cbi-value-title' }, _('Log')),
 			E('div', { 'class': 'cbi-value-field' }, logNode)
 		]),
@@ -153,36 +153,36 @@ function waitReadyAndReload() {
 
 function makeEnvBadge(installed, label) {
 	if (typeof installed !== 'boolean')
-		return E('span', { 'class': 'cfi-badge gray' }, '? ' + _('Unknown'));
+		return E('span', { 'class': 'label' }, '? ' + _('Unknown'));
 	if (installed) {
-		return E('span', { 'class': 'cfi-badge green' }, '\u2714 ' + (label || _('Installed')));
+		return E('span', { 'class': 'label success' }, '\u2714 ' + (label || _('Installed')));
 	}
-	return E('span', { 'class': 'cfi-badge orange' }, '\u2718 ' + (label || _('Missing')));
+	return E('span', { 'class': 'label warning' }, '\u2718 ' + (label || _('Missing')));
 }
 
 function makePluginBadge(installed, running) {
 	if (typeof installed !== 'boolean')
 		return makeEnvBadge(null);
 	if (installed && typeof running !== 'boolean')
-		return E('span', { 'class': 'cfi-badge gray' }, _('Installed (Status Unknown)'));
+		return E('span', { 'class': 'label' }, _('Installed (Status Unknown)'));
 	if (installed && running) {
-		return E('span', { 'class': 'cfi-badge green' }, '\u2714 ' + _('Running'));
+		return E('span', { 'class': 'label success' }, '\u2714 ' + _('Running'));
 	} else if (installed) {
-		return E('span', { 'class': 'cfi-badge orange' }, '\u26A0 ' + _('Installed (Stopped)'));
+		return E('span', { 'class': 'label warning' }, '\u26A0 ' + _('Installed (Stopped)'));
 	}
-	return E('span', { 'class': 'cfi-badge orange' }, '\u2718 ' + _('Not Installed'));
+	return E('span', { 'class': 'label warning' }, '\u2718 ' + _('Not Installed'));
 }
 
 function buildDepSection(missingDeps, pkgManager) {
 	if (!missingDeps || missingDeps.length === 0)
 		return null;
 
-	var section = E('div', { 'class': 'cbi-section cfi-section' });
+	var section = E('div', { 'class': 'cbi-section' });
 	section.appendChild(E('h3', {}, _('Missing Dependencies & Fix Commands')));
 	var installCmd = pkgManager === 'apk' ?
 		'apk add --allow-untrusted ' + missingDeps.join(' ') :
 		'opkg install ' + missingDeps.join(' ');
-	section.appendChild(E('p', { 'class': 'cfi-dependency-warning' },
+	section.appendChild(E('p', {},
 		'\u2718 ' + _('Missing dependencies: ') + missingDeps.join(', ')));
 	section.appendChild(E('div', { 'class': 'cfi-cmd-box' }, installCmd));
 	return section;
@@ -229,27 +229,22 @@ return view.extend({
 
 		var container = E('div', { 'class': 'cbi-map cfi-dashboard' });
 
-		container.appendChild(E('h2', { 'class': 'cbi-map-title' }, _('Overview')));
+		container.appendChild(E('h2', { 'name': 'content' }, _('Overview')));
 
 		var isRunningTest = data.active_run === true || data.jobRunning === true;
-		var bannerState = isRunningTest ? 'running-test' : (running ? 'running' : 'stopped');
 		var banner = E('div', {
-			'class': 'cbi-section cfi-status-banner ' + bannerState,
+			'class': 'cbi-section alert-message ' + (isRunningTest || running ? 'success' : 'warning'),
 			'role': 'status',
 			'aria-live': 'polite',
 			'aria-atomic': 'true'
 		});
-		banner.appendChild(E('div', { 'class': 'cfi-status-icon ' + bannerState },
-			isRunningTest ? '\u23F3' : (running ? '\u25CF' : '\u25CB')));
-		var bannerText = E('div', { 'class': 'cfi-status-text' });
-		bannerText.appendChild(E('h3', { 'class': bannerState },
+		banner.appendChild(E('h3', {},
 			isRunningTest ? _('Speed Test Running') : (running ? _('Service Enabled') : _('Service Stopped'))));
-		bannerText.appendChild(E('p', {}, isRunningTest ?
+		banner.appendChild(E('p', {}, isRunningTest ?
 			_('Cloudflare IP speed test is in progress. Please wait.') :
 			(running ?
 				_('Cloudflare IP optimization service is enabled and scheduled.') :
 				_('Cloudflare IP optimization service is not running. Click Start to begin.'))));
-		banner.appendChild(bannerText);
 		container.appendChild(banner);
 
 		if (isRunningTest) {
@@ -291,10 +286,10 @@ return view.extend({
 
 		container.appendChild(statsGrid);
 
-		var controlSection = E('div', { 'class': 'cbi-section cfi-section' });
+		var controlSection = E('div', { 'class': 'cbi-section' });
 		controlSection.appendChild(E('h3', {}, _('Service Control')));
 
-		var btnGroup = E('div', { 'class': 'cfi-btn-group' });
+		var btnGroup = E('div', {});
 
 		if (!running) {
 			btnGroup.appendChild(E('button', {
@@ -405,40 +400,40 @@ return view.extend({
 
 		container.appendChild(controlSection);
 
-		var infoSection = E('div', { 'class': 'cbi-section cfi-section' });
+		var infoSection = E('div', { 'class': 'cbi-section' });
 		infoSection.appendChild(E('h3', {}, _('Service Information')));
 
-		var infoTable = E('table', { 'class': 'table cfi-kv-table' });
+		var infoTable = E('table', { 'class': 'table' });
 
-		infoTable.appendChild(E('tr', { 'class': 'tr' }, [
-			E('th', { 'class': 'th' }, _('Mode')),
-			E('td', { 'class': 'td' }, mode)
+		infoTable.appendChild(E('tr', {}, [
+			E('th', {}, _('Mode')),
+			E('td', {}, mode)
 		]));
 
-		infoTable.appendChild(E('tr', { 'class': 'tr' }, [
-			E('th', { 'class': 'th' }, _('Last Run Time')),
-			E('td', { 'class': 'td' }, lastRun)
+		infoTable.appendChild(E('tr', {}, [
+			E('th', {}, _('Last Run Time')),
+			E('td', {}, lastRun)
 		]));
 
 		var lastResultBadge;
 		if (lastResult === 'running') {
 			lastResultBadge = E('button', {
-				'class': 'cbi-button cfi-badge green',
+				'class': 'cbi-button cbi-button-apply',
 				'type': 'button',
 				'click': showSpeedtestModal
 			}, '\u23F3 ' + translateStatus(lastResult));
 		} else if (lastResult === 'warning') {
-			lastResultBadge = E('span', { 'class': 'cfi-badge orange' }, '\u26A0 ' + translateStatus(lastResult));
+			lastResultBadge = E('span', { 'class': 'label warning' }, '\u26A0 ' + translateStatus(lastResult));
 		} else if (lastResult === 'success' || (typeof lastResult === 'string' && lastResult.indexOf('success') === 0)) {
-			lastResultBadge = E('span', { 'class': 'cfi-badge green' }, '\u2714 ' + translateStatus(lastResult));
+			lastResultBadge = E('span', { 'class': 'label success' }, '\u2714 ' + translateStatus(lastResult));
 		} else if (lastResult === '-' || lastResult === 'unknown' || lastResult === 'scheduled') {
-			lastResultBadge = E('span', { 'class': 'cfi-badge gray' }, _('Not run yet'));
+			lastResultBadge = E('span', { 'class': 'label' }, _('Not run yet'));
 		} else {
-			lastResultBadge = E('span', { 'class': 'cfi-badge red' }, '\u2718 ' + translateStatus(lastResult));
+			lastResultBadge = E('span', { 'class': 'label important' }, '\u2718 ' + translateStatus(lastResult));
 		}
-		infoTable.appendChild(E('tr', { 'class': 'tr' }, [
-			E('th', { 'class': 'th' }, _('Last Result')),
-			E('td', { 'class': 'td' }, lastResultBadge)
+		infoTable.appendChild(E('tr', {}, [
+			E('th', {}, _('Last Result')),
+			E('td', {}, lastResultBadge)
 		]));
 		if (data.service && data.service.target === 'openclash') {
 			var serviceMessage;
@@ -454,46 +449,45 @@ return view.extend({
 					(data.service.recoveryVerified ? _('OpenClash service restored and health verified; new nodes were not applied.') : '');
 			}
 			if (serviceMessage)
-				infoTable.appendChild(E('tr', { 'class': 'tr' }, [
-					E('th', { 'class': 'th' }, _('OpenClash Apply Status')),
-					E('td', { 'class': 'td' }, serviceMessage)
+				infoTable.appendChild(E('tr', {}, [
+					E('th', {}, _('OpenClash Apply Status')),
+					E('td', {}, serviceMessage)
 				]));
 		}
 
 		var bestIpsText = bestIps.length > 0 ? bestIps.slice(0, 5).join(', ') + (bestIps.length > 5 ? ' ...' : '') : '-';
-		infoTable.appendChild(E('tr', { 'class': 'tr' }, [
-			E('th', { 'class': 'th' }, _('Best IPs')),
-			E('td', { 'class': 'td' }, bestIpsText)
+		infoTable.appendChild(E('tr', {}, [
+			E('th', {}, _('Best IPs')),
+			E('td', {}, bestIpsText)
 		]));
 
-		infoTable.appendChild(E('tr', { 'class': 'tr' }, [
-			E('th', { 'class': 'th' }, _('Script Version')),
-			E('td', { 'class': 'td' }, scriptVersion)
+		infoTable.appendChild(E('tr', {}, [
+			E('th', {}, _('Script Version')),
+			E('td', {}, scriptVersion)
 		]));
 
-		infoTable.appendChild(E('tr', { 'class': 'tr' }, [
-			E('th', { 'class': 'th' }, _('CFST Version')),
-			E('td', { 'class': 'td' }, cfstVersion)
+		infoTable.appendChild(E('tr', {}, [
+			E('th', {}, _('CFST Version')),
+			E('td', {}, cfstVersion)
 		]));
 
-		infoTable.appendChild(E('tr', { 'class': 'tr' }, [
-			E('th', { 'class': 'th' }, _('GitHub')),
-			E('td', { 'class': 'td' }, E('a', {
-				'class': 'cfi-inline-underline',
+		infoTable.appendChild(E('tr', {}, [
+			E('th', {}, _('GitHub')),
+			E('td', {}, E('a', {
 				'href': 'https://github.com/hello-yunshu/luci-app-cloudflare-ip',
 				'target': '_blank',
 				'rel': 'noopener'
 			}, 'hello-yunshu/luci-app-cloudflare-ip'))
 		]));
 
-		infoSection.appendChild(E('div', { 'class': 'cfi-table-wrap' }, infoTable));
+		infoSection.appendChild(infoTable);
 		container.appendChild(infoSection);
 
 		/* Environment Detection */
-		var envSection = E('div', { 'class': 'cbi-section cfi-section' });
+		var envSection = E('div', { 'class': 'cbi-section' });
 		envSection.appendChild(E('h3', {}, _('Environment Detection')));
 
-		var envTable = E('table', { 'class': 'table cfi-kv-table' });
+		var envTable = E('table', { 'class': 'table' });
 
 		var envItems = [
 			{ label: _('tar'), key: 'tar' },
@@ -517,9 +511,9 @@ return view.extend({
 					badge = makeEnvBadge(null);
 				} else if (val) {
 					var cfstVer = data.cfst_version || '';
-					badge = E('span', { 'class': 'cfi-badge green' }, '\u2714 ' + (cfstVer ? cfstVer : _('Installed')));
+					badge = E('span', { 'class': 'label success' }, '\u2714 ' + (cfstVer ? cfstVer : _('Installed')));
 				} else {
-					badge = E('span', { 'class': 'cfi-badge red' }, '\u2718 ' + _('Not Installed'));
+					badge = E('span', { 'class': 'label important' }, '\u2718 ' + _('Not Installed'));
 				}
 			} else {
 				badge = makeEnvBadge(val);
@@ -527,17 +521,17 @@ return view.extend({
 
 			var tdContent = [badge];
 
-			var td = E('td', { 'class': 'td' }, tdContent);
+			var td = E('td', {}, tdContent);
 			envTds.push({ td: td, item: item });
-			envTable.appendChild(E('tr', { 'class': 'tr' }, [
-				E('th', { 'class': 'th' }, item.label),
+			envTable.appendChild(E('tr', {}, [
+				E('th', {}, item.label),
 				td
 			]));
 		}
 
-		envSection.appendChild(E('div', { 'class': 'cfi-table-wrap' }, envTable));
+		envSection.appendChild(envTable);
 
-		var envBtnBar = E('div', { 'class': 'cfi-btn-group cfi-mt-1' });
+		var envBtnBar = E('div', {});
 		envBtnBar.appendChild(E('button', {
 			'class': 'cbi-button cbi-button-apply',
 			'click': function() {
@@ -560,9 +554,9 @@ return view.extend({
 								newBadge = makeEnvBadge(null);
 							} else if (newVal) {
 								var ver = result.cfst_version || '';
-								newBadge = E('span', { 'class': 'cfi-badge green' }, '\u2714 ' + (ver ? ver : _('Installed')));
+								newBadge = E('span', { 'class': 'label success' }, '\u2714 ' + (ver ? ver : _('Installed')));
 							} else {
-								newBadge = E('span', { 'class': 'cfi-badge red' }, '\u2718 ' + _('Not Installed'));
+								newBadge = E('span', { 'class': 'label important' }, '\u2718 ' + _('Not Installed'));
 							}
 						} else {
 							newBadge = makeEnvBadge(newVal);
@@ -602,6 +596,6 @@ return view.extend({
 			container.appendChild(depSection);
 
 
-		return utils.appendFooter(container, utils.FOOTER_OPTIONS);
+		return container;
 	}
 });

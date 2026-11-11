@@ -40,7 +40,7 @@ function addCopyButton(field, text) {
 	if (!field || field.querySelector('.cfi-copy-btn'))
 		return;
 	var button = E('button', {
-		'class': 'cbi-button cfi-copy-btn',
+		'class': 'cbi-button',
 		'type': 'button',
 		'aria-label': _('Copy'),
 		'click': function() {
@@ -260,7 +260,7 @@ return view.extend({
 					E('td', {}, cell(row.measurementDurationMs == null ? null : row.measurementDurationMs + ' ms'))
 				]);
 			});
-			return E('div', { 'class': 'cfi-table-wrap cfi-run-history' }, E('table', { 'class': 'table' }, [
+			return E('table', { 'class': 'table' }, [
 				E('thead', {}, E('tr', {}, [
 					E('th', {}, _('Time')),
 					E('th', {}, _('Result')),
@@ -272,7 +272,7 @@ return view.extend({
 					E('th', {}, _('Duration'))
 				])),
 				E('tbody', {}, body)
-			]));
+			]);
 		};
 
 		s = m.section(form.TypedSection, 'rill', _('Rill Runtime Consumer'));
@@ -445,6 +445,6 @@ return view.extend({
 	utils.createHandleSaveApply(m, this);
 	var renderContents = m.renderContents.bind(m);
 	m.renderContents = function() { return renderContents().then(function(node) { return decorateIntelligence(node, status, diagnostics); }); };
-	return utils.renderWithFooter(m.render(), utils.FOOTER_OPTIONS);
+	return m.render();
 	}
 });

@@ -27,7 +27,8 @@ function stateTone(entry) {
 }
 
 function stateBadge(entry, label) {
-  return E('span',{ 'class':'cfi-badge '+stateTone(entry) },label);
+  var tone = ({ green:'success', red:'important', orange:'warning', gray:'' })[stateTone(entry)] || '';
+  return E('span',{ 'class':('label ' + tone).trim() },label);
 }
 
 return view.extend({
@@ -36,12 +37,12 @@ return view.extend({
     utils.loadSharedCSS();
     var regData=data[1]||{}, stData=data[2]||{}, reg=regData.presets||[], st=statusMap(stData.sources||[]), m=new form.Map('cf_ip',_('Candidate Sources')),s,o;
     if (regData._rpcError)
-      return utils.renderWithFooter(E('div',{'class':'cbi-map cfi-form-map'}, E('div',{'class':'cbi-section cfi-empty-state'},[
+      return E('div',{'class':'cbi-map cfi-form-map'}, E('div',{'class':'cbi-section'},[
         E('h3',{},_('Unable to load source registry')),
         E('p',{},_('Retry the source registry check. If it keeps failing, open Logs & Records.')),
         utils.technicalDetails(regData.error),
         E('button',{'class':'btn cbi-button','click':function(){location.reload();}},_('Retry'))
-      ])), utils.FOOTER_OPTIONS);
+      ]));
     s=m.section(form.TypedSection,'service',_('Candidate Budget'));
     s.anonymous=true;
     o=s.option(form.Value,'candidate_budget',_('CFST Candidate IP Count'),_('Maximum unique IPs supplied to one CFST run. Allocation is automatic: a small local-history share, a majority community share, and the remainder official-range exploration; unused quota flows to the other pools.'));
@@ -69,33 +70,35 @@ return view.extend({
     o=s.option(form.Value,'port',_('HTTP Port'));o.datatype='range(1024,65535)';o.default='12345';
     o=s.option(form.DummyValue,'_paths',_('Published Paths'));o.cfgvalue=function(){return '/ip.txt · /best-ipv4.txt · /best-ipv6.txt · /result.json';};
 
+    var tableBody=E('tbody');
     var box=E('div',{'class':'cbi-section'},[
       E('h3',{},_('Runtime Source Status')),
       E('p',{},_('Each run allocates roughly 1/8 to fresh history champions, 5/8 to community seeds, and 1/4 to Cloudflare official range exploration. Missing pools flow to other sources. All candidates are deduplicated and measured locally in one CFST run; community ports are never reused.')),
-      E('div',{'class':'cfi-table-wrap'}, E('div',{'class':'table cfi-source-table cfi-responsive-table'},[
-        E('div',{'class':'tr table-titles'},[
-          E('div',{'class':'th'},_('Source')),
-          E('div',{'class':'th'},_('State')),
-          E('div',{'class':'th'},_('Candidates')),
-          E('div',{'class':'th'},_('Last Error'))
-        ])
-      ]))
-    ]), table=box.lastChild.firstChild;
+      E('table',{'class':'table'},[
+        E('thead',{},E('tr',{},[
+          E('th',{},_('Source')),
+          E('th',{},_('State')),
+          E('th',{},_('Candidates')),
+          E('th',{},_('Last Error'))
+        ])),
+        tableBody
+      ])
+    ]);
     if (stData._rpcError)
       box.appendChild(utils.errorPanel(_('Unable to load source status.'), _('Retry the page; the source rows below are unavailable until the RPC succeeds.'), stData.error));
     var seen={};
     if (!stData._rpcError) {
-      reg.forEach(function(x){ var q=st[x.id]||{}, state=q._rpcError?utils.sourceStateLabel(q):(q.success===true?utils.sourceStateLabel(q):_('Not fetched')); seen[x.id]=true; table.appendChild(E('div',{'class':'tr'},[
-        E('div',{'class':'td','data-label':_('Source')},x.name),
-        E('div',{'class':'td','data-label':_('State')},stateBadge(q,state)),
-        E('div',{'class':'td','data-label':_('Candidates')},String(q.parsedCount||0)),
-        E('div',{'class':'td','data-label':_('Last Error')},utils.sourceErrorNode(q.lastError))
+      reg.forEach(function(x){ var q=st[x.id]||{}, state=q._rpcError?utils.sourceStateLabel(q):(q.success===true?utils.sourceStateLabel(q):_('Not fetched')); seen[x.id]=true; tableBody.appendChild(E('tr',{},[
+        E('td',{'data-title':_('Source')},x.name),
+        E('td',{'data-title':_('State')},stateBadge(q,state)),
+        E('td',{'data-title':_('Candidates')},String(q.parsedCount||0)),
+        E('td',{'data-title':_('Last Error')},utils.sourceErrorNode(q.lastError))
       ])); });
-      Object.keys(st).filter(function(id){return !seen[id];}).sort().forEach(function(id){var q=st[id],state=q.success===true?utils.sourceStateLabel(q):_('Error');table.appendChild(E('div',{'class':'tr'},[
-        E('div',{'class':'td','data-label':_('Source')},id),
-        E('div',{'class':'td','data-label':_('State')},q.success===true?stateBadge(q,state):E('span',{'class':'cfi-badge red'},state)),
-        E('div',{'class':'td','data-label':_('Candidates')},String(q.parsedCount||0)),
-        E('div',{'class':'td','data-label':_('Last Error')},utils.sourceErrorNode(q.lastError))
+      Object.keys(st).filter(function(id){return !seen[id];}).sort().forEach(function(id){var q=st[id],state=q.success===true?utils.sourceStateLabel(q):_('Error');tableBody.appendChild(E('tr',{},[
+        E('td',{'data-title':_('Source')},id),
+        E('td',{'data-title':_('State')},q.success===true?stateBadge(q,state):E('span',{'class':'label important'},state)),
+        E('td',{'data-title':_('Candidates')},String(q.parsedCount||0)),
+        E('td',{'data-title':_('Last Error')},utils.sourceErrorNode(q.lastError))
       ]));});
     }
     box.appendChild(E('button',{'class':'btn cbi-button-action','click':function(){var btn=this;utils.setBusy(btn,_('Refreshing...'));return callRefresh().then(function(r){if(r&&r.success===true){ui.addNotification(null,E('p',{},_('Sources refreshed; candidate pool prepared. Unsaved edits were kept.')),'info');}else{utils.noticeError(_('Unable to refresh sources.'), _('The previous candidate pool is unchanged; unsaved edits are still kept.'), (r&&r.error)||_('Unknown'));}}).catch(function(e){utils.noticeError(_('Unable to refresh sources.'), _('The previous candidate pool is unchanged; unsaved edits are still kept.'), e);}).finally(function(){utils.resetBusy(btn);});}},_('Refresh Sources')));
@@ -103,7 +106,7 @@ return view.extend({
     utils.createHandleSaveApply(m, this);
     // Map.save() renders again before validation. Keep runtime controls on that render too.
     var renderMap=m.renderContents.bind(m);
-    m.renderContents=function(){ return utils.renderWithFooter(renderMap().then(function(node){ node.appendChild(box); return node; }), utils.FOOTER_OPTIONS); };
+    m.renderContents=function(){ return renderMap().then(function(node){ node.appendChild(box); return node; }); };
     return m.render();
   }
 });
