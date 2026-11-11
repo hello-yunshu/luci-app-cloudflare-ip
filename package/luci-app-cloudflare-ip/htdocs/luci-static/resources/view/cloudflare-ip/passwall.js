@@ -25,24 +25,24 @@ return view.extend({
 
 		if (env._rpcError) {
 			this.handleSave = this.handleSaveApply = this.handleReset = null;
-			return utils.renderWithFooter(E('div', { 'class': 'cbi-map cfi-form-map' }, [
-				E('div', { 'class': 'cbi-section cfi-empty-state' }, [
+			return E('div', { 'class': 'cbi-map cfi-form-map' }, [
+				E('div', { 'class': 'cbi-section' }, [
 					E('h3', {}, _('Unable to check PassWall environment')),
 					E('p', {}, _('Retry the environment check. If it keeps failing, open Logs & Records for the service state.')),
 					utils.technicalDetails(env.error),
 					E('button', { 'class': 'btn cbi-button', 'click': function() { location.reload(); } }, _('Retry'))
 				])
-			]), utils.FOOTER_OPTIONS);
+			]);
 		}
 
 		if (!env.passwall_installed) {
 			this.handleSave = this.handleSaveApply = this.handleReset = null;
-			return utils.renderWithFooter(E('div', { 'class': 'cbi-map cfi-form-map' }, [
-				E('div', { 'class': 'cbi-section cfi-empty-state' }, [
+			return E('div', { 'class': 'cbi-map cfi-form-map' }, [
+				E('div', { 'class': 'cbi-section' }, [
 					E('h3', {}, _('PassWall Not Found')),
 					E('p', {}, _('PassWall is not installed. Please install PassWall before using this feature.'))
 				])
-			]), utils.FOOTER_OPTIONS);
+			]);
 		}
 
 		var m = new form.Map('cf_ip', _('PassWall'));
@@ -66,6 +66,6 @@ return view.extend({
 		utils.createHandleSave(m, this);
 		utils.createHandleSaveApply(m, this);
 
-		return utils.renderWithFooter(m.render(), utils.FOOTER_OPTIONS);
+		return m.render();
 	}
 });

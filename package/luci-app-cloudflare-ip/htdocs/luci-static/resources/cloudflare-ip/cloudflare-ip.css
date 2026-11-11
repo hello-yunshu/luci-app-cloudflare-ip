@@ -1,243 +1,26 @@
-:root {
-	--cfi-text: var(--text-color, var(--base-color, inherit));
-	--cfi-muted: var(--subtext-color, #586b7e);
-	--cfi-link: var(--main-color, #1769aa);
-	--cfi-radius-card: 8px;
-	--cfi-radius-chip: 4px;
-	--cfi-footer-chip-bg: color-mix(in srgb, var(--cfi-link) 12%, transparent);
-	--cfi-footer-chip-bg-hover: color-mix(in srgb, var(--cfi-link) 18%, transparent);
-}
+/* ===== Cloudflare IP - LuCI native theme ===== */
 
-:root[data-darkmode="true"] {
-	--cfi-muted: var(--subtext-color, #aebcca);
-	--cfi-link: #9ecbff;
-}
-.cfi-dashboard a:not(.cbi-button),
-.cfi-form-map a:not(.cbi-button) {
-	color: var(--cfi-link);
-}
-
-.cfi-dashboard,
-.cfi-form-map {
-	max-width: 100%;
-	color: var(--cfi-text);
-}
-
-/* Sections stay flat like the native LuCI panel; only the stat cards keep a
- * compact 8px radius. */
-.cfi-dashboard .cbi-section.cfi-stat-card {
-		border-radius: var(--cfi-radius-card);
-}
-
-.cfi-badge {
-	display: inline-flex; align-items: center; justify-content: center;
-	padding: 0.18em 0.6em; border-radius: var(--cfi-radius-chip);
-	font-size: 0.85em; font-weight: 500; line-height: 1.35;
-	vertical-align: middle;
-	/* Semantic text variants: same palette as the 15% tints, darkened for
-	 * light surfaces and lightened for dark surfaces to reach 4.5:1. */
-	--cfi-badge-green-fg: color-mix(in srgb, var(--success-color, #3aa657) 68%, #000);
-	--cfi-badge-red-fg: color-mix(in srgb, var(--danger-color, #d94b4b) 78%, #000);
-	--cfi-badge-orange-fg: color-mix(in srgb, var(--warning-color, #c68014) 68%, #000);
-}
-:root[data-darkmode="true"] .cfi-badge {
-	--cfi-badge-green-fg: color-mix(in srgb, var(--success-color, #3aa657) 55%, #fff);
-	--cfi-badge-red-fg: color-mix(in srgb, var(--danger-color, #d94b4b) 65%, #fff);
-	--cfi-badge-orange-fg: color-mix(in srgb, var(--warning-color, #c68014) 65%, #fff);
-}
-.cfi-badge.green { background: color-mix(in srgb, var(--success-color, #3aa657) 15%, transparent); color: var(--cfi-badge-green-fg); }
-.cfi-badge.red { background: color-mix(in srgb, var(--danger-color, #d94b4b) 15%, transparent); color: var(--cfi-badge-red-fg); }
-.cfi-badge.orange { background: color-mix(in srgb, var(--warning-color, #c68014) 15%, transparent); color: var(--cfi-badge-orange-fg); }
-.cfi-badge.gray { background: color-mix(in srgb, var(--cfi-muted) 15%, transparent); color: var(--cfi-muted); }
-.cfi-btn-group { display: flex; flex-wrap: wrap; gap: 0.8em; }
+/* ===== Command Box ===== */
 .cfi-cmd-box {
-	padding: 0.8em 1em; border-radius: var(--cfi-radius-card);
-	background: var(--background-color-low, color-mix(in srgb, var(--background-color-high, var(--background-color-a)) 85%, var(--main-color, #0069d9)));
-	border: 1px solid var(--border-color);
-	font-family: monospace; font-size: 12px;
+	padding: 0.8em 1em; border-radius: 6px;
+	border: 1px solid;
+	font-family: var(--font-mono); font-size: 12px;
 	overflow-x: auto; white-space: pre-wrap; word-break: break-all;
 }
+
+/* ===== Log Areas ===== */
 .cfi-log-area {
 	width: 100%; box-sizing: border-box;
 	font-size: 12px;
-	font-family: monospace;
+	font-family: var(--font-mono);
 	white-space: pre;
 	tab-size: 4;
 }
 .cfi-log-area.is-empty,
-.cfi-log-area.is-loading { color: var(--subtext-color); font-style: italic; }
-.cfi-log-area.is-error { color: var(--danger-color); }
-.cfi-value-full .cbi-value-title { float: none; width: auto; }
-.cfi-value-full .cbi-value-field { width: 100%; }
-.cfi-table-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-.cfi-table-wrap > .table th {
-	white-space: nowrap;
-}
-.cfi-table-wrap > .table td {
-	vertical-align: top;
-	word-break: break-word;
-}
-.cfi-table-wrap > .cfi-responsive-table {
-	min-width: 640px;
-}
+.cfi-log-area.is-loading { font-style: italic; }
+.cfi-log-area.is-error { font-weight: bold; }
 
-.cfi-source-table > .tr {
-	display: grid;
-	grid-template-columns: minmax(12rem, 1.6fr) minmax(8rem, 1fr) minmax(7rem, 0.7fr) minmax(12rem, 2fr);
-	align-items: start;
-}
-
-.cfi-source-table > .tr > .th,
-.cfi-source-table > .tr > .td {
-	min-width: 0;
-}
-.cfi-kv-table th {
-	width: 12em;
-	white-space: nowrap;
-}
-.cfi-kv-table td {
-	word-break: break-word;
-	overflow-wrap: anywhere;
-}
-.cfi-actions {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: stretch;
-	align-content: center;
-}
-.cfi-actions button,
-.cfi-actions .cbi-button {
-	margin: 0.1em 0.25em 0.1em 0 !important;
-	white-space: nowrap;
-	padding: 0.4rem 0.8rem;
-	line-height: normal;
-}
-
-#maincontent .cfi-empty-state {
-	padding: 1rem 0;
-	border: 0;
-	border-radius: 0;
-	background: none;
-	box-shadow: none;
-	text-align: center;
-	color: var(--cfi-muted);
-}
-
-.cfi-empty-state h3 { margin-top: 0; }
-
-/* Intelligence copy/collapse/link affordances. */
-.cfi-copy-btn {
-	margin-left: 0.6em;
-	vertical-align: middle;
-}
-.cfi-inline-link {
-	margin: 0.6em 0 0;
-}
-.cfi-collapse-body {
-	margin-top: 0.6em;
-}
-.cfi-form-map .cfi-collapse-toggle {
-	margin: 0.25em 0 0.75em;
-}
-.cfi-copy-source {
-	position: fixed;
-	left: -9999px;
-	top: 0;
-	opacity: 0;
-}
-
-/* Intelligence: one-line summary at the top, raw readouts folded by default. */
-.cfi-form-map .cfi-run-row > .cbi-value-field > output {
-	display: block;
-}
-.cfi-intel-summary .cbi-value-field output {
-	font-weight: 500;
-}
-.cfi-technical-details {
-	margin-bottom: 1.5em;
-}
-.cfi-technical-details .cbi-section {
-	margin-bottom: 1.25em;
-}
-.cfi-run-history td {
-	font-variant-numeric: tabular-nums;
-}
-.cfi-run-history th,
-.cfi-run-history td:first-child {
-	white-space: nowrap;
-}
-.cfi-empty-value {
-	color: var(--cfi-muted);
-}
-.cfi-form-map .cfi-run-row {
-	display: block;
-}
-.cfi-form-map .cfi-run-row > .cbi-value-title {
-	padding-top: 0;
-	margin-bottom: 0.35em;
-}
-
-.cfi-stats-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-	gap: 1em;
-	margin-bottom: 1.5em;
-}
-
-.cfi-stat-card {
-	min-width: 0;
-	padding: 1em 1.2em;
-	border-radius: var(--cfi-radius-card);
-	text-align: center;
-}
-
-.cfi-stat-card .cfi-stat-value {
-	font-size: 1.8em;
-	font-weight: bold;
-	line-height: 1.2;
-	color: var(--cfi-link);
-}
-
-.cfi-stat-card .cfi-stat-value.green { color: var(--success-color, #3aa657); }
-.cfi-stat-card .cfi-stat-value.red { color: var(--danger-color, #d94b4b); }
-.cfi-stat-card .cfi-stat-value.orange { color: var(--warning-color, #c68014); }
-
-.cfi-stat-card .cfi-stat-label {
-	margin-top: 0.3em;
-	color: var(--cfi-muted);
-	font-size: 0.85em;
-}
-
-/* Status banner (moved from overview.js inline styles). */
-.cfi-status-banner {
-	display: flex;
-	align-items: center;
-	gap: 1.2em;
-	padding: 1.5em;
-	margin-bottom: 1.5em;
-}
-/* Aurora's `#maincontent .cbi-section` (1 id + 1 class) otherwise wins the
- * border-width/border-color cascade. Match it inside #maincontent with the
- * extra state class so the 5px semantic edge actually renders. */
-#maincontent .cfi-status-banner.running { border-left: 5px solid var(--success-color, #3aa657); }
-#maincontent .cfi-status-banner.stopped { border-left: 5px solid var(--warning-color, #d89b00); }
-#maincontent .cfi-status-banner.running-test { border-left: 5px solid var(--main-color, #0069d9); }
-.cfi-status-icon {
-	font-size: 2.5em;
-	line-height: 1;
-	flex-shrink: 0;
-}
-.cfi-status-icon.running { color: var(--success-color, #3aa657); }
-.cfi-status-icon.stopped { color: var(--warning-color, #c68014); }
-.cfi-status-icon.running-test { color: var(--cfi-link); animation: cfi-pulse 1.5s ease-in-out infinite; }
-.cfi-status-text h3 { margin: 0 0 0.2em 0; font-size: 1.3em; }
-.cfi-status-text h3.running { color: var(--success-color, #3aa657); }
-.cfi-status-text h3.stopped { color: var(--warning-color, #c68014); }
-.cfi-status-text h3.running-test { color: var(--cfi-link); }
-.cfi-status-text p { margin: 0; color: var(--cfi-muted); font-size: 0.9em; }
-@keyframes cfi-pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
-
-/* Read-only pre blocks (moved from diagnostics.js / utils.js). */
+/* ===== Log Pre Blocks ===== */
 .cfi-log-pre {
 	white-space: pre-wrap;
 	max-height: 12em;
@@ -246,357 +29,43 @@
 }
 .cfi-log-pre.cfi-log-pre-tall { max-height: 28em; }
 
-/* IP history table (moved from diagnostics.js). */
-.cfi-ip-table { width: 100%; }
-.cfi-table-wrap > .cfi-ip-table { min-width: 0; }
-.cfi-ip-table th:first-child,
-.cfi-ip-table td:first-child { width: 3em; text-align: center; }
-.cfi-ip-table td { font-family: monospace; word-break: break-all; }
-
-/* Inline text notes that used to carry a style attribute. */
-.cfi-dependency-warning { color: var(--warning-color, #c68014); margin-bottom: 0.5em; }
-.cfi-empty-note { color: var(--subtext-color); font-style: italic; padding: 0.5em 0; }
-.cfi-empty-cell { color: var(--subtext-color); font-style: italic; }
-.cfi-inline-underline { text-decoration: underline; }
-.cfi-mt-1 { margin-top: 1em; }
-
-/* Log filter row. */
+/* ===== Log Filter Row ===== */
 .cfi-log-controls {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 0.8em;
-	margin-bottom: 1em;
+	display: flex; flex-wrap: wrap; align-items: center;
+	gap: 0.8em; margin-bottom: 1em;
 }
 .cfi-log-controls .cfi-log-filter { flex: 1 1 12em; min-width: 0; }
 .cfi-log-controls .cfi-log-level { flex: 0 0 auto; }
 
-.ys-tool-footer {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	justify-content: space-between;
-	gap: 0.8em 1em;
-	margin-top: 2em;
-	padding: 1em 0 0;
-	color: var(--cfi-muted);
-	font-size: 0.875em;
+/* ===== Overview Stats ===== */
+.cfi-stats-grid {
+	display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+	gap: 1em; margin-bottom: 1.5em;
 }
-.ys-tool-footer-brand,
-.ys-tool-footer-links {
-	display: flex;
-	flex-wrap: nowrap;
-	align-items: center;
-	gap: 0.35em;
+.cfi-stat-card {
+	min-width: 0;
+	padding: 1em 1.2em; border-radius: 8px;
+	text-align: center;
 }
-.ys-tool-footer-brand {
-	flex-wrap: wrap;
+.cfi-stat-card .cfi-stat-value {
+	font-size: 1.8em; font-weight: bold; line-height: 1.2;
 }
-.ys-tool-footer-links {
-	white-space: nowrap;
-}
-.ys-tool-footer-mark {
-	padding: 0.18em 0.5em;
-	border-radius: var(--cfi-radius-chip);
-	background: var(--cfi-footer-chip-bg);
-	color: var(--cfi-link);
-	font-size: 0.86em;
-	font-weight: 700;
-	line-height: 1.6;
-}
-.ys-tool-footer-title {
-	color: inherit;
-	font-weight: 600;
-}
-.ys-tool-footer-separator {
-	color: color-mix(in srgb, var(--cfi-muted) 65%, transparent);
-	margin: 0 0.15em;
-}
-.ys-tool-footer-version {
-	color: var(--cfi-muted);
-}
-.ys-tool-footer-link,
-.ys-tool-footer a.ys-tool-footer-link {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.35em;
-	padding: 0.18em 0.5em;
-	border: 0;
-	border-radius: var(--cfi-radius-chip);
-	background: var(--cfi-footer-chip-bg);
-	color: var(--cfi-link);
-	font-size: 0.86em;
-	font-weight: 700;
-	line-height: 1.6;
-	text-decoration: none;
-}
-.ys-tool-footer-link:hover,
-.ys-tool-footer a.ys-tool-footer-link:hover {
-	background: var(--cfi-footer-chip-bg-hover);
-	text-decoration: none;
-}
-@media (prefers-reduced-motion: reduce) {
-	.cfi-status-icon.running-test { animation: none; }
+.cfi-stat-card .cfi-stat-value.green,
+.cfi-stat-card .cfi-stat-value.red,
+.cfi-stat-card .cfi-stat-value.orange { color: inherit; }
+.cfi-stat-card .cfi-stat-label {
+	margin-top: 0.3em;
+	font-size: 0.85em;
 }
 
-/* Bootstrap drops the focus ring on tab links; restore a visible one without
- * changing the tab visual language. */
-#tabmenu .tabs a:focus-visible,
-#tabmenu .cbi-tabmenu a:focus-visible {
-	outline: 2px solid var(--cfi-link);
-	outline-offset: 2px;
-	border-radius: var(--cfi-radius-chip);
-}
+/* ===== Disclosure ===== */
+.cfi-collapse-body { margin-top: 0.6em; }
+.cfi-form-map .cfi-collapse-toggle { margin: 0.25em 0 0.75em; }
 
-@media (max-width: 600px) {
-	.cfi-status-banner {
-		flex-wrap: wrap;
-		gap: 0.6em;
-		padding: 1em;
-	}
-	.cfi-status-icon { font-size: 1.8em; }
-	.cfi-status-text h3 { font-size: 1.1em; }
-	.cfi-status-text p { font-size: 0.85em; }
-	.cfi-ip-table td { font-size: 0.85em; }
-	.cfi-stats-grid { grid-template-columns: repeat(2, 1fr); gap: 0.6em; }
-	.cfi-stat-card { padding: 0.8rem 0.55rem; }
-	.cfi-stat-card .cfi-stat-value { font-size: 1.4em; }
-	.cfi-stat-card .cfi-stat-label { font-size: 0.78em; }
-	.ys-tool-footer {
-		gap: 0.5em;
-	}
-	.ys-tool-footer-title,
-	.ys-tool-footer-title-separator,
-	.ys-tool-footer-project-link,
-	.ys-tool-footer-project-separator {
-		display: none;
-	}
-	.ys-tool-footer-links {
-		flex-wrap: wrap;
-		white-space: normal;
-	}
-	.ys-tool-footer-links .ys-tool-footer-link.github .ys-tool-footer-link-label,
-	.ys-tool-footer-links .ys-tool-footer-link.x .ys-tool-footer-link-label {
-		display: none;
-	}
-	.cfi-log-area {
-		font-size: 12px;
-	}
-	.cfi-cmd-box {
-		font-size: 12px;
-		padding: 0.6em 0.8em;
-	}
-}
-
-@media (max-width: 900px) {
-	.cfi-table-wrap > .cfi-responsive-table {
-		display: block;
-		min-width: 0;
-		overflow: visible;
-	}
-	.cfi-source-table > .table-titles {
-		display: none;
-	}
-	.cfi-source-table > .tr:not(.table-titles) {
-		display: block;
-		width: 100%;
-		box-sizing: border-box;
-	}
-	.cfi-source-table > .tr:not(.table-titles) > .td {
-		display: flex;
-		align-items: flex-start;
-		gap: 0.75em;
-		min-width: 0;
-		padding: 0.28em 0;
-		border: 0;
-		text-align: left;
-		word-break: break-word;
-	}
-	.cfi-source-table > .tr:not(.table-titles) > .td::before {
-		content: attr(data-label);
-		flex: 0 0 7.2em;
-		font-size: 0.85em;
-		font-weight: 600;
-		white-space: normal;
-		word-break: break-word;
-	}
-	.cfi-responsive-table thead {
-		display: none;
-	}
-	.cfi-responsive-table tbody,
-	.cfi-responsive-table tr {
-		display: block;
-	}
-	.cfi-responsive-table tr {
-		margin-bottom: 0.7em;
-		padding: 0.7em;
-		border: 1px solid var(--border-color, #ddd);
-		border-radius: var(--cfi-radius-card);
-		width: 100%;
-		box-sizing: border-box;
-	}
-	.cfi-responsive-table td {
-		display: flex;
-		align-items: flex-start;
-		justify-content: flex-start;
-		gap: 0.75em;
-		padding: 0.28em 0;
-		border: 0;
-		text-align: left;
-		min-width: 0;
-	}
-	.cfi-responsive-table td::before {
-		content: attr(data-label);
-		flex: 0 0 7.2em;
-		color: var(--cfi-muted);
-		font-size: 0.85em;
-		font-weight: 600;
-		text-align: left;
-		white-space: normal;
-		word-break: break-word;
-	}
-	.cfi-responsive-table td[colspan] {
-		display: block;
-		text-align: left;
-	}
-	.cfi-responsive-table td[colspan]::before {
-		display: none;
-	}
-	.cfi-responsive-table .cfi-actions {
-		justify-content: flex-start;
-		align-items: stretch;
-	}
-	.cfi-responsive-table .cfi-actions::before {
-		flex: 0 0 100%;
-		margin: 0 0 0.25em;
-	}
-	.cfi-kv-table tr {
-		display: block;
-		padding: 0.45em 0;
-		border-bottom: 1px solid color-mix(in srgb, var(--border-color, #ddd) 70%, transparent);
-	}
-	.table.cfi-kv-table th,
-	.table.cfi-kv-table td {
-		display: block;
-		width: 100%;
-		box-sizing: border-box;
-		border: 0;
-		padding: 0.12em 0.6rem;
-		text-align: left;
-		white-space: normal;
-	}
-	.cfi-kv-table th {
-		color: var(--cfi-muted);
-		font-size: 0.86em;
-	}
-}
-
-/* The LuCI sidebar consumes viewport width, so a 768px viewport can leave less
- * than 600px for the form. Container queries key the single-column layout to
- * the actual content width; the media queries above remain the fallback for
- * browsers without container query support. */
-@supports (container-type: inline-size) {
-	.cfi-dashboard,
-	.cfi-form-map { container-type: inline-size; }
-
-	@container (max-width: 600px) {
-		.cfi-status-banner {
-			flex-wrap: wrap;
-			gap: 0.6em;
-			padding: 1em;
-		}
-		.cfi-status-icon { font-size: 1.8em; }
-		.cfi-status-text h3 { font-size: 1.1em; }
-		.cfi-status-text p { font-size: 0.85em; }
-		.cfi-ip-table td { font-size: 0.85em; }
-		.cfi-stats-grid { grid-template-columns: repeat(2, 1fr); gap: 0.6em; }
-		.cfi-stat-card { padding: 0.8rem 0.55rem; }
-		.cfi-stat-card .cfi-stat-value { font-size: 1.4em; }
-		.cfi-stat-card .cfi-stat-label { font-size: 0.78em; }
-		.ys-tool-footer { gap: 0.5em; }
-		.ys-tool-footer-title,
-		.ys-tool-footer-title-separator,
-		.ys-tool-footer-project-link,
-		.ys-tool-footer-project-separator { display: none; }
-		.ys-tool-footer-links { flex-wrap: wrap; white-space: normal; }
-		.ys-tool-footer-links .ys-tool-footer-link.github .ys-tool-footer-link-label,
-		.ys-tool-footer-links .ys-tool-footer-link.x .ys-tool-footer-link-label { display: none; }
-		.cfi-log-area { font-size: 12px; }
-		.cfi-cmd-box { font-size: 12px; padding: 0.6em 0.8em; }
-	}
-
-	@container (max-width: 900px) {
-		.cfi-table-wrap > .cfi-responsive-table { display: block; min-width: 0; overflow: visible; }
-		.cfi-source-table > .table-titles { display: none; }
-		.cfi-source-table > .tr:not(.table-titles) { display: block; width: 100%; box-sizing: border-box; }
-		.cfi-source-table > .tr:not(.table-titles) > .td {
-			display: flex;
-			align-items: flex-start;
-			gap: 0.75em;
-			min-width: 0;
-			padding: 0.28em 0;
-			border: 0;
-			text-align: left;
-			word-break: break-word;
-		}
-		.cfi-source-table > .tr:not(.table-titles) > .td::before {
-			content: attr(data-label);
-			flex: 0 0 7.2em;
-			font-size: 0.85em;
-			font-weight: 600;
-			white-space: normal;
-			word-break: break-word;
-		}
-		.cfi-responsive-table thead { display: none; }
-		.cfi-responsive-table tbody,
-		.cfi-responsive-table tr { display: block; }
-		.cfi-responsive-table tr {
-			margin-bottom: 0.7em;
-			padding: 0.7em;
-			border: 1px solid var(--border-color, #ddd);
-			border-radius: var(--cfi-radius-card);
-			width: 100%;
-			box-sizing: border-box;
-		}
-		.cfi-responsive-table td {
-			display: flex;
-			align-items: flex-start;
-			justify-content: flex-start;
-			gap: 0.75em;
-			padding: 0.28em 0;
-			border: 0;
-			text-align: left;
-			min-width: 0;
-		}
-		.cfi-responsive-table td::before {
-			content: attr(data-label);
-			flex: 0 0 7.2em;
-			color: var(--cfi-muted);
-			font-size: 0.85em;
-			font-weight: 600;
-			text-align: left;
-			white-space: normal;
-			word-break: break-word;
-		}
-		.cfi-responsive-table td[colspan] { display: block; text-align: left; }
-		.cfi-responsive-table td[colspan]::before { display: none; }
-		.cfi-responsive-table .cfi-actions { justify-content: flex-start; align-items: stretch; }
-		.cfi-responsive-table .cfi-actions::before { flex: 0 0 100%; margin: 0 0 0.25em; }
-		.cfi-kv-table tr {
-			display: block;
-			padding: 0.45em 0;
-			border-bottom: 1px solid color-mix(in srgb, var(--border-color, #ddd) 70%, transparent);
-		}
-		.table.cfi-kv-table th,
-		.table.cfi-kv-table td {
-			display: block;
-			width: 100%;
-			box-sizing: border-box;
-			border: 0;
-			padding: 0.12em 0.6rem;
-			text-align: left;
-			white-space: normal;
-		}
-		.cfi-kv-table th { color: var(--cfi-muted); font-size: 0.86em; }
-	}
+/* ===== Clipboard Fallback ===== */
+.cfi-copy-source {
+	position: fixed;
+	left: -9999px;
+	top: 0;
+	opacity: 0;
 }
