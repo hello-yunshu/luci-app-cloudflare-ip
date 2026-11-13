@@ -438,7 +438,7 @@ msgstr "实时状态"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js:100
 msgid "Runtime"
-msgstr "Runtime"
+msgstr "运行时"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js:102
 msgid "Runtime Channel"
@@ -1021,7 +1021,7 @@ msgid "Missing Dependencies & Fix Commands"
 msgstr "缺少依赖及修复命令"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js:179
-msgid "Missing dependencies: "
+msgid "Missing dependencies:"
 msgstr "缺少依赖："
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js:269
@@ -2368,3 +2368,12 @@ msgstr "测量与排序"
 
 msgid "Service Handling"
 msgstr "服务处理"
+
+msgid "Unable to load status"
+msgstr "无法加载状态"
+
+msgid "Retry the page. If it keeps failing, open Logs & Records."
+msgstr "请重试本页。若仍失败，请打开「日志与记录」。"
+
+msgid "Value"
+msgstr "值"

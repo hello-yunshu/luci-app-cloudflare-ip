@@ -48,7 +48,10 @@ define Build/Compile
 		lmo_lang="$$$$lang"; \
 		[ "$$$$lmo_lang" = "zh_Hans" ] && lmo_lang="zh-cn"; \
 		if [ -x "$(STAGING_DIR_HOSTPKG)/bin/po2lmo" ]; then \
-			"$(STAGING_DIR_HOSTPKG)/bin/po2lmo" "$$$$po_dir/cloudflare-ip.po" "$(PKG_BUILD_DIR)/lmo/cloudflare-ip.$$$$lmo_lang.lmo"; \
+			"$(STAGING_DIR_HOSTPKG)/bin/po2lmo" "$$$$po_dir/cloudflare-ip.po" "$(PKG_BUILD_DIR)/lmo/cloudflare-ip.$$$$lmo_lang.lmo" || exit 1; \
+		else \
+			echo "ERROR: po2lmo not found at $(STAGING_DIR_HOSTPKG)/bin; build luci-base/host first" >&2; \
+			exit 1; \
 		fi; \
 	done; \
 	for file in root/usr/bin/cf-ip-auto-v2 root/usr/bin/cf-ip-auto-legacy root/usr/libexec/rpcd/cf_ip htdocs/luci-static/resources/cloudflare-ip/utils.js; do \
@@ -85,10 +88,8 @@ define Package/luci-app-cloudflare-ip/install
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/root/usr/lib/lua/luci/controller/cloudflare-ip.lua $(1)/usr/lib/lua/luci/controller/
 	$(INSTALL_DIR) $(1)/usr/share/rpcd/acl.d
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/root/usr/share/rpcd/acl.d/luci-app-cloudflare-ip.json $(1)/usr/share/rpcd/acl.d/
-	if [ -n "$$$$(ls $(PKG_BUILD_DIR)/lmo/*.lmo 2>/dev/null)" ]; then \
-		$(INSTALL_DIR) $(1)/usr/lib/lua/luci/i18n; \
-		$(INSTALL_DATA) $(PKG_BUILD_DIR)/lmo/*.lmo $(1)/usr/lib/lua/luci/i18n/; \
-	fi
+	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/i18n
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/lmo/*.lmo $(1)/usr/lib/lua/luci/i18n/
 endef
 
 define Package/luci-app-cloudflare-ip/preinst

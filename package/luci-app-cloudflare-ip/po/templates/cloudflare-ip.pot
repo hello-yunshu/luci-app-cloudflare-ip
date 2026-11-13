@@ -1012,7 +1012,7 @@ msgid "Missing Dependencies & Fix Commands"
 msgstr ""
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js:179
-msgid "Missing dependencies: "
+msgid "Missing dependencies:"
 msgstr ""
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js:269
