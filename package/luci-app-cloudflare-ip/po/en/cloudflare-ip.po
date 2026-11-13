@@ -974,8 +974,8 @@ msgid "Missing Dependencies & Fix Commands"
 msgstr "Missing Dependencies & Fix Commands"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js:179
-msgid "Missing dependencies: "
-msgstr "Missing dependencies: "
+msgid "Missing dependencies:"
+msgstr "Missing dependencies:"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js:269
 msgid "Overview"

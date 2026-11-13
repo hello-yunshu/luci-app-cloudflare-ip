@@ -183,7 +183,7 @@ function buildDepSection(missingDeps, pkgManager) {
 		'apk add --allow-untrusted ' + missingDeps.join(' ') :
 		'opkg install ' + missingDeps.join(' ');
 	section.appendChild(E('p', {},
-		'\u2718 ' + _('Missing dependencies: ') + missingDeps.join(', ')));
+		'\u2718 ' + _('Missing dependencies:') + ' ' + missingDeps.join(', ')));
 	section.appendChild(E('div', { 'class': 'cfi-cmd-box' }, installCmd));
 	return section;
 }
