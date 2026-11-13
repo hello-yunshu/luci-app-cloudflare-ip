@@ -1,5 +1,5 @@
 {
   "schemaVersion": 1,
   "channel": "prerelease",
-  "reason": "User authorized the prerelease channel for the 2.x development line so the 2.6.0-13 footer fix can be published; stable promotion still requires the separate Stable Gate"
+  "reason": "User authorized the prerelease channel for the 2.x development line so the 2.6.0-14 footer restore can be published; stable promotion still requires the separate Stable Gate"
 }
