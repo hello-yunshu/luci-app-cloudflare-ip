@@ -249,15 +249,15 @@ return view.extend({
 				return String(value);
 			}
 			var body = rows.slice(-20).map(function(row) {
-				return E('tr', {}, [
-					E('td', {}, cell(row.time || row.at)),
-					E('td', {}, cell(row.result)),
-					E('td', {}, cell((row.bestIps || []).join(', ') || row.finalIp)),
-					E('td', {}, cell(row.adaptiveMode)),
-					E('td', {}, cell(row.candidateMode)),
-					E('td', {}, cell(row.actualUniqueProbeCount)),
-					E('td', {}, cell(row.fallbackUsed)),
-					E('td', {}, cell(row.measurementDurationMs == null ? null : row.measurementDurationMs + ' ms'))
+				return E('tr', { 'class': 'tr' }, [
+					E('td', { 'class': 'td', 'data-title': _('Time') }, cell(row.time || row.at)),
+					E('td', { 'class': 'td', 'data-title': _('Result') }, cell(row.result)),
+					E('td', { 'class': 'td', 'data-title': _('Best IPs') }, cell((row.bestIps || []).join(', ') || row.finalIp)),
+					E('td', { 'class': 'td', 'data-title': _('Adaptive Measurement') }, cell(row.adaptiveMode)),
+					E('td', { 'class': 'td', 'data-title': _('Candidate Intelligence') }, cell(row.candidateMode)),
+					E('td', { 'class': 'td', 'data-title': _('Probes') }, cell(row.actualUniqueProbeCount)),
+					E('td', { 'class': 'td', 'data-title': _('Fallback') }, cell(row.fallbackUsed)),
+					E('td', { 'class': 'td', 'data-title': _('Duration') }, cell(row.measurementDurationMs == null ? null : row.measurementDurationMs + ' ms'))
 				]);
 			});
 			return E('table', { 'class': 'table' }, [
@@ -445,6 +445,6 @@ return view.extend({
 	utils.createHandleSaveApply(m, this);
 	var renderContents = m.renderContents.bind(m);
 	m.renderContents = function() { return renderContents().then(function(node) { return decorateIntelligence(node, status, diagnostics); }); };
-	return m.render();
+	return utils.renderWithFooter(m.render(), utils.FOOTER_OPTIONS);
 	}
 });

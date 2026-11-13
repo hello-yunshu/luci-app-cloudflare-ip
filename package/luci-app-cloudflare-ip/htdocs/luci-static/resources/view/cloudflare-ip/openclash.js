@@ -59,24 +59,24 @@ return view.extend({
 
 		if (env._rpcError) {
 			this.handleSave = this.handleSaveApply = this.handleReset = null;
-			return E('div', { 'class': 'cbi-map cfi-form-map' }, [
+			return utils.renderWithFooter(E('div', { 'class': 'cbi-map cfi-form-map' }, [
 				E('div', { 'class': 'cbi-section' }, [
 					E('h3', {}, _('Unable to check OpenClash environment')),
 					E('p', {}, _('Retry the environment check. If it keeps failing, open Logs & Records for the service state.')),
 					utils.technicalDetails(env.error),
 					E('button', { 'class': 'btn cbi-button', 'click': function() { location.reload(); } }, _('Retry'))
 				])
-			]);
+			]), utils.FOOTER_OPTIONS);
 		}
 
 		if (!env.openclash_installed) {
 			this.handleSave = this.handleSaveApply = this.handleReset = null;
-			return E('div', { 'class': 'cbi-map cfi-form-map' }, [
+			return utils.renderWithFooter(E('div', { 'class': 'cbi-map cfi-form-map' }, [
 				E('div', { 'class': 'cbi-section' }, [
 					E('h3', {}, _('OpenClash Not Found')),
 					E('p', {}, _('OpenClash is not installed. Please install OpenClash before using this feature.'))
 				])
-			]);
+			]), utils.FOOTER_OPTIONS);
 		}
 
 		var m = new form.Map('cf_ip', _('OpenClash'));
@@ -160,11 +160,11 @@ return view.extend({
 			var tbody = E('tbody');
 
 			backups.forEach(function(backup) {
-				var row = E('tr');
-				row.appendChild(E('td', { 'data-title': headers[0] }, backup.timestamp || backup.id || '-'));
-				row.appendChild(E('td', { 'data-title': headers[1] }, formatSize(backup.size)));
+				var row = E('tr', { 'class': 'tr' });
+				row.appendChild(E('td', { 'class': 'td', 'data-title': headers[0] }, backup.timestamp || backup.id || '-'));
+				row.appendChild(E('td', { 'class': 'td', 'data-title': headers[1] }, formatSize(backup.size)));
 
-				var actionsCell = E('td', { 'data-title': headers[2] });
+				var actionsCell = E('td', { 'class': 'td', 'data-title': headers[2] });
 
 				actionsCell.appendChild(E('button', {
 					'class': 'cbi-button cbi-button-apply',
@@ -236,13 +236,13 @@ return view.extend({
 			});
 
 			table.appendChild(tbody);
-			backupSection.appendChild(table);
+			backupSection.appendChild(E('div', { 'class': 'cfi-table-scroll' }, table));
 		}
 
-		return m.render().then(function(node) {
+		return utils.renderWithFooter(m.render().then(function(node) {
 			/* Append backup section after the form */
 			node.appendChild(backupSection);
 			return node;
-		});
+		}), utils.FOOTER_OPTIONS);
 	}
 });
