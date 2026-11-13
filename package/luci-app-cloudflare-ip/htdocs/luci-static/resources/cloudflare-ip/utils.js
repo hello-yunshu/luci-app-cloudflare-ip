@@ -569,7 +569,7 @@ function renderFooter(options) {
 	var project = options.project || FOOTER_OPTIONS.project;
 	var version = footerVersion(options.version);
 	var repoUrl = options.repoUrl || FOOTER_OPTIONS.repoUrl;
-	return E('footer', { 'class': 'ys-tool-footer' }, [
+	return E('div', { 'class': 'ys-tool-footer' }, [
 		E('div', { 'class': 'ys-tool-footer-brand' }, [
 			E('span', { 'class': 'ys-tool-footer-mark' }, '云云舒'),
 			footerSeparator('ys-tool-footer-title-separator'),
