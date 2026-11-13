@@ -2,6 +2,14 @@
 
 本文件只记录已闭合、可由 exact-SHA CI 复现的用户可见变更。历史版本详情以对应 GitHub Release 的 `qualification.json` 与 Release notes 为准。
 
+## v2.6.1-1 — 2026-11-13
+
+### 修复
+
+- Makefile 在 po2lmo 缺失时直接失败，不再静默生成空 lmo；去掉 msgid 首尾空白，使 `_()` 的 trimws 能命中翻译。
+- 按钮组/操作列按主题 spacing 变量留间距，同页表格首列统一 `min-width:9rem` / 左对齐。
+- 页脚容器改为 `div` 并移除自身 `border-top`，避免 bootstrap 裸 `footer` 选择器再次画出横线。
+
 ## v2.6.0-14 — 2026-11-13
 
 ### 修复
