@@ -244,7 +244,7 @@ return view.extend({
 
 			res = res || {};
 			if (res.success !== true) {
-				ipTableBody.appendChild(E('tr', {}, E('td', { 'colspan': '2' },
+				ipTableBody.appendChild(E('tr', {}, E('td', { 'colspan': '2', 'data-title': _('Status') },
 						utils.errorPanel(_('Unable to load IP history.'), _('Refresh and try again; the previous rows are unchanged.'), res.error)
 					)));
 				return;
@@ -252,15 +252,15 @@ return view.extend({
 
 			var ips = res.ips || [];
 			if (!ips.length) {
-				ipTableBody.appendChild(E('tr', {}, E('td', { 'colspan': '2' }, _('No IP history available'))));
+				ipTableBody.appendChild(E('tr', {}, E('td', { 'colspan': '2', 'data-title': _('Status') }, _('No IP history available'))));
 				return;
 			}
 
 			ips.forEach(function(item, i) {
 				var ip = (typeof item === 'string') ? item : (item.ip || '');
-				ipTableBody.appendChild(E('tr', {}, [
-					E('td', {}, String(i + 1)),
-					E('td', {}, ip)
+				ipTableBody.appendChild(E('tr', { 'class': 'tr' }, [
+					E('td', { 'class': 'td', 'data-title': '#' }, String(i + 1)),
+					E('td', { 'class': 'td', 'data-title': _('IP Address') }, ip)
 				]));
 			});
 		}
@@ -284,15 +284,15 @@ return view.extend({
 
 		renderIpHistory(historyData);
 
-		ipSection.appendChild(E('table', { 'class': 'table' }, [
+		ipSection.appendChild(E('div', { 'class': 'cfi-table-scroll' }, E('table', { 'class': 'table' }, [
 			E('thead', {}, E('tr', {}, [
 				E('th', {}, '#'),
 				E('th', {}, _('IP Address'))
 			])),
 			ipTableBody
-		]));
+		])));
 		container.appendChild(ipSection);
 
-		return container;
+		return utils.appendFooter(container, utils.FOOTER_OPTIONS);
 	}
 });

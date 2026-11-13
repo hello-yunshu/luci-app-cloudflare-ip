@@ -69,3 +69,163 @@
 	top: 0;
 	opacity: 0;
 }
+
+/* ===== 原生表格滚动容器（例外 E21） ===== */
+.cfi-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+@media screen and (max-width: 700px) {
+	.cfi-table-scroll > table.table { min-width: 0; width: 100%; table-layout: fixed; box-sizing: border-box; }
+}
+/* 主题 mobile.css 给 .tr 加了 margin: 0 -3px，在滚动容器里每行右侧多出 3px
+ * 被 V8 判为裁切；容器内把负边距收回。 */
+@media screen and (max-width: 600px) {
+	.cfi-table-scroll > table.table .tr { margin: 0; }
+}
+
+/* ===== 长文本折行：日志与来源错误（例外 E2/E17） ===== */
+.cfi-source-error .cfi-log-area,
+.cfi-log-area,
+#view textarea#log-area { white-space: pre-wrap; overflow-wrap: anywhere; }
+
+/* 插件自有折叠标题的触摸目标（主题 summary 只有 ~23px）；
+ * diagnostics 的空态提示是手写 <details>，没有 cfi-error-details 类，这里一并覆盖 */
+.cfi-error-details > summary,
+.cfi-source-error summary,
+#view .alert-message details > summary { display: flex; align-items: center; min-height: 32px; }
+
+/* ===== 模态限宽：aurora 把宽度写死为 1024px，窄屏会左右出界 ===== */
+@media screen and (max-width: 1048px) {
+	#modal_overlay > .modal { width: calc(100vw - 24px); max-width: calc(100vw - 24px); }
+}
+
+@media screen and (max-width: 420px) {
+	.cfi-stats-grid { grid-template-columns: 1fr; }
+}
+
+/* ===== Bootstrap 兼容层（例外 E21） ===== */
+/* 仅当 body.cfi-theme-bootstrap（由 utils.loadSharedCSS 按主题样式表探测）时生效，
+ * aurora 与其他主题完全不受影响。 */
+
+/* 触摸目标 >= 32px（主题按钮 28–30px，达不到可访问性底线） */
+body.cfi-theme-bootstrap .cbi-button,
+body.cfi-theme-bootstrap .btn,
+body.cfi-theme-bootstrap .cbi-page-actions button { min-height: 32px; line-height: 30px; }
+
+/* 对比度补偿：括号内为按主题实际背景计算的对比度（WCAG AA 正文 >= 4.5） */
+/* Save 在 .cbi-page-actions 内、且前面有 Apply/Negative 时会被主题的
+ * `.cbi-page-actions .cbi-button-apply + .cbi-button-save`（0,4,0）改成浅底绿字，
+ * 这里用 (0,4,1) 压过它，统一成深绿底白字。 */
+body.cfi-theme-bootstrap .cbi-page-actions .cbi-button-save.cbi-button,
+body.cfi-theme-bootstrap .cbi-button-add {
+	background: #00713d; border-color: #006635; color: #fff; /* 6.1:1 */
+}
+body.cfi-theme-bootstrap .cbi-button-reset,
+body.cfi-theme-bootstrap .cbi-button-remove { color: #b3261e; } /* 6.0:1 */
+html[data-darkmode="true"] body.cfi-theme-bootstrap .cbi-button-reset,
+html[data-darkmode="true"] body.cfi-theme-bootstrap .cbi-button-remove { color: #ff9d97; } /* 8.0:1 */
+body.cfi-theme-bootstrap .cbi-button-edit,
+body.cfi-theme-bootstrap .cbi-button-action,
+body.cfi-theme-bootstrap .cbi-dropdown > .open {
+	background: #2a6a80; border-color: #255d70; color: #fff; /* 6.1:1 */
+}
+body.cfi-theme-bootstrap .cbi-dropdown > ul > li { background: #2a6a80; color: #fff; } /* 6.1:1 */
+body.cfi-theme-bootstrap .label.success { background: #00713d; border-color: #006635; color: #fff; } /* 6.1:1 */
+/* 成功提示用的是 #007936→#009a4c 渐变，白字最浅处只有 3.3:1；压成纯深绿 */
+body.cfi-theme-bootstrap .alert-message.success { background: #007a4a; color: #fff; } /* 5.4:1 */
+body.cfi-theme-bootstrap .alert-message.success :is(h3,h4,h5,p,b,strong,li) { color: #fff; }
+/* danger/error 的渐变底在白字下最浅处只有 ~4.5:1，暗色还给了深灰字；统一成纯深红白字 */
+body.cfi-theme-bootstrap .alert-message.danger,
+body.cfi-theme-bootstrap .alert-message.error { background: #8c1d18; color: #fff; } /* 7.1:1 */
+body.cfi-theme-bootstrap .alert-message.danger :is(h3,h4,h5,p,b,strong,li,summary,pre),
+body.cfi-theme-bootstrap .alert-message.error :is(h3,h4,h5,p,b,strong,li,summary,pre) { color: #fff; }
+/* 红色提示里的按钮：主题让按钮继承白字、但底色仍是浅灰，对比度只有 1.1:1 */
+body.cfi-theme-bootstrap .alert-message.danger .cbi-button,
+body.cfi-theme-bootstrap .alert-message.error .cbi-button {
+	background: rgba(0, 0, 0, 0.28); border-color: rgba(255, 255, 255, 0.45); color: #fff; /* 9.7:1 */
+}
+body.cfi-theme-bootstrap span.more { color: #595959; } /* 6.4:1 on #f8f8f8 */
+html[data-darkmode="true"] body.cfi-theme-bootstrap span.more { color: #a0a0a0; } /* 5.6:1 on #282828 */
+
+/* Shared Yunshu OpenWrt plugin footer. Keep this block identical across
+ * sibling LuCI plugins so every page shows the same version bar. */
+.ys-tool-footer {
+	--ys-footer-blue: #2f7df6;
+	--ys-footer-blue-bg: rgba(47, 125, 246, 0.12);
+	--ys-footer-blue-bg-hover: rgba(47, 125, 246, 0.18);
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: .8em 1em;
+	margin-top: 2em;
+	padding: 1em 0 0;
+	border-top: 1px solid var(--border-color, #d8dee8);
+	color: var(--subtext-color, #666);
+	font-size: .875em;
+}
+.ys-tool-footer-brand,
+.ys-tool-footer-links {
+	display: flex;
+	flex-wrap: nowrap;
+	align-items: center;
+	gap: .35em;
+}
+.ys-tool-footer-brand { flex-wrap: wrap; }
+.ys-tool-footer-links { white-space: nowrap; }
+.ys-tool-footer-mark {
+	padding: .18em .5em;
+	border-radius: 4px;
+	background-color: var(--ys-footer-blue-bg);
+	background: color-mix(in srgb, var(--ys-footer-blue) 12%, transparent);
+	color: var(--ys-footer-blue);
+	font-size: .86em;
+	font-weight: 700;
+	line-height: 1.6;
+}
+.ys-tool-footer-title { color: inherit; font-weight: 600; }
+.ys-tool-footer-separator {
+	margin: 0 .15em;
+	color: color-mix(in srgb, var(--subtext-color, #666) 65%, transparent);
+}
+.ys-tool-footer-version { color: inherit; }
+.ys-tool-footer-link,
+.ys-tool-footer a.ys-tool-footer-link {
+	display: inline-flex;
+	align-items: center;
+	gap: .35em;
+	padding: .18em .5em;
+	border: 0;
+	border-radius: 4px;
+	background-color: var(--ys-footer-blue-bg);
+	background: color-mix(in srgb, var(--ys-footer-blue) 12%, transparent);
+	color: var(--ys-footer-blue);
+	font-size: .86em;
+	font-weight: 700;
+	line-height: 1.6;
+	text-decoration: none;
+}
+.ys-tool-footer-link:hover,
+.ys-tool-footer a.ys-tool-footer-link:hover {
+	background-color: var(--ys-footer-blue-bg-hover);
+	background: color-mix(in srgb, var(--ys-footer-blue) 18%, transparent);
+	text-decoration: none;
+}
+.ys-tool-footer-link-icon {
+	width: 1em;
+	height: 1em;
+	max-width: 1em;
+	max-height: 1em;
+	display: inline-block;
+	flex: 0 0 auto;
+	vertical-align: -.125em;
+}
+
+@media (max-width: 600px) {
+	.ys-tool-footer { gap: .5em; }
+	.ys-tool-footer-title,
+	.ys-tool-footer-title-separator,
+	.ys-tool-footer-project-link,
+	.ys-tool-footer-project-separator { display: none; }
+	.ys-tool-footer-links { flex-wrap: wrap; white-space: normal; }
+	.ys-tool-footer-links .ys-tool-footer-link.github .ys-tool-footer-link-label,
+	.ys-tool-footer-links .ys-tool-footer-link.x .ys-tool-footer-link-label { display: none; }
+}

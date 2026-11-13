@@ -112,6 +112,6 @@ return view.extend({
 		utils.createHandleSave(m, this);
 		utils.createHandleSaveApply(m, this);
 
-		return m.render();
+		return utils.renderWithFooter(m.render(), utils.FOOTER_OPTIONS);
 	}
 });
