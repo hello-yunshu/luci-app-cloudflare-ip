@@ -278,9 +278,9 @@ html[data-darkmode="true"] body.cfi-theme-bootstrap span.more { color: #a0a0a0; 
 	padding-inline: calc(var(--spacing, .25rem) * 2);
 	padding-block: calc(var(--spacing, .25rem) * 1.5);
 }
-.cfi-source-picker[data-cfi-fold] > ul:not(.dropdown),
-.cfi-source-picker[data-cfi-fold] > ul.preview,
-.cfi-source-picker[data-cfi-fold] > .more {
+.cbi-dropdown.cfi-source-picker[multiple][data-cfi-fold] > ul:not(.dropdown),
+.cbi-dropdown.cfi-source-picker[multiple][data-cfi-fold] > ul.preview,
+.cbi-dropdown.cfi-source-picker[multiple][data-cfi-fold] > .more {
 	display: none !important;
 }
 .cfi-source-picker[data-cfi-fold] > .cfi-sel-summary {
