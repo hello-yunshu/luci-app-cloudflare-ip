@@ -258,3 +258,31 @@ html[data-darkmode="true"] body.cfi-theme-bootstrap span.more { color: #a0a0a0; 
 		vertical-align: top;
 	}
 }
+
+/* Native multiple-select caps the closed preview at three chips and clips
+ * longer labels without an ellipsis. When the selection cannot be shown in
+ * full, replace both the closed chips and the open-state clone strip with a
+ * single count line; the complete checked list is still one click away in
+ * the dropdown panel itself. Scope is the picker element itself because the
+ * sources map does not carry the `.cfi-form-map` class. */
+.cfi-source-picker > .cfi-sel-summary {
+	display: none;
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	align-items: center;
+	/* Same box metrics as a native chip, so folding never changes the
+	 * control's height. */
+	padding-inline: calc(var(--spacing, .25rem) * 2);
+	padding-block: calc(var(--spacing, .25rem) * 1.5);
+}
+.cfi-source-picker[data-cfi-fold] > ul:not(.dropdown),
+.cfi-source-picker[data-cfi-fold] > ul.preview,
+.cfi-source-picker[data-cfi-fold] > .more {
+	display: none !important;
+}
+.cfi-source-picker[data-cfi-fold] > .cfi-sel-summary {
+	display: flex;
+}

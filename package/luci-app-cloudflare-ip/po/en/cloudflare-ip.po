@@ -1763,6 +1763,10 @@ msgstr "Runtime is optional; Native mode remains available without it."
 msgid "Scheduler Contract"
 msgstr "Scheduler Contract"
 
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/sources.js
+msgid "Selected: %d"
+msgstr "Selected: %d"
+
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
 msgid "Selection"
 msgstr "Selection"
