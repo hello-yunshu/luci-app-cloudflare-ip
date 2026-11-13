@@ -181,7 +181,7 @@ return view.extend({
 		}
 
 		var logBtnBar = E('div', { 'class': 'cfi-log-controls' });
-		var logActions = E('div', {});
+		var logActions = E('div', { 'class': 'ys-actions' });
 		logBtnBar.appendChild(logLevel);
 		logBtnBar.appendChild(logKeyword);
 		logBtnBar.appendChild(logActions);
