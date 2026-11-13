@@ -6,8 +6,8 @@
 
 ### 修复
 
-- 内置来源多选在无法完整显示选中项时折叠为「已选 N 项」，避免原生 MultiValue 第 4 项起只留 `···`、长标签被硬裁切；展开面板仍可看到全部勾选项，控件高度保持 36.75px。
-- 折叠样式直接作用于 `.cfi-source-picker`，不依赖正常渲染路径下并不存在的 `.cfi-form-map`；spacing 变量补 `.25rem` 兜底。
+- 内置来源多选在无法完整显示选中项时折叠为「已选 N 项」，避免原生 MultiValue 第 4 项起只留 `···`、长标签被硬裁切；展开面板仍可看到全部勾选项，控件高度保持该主题原生高度（aurora 36.75px / bootstrap 30px）。
+- 折叠样式直接作用于 `.cfi-source-picker`，不依赖正常渲染路径下并不存在的 `.cfi-form-map`；spacing 变量补 `.25rem` 兜底；隐藏原生 `···` 占位需要压过主题 `.cbi-dropdown[multiple][more] > .more` 的 `!important` 规则。
 
 ## v2.6.1-1 — 2026-11-13
 
