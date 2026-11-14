@@ -37,7 +37,7 @@ return view.extend({
     utils.loadSharedCSS();
     var regData=data[1]||{}, stData=data[2]||{}, reg=regData.presets||[], st=statusMap(stData.sources||[]), m=new form.Map('cf_ip',_('Candidate Sources')),s,o;
     if (regData._rpcError)
-      return utils.renderWithFooter(E('div',{'class':'cbi-map cfi-form-map'}, E('div',{'class':'cbi-section'},[
+      return utils.renderWithFooter(E('div',{'class':'cfi-form-map cfi-rpc-error'}, E('div',{'class':'cbi-section'},[
         E('h3',{},_('Unable to load source registry')),
         E('p',{},_('Retry the source registry check. If it keeps failing, open Logs & Records.')),
         utils.technicalDetails(regData.error),

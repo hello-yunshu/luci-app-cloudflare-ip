@@ -194,8 +194,10 @@ async function run() {
 		const retry = page.locator('button:has-text("Retry")');
 		if (!(await retry.count()))
 			throw new Error('RPC error state has no Retry control');
+		if (await page.locator('.cbi-page-actions').count())
+			throw new Error('RPC error state shows save/apply actions without an editable form');
 		await page.screenshot({ path: path.join(evidence, sha + '-sources-rpc-error.png') });
-		scenario('sources-rpc-error-visible', 'PASS', 'explicit error + Retry');
+		scenario('sources-rpc-error-visible', 'PASS', 'explicit error + Retry; no empty save/apply bar');
 
 		report.consoleErrors = consoleErrors;
 	} finally {
