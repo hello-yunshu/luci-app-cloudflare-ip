@@ -59,6 +59,8 @@ async function measure(page, theme) {
     const root = document.documentElement;
     const main = document.querySelector('#maincontent');
     const text = main ? (main.innerText || '').trim() : '';
+    const overviewTable = document.querySelector('.cfi-overview-data-table');
+    const overviewHeading = overviewTable && overviewTable.querySelector('tbody tr th');
     const links = Array.from(document.querySelectorAll('link[href],script[src]'));
     const themeLoaded = links.some(el => ((el.href || el.src || '')).includes('/luci-static/' + media + '/'));
     const truncated = Array.from((main || document).querySelectorAll('*'))
@@ -89,6 +91,8 @@ async function measure(page, theme) {
       hasMain: !!main,
       themeLoaded,
       darkMode: root.getAttribute('data-darkmode'),
+      overviewLabelSeparator: overviewHeading ? getComputedStyle(overviewHeading, '::after').content : null,
+      overviewDuplicatedMobileLabels: overviewTable ? overviewTable.querySelectorAll('td[data-title]').length : 0,
       truncated,
       tabLinks: document.querySelectorAll('#tabmenu a').length
     };
@@ -168,6 +172,10 @@ function write() {
               if (metrics.truncated.length) failures.push('truncated-non-dropdown-text');
               if (theme.mode === 'dark' && metrics.darkMode !== 'true') failures.push('aurora-dark-mode-not-applied');
               if (theme.mode === 'light' && metrics.darkMode === 'true') failures.push('aurora-light-mode-not-applied');
+              if (name === 'overview' && width <= 600) {
+                if (metrics.overviewLabelSeparator !== '":"') failures.push('overview-mobile-label-separator-missing');
+                if (metrics.overviewDuplicatedMobileLabels) failures.push('overview-mobile-duplicate-labels');
+              }
             }
             if (consoleErrors.length) failures.push('console-errors');
             const result = failures.length ? 'FAIL' : (absentOptionalRoute ? 'N/A' : 'PASS');
