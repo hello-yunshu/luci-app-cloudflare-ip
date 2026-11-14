@@ -149,12 +149,12 @@ async function run() {
 		const modal = page.locator('#modal_overlay .modal[role="dialog"]');
 		await modal.waitFor({ timeout: 10000 });
 		const modalCount = await modal.count();
+		await page.screenshot({ path: path.join(evidence, sha + '-logs-confirm-modal.png') });
 		await page.locator('#modal_overlay button:has-text("Cancel")').click();
 		await page.waitForTimeout(400);
 		const modalClosed = (await page.locator('#modal_overlay .modal:visible').count()) === 0;
 		if (!modalCount || !modalClosed || nativeDialogs || clearRequests)
 			throw new Error('confirm is not a side-effect-free LuCI modal');
-		await page.screenshot({ path: path.join(evidence, sha + '-logs-confirm-modal.png') });
 		scenario('luci-modal-and-readable-text', 'PASS', 'log=' + logFont + 'px, cmd=' + cmdFont + 'px');
 
 		/* Scenario 3: the native status banner does not pulse with reduced motion. */
