@@ -32,7 +32,7 @@
 /* ===== Log Filter Row ===== */
 .cfi-log-controls {
 	display: flex; flex-wrap: wrap; align-items: center;
-	gap: 0.8em; margin-bottom: 1em;
+	gap: calc(var(--spacing, .25rem) * 3); margin-bottom: 1em;
 }
 .cfi-log-controls .cfi-log-filter { flex: 1 1 12em; min-width: 0; }
 .cfi-log-controls .cfi-log-level { flex: 0 0 auto; }
@@ -169,7 +169,12 @@ html[data-darkmode="true"] body.cfi-theme-bootstrap span.more { color: #a0a0a0; 
 	gap: .35em;
 }
 .ys-tool-footer-brand { flex-wrap: wrap; }
-.ys-tool-footer-links { white-space: nowrap; }
+/* Link chips are buttons on touch screens: 8px apart minimum and a 32px tap
+ * target, independent of the font-size derived height. */
+.ys-tool-footer-links {
+	white-space: nowrap;
+	gap: calc(var(--spacing, .25rem) * 2);
+}
 .ys-tool-footer-mark {
 	padding: .18em .5em;
 	border-radius: 4px;
@@ -190,7 +195,9 @@ html[data-darkmode="true"] body.cfi-theme-bootstrap span.more { color: #a0a0a0; 
 .ys-tool-footer a.ys-tool-footer-link {
 	display: inline-flex;
 	align-items: center;
+	justify-content: center;
 	gap: .35em;
+	min-height: 2rem;
 	padding: .18em .5em;
 	border: 0;
 	border-radius: 4px;
@@ -225,19 +232,28 @@ html[data-darkmode="true"] body.cfi-theme-bootstrap span.more { color: #a0a0a0; 
 	.ys-tool-footer-project-link,
 	.ys-tool-footer-project-separator { display: none; }
 	.ys-tool-footer-links { flex-wrap: wrap; white-space: normal; }
+	.ys-tool-footer-links .ys-tool-footer-link.github,
+	.ys-tool-footer-links .ys-tool-footer-link.x { min-width: 2rem; }
 	.ys-tool-footer-links .ys-tool-footer-link.github .ys-tool-footer-link-label,
 	.ys-tool-footer-links .ys-tool-footer-link.x .ys-tool-footer-link-label { display: none; }
 }
 
 /* Shared interaction rhythm: side-by-side buttons follow the theme spacing
- * scale instead of hardcoded pixels. Keep identical across sibling plugins. */
+ * scale instead of hardcoded pixels. Keep identical across sibling plugins.
+ * The theme scopes its own page-action rules to #maincontent and shrinks the
+ * gap to 8px on phones; the plugin restates the same token at equal
+ * specificity so one 12px rhythm holds on every breakpoint. The theme also
+ * puts the gap inside the per-button wrappers, hence the child selector. */
+#maincontent { --ys-action-gap: calc(var(--spacing, .25rem) * 3); }
 .ys-actions,
 .cbi-page-actions {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
-	gap: calc(var(--spacing, .25rem) * 3);
+	gap: var(--ys-action-gap);
 }
+#maincontent .ys-actions,
+#maincontent .cbi-page-actions { gap: var(--ys-action-gap); }
 .cbi-page-actions { justify-content: flex-end; }
 .ys-actions > .cbi-button,
 .ys-actions > button,
@@ -245,6 +261,21 @@ html[data-darkmode="true"] body.cfi-theme-bootstrap span.more { color: #a0a0a0; 
 .ys-actions > input,
 .cbi-page-actions > form,
 .cbi-page-actions > button { margin: 0; }
+
+/* The aurora theme floats a 40px toolbar against the right edge from 1319px
+ * down. Its column covers the last button of every action row that reaches
+ * the right edge, so reserve that column for those rows only instead of
+ * changing the page gutter. */
+@supports selector(:has(*)) {
+	@media screen and (max-width: 1319px) {
+		body:has(.floating-toolbar) #maincontent .cbi-page-actions,
+		body:has(.floating-toolbar) #maincontent .cbi-section-create,
+		body:has(.floating-toolbar) #maincontent .ys-actions,
+		body:has(.floating-toolbar) #maincontent .cfi-log-controls {
+			padding-inline-end: calc(var(--spacing, .25rem) * 10);
+		}
+	}
+}
 
 /* Shared table contract: every table on the page shares one first-column
  * basis (minimum width + alignment) instead of content-driven widths. */
