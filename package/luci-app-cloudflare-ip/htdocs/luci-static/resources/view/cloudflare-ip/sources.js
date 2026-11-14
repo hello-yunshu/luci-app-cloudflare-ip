@@ -170,6 +170,7 @@ return view.extend({
           }
         }
         table.querySelectorAll('tbody tr').forEach(function(tr){
+          if (isCustomSources && tr.classList.contains('placeholder')) return;
           Array.prototype.forEach.call(tr.children, function(td, i){
             if (!td.classList.contains('td') || td.getAttribute('data-title')) return;
             td.setAttribute('data-title', heads[i] || (i === heads.length - 1 ? _('Actions') : _('Value')));
