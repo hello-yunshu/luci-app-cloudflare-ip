@@ -7,7 +7,7 @@ const root = process.env.CFIP_TEST_VIEW_ROOT || path.resolve(__dirname, '..');
 const config = fs.readFileSync(path.join(root, 'package/luci-app-cloudflare-ip/root/etc/config/cf_ip'), 'utf8');
 const sections = [...config.matchAll(/^config\s+(\S+)\s+'([^']+)'/gm)].map(m => ({type:m[1], name:m[2]}));
 function E(tag, attrs, children) {
- const node = {tag,attrs,children:[],appendChild(child){this.children.push(child);return child;},get lastChild(){return this.children.at(-1);},get firstChild(){return this.children[0];}};
+ const node = {tag,attrs,children:[],appendChild(child){this.children.push(child);return child;},querySelector(){return null;},querySelectorAll(){return [];},get lastChild(){return this.children.at(-1);},get firstChild(){return this.children[0];}};
  for(const child of Array.isArray(children)?children:children==null?[]:[children])node.appendChild(child);
  return node;
 }
