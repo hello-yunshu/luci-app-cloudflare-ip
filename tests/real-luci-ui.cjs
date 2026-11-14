@@ -11,7 +11,7 @@
  *   1. refreshing sources does not reload the page and keeps a typed draft;
  *   2. log/command text stays readable and Clear Logs uses a LuCI modal whose
  *      cancel path has no side effects;
- *   3. prefers-reduced-motion removes the running status pulse;
+ *   3. the accessible status banner does not pulse when reduced motion is preferred;
  *   4. a rejected cf_ip RPC is shown as an error, not as an empty/not-installed
  *      state.
  */
@@ -154,7 +154,7 @@ async function run() {
 		await page.screenshot({ path: path.join(evidence, sha + '-logs-confirm-modal.png') });
 		scenario('luci-modal-and-readable-text', 'PASS', 'log=' + logFont + 'px, cmd=' + cmdFont + 'px');
 
-		/* Scenario 3: prefers-reduced-motion removes the real status pulse. */
+		/* Scenario 3: the native status banner does not pulse with reduced motion. */
 		const reduced = await browser.newContext({
 			viewport: { width: 1280, height: 900 },
 			reducedMotion: 'reduce'
@@ -163,15 +163,17 @@ async function run() {
 		try {
 			await login(reducedPage);
 			await reducedPage.goto(base + '/cgi-bin/luci/admin/services/cf_ip/overview', { waitUntil: 'domcontentloaded' });
-			await reducedPage.locator('.cfi-status-icon').waitFor({ timeout: 30000 });
+			await reducedPage.locator('.cfi-dashboard [role="status"]').waitFor({ timeout: 30000 });
 			const motion = await reducedPage.evaluate(() => {
-				const icon = document.querySelector('.cfi-status-icon');
-				icon.classList.add('running-test');
-				return getComputedStyle(icon).animationName;
+				const banner = document.querySelector('.cfi-dashboard [role="status"]');
+				return {
+					preference: matchMedia('(prefers-reduced-motion: reduce)').matches,
+					animation: getComputedStyle(banner).animationName
+				};
 			});
-			if (motion !== 'none')
-				throw new Error('reduced motion still animates the status icon: ' + motion);
-			scenario('reduced-motion-disables-pulse', 'PASS', 'animation=' + motion);
+			if (!motion.preference || motion.animation !== 'none')
+				throw new Error('status banner animates with reduced motion: ' + JSON.stringify(motion));
+			scenario('reduced-motion-disables-pulse', 'PASS', 'animation=' + motion.animation);
 		} finally {
 			await reduced.close();
 		}
