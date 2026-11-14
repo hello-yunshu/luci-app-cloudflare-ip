@@ -74,7 +74,7 @@ return view.extend({
 		var logArea = E('textarea', {
 			'class': 'cbi-input-textarea cfi-log-area is-loading',
 			'id': 'log-area',
-			'rows': 20,
+			'rows': 4,
 			'readonly': 'readonly'
 		}, '');
 		var logDetails = E('details', { 'class': 'cfi-error-details', 'hidden': true });
@@ -114,16 +114,19 @@ return view.extend({
 				return;
 			if (!rawLogs || !rawLogs.trim()) {
 				logArea.className = 'cbi-input-textarea cfi-log-area is-empty';
+				logArea.rows = 4;
 				setLogText(_('No logs found.'));
 				return;
 			}
 			var filtered = matchingLines(rawLogs);
 			if (!filtered.trim()) {
 				logArea.className = 'cbi-input-textarea cfi-log-area is-empty';
+				logArea.rows = 4;
 				setLogText(_('No matching log lines.'));
 				return;
 			}
 			logArea.className = 'cbi-input-textarea cfi-log-area';
+			logArea.rows = 20;
 			setLogText(filtered);
 			var filteredView = logLevel.value !== 'all' || (logKeyword.value || '').trim() !== '';
 			logArea.scrollTop = filteredView ? 0 : logArea.scrollHeight;
@@ -135,6 +138,7 @@ return view.extend({
 		function setLogError(message, error) {
 			rawLogs = null;
 			logArea.className = 'cbi-input-textarea cfi-log-area is-error';
+			logArea.rows = 4;
 			setLogText(message);
 			while (logDetails.firstChild)
 				logDetails.removeChild(logDetails.firstChild);
@@ -171,6 +175,7 @@ return view.extend({
 				utils.setBusy(btn, _('Loading...'));
 			rawLogs = null;
 			logArea.className = 'cbi-input-textarea cfi-log-area is-loading';
+			logArea.rows = 4;
 			setLogText(_('Loading...'));
 			return callReadLog().then(renderLogResult).catch(function(e) {
 				setLogError(_('Unable to read logs. Check the service status and try again.'), e);
@@ -204,6 +209,7 @@ return view.extend({
 						if (res.success === true) {
 							rawLogs = '';
 							logArea.className = 'cbi-input-textarea cfi-log-area is-empty';
+							logArea.rows = 4;
 							setLogText(_('Log file cleared.'));
 						} else {
 							utils.noticeError(_('Unable to clear logs.'), _('The previous log file was preserved.'), res.error);

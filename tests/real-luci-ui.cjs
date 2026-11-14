@@ -121,6 +121,9 @@ async function run() {
 		const logFont = await page.locator('#log-area').evaluate(el => parseFloat(getComputedStyle(el).fontSize));
 		if (!(logFont >= 12))
 			throw new Error('log textarea font-size below 12px: ' + logFont);
+		const emptyLogRows = await page.locator('#log-area').evaluate(el => el.classList.contains('is-empty') ? el.rows : null);
+		if (emptyLogRows !== null && emptyLogRows > 4)
+			throw new Error('empty log textarea is not compact: ' + emptyLogRows + ' rows');
 		const cmdFont = await page.evaluate(() => {
 			const el = document.createElement('div');
 			el.className = 'cfi-cmd-box';
