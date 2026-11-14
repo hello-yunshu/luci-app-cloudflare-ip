@@ -148,6 +148,8 @@ return view.extend({
       /* 主题的 GridSection 只给除首列/操作列外的单元格加 data-title，
        * 首列（来源名）与操作列在窄屏堆叠时缺标签，这里按表头补齐。 */
       node.querySelectorAll('table.cbi-section-table').forEach(function(table){
+        var isCustomSources = !!table.closest('#cbi-cf_ip-source');
+        if (isCustomSources) table.classList.add('cfi-custom-sources-table');
         /* 8 列的来源表在 360/600 下宽约 590px，裸放会把文档撑开；
          * 套一层滚动容器，窄屏可横向滑动而不影响页面宽度。 */
         if (!table.parentNode || !table.parentNode.classList.contains('cfi-table-scroll')) {
@@ -158,6 +160,15 @@ return view.extend({
         var heads = Array.prototype.map.call(table.querySelectorAll('thead th'), function(th){
           return (th.textContent || '').trim();
         });
+        if (isCustomSources) {
+          /* Bootstrap positions LuCI's one-cell empty placeholder over the
+           * first header cell. Span the grid and let the row own its layout. */
+          var emptyCell = table.querySelector('tbody > tr.placeholder > td');
+          if (emptyCell) {
+            emptyCell.colSpan = Math.max(heads.length, 1);
+            emptyCell.removeAttribute('data-title');
+          }
+        }
         table.querySelectorAll('tbody tr').forEach(function(tr){
           Array.prototype.forEach.call(tr.children, function(td, i){
             if (!td.classList.contains('td') || td.getAttribute('data-title')) return;

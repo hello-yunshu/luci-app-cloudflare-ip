@@ -81,6 +81,29 @@
 	.cfi-table-scroll > table.table .tr { margin: 0; }
 }
 
+/* LuCI renders an empty GridSection with one cell. Bootstrap absolutely
+ * positions that cell, which can place the empty message over the table head.
+ * Keep the row in the table flow and let its cell span the grid instead. */
+#cbi-cf_ip-source .cfi-custom-sources-table > tbody > tr.placeholder {
+	position: relative;
+	height: auto;
+}
+#cbi-cf_ip-source .cfi-custom-sources-table > tbody > tr.placeholder > td {
+	position: static;
+	left: auto;
+	right: auto;
+	bottom: auto;
+	text-align: center;
+	line-height: normal;
+	padding: .75em;
+}
+@media screen and (max-width: 600px) {
+	#cbi-cf_ip-source .cfi-custom-sources-table > tbody > tr.placeholder > td {
+		flex: 1 1 100%;
+		width: 100%;
+	}
+}
+
 /* LuCI's mobile table layout already labels each stacked data cell. Keep the
  * source status headings available to assistive technology, but out of the
  * visual flow where the four desktop columns are collapsed into two mobile
