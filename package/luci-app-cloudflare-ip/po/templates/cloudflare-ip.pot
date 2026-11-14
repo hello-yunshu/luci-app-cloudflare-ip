@@ -2348,3 +2348,15 @@ msgstr ""
 
 msgid "Service Handling"
 msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js:224
+msgid "Unable to load status"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js:225
+msgid "Retry the page. If it keeps failing, open Logs & Records."
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/sources.js:164
+msgid "Value"
+msgstr ""
