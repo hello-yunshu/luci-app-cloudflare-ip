@@ -59,8 +59,7 @@ async function measure(page, theme) {
     const root = document.documentElement;
     const main = document.querySelector('#maincontent');
     const text = main ? (main.innerText || '').trim() : '';
-    const overviewTable = document.querySelector('.cfi-overview-data-table');
-    const overviewHeading = overviewTable && overviewTable.querySelector('tbody tr th');
+    const overviewLabels = Array.from(document.querySelectorAll('.cfi-dashboard th.cfi-overview-label'));
     const links = Array.from(document.querySelectorAll('link[href],script[src]'));
     const themeLoaded = links.some(el => ((el.href || el.src || '')).includes('/luci-static/' + media + '/'));
     const truncated = Array.from((main || document).querySelectorAll('*'))
@@ -91,8 +90,9 @@ async function measure(page, theme) {
       hasMain: !!main,
       themeLoaded,
       darkMode: root.getAttribute('data-darkmode'),
-      overviewLabelSeparator: overviewHeading ? getComputedStyle(overviewHeading, '::after').content : null,
-      overviewDuplicatedMobileLabels: overviewTable ? overviewTable.querySelectorAll('td[data-title]').length : 0,
+      overviewLabelCount: overviewLabels.length,
+      overviewLabelSeparator: overviewLabels.length ? getComputedStyle(overviewLabels[0], '::after').content : null,
+      overviewDuplicatedMobileLabels: overviewLabels.reduce((count, label) => count + (label.nextElementSibling && label.nextElementSibling.hasAttribute('data-title') ? 1 : 0), 0),
       truncated,
       tabLinks: document.querySelectorAll('#tabmenu a').length
     };

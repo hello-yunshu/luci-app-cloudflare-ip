@@ -424,15 +424,15 @@ return view.extend({
 		var infoSection = E('div', { 'class': 'cbi-section' });
 		infoSection.appendChild(E('h3', {}, _('Service Information')));
 
-		var infoTable = E('table', { 'class': 'table cfi-overview-data-table' });
+		var infoTable = E('table', { 'class': 'table' });
 
 		infoTable.appendChild(E('tr', {}, [
-			E('th', {}, _('Mode')),
+			E('th', { 'class': 'cfi-overview-label' }, _('Mode')),
 			E('td', {}, mode)
 		]));
 
 		infoTable.appendChild(E('tr', {}, [
-			E('th', {}, _('Last Run Time')),
+			E('th', { 'class': 'cfi-overview-label' }, _('Last Run Time')),
 			E('td', {}, lastRun)
 		]));
 
@@ -453,7 +453,7 @@ return view.extend({
 			lastResultBadge = E('span', { 'class': 'label important' }, '\u2718 ' + translateStatus(lastResult));
 		}
 		infoTable.appendChild(E('tr', {}, [
-			E('th', {}, _('Last Result')),
+			E('th', { 'class': 'cfi-overview-label' }, _('Last Result')),
 			E('td', {}, lastResultBadge)
 		]));
 		if (data.service && data.service.target === 'openclash') {
@@ -471,29 +471,29 @@ return view.extend({
 			}
 			if (serviceMessage)
 				infoTable.appendChild(E('tr', {}, [
-					E('th', {}, _('OpenClash Apply Status')),
+					E('th', { 'class': 'cfi-overview-label' }, _('OpenClash Apply Status')),
 					E('td', {}, serviceMessage)
 				]));
 		}
 
 		var bestIpsText = bestIps.length > 0 ? bestIps.slice(0, 5).join(', ') + (bestIps.length > 5 ? ' ...' : '') : '-';
 		infoTable.appendChild(E('tr', {}, [
-			E('th', {}, _('Best IPs')),
+			E('th', { 'class': 'cfi-overview-label' }, _('Best IPs')),
 			E('td', {}, bestIpsText)
 		]));
 
 		infoTable.appendChild(E('tr', {}, [
-			E('th', {}, _('Script Version')),
+			E('th', { 'class': 'cfi-overview-label' }, _('Script Version')),
 			E('td', {}, scriptVersion)
 		]));
 
 		infoTable.appendChild(E('tr', {}, [
-			E('th', {}, _('CFST Version')),
+			E('th', { 'class': 'cfi-overview-label' }, _('CFST Version')),
 			E('td', {}, cfstVersion)
 		]));
 
 		infoTable.appendChild(E('tr', {}, [
-			E('th', {}, _('GitHub')),
+			E('th', { 'class': 'cfi-overview-label' }, _('GitHub')),
 			E('td', {}, E('a', {
 				'href': 'https://github.com/hello-yunshu/luci-app-cloudflare-ip',
 				'target': '_blank',
@@ -508,7 +508,7 @@ return view.extend({
 		var envSection = E('div', { 'class': 'cbi-section' });
 		envSection.appendChild(E('h3', {}, _('Environment Detection')));
 
-		var envTable = E('table', { 'class': 'table cfi-overview-data-table' });
+		var envTable = E('table', { 'class': 'table' });
 
 		var envItems = [
 			{ label: _('tar'), key: 'tar' },
@@ -545,7 +545,7 @@ return view.extend({
 			var td = E('td', {}, tdContent);
 			envTds.push({ td: td, item: item });
 			envTable.appendChild(E('tr', {}, [
-				E('th', {}, item.label),
+				E('th', { 'class': 'cfi-overview-label' }, item.label),
 				td
 			]));
 		}

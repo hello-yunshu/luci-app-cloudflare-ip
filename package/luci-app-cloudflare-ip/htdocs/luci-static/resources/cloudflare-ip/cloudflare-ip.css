@@ -171,7 +171,7 @@ body.cfi-theme-bootstrap .cbi-dropdown > .open {
 body.cfi-theme-bootstrap .cbi-dropdown > ul > li { background: #2a6a80; color: #fff; } /* 6.1:1 */
 body.cfi-theme-bootstrap .label.success { background: #00713d; border-color: #006635; color: #fff; } /* 6.1:1 */
 @media screen and (max-width: 600px) {
-	.cfi-dashboard table.cfi-overview-data-table > tbody > tr > th::after {
+	.cfi-dashboard th.cfi-overview-label::after {
 		content: ':';
 		margin-left: .25em;
 	}
