@@ -81,6 +81,24 @@
 	.cfi-table-scroll > table.table .tr { margin: 0; }
 }
 
+/* LuCI's mobile table layout already labels each stacked data cell. Keep the
+ * source status headings available to assistive technology, but out of the
+ * visual flow where the four desktop columns are collapsed into two mobile
+ * label/value pairs. The default header cells otherwise concatenate at 320px. */
+@media screen and (max-width: 700px) {
+	.cfi-source-status-table > thead {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border: 0;
+	}
+}
+
 /* ===== 长文本折行：日志与来源错误（例外 E2/E17） ===== */
 .cfi-source-error .cfi-log-area,
 .cfi-log-area,

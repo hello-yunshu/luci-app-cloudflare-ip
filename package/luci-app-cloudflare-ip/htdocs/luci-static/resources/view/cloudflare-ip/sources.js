@@ -106,7 +106,7 @@ return view.extend({
     var box=E('div',{'class':'cbi-section'},[
       E('h3',{},_('Runtime Source Status')),
       E('p',{},_('Each run allocates roughly 1/8 to fresh history champions, 5/8 to community seeds, and 1/4 to Cloudflare official range exploration. Missing pools flow to other sources. All candidates are deduplicated and measured locally in one CFST run; community ports are never reused.')),
-      E('div',{'class':'cfi-table-scroll'},E('table',{'class':'table'},[
+      E('div',{'class':'cfi-table-scroll'},E('table',{'class':'table cfi-source-status-table'},[
         E('thead',{},E('tr',{},[
           E('th',{},_('Source')),
           E('th',{},_('State')),
