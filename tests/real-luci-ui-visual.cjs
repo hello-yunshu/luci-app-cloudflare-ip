@@ -16,6 +16,12 @@ const container = process.env.CFIP_UI_CONTAINER || 'cfip-ui-gate';
 const password = process.env.CFIP_UI_PASSWORD || 'cfip-gate';
 const output = process.env.CFIP_VISUAL_OUT || path.join(process.cwd(), 'real-luci-visual-evidence');
 const pages = ['overview', 'settings', 'sources', 'intelligence', 'openclash', 'passwall', 'advanced', 'logs'];
+const optionalPages = new Set(['openclash', 'passwall']);
+const expectedTitles = {
+  overview: 'Overview', settings: 'Settings', sources: 'Candidate Sources',
+  intelligence: 'Rill Intelligence', openclash: 'OpenClash', passwall: 'PassWall',
+  advanced: 'Advanced', logs: 'Logs & Records'
+};
 const widths = [320, 375, 640, 768, 1280];
 const themes = [
   { id: 'bootstrap-light', media: 'bootstrap', mode: null },
@@ -27,7 +33,7 @@ const report = {
   sha: process.env.GITHUB_SHA || process.env.CFIP_UI_SHA || 'unknown',
   environment: 'real OpenWrt 24.10.8 rootfs with uhttpd/rpcd/LuCI; Chromium Playwright',
   method: 'initial views, five CSS viewport widths, installed Bootstrap and Aurora 1.4.0 themes',
-  notCovered: ['real 200% browser zoom', 'complete 51-point interaction matrix', 'physical router', 'Material theme', 'zh_cn rendering'],
+  notCovered: ['real 200% browser zoom', 'complete 51-point interaction matrix', 'physical router', 'Material theme', 'zh_cn rendering', 'installed OpenClash and PassWall integration forms'],
   pages, widths, rows: [], errors: []
 };
 fs.mkdirSync(output, { recursive: true });
@@ -106,8 +112,13 @@ function write() {
             const exception = error => consoleErrors.push('PAGE_ERROR ' + error.message);
             page.on('console', listener);
             page.on('pageerror', exception);
+            const integrationInstalled = optionalPages.has(name)
+              ? shell("if [ -x /etc/init.d/" + name + " ]; then printf yes; else printf no; fi") === 'yes'
+              : null;
             let metrics = null;
             let navigationError = null;
+            let routeIdentity = null;
+            let screenshotFile = path.join(output, theme.id + '-' + width + '-' + name + '.png');
             try {
               await page.goto(base + '/cgi-bin/luci/admin/services/cf_ip/' + name, { waitUntil: 'domcontentloaded', timeout: 30000 });
               await page.waitForFunction(() => {
@@ -115,8 +126,23 @@ function write() {
                 return m && m.innerText.trim().length > 20 && !/Loading view|加载视图/.test(m.innerText);
               }, null, { timeout: 20000 });
               await page.waitForTimeout(550);
+              routeIdentity = await page.evaluate(() => {
+                const main = document.querySelector('#maincontent');
+                const links = Array.from((main || document).querySelectorAll('a[href]'));
+                const path = location.pathname.replace(/\/+$/, '');
+                const registered = links.some(link => {
+                  try { return new URL(link.href, location.href).pathname.replace(/\/+$/, '') === path; }
+                  catch (_) { return false; }
+                });
+                const heading = main && main.querySelector('.view h2, h2[name="content"], h2');
+                return { registered, heading: heading ? heading.textContent.trim() : '', url: path };
+              });
               metrics = await measure(page, theme);
-              await page.screenshot({ path: path.join(output, theme.id + '-' + width + '-' + name + '.png'), fullPage: true, animations: 'disabled' });
+              const absentOptionalRoute = optionalPages.has(name) && integrationInstalled === false &&
+                !routeIdentity.registered && routeIdentity.heading === expectedTitles.overview;
+              if (absentOptionalRoute)
+                screenshotFile = path.join(output, theme.id + '-' + width + '-' + name + '-route-unavailable.png');
+              await page.screenshot({ path: screenshotFile, fullPage: true, animations: 'disabled' });
             } catch (error) {
               navigationError = error.message;
             } finally {
@@ -125,6 +151,12 @@ function write() {
             }
             const failures = [];
             if (navigationError) failures.push('navigation-or-render: ' + navigationError);
+            const absentOptionalRoute = routeIdentity && optionalPages.has(name) && integrationInstalled === false &&
+              !routeIdentity.registered && routeIdentity.heading === expectedTitles.overview;
+            if (routeIdentity && !absentOptionalRoute) {
+              if (!routeIdentity.registered) failures.push('route-not-registered');
+              if (routeIdentity.heading !== expectedTitles[name]) failures.push('wrong-view-heading: ' + routeIdentity.heading);
+            }
             if (metrics) {
               if (!metrics.hasMain || metrics.mainLength < 20 || metrics.loading) failures.push('blank-or-loading-view');
               if (!metrics.themeLoaded) failures.push('theme-assets-not-loaded');
@@ -134,10 +166,17 @@ function write() {
               if (theme.mode === 'light' && metrics.darkMode === 'true') failures.push('aurora-light-mode-not-applied');
             }
             if (consoleErrors.length) failures.push('console-errors');
-            const row = { theme: theme.id, width, page: name, result: failures.length ? 'FAIL' : 'PASS', failures, metrics, consoleErrors: consoleErrors.slice(0, 6) };
+            const result = failures.length ? 'FAIL' : (absentOptionalRoute ? 'N/A' : 'PASS');
+            const row = {
+              theme: theme.id, width, page: name, result, failures, metrics, routeIdentity,
+              integrationInstalled,
+              screenshot: path.basename(screenshotFile),
+              nAReason: absentOptionalRoute ? 'Optional LuCI route is not registered because its proxy integration is not installed; the direct URL falls back to Overview.' : undefined,
+              consoleErrors: consoleErrors.slice(0, 6)
+            };
             report.rows.push(row);
             if (failures.length) report.errors.push({ theme: theme.id, width, page: name, failures, navigationError, consoleErrors: consoleErrors.slice(0, 6) });
-            console.log(row.result + ' ' + theme.id + ' ' + width + ' ' + name + (failures.length ? ' -- ' + failures.join(', ') : ''));
+            console.log(row.result + ' ' + theme.id + ' ' + width + ' ' + name + (failures.length ? ' -- ' + failures.join(', ') : (absentOptionalRoute ? ' -- optional route not registered' : '')));
             write();
           }
         }
@@ -149,7 +188,7 @@ function write() {
     await browser.close();
     write();
   }
-  console.log('VISUAL_MATRIX ' + JSON.stringify({ total: report.rows.length, passed: report.rows.filter(r => r.result === 'PASS').length, failed: report.errors.length }));
+  console.log('VISUAL_MATRIX ' + JSON.stringify({ total: report.rows.length, passed: report.rows.filter(r => r.result === 'PASS').length, notApplicable: report.rows.filter(r => r.result === 'N/A').length, failed: report.errors.length }));
   if (report.rows.length !== themes.length * widths.length * pages.length || report.errors.length) process.exitCode = 1;
 })().catch(error => {
   report.errors.push({ fatal: error.stack || error.message });

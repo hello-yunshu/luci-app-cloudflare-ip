@@ -17,7 +17,9 @@ function makeView(status,response={success:true,tar:true}){
 function row(root,label){const found=find(root,node=>node.tag==='tr'&&node.children[0]&&node.children[0].tag==='th'&&text(node.children[0])===label);assert(found,label+' row missing');return text(found);}
 (async()=>{
  for(const bad of [null,{},[],{success:false,error:'controlled status failure',running:false},{running:'false'}]){
-  await assert.rejects(makeView(bad).load(),/Unable to load status:/);
+  const result=await makeView(bad).load();
+  assert(result&&result._loadError instanceof Error,'invalid status must return a renderable load-error state');
+  assert.match(result._loadError.message,/Unable to load status:/);
  }
  const status={running:false,env:{}};
  assert.equal(await makeView(status).load(),status);
