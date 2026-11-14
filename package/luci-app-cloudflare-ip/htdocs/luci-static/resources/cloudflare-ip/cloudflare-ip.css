@@ -173,7 +173,7 @@ body.cfi-theme-bootstrap .label.success { background: #00713d; border-color: #00
 @media screen and (max-width: 600px) {
 	.cfi-dashboard th.cfi-overview-label::after {
 		content: ':';
-		margin-left: .25em;
+		margin-right: .25em;
 	}
 }
 /* 成功提示用的是 #007936→#009a4c 渐变，白字最浅处只有 3.3:1；压成纯深绿 */

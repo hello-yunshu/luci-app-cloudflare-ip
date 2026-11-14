@@ -92,6 +92,7 @@ async function measure(page, theme) {
       darkMode: root.getAttribute('data-darkmode'),
       overviewLabelCount: overviewLabels.length,
       overviewLabelSeparator: overviewLabels.length ? getComputedStyle(overviewLabels[0], '::after').content : null,
+      overviewLabelGap: overviewLabels.length ? parseFloat(getComputedStyle(overviewLabels[0], '::after').marginRight) : null,
       overviewDuplicatedMobileLabels: overviewLabels.reduce((count, label) => count + (label.nextElementSibling && label.nextElementSibling.hasAttribute('data-title') ? 1 : 0), 0),
       truncated,
       tabLinks: document.querySelectorAll('#tabmenu a').length
@@ -174,6 +175,7 @@ function write() {
               if (theme.mode === 'light' && metrics.darkMode === 'true') failures.push('aurora-light-mode-not-applied');
               if (name === 'overview' && width <= 600) {
                 if (metrics.overviewLabelSeparator !== '":"') failures.push('overview-mobile-label-separator-missing');
+                if (!(metrics.overviewLabelGap >= 2)) failures.push('overview-mobile-label-gap-missing');
                 if (metrics.overviewDuplicatedMobileLabels) failures.push('overview-mobile-duplicate-labels');
               }
             }

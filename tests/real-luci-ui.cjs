@@ -150,7 +150,9 @@ async function run() {
 		await modal.waitFor({ timeout: 10000 });
 		await page.waitForFunction(() => {
 			const dialog = document.querySelector('#modal_overlay .modal[role="dialog"]');
-			return dialog && parseFloat(getComputedStyle(dialog).opacity) >= 0.99;
+			const overlay = document.querySelector('#modal_overlay');
+			return dialog && overlay && parseFloat(getComputedStyle(dialog).opacity) >= 0.99 &&
+				parseFloat(getComputedStyle(overlay).opacity) >= 0.99;
 		}, null, { timeout: 10000 });
 		const modalCount = await modal.count();
 		await page.screenshot({ path: path.join(evidence, sha + '-logs-confirm-modal.png') });
