@@ -66,6 +66,10 @@ async function measure(page, theme) {
         // Native input/textarea scrollWidth includes their internal editing area.
         // It is not a visible text-node truncation signal; assess input hitbox separately.
         if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') return false;
+        // The compact source-status table keeps its column headings in the
+        // accessibility tree while visually clipping them; LuCI renders each
+        // stacked mobile cell with its own data-title label.
+        if (el.closest('.cfi-source-status-table > thead')) return false;
         const css = getComputedStyle(el);
         return css.whiteSpace === 'nowrap' &&
           el.clientWidth > 0 && el.scrollWidth > el.clientWidth + 2 &&
