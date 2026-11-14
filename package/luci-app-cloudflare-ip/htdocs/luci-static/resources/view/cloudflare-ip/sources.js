@@ -87,7 +87,7 @@ return view.extend({
     };
 
     s=m.section(form.GridSection,'source',_('Custom Sources'),_('Custom sources accept HTTPS text lists containing IP, IP:port, IPv6, bracketed IPv6:port, or CIDR. Only the IP/CIDR is retained; domains are rejected.'));
-    s.addremove=true; s.anonymous=false;
+    s.addremove=true; s.anonymous=true;
     o=s.option(form.Flag,'enabled',_('Enabled')); o.default='1'; o.rmempty=false;
     o=s.option(form.Value,'name',_('Name')); o.rmempty=false;
     o=s.option(form.ListValue,'kind',_('Kind')); o.value('url',_('HTTPS URL')); o.value('manual',_('Manual IP list')); o.default='url';
