@@ -329,18 +329,6 @@ html[data-darkmode="true"] body.cfi-theme-bootstrap span.more { color: #a0a0a0; 
 .cbi-page-actions > form,
 .cbi-page-actions > button { margin: 0; }
 
-/* The aurora theme floats a 40px toolbar against the right edge from 1319px
- * down. Its column covers the last button of every action row and of the
- * footer that reaches the right edge, so reserve that column for those rows
- * instead of changing the page gutter. */
-@supports selector(:has(*)) {
-	@media screen and (max-width: 1319px) {
-		body:has(.floating-toolbar) #maincontent {
-			padding-inline-end: calc(var(--spacing, .25rem) * 15);
-		}
-	}
-}
-
 /* Shared table contract: every table on the page shares one first-column
  * basis (minimum width + alignment) instead of content-driven widths. */
 @media screen and (min-width: 48rem) {

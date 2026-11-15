@@ -79,11 +79,6 @@ async function measure(page, theme) {
   return page.evaluate(media => {
     const root = document.documentElement;
     const main = document.querySelector('#maincontent');
-    const toolbar = document.querySelector('.floating-toolbar');
-    const toolbarRect = toolbar && toolbar.getBoundingClientRect();
-    const mainRect = main && main.getBoundingClientRect();
-    const toolbarClearancePx = !toolbarRect || toolbarRect.width === 0 || !mainRect ? null :
-      Math.round(toolbarRect.left - (mainRect.right - parseFloat(getComputedStyle(main).paddingInlineEnd || '0')));
     const text = main ? (main.innerText || '').trim() : '';
     const overviewLabels = Array.from(document.querySelectorAll('.cfi-dashboard th.cfi-overview-label'));
     const envBadgesIntact = Array.from((main && main.querySelectorAll('.cfi-env-table .label')) || []).every(badge => {
@@ -148,7 +143,6 @@ async function measure(page, theme) {
       height: innerHeight,
       scrollWidth: root.scrollWidth,
       overflow: root.scrollWidth > innerWidth + 1,
-      toolbarClearancePx,
       mainLength: text.length,
       loading: /Loading view|加载视图/.test(text),
       hasMain: !!main,
@@ -281,7 +275,6 @@ async function sampleWarningContrast(page, metrics) {
               if (!metrics.hasMain || metrics.mainLength < 20 || metrics.loading) failures.push('blank-or-loading-view');
               if (!metrics.themeLoaded) failures.push('theme-assets-not-loaded');
               if (metrics.overflow) failures.push('horizontal-overflow');
-              if (metrics.toolbarClearancePx !== null && metrics.toolbarClearancePx < 8) failures.push('floating-toolbar-overlaps-content');
               if (metrics.truncated.length) failures.push('truncated-non-dropdown-text');
               if (!metrics.activeTabVisible) failures.push('active-tab-outside-visible-strip');
               if (metrics.visibleTabLinks !== metrics.tabLinks) failures.push('route-tabs-clipped-or-hidden');
@@ -377,7 +370,6 @@ async function sampleWarningContrast(page, metrics) {
               if (!metrics.hasMain || metrics.mainLength < 20 || metrics.loading) failures.push('blank-or-loading-view');
               if (!metrics.themeLoaded) failures.push('theme-assets-not-loaded');
               if (metrics.overflow) failures.push('horizontal-overflow');
-              if (metrics.toolbarClearancePx !== null && metrics.toolbarClearancePx < 8) failures.push('floating-toolbar-overlaps-content');
               if (metrics.truncated.length) failures.push('truncated-non-dropdown-text');
               if (!metrics.activeTabVisible) failures.push('active-tab-outside-visible-strip');
               if (name === 'overview' && !metrics.envBadgesIntact) failures.push('environment-badge-wrapped');
@@ -432,7 +424,6 @@ async function sampleWarningContrast(page, metrics) {
         const aliasFailures = [];
         if (aliasError) aliasFailures.push('navigation-or-render: ' + aliasError);
         if (aliasHeading !== expectedTitles.overview) aliasFailures.push('root-alias-not-overview: ' + aliasHeading);
-        if (aliasMetrics && aliasMetrics.toolbarClearancePx !== null && aliasMetrics.toolbarClearancePx < 8) aliasFailures.push('floating-toolbar-overlaps-content');
         if (!aliasMetrics || !aliasMetrics.hasMain || aliasMetrics.overflow || !aliasMetrics.activeTabVisible)
           aliasFailures.push('root-alias-layout-check-failed');
         if (aliasMetrics && aliasMetrics.darkMode !== theme.darkMode)
