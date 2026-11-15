@@ -38,6 +38,7 @@ const widths = [...new Set([
   ...commonWidths,
   ...responsiveBreakpoints.flatMap(width => [width - 1, width, width + 1])
 ])].sort((a, b) => a - b);
+const shortViewports = [{ width: 320, height: 568 }, { width: 568, height: 320 }];
 const themes = [
   { id: 'bootstrap-default-light', media: 'bootstrap', theme: 'bootstrap', colorScheme: 'light', darkMode: 'false' },
   { id: 'bootstrap-default-dark', media: 'bootstrap', theme: 'bootstrap', colorScheme: 'dark', darkMode: 'true' },
@@ -50,10 +51,10 @@ const report = {
   schemaVersion: 1,
   sha: process.env.GITHUB_SHA || process.env.CFIP_UI_SHA || 'unknown',
   environment: 'real OpenWrt 24.10.8 rootfs with uhttpd/rpcd/LuCI; Chromium Playwright',
-  method: `initial views, common widths and adjacent values for CSS breakpoints, ${language} locale, Bootstrap default with system light/dark, explicit Bootstrap light/dark, and Aurora light/dark`,
+  method: `initial views, common widths and adjacent values for CSS breakpoints, short portrait and landscape viewports, ${language} locale, Bootstrap default with system light/dark, explicit Bootstrap light/dark, and Aurora light/dark`,
   language,
   notCovered: ['real 200% browser zoom', 'complete 51-point interaction matrix', 'physical router', 'Material theme', 'installed OpenClash and PassWall integration forms'],
-  pages, routeAliases: ['admin/services/cf_ip -> overview'], widths, rows: [], errors: []
+  pages, routeAliases: ['admin/services/cf_ip -> overview'], widths, shortViewports, rows: [], errors: []
 };
 fs.mkdirSync(output, { recursive: true });
 
@@ -134,6 +135,7 @@ async function measure(page, theme) {
       }));
     return {
       width: innerWidth,
+      height: innerHeight,
       scrollWidth: root.scrollWidth,
       overflow: root.scrollWidth > innerWidth + 1,
       mainLength: text.length,
@@ -260,6 +262,89 @@ function write() {
             write();
           }
         }
+        for (const viewport of shortViewports) {
+          await page.setViewportSize(viewport);
+          for (const name of pages) {
+            const consoleErrors = [];
+            const listener = message => { if (message.type() === 'error') consoleErrors.push(message.text()); };
+            const exception = error => consoleErrors.push('PAGE_ERROR ' + error.message);
+            page.on('console', listener);
+            page.on('pageerror', exception);
+            const integrationInstalled = optionalPages.has(name)
+              ? shell("if [ -x /etc/init.d/" + name + " ]; then printf yes; else printf no; fi") === 'yes'
+              : null;
+            let metrics = null;
+            let navigationError = null;
+            let routeIdentity = null;
+            let screenshotFile = path.join(output, theme.id + '-' + viewport.width + 'x' + viewport.height + '-' + name + '.png');
+            try {
+              await page.goto(base + '/cgi-bin/luci/admin/services/cf_ip/' + name, { waitUntil: 'domcontentloaded', timeout: 30000 });
+              await page.waitForFunction(() => {
+                const m = document.querySelector('#maincontent');
+                return m && m.innerText.trim().length > 20 && !/Loading view|加载视图/.test(m.innerText);
+              }, null, { timeout: 20000 });
+              await page.waitForTimeout(550);
+              routeIdentity = await page.evaluate(() => {
+                const main = document.querySelector('#maincontent');
+                const links = Array.from((main || document).querySelectorAll('a[href]'));
+                const path = location.pathname.replace(/\/+$/, '');
+                const registered = links.some(link => {
+                  try { return new URL(link.href, location.href).pathname.replace(/\/+$/, '') === path; }
+                  catch (_) { return false; }
+                });
+                const heading = main && main.querySelector('.view h2, h2[name="content"], h2');
+                return { registered, heading: heading ? heading.textContent.trim() : '', url: path };
+              });
+              metrics = await measure(page, theme);
+              const absentOptionalRoute = optionalPages.has(name) && integrationInstalled === false &&
+                !routeIdentity.registered && routeIdentity.heading === expectedTitles.overview;
+              if (absentOptionalRoute)
+                screenshotFile = path.join(output, theme.id + '-' + viewport.width + 'x' + viewport.height + '-' + name + '-route-unavailable.png');
+              await page.screenshot({ path: screenshotFile, fullPage: true, animations: 'disabled' });
+            } catch (error) {
+              navigationError = error.message;
+            } finally {
+              page.off('console', listener);
+              page.off('pageerror', exception);
+            }
+            const failures = [];
+            if (navigationError) failures.push('navigation-or-render: ' + navigationError);
+            const absentOptionalRoute = routeIdentity && optionalPages.has(name) && integrationInstalled === false &&
+              !routeIdentity.registered && routeIdentity.heading === expectedTitles.overview;
+            if (routeIdentity && !absentOptionalRoute) {
+              if (!routeIdentity.registered) failures.push('route-not-registered');
+              if (routeIdentity.heading !== expectedTitles[name]) failures.push('wrong-view-heading: ' + routeIdentity.heading);
+            }
+            if (metrics) {
+              if (!metrics.hasMain || metrics.mainLength < 20 || metrics.loading) failures.push('blank-or-loading-view');
+              if (!metrics.themeLoaded) failures.push('theme-assets-not-loaded');
+              if (metrics.overflow) failures.push('horizontal-overflow');
+              if (metrics.truncated.length) failures.push('truncated-non-dropdown-text');
+              if (!metrics.activeTabVisible) failures.push('active-tab-outside-visible-strip');
+              if (theme.media === 'bootstrap' && name === 'sources' &&
+                  (metrics.sourceChipContrast === null || metrics.sourceChipContrast < 4.5))
+                failures.push('bootstrap-source-chip-contrast-below-aa');
+              if (theme.media === 'bootstrap' && name === 'overview' && metrics.warningHeadingContrast !== null &&
+                  metrics.warningHeadingContrast < 4.5)
+                failures.push('bootstrap-warning-heading-contrast-below-aa');
+              if (metrics.darkMode !== theme.darkMode)
+                failures.push('theme-dark-mode-mismatch: expected ' + theme.darkMode + ', got ' + metrics.darkMode);
+            }
+            if (consoleErrors.length) failures.push('console-errors');
+            const result = failures.length ? 'FAIL' : (absentOptionalRoute ? 'N/A' : 'PASS');
+            const row = {
+              theme: theme.id, language, width: viewport.width, height: viewport.height, page: name,
+              result, failures, metrics, routeIdentity, integrationInstalled,
+              screenshot: path.basename(screenshotFile),
+              nAReason: absentOptionalRoute ? 'Optional LuCI route is not registered because its proxy integration is not installed; the direct URL falls back to Overview.' : undefined,
+              consoleErrors: consoleErrors.slice(0, 6)
+            };
+            report.rows.push(row);
+            if (failures.length) report.errors.push({ theme: theme.id, width: viewport.width, height: viewport.height, page: name, failures, navigationError, consoleErrors: consoleErrors.slice(0, 6) });
+            console.log(row.result + ' ' + theme.id + ' ' + viewport.width + 'x' + viewport.height + ' ' + name + (failures.length ? ' -- ' + failures.join(', ') : (absentOptionalRoute ? ' -- optional route not registered' : '')));
+            write();
+          }
+        }
         const aliasWidth = 1280;
         await page.setViewportSize({ width: aliasWidth, height: 900 });
         let aliasError = null;
@@ -305,7 +390,7 @@ function write() {
     write();
   }
   console.log('VISUAL_MATRIX ' + JSON.stringify({ total: report.rows.length, passed: report.rows.filter(r => r.result === 'PASS').length, notApplicable: report.rows.filter(r => r.result === 'N/A').length, failed: report.errors.length }));
-  if (report.rows.length !== themes.length * (widths.length * pages.length + 1) || report.errors.length) process.exitCode = 1;
+if (report.rows.length !== themes.length * ((widths.length + shortViewports.length) * pages.length + 1) || report.errors.length) process.exitCode = 1;
 })().catch(error => {
   report.errors.push({ fatal: error.stack || error.message });
   write();
