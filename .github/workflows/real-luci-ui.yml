@@ -55,8 +55,25 @@ jobs:
             opkg install bash jq curl tar luci-base luci-theme-bootstrap uhttpd rpcd
             for command in bash jq curl; do command -v "$command" >/dev/null; done
           '
+      - name: Compile the real Simplified Chinese LuCI catalog
+        if: ${{ inputs.language == 'zh_cn' }}
+        run: |
+          set -euo pipefail
+          source_dir="$RUNNER_TEMP/luci-po2lmo"
+          mkdir -p "$source_dir"
+          curl -fL --retry 3 \
+            -o "$RUNNER_TEMP/luci-openwrt-24.10.tar.gz" \
+            https://codeload.github.com/openwrt/luci/tar.gz/aa4865e8e6472d6ba68e541688065fc2235bbd83
+          tar -xzf "$RUNNER_TEMP/luci-openwrt-24.10.tar.gz" \
+            -C "$source_dir" --strip-components=1
+          make -C "$source_dir/modules/luci-base/src" po2lmo
+          "$source_dir/modules/luci-base/src/po2lmo" \
+            "$GITHUB_WORKSPACE/package/luci-app-cloudflare-ip/po/zh_Hans/cloudflare-ip.po" \
+            "$RUNNER_TEMP/cloudflare-ip.zh-cn.lmo"
+          test -s "$RUNNER_TEMP/cloudflare-ip.zh-cn.lmo"
+          echo "CFIP_UI_LMO=$RUNNER_TEMP/cloudflare-ip.zh-cn.lmo" >> "$GITHUB_ENV"
       - name: Provision the current working tree into real LuCI
-        run: CFIP_UI_LANG=en bash tests/real-luci-ui-provision.sh cfip-ui-gate 18080
+        run: CFIP_UI_LANG='${{ inputs.language || 'en' }}' bash tests/real-luci-ui-provision.sh cfip-ui-gate 18080
       - name: Install Playwright bindings and use runner Chrome
         run: |
           set -euo pipefail
