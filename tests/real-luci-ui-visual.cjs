@@ -60,6 +60,9 @@ async function measure(page, theme) {
     const main = document.querySelector('#maincontent');
     const text = main ? (main.innerText || '').trim() : '';
     const overviewLabels = Array.from(document.querySelectorAll('.cfi-dashboard th.cfi-overview-label'));
+    const tabMenu = document.querySelector('#tabmenu');
+    const activeTab = tabMenu && tabMenu.querySelector('.active a, a.active, a[aria-current="page"]');
+    const activeTabRect = activeTab && activeTab.getBoundingClientRect();
     const links = Array.from(document.querySelectorAll('link[href],script[src]'));
     const themeLoaded = links.some(el => ((el.href || el.src || '')).includes('/luci-static/' + media + '/'));
     const truncated = Array.from((main || document).querySelectorAll('*'))
@@ -94,6 +97,8 @@ async function measure(page, theme) {
       overviewLabelSeparator: overviewLabels.length ? getComputedStyle(overviewLabels[0], '::after').content : null,
       overviewLabelGap: overviewLabels.length ? parseFloat(getComputedStyle(overviewLabels[0], '::after').marginRight) : null,
       overviewDuplicatedMobileLabels: overviewLabels.reduce((count, label) => count + (label.nextElementSibling && label.nextElementSibling.hasAttribute('data-title') ? 1 : 0), 0),
+      activeTabText: activeTab ? activeTab.textContent.trim() : null,
+      activeTabVisible: activeTab ? activeTabRect.left >= -1 && activeTabRect.right <= innerWidth + 1 : false,
       truncated,
       tabLinks: document.querySelectorAll('#tabmenu a').length
     };
@@ -171,6 +176,7 @@ function write() {
               if (!metrics.themeLoaded) failures.push('theme-assets-not-loaded');
               if (metrics.overflow) failures.push('horizontal-overflow');
               if (metrics.truncated.length) failures.push('truncated-non-dropdown-text');
+              if (!metrics.activeTabVisible) failures.push('active-tab-outside-visible-strip');
               if (theme.mode === 'dark' && metrics.darkMode !== 'true') failures.push('aurora-dark-mode-not-applied');
               if (theme.mode === 'light' && metrics.darkMode === 'true') failures.push('aurora-light-mode-not-applied');
               if (name === 'overview' && width <= 600) {

@@ -500,6 +500,26 @@ function loadSharedCSS() {
 	if (body && document.querySelector('link[rel="stylesheet"][href*="/bootstrap/"]'))
 		body.classList.add('cfi-theme-bootstrap');
 
+	/* The native LuCI tab strip scrolls horizontally on narrow screens. Direct
+	 * links can leave the active tab outside the clipped strip, so reveal it
+	 * after LuCI has applied the active route. Keep the native strip and styles. */
+	function revealActiveTab() {
+		var menu = document.getElementById('tabmenu');
+		var active = menu && menu.querySelector('.active a, a.active, a[aria-current="page"]');
+
+		if (!active)
+			return;
+
+		var rect = active.getBoundingClientRect();
+		if (rect.left < 0 || rect.right > window.innerWidth)
+			active.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+	}
+
+	if (window.requestAnimationFrame)
+		window.requestAnimationFrame(function() {
+			window.requestAnimationFrame(revealActiveTab);
+		});
+
 	/* 离开插件页时移除，防止兼容样式泄漏到其他视图 */
 	if (!loadSharedCSS.unwatch) {
 		loadSharedCSS.unwatch = true;
