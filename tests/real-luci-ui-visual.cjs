@@ -63,6 +63,26 @@ async function measure(page, theme) {
     const tabMenu = document.querySelector('#tabmenu');
     const activeTab = tabMenu && tabMenu.querySelector('.active a, a.active, a[aria-current="page"]');
     const activeTabRect = activeTab && activeTab.getBoundingClientRect();
+    const sourcePicker = main && main.querySelector('.cfi-source-picker');
+    const sourceOpen = sourcePicker && sourcePicker.querySelector('.open');
+    const sourceText = sourceOpen && (Array.from(sourceOpen.querySelectorAll('*')).find(el =>
+      el.children.length === 0 && el.textContent.trim()) || sourceOpen);
+    const sourceTextColor = sourceText ? getComputedStyle(sourceText).color : null;
+    const sourceOpenBackground = sourceOpen ? getComputedStyle(sourceOpen).backgroundColor : null;
+    const rgb = color => {
+      const match = color && color.match(/^rgba?\((\d+)\D+(\d+)\D+(\d+)/);
+      return match ? match.slice(1, 4).map(Number) : null;
+    };
+    const luminance = color => {
+      const values = rgb(color);
+      if (!values) return null;
+      const linear = values.map(v => { v /= 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
+      return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2];
+    };
+    const textLuminance = luminance(sourceTextColor);
+    const backgroundLuminance = luminance(sourceOpenBackground);
+    const sourceChipContrast = textLuminance === null || backgroundLuminance === null ? null :
+      (Math.max(textLuminance, backgroundLuminance) + 0.05) / (Math.min(textLuminance, backgroundLuminance) + 0.05);
     const links = Array.from(document.querySelectorAll('link[href],script[src]'));
     const themeLoaded = links.some(el => ((el.href || el.src || '')).includes('/luci-static/' + media + '/'));
     const truncated = Array.from((main || document).querySelectorAll('*'))
@@ -99,6 +119,7 @@ async function measure(page, theme) {
       overviewDuplicatedMobileLabels: overviewLabels.reduce((count, label) => count + (label.nextElementSibling && label.nextElementSibling.hasAttribute('data-title') ? 1 : 0), 0),
       activeTabText: activeTab ? activeTab.textContent.trim() : null,
       activeTabVisible: activeTab ? activeTabRect.left >= -1 && activeTabRect.right <= innerWidth + 1 : false,
+      sourceChipContrast,
       truncated,
       tabLinks: document.querySelectorAll('#tabmenu a').length
     };
@@ -177,6 +198,9 @@ function write() {
               if (metrics.overflow) failures.push('horizontal-overflow');
               if (metrics.truncated.length) failures.push('truncated-non-dropdown-text');
               if (!metrics.activeTabVisible) failures.push('active-tab-outside-visible-strip');
+              if (theme.id === 'bootstrap-light' && name === 'sources' &&
+                  (metrics.sourceChipContrast === null || metrics.sourceChipContrast < 4.5))
+                failures.push('bootstrap-source-chip-contrast-below-aa');
               if (theme.mode === 'dark' && metrics.darkMode !== 'true') failures.push('aurora-dark-mode-not-applied');
               if (theme.mode === 'light' && metrics.darkMode === 'true') failures.push('aurora-light-mode-not-applied');
               if (name === 'overview' && width <= 600) {
