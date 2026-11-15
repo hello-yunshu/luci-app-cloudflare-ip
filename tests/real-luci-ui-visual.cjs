@@ -86,6 +86,15 @@ async function measure(page, theme) {
     const root = document.documentElement;
     const main = document.querySelector('#maincontent');
     const text = main ? (main.innerText || '').trim() : '';
+    const overviewTables = main && location.pathname.endsWith('/overview')
+      ? Array.from(main.querySelectorAll('.cfi-dashboard .cbi-section table.table')) : [];
+    const overviewNativeRows = !location.pathname.endsWith('/overview') || (
+      overviewTables.length >= 2 && overviewTables.every(table =>
+        Array.from(table.querySelectorAll('tr')).every(row =>
+          row.classList.contains('tr') &&
+          row.querySelector('th') && row.querySelector('th').classList.contains('th') &&
+          row.querySelector('td') && row.querySelector('td').classList.contains('td')))
+    );
     const overviewLabels = Array.from(document.querySelectorAll('.cfi-dashboard th.cfi-overview-label'));
     const envBadgesIntact = Array.from((main && main.querySelectorAll('.cfi-env-table .label')) || []).every(badge => {
       const range = document.createRange();
@@ -156,6 +165,7 @@ async function measure(page, theme) {
       hasMain: !!main,
       themeLoaded,
       darkMode: root.getAttribute('data-darkmode'),
+      overviewNativeRows,
       overviewLabelCount: overviewLabels.length,
       ipHistoryNativeHeader,
       diagnosticsLinkGap,
@@ -249,6 +259,7 @@ function write() {
               if (!metrics.activeTabVisible) failures.push('active-tab-outside-visible-strip');
               if (metrics.visibleTabLinks !== metrics.tabLinks) failures.push('route-tabs-clipped-or-hidden');
               if (name === 'overview' && !metrics.envBadgesIntact) failures.push('environment-badge-wrapped');
+              if (name === 'overview' && !metrics.overviewNativeRows) failures.push('overview-tables-missing-native-luci-row-classes');
               if (metrics.darkMode !== theme.darkMode)
                 failures.push('theme-dark-mode-mismatch: expected ' + theme.darkMode + ', got ' + metrics.darkMode);
               if (name === 'overview' && width <= 600) {
@@ -336,6 +347,7 @@ function write() {
               if (name === 'logs' && (metrics.logControlsGap == null || metrics.logControlsGap < 12)) failures.push('log-controls-and-output-too-close');
               if (name === 'intelligence' && metrics.intelligenceCopyGap != null && metrics.intelligenceCopyGap < 8) failures.push('copy-button-too-close-to-previous-row');
               if (name === 'overview' && !metrics.envBadgesIntact) failures.push('environment-badge-wrapped');
+              if (name === 'overview' && !metrics.overviewNativeRows) failures.push('overview-tables-missing-native-luci-row-classes');
               if (metrics.darkMode !== theme.darkMode)
                 failures.push('theme-dark-mode-mismatch: expected ' + theme.darkMode + ', got ' + metrics.darkMode);
             }

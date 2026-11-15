@@ -426,14 +426,14 @@ return view.extend({
 
 		var infoTable = E('table', { 'class': 'table' });
 
-		infoTable.appendChild(E('tr', {}, [
-			E('th', { 'class': 'cfi-overview-label' }, _('Mode')),
-			E('td', {}, mode)
+		infoTable.appendChild(E('tr', { 'class': 'tr' }, [
+			E('th', { 'class': 'th cfi-overview-label', 'scope': 'row' }, _('Mode')),
+			E('td', { 'class': 'td' }, mode)
 		]));
 
-		infoTable.appendChild(E('tr', {}, [
-			E('th', { 'class': 'cfi-overview-label' }, _('Last Run Time')),
-			E('td', {}, lastRun)
+		infoTable.appendChild(E('tr', { 'class': 'tr' }, [
+			E('th', { 'class': 'th cfi-overview-label', 'scope': 'row' }, _('Last Run Time')),
+			E('td', { 'class': 'td' }, lastRun)
 		]));
 
 		var lastResultBadge;
@@ -452,9 +452,9 @@ return view.extend({
 		} else {
 			lastResultBadge = E('span', { 'class': 'label important' }, '\u2718 ' + translateStatus(lastResult));
 		}
-		infoTable.appendChild(E('tr', {}, [
-			E('th', { 'class': 'cfi-overview-label' }, _('Last Result')),
-			E('td', {}, lastResultBadge)
+		infoTable.appendChild(E('tr', { 'class': 'tr' }, [
+			E('th', { 'class': 'th cfi-overview-label', 'scope': 'row' }, _('Last Result')),
+			E('td', { 'class': 'td' }, lastResultBadge)
 		]));
 		if (data.service && data.service.target === 'openclash') {
 			var serviceMessage;
@@ -470,31 +470,31 @@ return view.extend({
 					(data.service.recoveryVerified ? _('OpenClash service restored and health verified; new nodes were not applied.') : '');
 			}
 			if (serviceMessage)
-				infoTable.appendChild(E('tr', {}, [
-					E('th', { 'class': 'cfi-overview-label' }, _('OpenClash Apply Status')),
-					E('td', {}, serviceMessage)
+				infoTable.appendChild(E('tr', { 'class': 'tr' }, [
+					E('th', { 'class': 'th cfi-overview-label', 'scope': 'row' }, _('OpenClash Apply Status')),
+					E('td', { 'class': 'td' }, serviceMessage)
 				]));
 		}
 
 		var bestIpsText = bestIps.length > 0 ? bestIps.slice(0, 5).join(', ') + (bestIps.length > 5 ? ' ...' : '') : '-';
-		infoTable.appendChild(E('tr', {}, [
-			E('th', { 'class': 'cfi-overview-label' }, _('Best IPs')),
-			E('td', {}, bestIpsText)
+		infoTable.appendChild(E('tr', { 'class': 'tr' }, [
+			E('th', { 'class': 'th cfi-overview-label', 'scope': 'row' }, _('Best IPs')),
+			E('td', { 'class': 'td' }, bestIpsText)
 		]));
 
-		infoTable.appendChild(E('tr', {}, [
-			E('th', { 'class': 'cfi-overview-label' }, _('Script Version')),
-			E('td', {}, scriptVersion)
+		infoTable.appendChild(E('tr', { 'class': 'tr' }, [
+			E('th', { 'class': 'th cfi-overview-label', 'scope': 'row' }, _('Script Version')),
+			E('td', { 'class': 'td' }, scriptVersion)
 		]));
 
-		infoTable.appendChild(E('tr', {}, [
-			E('th', { 'class': 'cfi-overview-label' }, _('CFST Version')),
-			E('td', {}, cfstVersion)
+		infoTable.appendChild(E('tr', { 'class': 'tr' }, [
+			E('th', { 'class': 'th cfi-overview-label', 'scope': 'row' }, _('CFST Version')),
+			E('td', { 'class': 'td' }, cfstVersion)
 		]));
 
-		infoTable.appendChild(E('tr', {}, [
-			E('th', { 'class': 'cfi-overview-label' }, _('GitHub')),
-			E('td', {}, E('a', {
+		infoTable.appendChild(E('tr', { 'class': 'tr' }, [
+			E('th', { 'class': 'th cfi-overview-label', 'scope': 'row' }, _('GitHub')),
+			E('td', { 'class': 'td' }, E('a', {
 				'href': 'https://github.com/hello-yunshu/luci-app-cloudflare-ip',
 				'target': '_blank',
 				'rel': 'noopener'
@@ -542,10 +542,10 @@ return view.extend({
 
 			var tdContent = [badge];
 
-			var td = E('td', {}, tdContent);
+			var td = E('td', { 'class': 'td' }, tdContent);
 			envTds.push({ td: td, item: item });
-			envTable.appendChild(E('tr', {}, [
-				E('th', { 'class': 'cfi-overview-label' }, item.label),
+			envTable.appendChild(E('tr', { 'class': 'tr' }, [
+				E('th', { 'class': 'th cfi-overview-label', 'scope': 'row' }, item.label),
 				td
 			]));
 		}
