@@ -80,7 +80,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y fontconfig fonts-noto-cjk
           fc-list :lang=zh family | grep -qi 'Noto Sans CJK'
-          npm install --prefix "$RUNNER_TEMP/ui" --no-audit --no-fund playwright@1.55.0 pngjs@7.0.0
+          npm install --prefix "$RUNNER_TEMP/ui" --no-audit --no-fund playwright@1.55.0
           browser="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || true)"
           if [ -z "$browser" ]; then
             echo 'No Chrome executable on runner; browser setup required' >&2

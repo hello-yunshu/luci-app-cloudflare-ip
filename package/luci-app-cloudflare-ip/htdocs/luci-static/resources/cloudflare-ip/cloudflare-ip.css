@@ -88,29 +88,6 @@
 	.cfi-table-scroll > table.table .tr { margin: 0; }
 }
 
-/* LuCI renders an empty GridSection with one cell. Bootstrap absolutely
- * positions that cell, which can place the empty message over the table head.
- * Keep the row in the table flow and let its cell span the grid instead. */
-#cbi-cf_ip-source .cfi-custom-sources-table > tbody > tr.placeholder {
-	position: relative;
-	height: auto;
-}
-#cbi-cf_ip-source .cfi-custom-sources-table > tbody > tr.placeholder > td {
-	position: static;
-	left: auto;
-	right: auto;
-	bottom: auto;
-	text-align: center;
-	line-height: normal;
-	padding: .75em;
-}
-@media screen and (max-width: 600px) {
-	#cbi-cf_ip-source .cfi-custom-sources-table > tbody > tr.placeholder > td {
-		flex: 1 1 100%;
-		width: 100%;
-	}
-}
-
 /* LuCI's mobile table layout already labels each stacked data cell. Keep the
  * source status headings available to assistive technology, but out of the
  * visual flow where the four desktop columns are collapsed into two mobile
@@ -140,51 +117,10 @@
 .cfi-source-error summary,
 #view .alert-message details > summary { display: flex; align-items: center; min-height: 32px; }
 
-/* ===== 模态限宽：aurora 把宽度写死为 1024px，窄屏会左右出界 ===== */
-@media screen and (max-width: 1048px) {
-	#modal_overlay > .modal { width: calc(100vw - 24px); max-width: calc(100vw - 24px); }
-}
-
 @media screen and (max-width: 420px) {
 	.cfi-stats-grid { grid-template-columns: 1fr; }
 }
 
-/* ===== Bootstrap 兼容层（例外 E21） ===== */
-/* 仅当 body.cfi-theme-bootstrap（由 utils.loadSharedCSS 按主题样式表探测）时生效，
- * aurora 与其他主题完全不受影响。 */
-
-/* 触摸目标 >= 32px（主题按钮 28–30px，达不到可访问性底线） */
-body.cfi-theme-bootstrap .cbi-button,
-body.cfi-theme-bootstrap .btn,
-body.cfi-theme-bootstrap .cbi-page-actions button { min-height: 32px; line-height: 30px; }
-
-/* 对比度补偿：括号内为按主题实际背景计算的对比度（WCAG AA 正文 >= 4.5） */
-/* Save 在 .cbi-page-actions 内、且前面有 Apply/Negative 时会被主题的
- * `.cbi-page-actions .cbi-button-apply + .cbi-button-save`（0,4,0）改成浅底绿字，
- * 这里用 (0,4,1) 压过它，统一成深绿底白字。 */
-body.cfi-theme-bootstrap .cbi-page-actions .cbi-button-save.cbi-button,
-body.cfi-theme-bootstrap .cbi-button-add {
-	background: #00713d; border-color: #006635; color: #fff; /* 6.1:1 */
-}
-body.cfi-theme-bootstrap .cbi-button-reset,
-body.cfi-theme-bootstrap .cbi-button-remove { color: #b3261e; } /* 6.0:1 */
-html[data-darkmode="true"] body.cfi-theme-bootstrap .cbi-button-reset,
-html[data-darkmode="true"] body.cfi-theme-bootstrap .cbi-button-remove { color: #ff9d97; } /* 8.0:1 */
-body.cfi-theme-bootstrap .cbi-button-edit,
-body.cfi-theme-bootstrap .cbi-button-action,
-body.cfi-theme-bootstrap .cbi-dropdown > .open {
-	background: #2a6a80; border-color: #255d70; color: #fff; /* 6.1:1 */
-}
-/* Closed multi-select chips are rendered as visible li[display] children of
- * ul.preview; the .open child is only the dropdown caret. */
-body.cfi-theme-bootstrap .cbi-dropdown > ul:not(.dropdown) > li[display],
-body.cfi-theme-bootstrap .cbi-dropdown > ul:not(.dropdown) > li[display] *,
-body.cfi-theme-bootstrap .cbi-dropdown > ul.preview > li[display],
-body.cfi-theme-bootstrap .cbi-dropdown > ul.preview > li[display] * {
-	background: #2a6a80; color: #fff; /* 6.1:1 */
-}
-body.cfi-theme-bootstrap .cbi-dropdown > ul > li { background: #2a6a80; color: #fff; } /* 6.1:1 */
-body.cfi-theme-bootstrap .label.success { background: #00713d; border-color: #006635; color: #fff; } /* 6.1:1 */
 .cfi-env-table .label { white-space: nowrap; }
 @media screen and (max-width: 600px) {
 	.cfi-dashboard th.cfi-overview-label::after {
@@ -192,25 +128,6 @@ body.cfi-theme-bootstrap .label.success { background: #00713d; border-color: #00
 		margin-right: .25em;
 	}
 }
-/* 成功提示用的是 #007936→#009a4c 渐变，白字最浅处只有 3.3:1；压成纯深绿 */
-body.cfi-theme-bootstrap .alert-message.success { background: #007a4a; color: #fff; } /* 5.4:1 */
-body.cfi-theme-bootstrap .alert-message.success :is(h3,h4,h5,p,b,strong,li) { color: #fff; }
-/* The dark Bootstrap theme leaves warning headings light over its ochre
- * warning surface while the body copy is dark. Keep all warning text dark. */
-body.cfi-theme-bootstrap .alert-message.warning,
-body.cfi-theme-bootstrap .alert-message.warning :is(h3,h4,h5,p,b,strong,li,summary,pre) { color: #111; }
-/* danger/error 的渐变底在白字下最浅处只有 ~4.5:1，暗色还给了深灰字；统一成纯深红白字 */
-body.cfi-theme-bootstrap .alert-message.danger,
-body.cfi-theme-bootstrap .alert-message.error { background: #8c1d18; color: #fff; } /* 7.1:1 */
-body.cfi-theme-bootstrap .alert-message.danger :is(h3,h4,h5,p,b,strong,li,summary,pre),
-body.cfi-theme-bootstrap .alert-message.error :is(h3,h4,h5,p,b,strong,li,summary,pre) { color: #fff; }
-/* 红色提示里的按钮：主题让按钮继承白字、但底色仍是浅灰，对比度只有 1.1:1 */
-body.cfi-theme-bootstrap .alert-message.danger .cbi-button,
-body.cfi-theme-bootstrap .alert-message.error .cbi-button {
-	background: rgba(0, 0, 0, 0.28); border-color: rgba(255, 255, 255, 0.45); color: #fff; /* 9.7:1 */
-}
-body.cfi-theme-bootstrap span.more { color: #595959; } /* 6.4:1 on #f8f8f8 */
-html[data-darkmode="true"] body.cfi-theme-bootstrap span.more { color: #a0a0a0; } /* 5.6:1 on #282828 */
 
 /* Shared Yunshu OpenWrt plugin footer. Keep this block identical across
  * sibling LuCI plugins so every page shows the same version bar. */

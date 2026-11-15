@@ -494,12 +494,6 @@ function loadSharedCSS() {
 		document.head.appendChild(link);
 	}
 
-	/* 主题没有在 body 上留标记，唯一可靠的信号是主题样式表本身。
-	 * 只在 bootstrap 下加类，供 CSS 做兼容覆盖，避免污染 aurora。 */
-	var body = document.body;
-	if (body && document.querySelector('link[rel="stylesheet"][href*="/bootstrap/"]'))
-		body.classList.add('cfi-theme-bootstrap');
-
 	/* The native LuCI tab strip scrolls horizontally on narrow screens. Direct
 	 * links can leave the active tab outside the clipped strip, so reveal it
 	 * after LuCI has applied the active route. Keep the native strip and styles. */
@@ -520,14 +514,6 @@ function loadSharedCSS() {
 			window.requestAnimationFrame(revealActiveTab);
 		});
 
-	/* 离开插件页时移除，防止兼容样式泄漏到其他视图 */
-	if (!loadSharedCSS.unwatch) {
-		loadSharedCSS.unwatch = true;
-		window.addEventListener('hashchange', function() {
-			if (document.body)
-				document.body.classList.remove('cfi-theme-bootstrap');
-		});
-	}
 }
 
 function footerSeparator(extraClass) {
