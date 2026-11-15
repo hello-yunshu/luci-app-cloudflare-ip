@@ -65,7 +65,7 @@
 /* ===== Clipboard Fallback ===== */
 .cfi-intel-copy {
 	display: block;
-	margin-top: 0.5em;
+	margin-top: var(--ys-action-gap, calc(var(--spacing, .25rem) * 3));
 }
 
 .cfi-copy-source {
