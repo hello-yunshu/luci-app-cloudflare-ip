@@ -86,6 +86,11 @@ async function measure(page, theme) {
       Math.round(toolbarRect.left - (mainRect.right - parseFloat(getComputedStyle(main).paddingInlineEnd || '0')));
     const text = main ? (main.innerText || '').trim() : '';
     const overviewLabels = Array.from(document.querySelectorAll('.cfi-dashboard th.cfi-overview-label'));
+    const envBadgesIntact = Array.from((main && main.querySelectorAll('.cfi-env-table .label')) || []).every(badge => {
+      const range = document.createRange();
+      range.selectNodeContents(badge);
+      return range.getClientRects().length <= 1;
+    });
     const tabMenu = document.querySelector('#tabmenu');
     const activeTab = tabMenu && tabMenu.querySelector('.active a, a.active, a[aria-current="page"]');
     const activeTabRect = activeTab && activeTab.getBoundingClientRect();
@@ -150,6 +155,7 @@ async function measure(page, theme) {
       themeLoaded,
       darkMode: root.getAttribute('data-darkmode'),
       overviewLabelCount: overviewLabels.length,
+      envBadgesIntact,
       overviewLabelSeparator: overviewLabels.length ? getComputedStyle(overviewLabels[0], '::after').content : null,
       overviewLabelGap: overviewLabels.length ? parseFloat(getComputedStyle(overviewLabels[0], '::after').marginRight) : null,
       overviewDuplicatedMobileLabels: overviewLabels.reduce((count, label) => count + (label.nextElementSibling && label.nextElementSibling.hasAttribute('data-title') ? 1 : 0), 0),
@@ -279,6 +285,7 @@ async function sampleWarningContrast(page, metrics) {
               if (metrics.truncated.length) failures.push('truncated-non-dropdown-text');
               if (!metrics.activeTabVisible) failures.push('active-tab-outside-visible-strip');
               if (metrics.visibleTabLinks !== metrics.tabLinks) failures.push('route-tabs-clipped-or-hidden');
+              if (name === 'overview' && !metrics.envBadgesIntact) failures.push('environment-badge-wrapped');
               if (theme.media === 'bootstrap' && name === 'sources' &&
                   (metrics.sourceChipContrast === null || metrics.sourceChipContrast < 4.5))
                 failures.push('bootstrap-source-chip-contrast-below-aa');
@@ -373,6 +380,7 @@ async function sampleWarningContrast(page, metrics) {
               if (metrics.toolbarClearancePx !== null && metrics.toolbarClearancePx < 8) failures.push('floating-toolbar-overlaps-content');
               if (metrics.truncated.length) failures.push('truncated-non-dropdown-text');
               if (!metrics.activeTabVisible) failures.push('active-tab-outside-visible-strip');
+              if (name === 'overview' && !metrics.envBadgesIntact) failures.push('environment-badge-wrapped');
               if (theme.media === 'bootstrap' && name === 'sources' &&
                   (metrics.sourceChipContrast === null || metrics.sourceChipContrast < 4.5))
                 failures.push('bootstrap-source-chip-contrast-below-aa');

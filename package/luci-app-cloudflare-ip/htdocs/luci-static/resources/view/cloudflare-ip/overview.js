@@ -508,7 +508,7 @@ return view.extend({
 		var envSection = E('div', { 'class': 'cbi-section' });
 		envSection.appendChild(E('h3', {}, _('Environment Detection')));
 
-		var envTable = E('table', { 'class': 'table' });
+		var envTable = E('table', { 'class': 'table cfi-env-table' });
 
 		var envItems = [
 			{ label: _('tar'), key: 'tar' },
