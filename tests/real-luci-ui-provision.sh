@@ -60,7 +60,11 @@ docker exec "$CONTAINER" sh -c "
 	/etc/init.d/uhttpd restart >/dev/null 2>&1
 "
 
-HASH="$(docker exec "$CONTAINER" openssl passwd -6 -salt cfip-gate "${CFIP_UI_PASSWORD:-cfip-gate}")"
+if command -v openssl >/dev/null && HASH="$(openssl passwd -6 -salt cfip-gate "${CFIP_UI_PASSWORD:-cfip-gate}" 2>/dev/null)"; then
+	:
+else
+	HASH="$(docker exec "$CONTAINER" openssl passwd -6 -salt cfip-gate "${CFIP_UI_PASSWORD:-cfip-gate}")"
+fi
 docker exec "$CONTAINER" sh -c "sed -i 's|^root:[^:]*:|root:$HASH:|' /etc/shadow"
 
 for attempt in 1 2 3 4 5 6 7 8 9 10; do
