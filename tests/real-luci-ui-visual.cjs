@@ -103,10 +103,14 @@ async function measure(page, theme) {
     const logControlsGap = logControls && logOutput
       ? Math.round(logOutput.getBoundingClientRect().top - logControls.getBoundingClientRect().bottom) : null;
     const intelligenceCopyGaps = location.pathname.endsWith('/intelligence') && main
-      ? Array.from(main.querySelectorAll('.cfi-intel-copy')).map(button => {
-          const previous = button.previousElementSibling;
-          return previous ? Math.round(button.getBoundingClientRect().top - previous.getBoundingClientRect().bottom) : null;
-        }).filter(gap => gap != null) : [];
+      ? Array.from(main.querySelectorAll('.cfi-intel-copy'))
+          .filter(button => button.getClientRects().length > 0)
+          .map(button => {
+            let previous = button.previousElementSibling;
+            while (previous && previous.getClientRects().length === 0)
+              previous = previous.previousElementSibling;
+            return previous ? Math.round(button.getBoundingClientRect().top - previous.getBoundingClientRect().bottom) : null;
+          }).filter(gap => gap != null) : [];
     const intelligenceCopyGap = intelligenceCopyGaps.length ? Math.min(...intelligenceCopyGaps) : null;
     const ipHistoryNativeHeader = !location.pathname.endsWith('/logs') || !!(
       ipHistoryTable && ipHistoryHeader &&
