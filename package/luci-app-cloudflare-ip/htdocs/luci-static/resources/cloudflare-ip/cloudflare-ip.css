@@ -222,29 +222,20 @@
 	.ys-tool-footer-links .ys-tool-footer-link.x .ys-tool-footer-link-label { display: none; }
 }
 
-/* Shared interaction rhythm: side-by-side buttons follow the theme spacing
- * scale instead of hardcoded pixels. Keep identical across sibling plugins.
- * The theme scopes its own page-action rules to #maincontent and shrinks the
- * gap to 8px on phones; the plugin restates the same token at equal
- * specificity so one 12px rhythm holds on every breakpoint. The theme also
- * puts the gap inside the per-button wrappers, hence the child selector. */
+/* Plugin-owned action groups use the active theme's spacing scale. Native
+ * .cbi-page-actions remain entirely controlled by the active LuCI theme. */
 #maincontent { --ys-action-gap: calc(var(--spacing, .25rem) * 3); }
-.ys-actions,
-.cbi-page-actions {
+.ys-actions {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	gap: var(--ys-action-gap);
 }
-#maincontent .ys-actions,
-#maincontent .cbi-page-actions { gap: var(--ys-action-gap); }
-.cbi-page-actions { justify-content: flex-end; }
+#maincontent .ys-actions { gap: var(--ys-action-gap); }
 .ys-actions > .cbi-button,
 .ys-actions > button,
 .ys-actions > select,
-.ys-actions > input,
-.cbi-page-actions > form,
-.cbi-page-actions > button { margin: 0; }
+.ys-actions > input { margin: 0; }
 
 /* Shared table contract: every table on the page shares one first-column
  * basis (minimum width + alignment) instead of content-driven widths. */
