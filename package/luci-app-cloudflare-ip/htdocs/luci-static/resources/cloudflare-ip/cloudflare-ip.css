@@ -25,7 +25,7 @@
 	white-space: pre-wrap;
 	max-height: 12em;
 	overflow: auto;
-	margin: 0.5em 0;
+	margin: calc(var(--spacing, .25rem) * 4) 0;
 }
 .cfi-log-pre.cfi-log-pre-tall { max-height: 28em; }
 
