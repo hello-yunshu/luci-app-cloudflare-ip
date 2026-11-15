@@ -31,9 +31,13 @@ const container = arg('container', process.env.CFIP_UI_CONTAINER || 'cfip-ui-gat
 const password = arg('password', process.env.CFIP_UI_PASSWORD || 'cfip-gate');
 const language = process.env.CFIP_UI_LANG || 'en';
 const copy = language === 'zh_cn' ? {
-	refreshSources: '刷新来源', clearLogs: '清除日志', cancel: '取消'
+	refreshSources: '刷新来源', clearLogs: '清除日志', cancel: '取消',
+	candidateCount: 'CFST 候选 IP 数量', refreshSuccess: '来源已刷新，候选池已准备。未保存的编辑已保留。',
+	refreshFailure: '无法刷新来源。', registryError: '无法加载来源注册表', retry: '重试'
 } : {
-	refreshSources: 'Refresh Sources', clearLogs: 'Clear Logs', cancel: 'Cancel'
+	refreshSources: 'Refresh Sources', clearLogs: 'Clear Logs', cancel: 'Cancel',
+	candidateCount: 'CFST Candidate IP Count', refreshSuccess: 'Sources refreshed; candidate pool prepared. Unsaved edits were kept.',
+	refreshFailure: 'Unable to refresh sources.', registryError: 'Unable to load source registry', retry: 'Retry'
 };
 if (!['en', 'zh_cn'].includes(language)) throw new Error('Unsupported CFIP_UI_LANG: ' + language);
 const sha = arg('sha', process.env.CFIP_UI_SHA || execFileSync('git', ['rev-parse', '--short', 'HEAD'], { encoding: 'utf8' }).trim());
@@ -100,7 +104,7 @@ async function run() {
 		/* Scenario 1: real RPC refresh must not discard a typed draft. */
 		await page.goto(base + '/cgi-bin/luci/admin/services/cf_ip/sources', { waitUntil: 'domcontentloaded' });
 		await page.locator('button').filter({ hasText: copy.refreshSources }).waitFor({ timeout: 30000 });
-		const budget = page.locator('.cbi-value:has-text("CFST Candidate IP Count") input').first();
+		const budget = page.locator('.cbi-value').filter({ hasText: copy.candidateCount }).locator('input').first();
 		const original = await budget.inputValue();
 		const draft = original === '256' ? '128' : '256';
 		await budget.fill(draft);
@@ -108,12 +112,12 @@ async function run() {
 		await page.screenshot({ path: path.join(evidence, sha + '-sources-draft.png') });
 
 		await page.locator('button').filter({ hasText: copy.refreshSources }).click();
-		await page.waitForFunction(() => {
+		await page.waitForFunction(copy => {
 			const messages = Array.from(document.querySelectorAll('.alert-message'));
-			return messages.some(node => /Unable to refresh sources|Sources refreshed/i.test(node.textContent || ''));
-		}, null, { timeout: 30000 });
+			return messages.some(node => (node.textContent || '').includes(copy.refreshFailure) || (node.textContent || '').includes(copy.refreshSuccess));
+		}, copy, { timeout: 30000 });
 		const sentinel = await page.evaluate(() => window.__cfipGateSentinel === true);
-		const kept = await page.locator('.cbi-value:has-text("CFST Candidate IP Count") input').first().inputValue();
+		const kept = await page.locator('.cbi-value').filter({ hasText: copy.candidateCount }).locator('input').first().inputValue();
 		if (!sentinel)
 			throw new Error('refresh reloaded the page');
 		if (kept !== draft)
@@ -203,8 +207,8 @@ async function run() {
 		}
 		await login(page);
 		await page.goto(base + '/cgi-bin/luci/admin/services/cf_ip/sources', { waitUntil: 'domcontentloaded' });
-		await page.locator('text=Unable to load source registry').waitFor({ timeout: 30000 });
-		const retry = page.locator('button:has-text("Retry")');
+		await page.locator('text=' + copy.registryError).waitFor({ timeout: 30000 });
+		const retry = page.locator('button').filter({ hasText: copy.retry });
 		if (!(await retry.count()))
 			throw new Error('RPC error state has no Retry control');
 		if (await page.locator('.cbi-page-actions').count())
