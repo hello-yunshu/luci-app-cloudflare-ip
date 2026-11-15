@@ -92,6 +92,14 @@ async function measure(page, theme) {
       range.selectNodeContents(badge);
       return range.getClientRects().length <= 1;
     });
+    const ipHistoryTable = document.querySelector('.cfi-table-scroll > table.table');
+    const ipHistoryHeader = ipHistoryTable && ipHistoryTable.querySelector('thead > tr');
+    const ipHistoryNativeHeader = !location.pathname.endsWith('/logs') || !!(
+      ipHistoryTable && ipHistoryHeader &&
+      ipHistoryHeader.classList.contains('tr') &&
+      ipHistoryHeader.classList.contains('table-titles') &&
+      Array.from(ipHistoryHeader.querySelectorAll('th')).every(cell => cell.classList.contains('th'))
+    );
     const tabMenu = document.querySelector('#tabmenu');
     const activeTab = tabMenu && tabMenu.querySelector('.active a, a.active, a[aria-current="page"]');
     const activeTabRect = activeTab && activeTab.getBoundingClientRect();
@@ -131,6 +139,7 @@ async function measure(page, theme) {
       themeLoaded,
       darkMode: root.getAttribute('data-darkmode'),
       overviewLabelCount: overviewLabels.length,
+      ipHistoryNativeHeader,
       envBadgesIntact,
       overviewLabelSeparator: overviewLabels.length ? getComputedStyle(overviewLabels[0], '::after').content : null,
       overviewLabelGap: overviewLabels.length ? parseFloat(getComputedStyle(overviewLabels[0], '::after').marginRight) : null,
@@ -301,6 +310,7 @@ function write() {
               if (metrics.overflow) failures.push('horizontal-overflow');
               if (metrics.truncated.length) failures.push('truncated-non-dropdown-text');
               if (!metrics.activeTabVisible) failures.push('active-tab-outside-visible-strip');
+              if (name === 'logs' && !metrics.ipHistoryNativeHeader) failures.push('ip-history-header-missing-native-luci-classes');
               if (name === 'overview' && !metrics.envBadgesIntact) failures.push('environment-badge-wrapped');
               if (metrics.darkMode !== theme.darkMode)
                 failures.push('theme-dark-mode-mismatch: expected ' + theme.darkMode + ', got ' + metrics.darkMode);

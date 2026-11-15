@@ -291,9 +291,9 @@ return view.extend({
 		renderIpHistory(historyData);
 
 		ipSection.appendChild(E('div', { 'class': 'cfi-table-scroll' }, E('table', { 'class': 'table' }, [
-			E('thead', {}, E('tr', {}, [
-				E('th', {}, '#'),
-				E('th', {}, _('IP Address'))
+			E('thead', {}, E('tr', { 'class': 'tr table-titles' }, [
+				E('th', { 'class': 'th' }, '#'),
+				E('th', { 'class': 'th' }, _('IP Address'))
 			])),
 			ipTableBody
 		])));
