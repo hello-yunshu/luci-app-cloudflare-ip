@@ -94,6 +94,14 @@ async function measure(page, theme) {
     });
     const ipHistoryTable = document.querySelector('.cfi-table-scroll > table.table');
     const ipHistoryHeader = ipHistoryTable && ipHistoryTable.querySelector('thead > tr');
+    const diagnosticsLink = location.pathname.endsWith('/logs') && main && main.querySelector('.cfi-link-button');
+    const diagnosticsJson = location.pathname.endsWith('/logs') && main && main.querySelector('.cfi-log-pre');
+    const logControls = location.pathname.endsWith('/logs') && main && main.querySelector('.cfi-log-controls');
+    const logOutput = location.pathname.endsWith('/logs') && main && main.querySelector('#log-area');
+    const diagnosticsLinkGap = diagnosticsLink && diagnosticsJson
+      ? Math.round(diagnosticsJson.getBoundingClientRect().top - diagnosticsLink.getBoundingClientRect().bottom) : null;
+    const logControlsGap = logControls && logOutput
+      ? Math.round(logOutput.getBoundingClientRect().top - logControls.getBoundingClientRect().bottom) : null;
     const ipHistoryNativeHeader = !location.pathname.endsWith('/logs') || !!(
       ipHistoryTable && ipHistoryHeader &&
       ipHistoryHeader.classList.contains('tr') &&
@@ -140,6 +148,8 @@ async function measure(page, theme) {
       darkMode: root.getAttribute('data-darkmode'),
       overviewLabelCount: overviewLabels.length,
       ipHistoryNativeHeader,
+      diagnosticsLinkGap,
+      logControlsGap,
       envBadgesIntact,
       overviewLabelSeparator: overviewLabels.length ? getComputedStyle(overviewLabels[0], '::after').content : null,
       overviewLabelGap: overviewLabels.length ? parseFloat(getComputedStyle(overviewLabels[0], '::after').marginRight) : null,
@@ -311,6 +321,8 @@ function write() {
               if (metrics.truncated.length) failures.push('truncated-non-dropdown-text');
               if (!metrics.activeTabVisible) failures.push('active-tab-outside-visible-strip');
               if (name === 'logs' && !metrics.ipHistoryNativeHeader) failures.push('ip-history-header-missing-native-luci-classes');
+              if (name === 'logs' && (metrics.diagnosticsLinkGap == null || metrics.diagnosticsLinkGap < 12)) failures.push('diagnostics-link-and-json-too-close');
+              if (name === 'logs' && (metrics.logControlsGap == null || metrics.logControlsGap < 12)) failures.push('log-controls-and-output-too-close');
               if (name === 'overview' && !metrics.envBadgesIntact) failures.push('environment-badge-wrapped');
               if (metrics.darkMode !== theme.darkMode)
                 failures.push('theme-dark-mode-mismatch: expected ' + theme.darkMode + ', got ' + metrics.darkMode);
