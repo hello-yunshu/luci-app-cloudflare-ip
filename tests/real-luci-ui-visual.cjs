@@ -64,11 +64,11 @@ async function measure(page, theme) {
     const activeTab = tabMenu && tabMenu.querySelector('.active a, a.active, a[aria-current="page"]');
     const activeTabRect = activeTab && activeTab.getBoundingClientRect();
     const sourcePicker = main && main.querySelector('.cfi-source-picker');
-    const sourceOpen = sourcePicker && sourcePicker.querySelector('.open');
-    const sourceText = sourceOpen && (Array.from(sourceOpen.querySelectorAll('*')).find(el =>
-      el.children.length === 0 && el.textContent.trim()) || sourceOpen);
+    const sourceChip = sourcePicker && sourcePicker.querySelector('ul:not(.dropdown) > li[display]');
+    const sourceText = sourceChip && (Array.from(sourceChip.querySelectorAll('*')).find(el =>
+      el.children.length === 0 && el.textContent.trim()) || sourceChip);
     const sourceTextColor = sourceText ? getComputedStyle(sourceText).color : null;
-    const sourceOpenBackground = sourceOpen ? getComputedStyle(sourceOpen).backgroundColor : null;
+    const sourceChipBackground = sourceChip ? getComputedStyle(sourceChip).backgroundColor : null;
     const rgb = color => {
       const match = color && color.match(/^rgba?\((\d+)\D+(\d+)\D+(\d+)/);
       return match ? match.slice(1, 4).map(Number) : null;
@@ -80,7 +80,7 @@ async function measure(page, theme) {
       return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2];
     };
     const textLuminance = luminance(sourceTextColor);
-    const backgroundLuminance = luminance(sourceOpenBackground);
+    const backgroundLuminance = luminance(sourceChipBackground);
     const sourceChipContrast = textLuminance === null || backgroundLuminance === null ? null :
       (Math.max(textLuminance, backgroundLuminance) + 0.05) / (Math.min(textLuminance, backgroundLuminance) + 0.05);
     const links = Array.from(document.querySelectorAll('link[href],script[src]'));
@@ -120,6 +120,8 @@ async function measure(page, theme) {
       activeTabText: activeTab ? activeTab.textContent.trim() : null,
       activeTabVisible: activeTab ? activeTabRect.left >= -1 && activeTabRect.right <= innerWidth + 1 : false,
       sourceChipContrast,
+      sourceChipTextColor: sourceTextColor,
+      sourceChipBackground,
       truncated,
       tabLinks: document.querySelectorAll('#tabmenu a').length
     };
