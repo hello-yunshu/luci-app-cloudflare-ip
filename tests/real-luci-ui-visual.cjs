@@ -17,7 +17,12 @@ const container = process.env.CFIP_UI_CONTAINER || 'cfip-ui-gate';
 const password = process.env.CFIP_UI_PASSWORD || 'cfip-gate';
 const output = process.env.CFIP_VISUAL_OUT || path.join(process.cwd(), 'real-luci-visual-evidence');
 const language = process.env.CFIP_UI_LANG || 'en';
-const pages = ['overview', 'settings', 'sources', 'intelligence', 'openclash', 'passwall', 'advanced', 'logs'];
+const allPages = ['overview', 'settings', 'sources', 'intelligence', 'openclash', 'passwall', 'advanced', 'logs'];
+const requestedPages = (process.env.CFIP_VISUAL_PAGES || '').split(',').map(name => name.trim()).filter(Boolean);
+const pages = requestedPages.length ? allPages.filter(name => requestedPages.includes(name)) : allPages;
+const scenario = process.env.CFIP_VISUAL_SCENARIO || 'default-installed-packages';
+if (pages.length !== (requestedPages.length || allPages.length))
+  throw new Error('CFIP_VISUAL_PAGES contains an unknown page: ' + requestedPages.join(','));
 const optionalPages = new Set(['openclash', 'passwall']);
 const expectedTitlesByLanguage = {
 en: {
@@ -53,8 +58,10 @@ const report = {
   sha: process.env.GITHUB_SHA || process.env.CFIP_UI_SHA || 'unknown',
   environment: 'real OpenWrt 24.10.8 rootfs with uhttpd/rpcd/LuCI; Chromium Playwright',
   method: `initial views, common widths and adjacent values for CSS breakpoints, short portrait and landscape viewports, ${language} locale, Bootstrap default with system light/dark, explicit Bootstrap light/dark, and Aurora light/dark`,
+  scenario,
   language,
-  notCovered: ['real 200% browser zoom', 'complete 51-point interaction matrix', 'physical router', 'Material theme', 'installed OpenClash and PassWall integration forms'],
+  notCovered: ['real 200% browser zoom', 'complete 51-point interaction matrix', 'physical router', 'Material theme',
+    ...(scenario === 'disposable-init-script-fixtures-installed-route-forms-only' ? [] : ['installed OpenClash and PassWall integration forms'])],
   pages, routeAliases: ['admin/services/cf_ip -> overview'], widths, shortViewports, rows: [], errors: []
 };
 fs.mkdirSync(output, { recursive: true });
