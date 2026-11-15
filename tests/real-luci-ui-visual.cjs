@@ -15,14 +15,29 @@ const base = process.env.CFIP_UI_BASE || 'http://127.0.0.1:18080';
 const container = process.env.CFIP_UI_CONTAINER || 'cfip-ui-gate';
 const password = process.env.CFIP_UI_PASSWORD || 'cfip-gate';
 const output = process.env.CFIP_VISUAL_OUT || path.join(process.cwd(), 'real-luci-visual-evidence');
+const language = process.env.CFIP_UI_LANG || 'en';
 const pages = ['overview', 'settings', 'sources', 'intelligence', 'openclash', 'passwall', 'advanced', 'logs'];
 const optionalPages = new Set(['openclash', 'passwall']);
-const expectedTitles = {
+const expectedTitlesByLanguage = {
+en: {
   overview: 'Overview', settings: 'Settings', sources: 'Candidate Sources',
   intelligence: 'Rill Intelligence', openclash: 'OpenClash', passwall: 'PassWall',
   advanced: 'Advanced', logs: 'Logs & Records'
+},
+zh_cn: {
+  overview: '概览', settings: '设置', sources: '候选来源',
+  intelligence: 'Rill 智能', openclash: 'OpenClash', passwall: 'PassWall',
+  advanced: '高级', logs: '日志与记录'
+}
 };
-const widths = [320, 375, 640, 768, 1280];
+const expectedTitles = expectedTitlesByLanguage[language];
+if (!expectedTitles) throw new Error('Unsupported CFIP_UI_LANG: ' + language);
+const commonWidths = [320, 360, 375, 390, 430, 640, 768, 1024, 1280, 1440, 1920];
+const responsiveBreakpoints = [420, 600, 700, 768, 1048, 1319];
+const widths = [...new Set([
+  ...commonWidths,
+  ...responsiveBreakpoints.flatMap(width => [width - 1, width, width + 1])
+])].sort((a, b) => a - b);
 const themes = [
   { id: 'bootstrap-light', media: 'bootstrap', mode: null },
   { id: 'aurora-light', media: 'aurora', mode: 'light' },
@@ -32,9 +47,10 @@ const report = {
   schemaVersion: 1,
   sha: process.env.GITHUB_SHA || process.env.CFIP_UI_SHA || 'unknown',
   environment: 'real OpenWrt 24.10.8 rootfs with uhttpd/rpcd/LuCI; Chromium Playwright',
-  method: 'initial views, five CSS viewport widths, installed Bootstrap and Aurora 1.4.0 themes',
-  notCovered: ['real 200% browser zoom', 'complete 51-point interaction matrix', 'physical router', 'Material theme', 'zh_cn rendering', 'installed OpenClash and PassWall integration forms'],
-  pages, widths, rows: [], errors: []
+  method: `initial views, common widths and adjacent values for CSS breakpoints, ${language} locale, installed Bootstrap and Aurora 1.4.0 themes`,
+  language,
+  notCovered: ['real 200% browser zoom', 'complete 51-point interaction matrix', 'physical router', 'Material theme', 'installed OpenClash and PassWall integration forms'],
+  pages, routeAliases: ['admin/services/cf_ip -> overview'], widths, rows: [], errors: []
 };
 fs.mkdirSync(output, { recursive: true });
 
@@ -214,7 +230,7 @@ function write() {
             if (consoleErrors.length) failures.push('console-errors');
             const result = failures.length ? 'FAIL' : (absentOptionalRoute ? 'N/A' : 'PASS');
             const row = {
-              theme: theme.id, width, page: name, result, failures, metrics, routeIdentity,
+              theme: theme.id, language, width, page: name, result, failures, metrics, routeIdentity,
               integrationInstalled,
               screenshot: path.basename(screenshotFile),
               nAReason: absentOptionalRoute ? 'Optional LuCI route is not registered because its proxy integration is not installed; the direct URL falls back to Overview.' : undefined,
@@ -226,6 +242,44 @@ function write() {
             write();
           }
         }
+        const aliasWidth = 1280;
+        await page.setViewportSize({ width: aliasWidth, height: 900 });
+        let aliasError = null;
+        let aliasHeading = '';
+        let aliasMetrics = null;
+        const aliasScreenshot = path.join(output, theme.id + '-' + aliasWidth + '-root-alias.png');
+        try {
+          await page.goto(base + '/cgi-bin/luci/admin/services/cf_ip', { waitUntil: 'domcontentloaded', timeout: 30000 });
+          await page.waitForFunction(() => {
+            const m = document.querySelector('#maincontent');
+            return m && m.innerText.trim().length > 20 && !/Loading view|加载视图/.test(m.innerText);
+          }, null, { timeout: 20000 });
+          await page.waitForTimeout(550);
+          aliasHeading = await page.locator('#maincontent h2').first().textContent().then(value => value.trim());
+          aliasMetrics = await measure(page, theme);
+          await page.screenshot({ path: aliasScreenshot, fullPage: true, animations: 'disabled' });
+        } catch (error) {
+          aliasError = error.message;
+        }
+        const aliasFailures = [];
+        if (aliasError) aliasFailures.push('navigation-or-render: ' + aliasError);
+        if (aliasHeading !== expectedTitles.overview) aliasFailures.push('root-alias-not-overview: ' + aliasHeading);
+        if (!aliasMetrics || !aliasMetrics.hasMain || aliasMetrics.overflow || !aliasMetrics.activeTabVisible)
+          aliasFailures.push('root-alias-layout-check-failed');
+        if (aliasMetrics && theme.mode === 'dark' && aliasMetrics.darkMode !== 'true')
+          aliasFailures.push('aurora-dark-mode-not-applied');
+        if (aliasMetrics && theme.mode === 'light' && aliasMetrics.darkMode === 'true')
+          aliasFailures.push('aurora-light-mode-not-applied');
+        const aliasRow = {
+          theme: theme.id, language, width: aliasWidth, page: 'root-alias',
+          route: 'admin/services/cf_ip', expectedView: 'overview', heading: aliasHeading,
+          result: aliasFailures.length ? 'FAIL' : 'PASS', failures: aliasFailures,
+          metrics: aliasMetrics, screenshot: path.basename(aliasScreenshot), navigationError: aliasError
+        };
+        report.rows.push(aliasRow);
+        if (aliasFailures.length) report.errors.push({ theme: theme.id, width: aliasWidth, page: 'root-alias', failures: aliasFailures, navigationError: aliasError });
+        console.log(aliasRow.result + ' ' + theme.id + ' ' + aliasWidth + ' root-alias' + (aliasFailures.length ? ' -- ' + aliasFailures.join(', ') : ''));
+        write();
       } finally {
         await context.close();
       }
@@ -235,7 +289,7 @@ function write() {
     write();
   }
   console.log('VISUAL_MATRIX ' + JSON.stringify({ total: report.rows.length, passed: report.rows.filter(r => r.result === 'PASS').length, notApplicable: report.rows.filter(r => r.result === 'N/A').length, failed: report.errors.length }));
-  if (report.rows.length !== themes.length * widths.length * pages.length || report.errors.length) process.exitCode = 1;
+  if (report.rows.length !== themes.length * (widths.length * pages.length + 1) || report.errors.length) process.exitCode = 1;
 })().catch(error => {
   report.errors.push({ fatal: error.stack || error.message });
   write();

@@ -10,6 +10,15 @@ on:
       - 'tests/real-luci-ui*'
       - '.github/workflows/real-luci-ui.yml'
   workflow_dispatch:
+    inputs:
+      language:
+        description: LuCI language to use for the full visual matrix
+        required: true
+        type: choice
+        options:
+          - en
+          - zh_cn
+        default: en
 
 permissions:
   contents: read
@@ -76,8 +85,11 @@ jobs:
       - name: Capture all-page real theme and viewport visual matrix
         run: |
           set -euo pipefail
+          language='${{ inputs.language || 'en' }}'
+          docker exec cfip-ui-gate sh -c "uci set luci.main.lang='$language'; uci commit luci; rm -rf /tmp/luci-indexcache /tmp/luci-modulecache"
           NODE_PATH="$RUNNER_TEMP/ui/node_modules" \
-            CFIP_VISUAL_OUT="$GITHUB_WORKSPACE/real-luci-ui-evidence/visual" \
+            CFIP_VISUAL_OUT="$GITHUB_WORKSPACE/real-luci-ui-evidence/visual/$language" \
+            CFIP_UI_LANG="$language" \
             node tests/real-luci-ui-visual.cjs
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
