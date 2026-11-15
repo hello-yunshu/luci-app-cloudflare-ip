@@ -38,7 +38,7 @@ zh_cn: {
 const expectedTitles = expectedTitlesByLanguage[language];
 if (!expectedTitles) throw new Error('Unsupported CFIP_UI_LANG: ' + language);
 const commonWidths = [320, 360, 375, 390, 430, 640, 768, 1024, 1280, 1440, 1920];
-const responsiveBreakpoints = [420, 600, 700, 768, 900, 1048, 1100, 1319];
+const responsiveBreakpoints = [420, 600, 700, 768, 900, 1048, 1100, 1280, 1319];
 const widths = [...new Set([
   ...commonWidths,
   ...responsiveBreakpoints.flatMap(width => [width - 1, width, width + 1])
