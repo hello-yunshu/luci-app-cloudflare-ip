@@ -73,6 +73,9 @@
 /* ===== 原生表格滚动容器（例外 E21） ===== */
 .cfi-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 @media screen and (max-width: 700px) {
+	/* Keep all plugin routes discoverable on narrow screens. The native LuCI
+	 * strip otherwise clips later tabs when a page is opened directly. */
+	#tabmenu ul.tabs { flex-wrap: wrap; overflow-x: visible; }
 	.cfi-table-scroll > table.table { min-width: 0; width: 100%; table-layout: fixed; box-sizing: border-box; }
 }
 /* 主题 mobile.css 给 .tr 加了 margin: 0 -3px，在滚动容器里每行右侧多出 3px

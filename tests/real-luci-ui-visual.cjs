@@ -84,6 +84,10 @@ async function measure(page, theme) {
     const tabMenu = document.querySelector('#tabmenu');
     const activeTab = tabMenu && tabMenu.querySelector('.active a, a.active, a[aria-current="page"]');
     const activeTabRect = activeTab && activeTab.getBoundingClientRect();
+    const tabLinkMetrics = Array.from((tabMenu && tabMenu.querySelectorAll('a')) || []).map(a => {
+      const rect = a.getBoundingClientRect();
+      return { text: a.textContent.trim(), visible: rect.width > 0 && rect.height > 0 && rect.left >= -1 && rect.right <= innerWidth + 1 };
+    });
     const sourcePicker = main && main.querySelector('.cfi-source-picker');
     const sourceChip = sourcePicker && sourcePicker.querySelector('ul:not(.dropdown) > li[display]');
     const sourceText = sourceChip && (Array.from(sourceChip.querySelectorAll('*')).find(el =>
@@ -152,7 +156,9 @@ async function measure(page, theme) {
       warningHeadingColor,
       warningBackgroundCSS,
       truncated,
-      tabLinks: document.querySelectorAll('#tabmenu a').length
+      tabLinks: tabLinkMetrics.length,
+      visibleTabLinks: tabLinkMetrics.filter(link => link.visible).length,
+      tabLinkMetrics
     };
   }, theme.media);
 }
@@ -265,6 +271,7 @@ async function sampleWarningContrast(page, metrics) {
               if (metrics.overflow) failures.push('horizontal-overflow');
               if (metrics.truncated.length) failures.push('truncated-non-dropdown-text');
               if (!metrics.activeTabVisible) failures.push('active-tab-outside-visible-strip');
+              if (metrics.visibleTabLinks !== metrics.tabLinks) failures.push('route-tabs-clipped-or-hidden');
               if (theme.media === 'bootstrap' && name === 'sources' &&
                   (metrics.sourceChipContrast === null || metrics.sourceChipContrast < 4.5))
                 failures.push('bootstrap-source-chip-contrast-below-aa');
