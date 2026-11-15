@@ -40,7 +40,7 @@ function addCopyButton(field, text) {
 	if (!field || field.querySelector('.cfi-copy-btn'))
 		return;
 	var button = E('button', {
-		'class': 'cbi-button',
+		'class': 'cbi-button cfi-intel-copy',
 		'type': 'button',
 		'aria-label': _('Copy'),
 		'click': function() {

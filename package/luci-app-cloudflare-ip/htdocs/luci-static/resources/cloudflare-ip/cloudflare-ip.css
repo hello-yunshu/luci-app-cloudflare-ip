@@ -63,6 +63,11 @@
 .cfi-form-map .cfi-collapse-toggle { margin: 0.25em 0 0.75em; }
 
 /* ===== Clipboard Fallback ===== */
+.cfi-intel-copy {
+	display: block;
+	margin-top: 0.5em;
+}
+
 .cfi-copy-source {
 	position: fixed;
 	left: -9999px;
