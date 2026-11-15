@@ -102,6 +102,15 @@ async function measure(page, theme) {
     const backgroundLuminance = luminance(sourceChipBackground);
     const sourceChipContrast = textLuminance === null || backgroundLuminance === null ? null :
       (Math.max(textLuminance, backgroundLuminance) + 0.05) / (Math.min(textLuminance, backgroundLuminance) + 0.05);
+    const warning = main && main.querySelector('.alert-message.warning');
+    const warningHeading = warning && warning.querySelector('h3, h4, h5');
+    const warningHeadingColor = warningHeading ? getComputedStyle(warningHeading).color : null;
+    const warningBackground = warning ? getComputedStyle(warning).backgroundColor : null;
+    const warningTextLuminance = luminance(warningHeadingColor);
+    const warningBackgroundLuminance = luminance(warningBackground);
+    const warningHeadingContrast = warningTextLuminance === null || warningBackgroundLuminance === null ? null :
+      (Math.max(warningTextLuminance, warningBackgroundLuminance) + 0.05) /
+      (Math.min(warningTextLuminance, warningBackgroundLuminance) + 0.05);
     const links = Array.from(document.querySelectorAll('link[href],script[src]'));
     const themeLoaded = links.some(el => ((el.href || el.src || '')).includes('/luci-static/' + media + '/'));
     const truncated = Array.from((main || document).querySelectorAll('*'))
@@ -141,6 +150,9 @@ async function measure(page, theme) {
       sourceChipContrast,
       sourceChipTextColor: sourceTextColor,
       sourceChipBackground,
+      warningHeadingContrast,
+      warningHeadingColor,
+      warningBackground,
       truncated,
       tabLinks: document.querySelectorAll('#tabmenu a').length
     };
@@ -222,6 +234,9 @@ function write() {
               if (theme.media === 'bootstrap' && name === 'sources' &&
                   (metrics.sourceChipContrast === null || metrics.sourceChipContrast < 4.5))
                 failures.push('bootstrap-source-chip-contrast-below-aa');
+              if (theme.media === 'bootstrap' && name === 'overview' && metrics.warningHeadingContrast !== null &&
+                  metrics.warningHeadingContrast < 4.5)
+                failures.push('bootstrap-warning-heading-contrast-below-aa');
               if (metrics.darkMode !== theme.darkMode)
                 failures.push('theme-dark-mode-mismatch: expected ' + theme.darkMode + ', got ' + metrics.darkMode);
               if (name === 'overview' && width <= 600) {

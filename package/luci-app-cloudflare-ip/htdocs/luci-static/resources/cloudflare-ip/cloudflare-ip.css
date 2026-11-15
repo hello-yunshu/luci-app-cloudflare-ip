@@ -187,6 +187,10 @@ body.cfi-theme-bootstrap .label.success { background: #00713d; border-color: #00
 /* 成功提示用的是 #007936→#009a4c 渐变，白字最浅处只有 3.3:1；压成纯深绿 */
 body.cfi-theme-bootstrap .alert-message.success { background: #007a4a; color: #fff; } /* 5.4:1 */
 body.cfi-theme-bootstrap .alert-message.success :is(h3,h4,h5,p,b,strong,li) { color: #fff; }
+/* The dark Bootstrap theme leaves warning headings light over its ochre
+ * warning surface while the body copy is dark. Keep all warning text dark. */
+body.cfi-theme-bootstrap .alert-message.warning,
+body.cfi-theme-bootstrap .alert-message.warning :is(h3,h4,h5,p,b,strong,li,summary,pre) { color: #111; }
 /* danger/error 的渐变底在白字下最浅处只有 ~4.5:1，暗色还给了深灰字；统一成纯深红白字 */
 body.cfi-theme-bootstrap .alert-message.danger,
 body.cfi-theme-bootstrap .alert-message.error { background: #8c1d18; color: #fff; } /* 7.1:1 */
