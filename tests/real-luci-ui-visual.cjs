@@ -10,6 +10,7 @@ const fs = require('fs');
 const path = require('path');
 const { execFileSync } = require('child_process');
 const { chromium } = require('playwright');
+const { PNG } = require('pngjs');
 
 const base = process.env.CFIP_UI_BASE || 'http://127.0.0.1:18080';
 const container = process.env.CFIP_UI_CONTAINER || 'cfip-ui-gate';
@@ -106,12 +107,7 @@ async function measure(page, theme) {
     const warning = main && main.querySelector('.alert-message.warning');
     const warningHeading = warning && warning.querySelector('h3, h4, h5');
     const warningHeadingColor = warningHeading ? getComputedStyle(warningHeading).color : null;
-    const warningBackground = warning ? getComputedStyle(warning).backgroundColor : null;
-    const warningTextLuminance = luminance(warningHeadingColor);
-    const warningBackgroundLuminance = luminance(warningBackground);
-    const warningHeadingContrast = warningTextLuminance === null || warningBackgroundLuminance === null ? null :
-      (Math.max(warningTextLuminance, warningBackgroundLuminance) + 0.05) /
-      (Math.min(warningTextLuminance, warningBackgroundLuminance) + 0.05);
+    const warningBackgroundCSS = warning ? getComputedStyle(warning).backgroundColor : null;
     const links = Array.from(document.querySelectorAll('link[href],script[src]'));
     const themeLoaded = links.some(el => ((el.href || el.src || '')).includes('/luci-static/' + media + '/'));
     const truncated = Array.from((main || document).querySelectorAll('*'))
@@ -152,9 +148,9 @@ async function measure(page, theme) {
       sourceChipContrast,
       sourceChipTextColor: sourceTextColor,
       sourceChipBackground,
-      warningHeadingContrast,
+      warningHeadingContrast: null,
       warningHeadingColor,
-      warningBackground,
+      warningBackgroundCSS,
       truncated,
       tabLinks: document.querySelectorAll('#tabmenu a').length
     };
@@ -162,6 +158,37 @@ async function measure(page, theme) {
 }
 function write() {
   fs.writeFileSync(path.join(output, 'report.json'), JSON.stringify(report, null, 2) + '\n');
+}
+async function sampleWarningContrast(page, metrics) {
+  const warning = page.locator('#maincontent .alert-message.warning').first();
+  if (!(await warning.count()) || !metrics || !metrics.warningHeadingColor) return null;
+  const match = metrics.warningHeadingColor.match(/rgba?\((\d+)\D+(\d+)\D+(\d+)/);
+  if (!match) return null;
+  const text = match.slice(1, 4).map(Number);
+  const luminance = rgb => {
+    const linear = rgb.map(value => {
+      value /= 255;
+      return value <= 0.04045 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2];
+  };
+  const textLuminance = luminance(text);
+  const png = PNG.sync.read(await warning.screenshot({ animations: 'disabled' }));
+  const x = Math.max(0, png.width - 8); // sample the empty right padding, away from warning text
+  let worst = Infinity;
+  let worstBackground = null;
+  for (let y = 3; y < png.height - 3; y++) {
+    const offset = (y * png.width + x) * 4;
+    const background = [png.data[offset], png.data[offset + 1], png.data[offset + 2]];
+    const backgroundLuminance = luminance(background);
+    const contrast = (Math.max(textLuminance, backgroundLuminance) + 0.05) /
+      (Math.min(textLuminance, backgroundLuminance) + 0.05);
+    if (contrast < worst) {
+      worst = contrast;
+      worstBackground = background;
+    }
+  }
+  return { contrast: worst, background: worstBackground && `rgb(${worstBackground.join(', ')})` };
 }
 (async () => {
   const browser = await chromium.launch({ headless: true, executablePath: process.env.PLAYWRIGHT_EXECUTABLE || undefined });
@@ -208,6 +235,11 @@ function write() {
                 return { registered, heading: heading ? heading.textContent.trim() : '', url: path };
               });
               metrics = await measure(page, theme);
+              const warningContrast = await sampleWarningContrast(page, metrics);
+              if (warningContrast) {
+                metrics.warningHeadingContrast = warningContrast.contrast;
+                metrics.warningSampledBackground = warningContrast.background;
+              }
               const absentOptionalRoute = optionalPages.has(name) && integrationInstalled === false &&
                 !routeIdentity.registered && routeIdentity.heading === expectedTitles.overview;
               if (absentOptionalRoute)
@@ -236,9 +268,9 @@ function write() {
               if (theme.media === 'bootstrap' && name === 'sources' &&
                   (metrics.sourceChipContrast === null || metrics.sourceChipContrast < 4.5))
                 failures.push('bootstrap-source-chip-contrast-below-aa');
-              if (theme.media === 'bootstrap' && name === 'overview' && metrics.warningHeadingContrast !== null &&
-                  metrics.warningHeadingContrast < 4.5)
-                failures.push('bootstrap-warning-heading-contrast-below-aa');
+              if (theme.media === 'bootstrap' && name === 'overview' &&
+                  (metrics.warningHeadingContrast === null || metrics.warningHeadingContrast < 4.5))
+                failures.push('bootstrap-warning-heading-contrast-unmeasured-or-below-aa');
               if (metrics.darkMode !== theme.darkMode)
                 failures.push('theme-dark-mode-mismatch: expected ' + theme.darkMode + ', got ' + metrics.darkMode);
               if (name === 'overview' && width <= 600) {
@@ -296,6 +328,11 @@ function write() {
                 return { registered, heading: heading ? heading.textContent.trim() : '', url: path };
               });
               metrics = await measure(page, theme);
+              const warningContrast = await sampleWarningContrast(page, metrics);
+              if (warningContrast) {
+                metrics.warningHeadingContrast = warningContrast.contrast;
+                metrics.warningSampledBackground = warningContrast.background;
+              }
               const absentOptionalRoute = optionalPages.has(name) && integrationInstalled === false &&
                 !routeIdentity.registered && routeIdentity.heading === expectedTitles.overview;
               if (absentOptionalRoute)
@@ -324,9 +361,9 @@ function write() {
               if (theme.media === 'bootstrap' && name === 'sources' &&
                   (metrics.sourceChipContrast === null || metrics.sourceChipContrast < 4.5))
                 failures.push('bootstrap-source-chip-contrast-below-aa');
-              if (theme.media === 'bootstrap' && name === 'overview' && metrics.warningHeadingContrast !== null &&
-                  metrics.warningHeadingContrast < 4.5)
-                failures.push('bootstrap-warning-heading-contrast-below-aa');
+              if (theme.media === 'bootstrap' && name === 'overview' &&
+                  (metrics.warningHeadingContrast === null || metrics.warningHeadingContrast < 4.5))
+                failures.push('bootstrap-warning-heading-contrast-unmeasured-or-below-aa');
               if (metrics.darkMode !== theme.darkMode)
                 failures.push('theme-dark-mode-mismatch: expected ' + theme.darkMode + ', got ' + metrics.darkMode);
             }
@@ -360,6 +397,11 @@ function write() {
           await page.waitForTimeout(550);
           aliasHeading = await page.locator('#maincontent h2').first().textContent().then(value => value.trim());
           aliasMetrics = await measure(page, theme);
+          const warningContrast = await sampleWarningContrast(page, aliasMetrics);
+          if (warningContrast) {
+            aliasMetrics.warningHeadingContrast = warningContrast.contrast;
+            aliasMetrics.warningSampledBackground = warningContrast.background;
+          }
           await page.screenshot({ path: aliasScreenshot, fullPage: true, animations: 'disabled' });
         } catch (error) {
           aliasError = error.message;

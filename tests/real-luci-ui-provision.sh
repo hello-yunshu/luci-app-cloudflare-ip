@@ -7,7 +7,7 @@ LANG_CODE="${CFIP_UI_LANG:-en}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PKG="$ROOT/package/luci-app-cloudflare-ip"
 
-for command in docker openssl; do
+for command in docker; do
 	command -v "$command" >/dev/null || { echo "missing host command: $command" >&2; exit 1; }
 done
 
@@ -60,7 +60,7 @@ docker exec "$CONTAINER" sh -c "
 	/etc/init.d/uhttpd restart >/dev/null 2>&1
 "
 
-HASH="$(openssl passwd -6 -salt cfip-gate "${CFIP_UI_PASSWORD:-cfip-gate}")"
+HASH="$(docker exec "$CONTAINER" openssl passwd -6 -salt cfip-gate "${CFIP_UI_PASSWORD:-cfip-gate}")"
 docker exec "$CONTAINER" sh -c "sed -i 's|^root:[^:]*:|root:$HASH:|' /etc/shadow"
 
 for attempt in 1 2 3 4 5 6 7 8 9 10; do
