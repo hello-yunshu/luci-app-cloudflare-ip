@@ -29,6 +29,13 @@ function arg(name, fallback) {
 const base = arg('base', process.env.CFIP_UI_BASE || 'http://127.0.0.1:18080');
 const container = arg('container', process.env.CFIP_UI_CONTAINER || 'cfip-ui-gate');
 const password = arg('password', process.env.CFIP_UI_PASSWORD || 'cfip-gate');
+const language = process.env.CFIP_UI_LANG || 'en';
+const copy = language === 'zh_cn' ? {
+	refreshSources: '刷新来源', clearLogs: '清除日志', cancel: '取消'
+} : {
+	refreshSources: 'Refresh Sources', clearLogs: 'Clear Logs', cancel: 'Cancel'
+};
+if (!['en', 'zh_cn'].includes(language)) throw new Error('Unsupported CFIP_UI_LANG: ' + language);
 const sha = arg('sha', process.env.CFIP_UI_SHA || execFileSync('git', ['rev-parse', '--short', 'HEAD'], { encoding: 'utf8' }).trim());
 const evidence = arg('evidence', process.env.CFIP_UI_EVIDENCE || path.join(process.cwd(), 'docs/audits/next-release-evidence', 'ui-gate-' + sha));
 
@@ -92,7 +99,7 @@ async function run() {
 
 		/* Scenario 1: real RPC refresh must not discard a typed draft. */
 		await page.goto(base + '/cgi-bin/luci/admin/services/cf_ip/sources', { waitUntil: 'domcontentloaded' });
-		await page.locator('button:has-text("Refresh Sources")').waitFor({ timeout: 30000 });
+		await page.locator('button').filter({ hasText: copy.refreshSources }).waitFor({ timeout: 30000 });
 		const budget = page.locator('.cbi-value:has-text("CFST Candidate IP Count") input').first();
 		const original = await budget.inputValue();
 		const draft = original === '256' ? '128' : '256';
@@ -100,7 +107,7 @@ async function run() {
 		await page.evaluate(() => { window.__cfipGateSentinel = true; });
 		await page.screenshot({ path: path.join(evidence, sha + '-sources-draft.png') });
 
-		await page.locator('button:has-text("Refresh Sources")').click();
+		await page.locator('button').filter({ hasText: copy.refreshSources }).click();
 		await page.waitForFunction(() => {
 			const messages = Array.from(document.querySelectorAll('.alert-message'));
 			return messages.some(node => /Unable to refresh sources|Sources refreshed/i.test(node.textContent || ''));
@@ -145,7 +152,7 @@ async function run() {
 			if ((request.postData() || '').includes('clear-log'))
 				clearRequests++;
 		});
-		await page.locator('button:has-text("Clear Logs")').click();
+		await page.locator('button').filter({ hasText: copy.clearLogs }).click();
 		const modal = page.locator('#modal_overlay .modal[role="dialog"]');
 		await modal.waitFor({ timeout: 10000 });
 		await page.waitForFunction(() => {
@@ -156,7 +163,7 @@ async function run() {
 		}, null, { timeout: 10000 });
 		const modalCount = await modal.count();
 		await page.screenshot({ path: path.join(evidence, sha + '-logs-confirm-modal.png') });
-		await page.locator('#modal_overlay button:has-text("Cancel")').click();
+		await page.locator('#modal_overlay button').filter({ hasText: copy.cancel }).click();
 		await page.waitForTimeout(400);
 		const modalClosed = (await page.locator('#modal_overlay .modal:visible').count()) === 0;
 		if (!modalCount || !modalClosed || nativeDialogs || clearRequests)

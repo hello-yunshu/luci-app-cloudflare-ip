@@ -88,6 +88,8 @@ jobs:
       - name: Run real LuCI interaction assertions
         run: |
           set -euo pipefail
+          language='${{ inputs.language || 'en' }}'
+          CFIP_UI_LANG="$language" \
           NODE_PATH="$RUNNER_TEMP/ui/node_modules" \
             node tests/real-luci-ui.cjs \
             --evidence "$GITHUB_WORKSPACE/real-luci-ui-evidence"
