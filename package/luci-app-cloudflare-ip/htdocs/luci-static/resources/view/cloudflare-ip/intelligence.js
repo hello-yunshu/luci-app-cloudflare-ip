@@ -37,7 +37,7 @@ function runtimeSummary(status) {
 }
 
 function addCopyButton(field, text) {
-	if (!field || field.querySelector('.cfi-copy-btn'))
+	if (!field || field.querySelector('.cfi-intel-copy'))
 		return;
 	var button = E('button', {
 		'class': 'cbi-button cfi-intel-copy',
