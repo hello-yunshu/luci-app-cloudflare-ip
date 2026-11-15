@@ -73,9 +73,10 @@
 /* ===== 原生表格滚动容器（例外 E21） ===== */
 .cfi-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
-@media screen and (max-width: 900px) {
+@media screen and (max-width: 1100px) {
 	/* Keep all plugin routes discoverable on narrow screens. The native LuCI
-	 * strip otherwise clips later tabs when a page is opened directly. */
+	 * strip otherwise clips later tabs when a page is opened directly. The
+	 * installed OpenClash/PassWall forms need the wider cutoff for all routes. */
 	#tabmenu ul.tabs { flex-wrap: wrap; overflow-x: visible; }
 }
 
