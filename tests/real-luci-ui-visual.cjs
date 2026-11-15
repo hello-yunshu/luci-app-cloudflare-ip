@@ -39,15 +39,18 @@ const widths = [...new Set([
   ...responsiveBreakpoints.flatMap(width => [width - 1, width, width + 1])
 ])].sort((a, b) => a - b);
 const themes = [
-  { id: 'bootstrap-light', media: 'bootstrap', mode: null },
-  { id: 'aurora-light', media: 'aurora', mode: 'light' },
-  { id: 'aurora-dark', media: 'aurora', mode: 'dark' }
+  { id: 'bootstrap-default-light', media: 'bootstrap', theme: 'bootstrap', colorScheme: 'light', darkMode: 'false' },
+  { id: 'bootstrap-default-dark', media: 'bootstrap', theme: 'bootstrap', colorScheme: 'dark', darkMode: 'true' },
+  { id: 'bootstrap-light', media: 'bootstrap', theme: 'bootstrap-light', colorScheme: 'light', darkMode: 'false' },
+  { id: 'bootstrap-dark', media: 'bootstrap', theme: 'bootstrap-dark', colorScheme: 'dark', darkMode: 'true' },
+  { id: 'aurora-light', media: 'aurora', theme: 'aurora', colorScheme: 'light', darkMode: 'false', auroraMode: 'light' },
+  { id: 'aurora-dark', media: 'aurora', theme: 'aurora', colorScheme: 'dark', darkMode: 'true', auroraMode: 'dark' }
 ];
 const report = {
   schemaVersion: 1,
   sha: process.env.GITHUB_SHA || process.env.CFIP_UI_SHA || 'unknown',
   environment: 'real OpenWrt 24.10.8 rootfs with uhttpd/rpcd/LuCI; Chromium Playwright',
-  method: `initial views, common widths and adjacent values for CSS breakpoints, ${language} locale, installed Bootstrap and Aurora 1.4.0 themes`,
+  method: `initial views, common widths and adjacent values for CSS breakpoints, ${language} locale, Bootstrap default with system light/dark, explicit Bootstrap light/dark, and Aurora light/dark`,
   language,
   notCovered: ['real 200% browser zoom', 'complete 51-point interaction matrix', 'physical router', 'Material theme', 'installed OpenClash and PassWall integration forms'],
   pages, routeAliases: ['admin/services/cf_ip -> overview'], widths, rows: [], errors: []
@@ -150,10 +153,10 @@ function write() {
   const browser = await chromium.launch({ headless: true, executablePath: process.env.PLAYWRIGHT_EXECUTABLE || undefined });
   try {
     for (const theme of themes) {
-      shell("uci set luci.main.mediaurlbase='/luci-static/" + theme.media + "'; uci commit luci; rm -rf /tmp/luci-indexcache* /tmp/luci-modulecache*; /etc/init.d/uhttpd restart >/dev/null 2>&1");
+      shell("uci set luci.main.mediaurlbase='/luci-static/" + theme.media + "'; uci set luci.main.theme='" + theme.theme + "'; uci commit luci; rm -rf /tmp/luci-indexcache* /tmp/luci-modulecache*; /etc/init.d/uhttpd restart >/dev/null 2>&1");
       await new Promise(resolve => setTimeout(resolve, 1200));
-      const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, colorScheme: theme.mode === 'dark' ? 'dark' : 'light' });
-      if (theme.mode) await context.addInitScript(mode => localStorage.setItem('aurora.theme', mode), theme.mode);
+      const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, colorScheme: theme.colorScheme });
+      if (theme.auroraMode) await context.addInitScript(mode => localStorage.setItem('aurora.theme', mode), theme.auroraMode);
       const page = await context.newPage();
       try {
         await login(page);
@@ -216,11 +219,11 @@ function write() {
               if (metrics.overflow) failures.push('horizontal-overflow');
               if (metrics.truncated.length) failures.push('truncated-non-dropdown-text');
               if (!metrics.activeTabVisible) failures.push('active-tab-outside-visible-strip');
-              if (theme.id === 'bootstrap-light' && name === 'sources' &&
+              if (theme.media === 'bootstrap' && name === 'sources' &&
                   (metrics.sourceChipContrast === null || metrics.sourceChipContrast < 4.5))
                 failures.push('bootstrap-source-chip-contrast-below-aa');
-              if (theme.mode === 'dark' && metrics.darkMode !== 'true') failures.push('aurora-dark-mode-not-applied');
-              if (theme.mode === 'light' && metrics.darkMode === 'true') failures.push('aurora-light-mode-not-applied');
+              if (metrics.darkMode !== theme.darkMode)
+                failures.push('theme-dark-mode-mismatch: expected ' + theme.darkMode + ', got ' + metrics.darkMode);
               if (name === 'overview' && width <= 600) {
                 if (metrics.overviewLabelSeparator !== '":"') failures.push('overview-mobile-label-separator-missing');
                 if (!(metrics.overviewLabelGap >= 2)) failures.push('overview-mobile-label-gap-missing');
@@ -266,10 +269,8 @@ function write() {
         if (aliasHeading !== expectedTitles.overview) aliasFailures.push('root-alias-not-overview: ' + aliasHeading);
         if (!aliasMetrics || !aliasMetrics.hasMain || aliasMetrics.overflow || !aliasMetrics.activeTabVisible)
           aliasFailures.push('root-alias-layout-check-failed');
-        if (aliasMetrics && theme.mode === 'dark' && aliasMetrics.darkMode !== 'true')
-          aliasFailures.push('aurora-dark-mode-not-applied');
-        if (aliasMetrics && theme.mode === 'light' && aliasMetrics.darkMode === 'true')
-          aliasFailures.push('aurora-light-mode-not-applied');
+        if (aliasMetrics && aliasMetrics.darkMode !== theme.darkMode)
+          aliasFailures.push('theme-dark-mode-mismatch: expected ' + theme.darkMode + ', got ' + aliasMetrics.darkMode);
         const aliasRow = {
           theme: theme.id, language, width: aliasWidth, page: 'root-alias',
           route: 'admin/services/cf_ip', expectedView: 'overview', heading: aliasHeading,
