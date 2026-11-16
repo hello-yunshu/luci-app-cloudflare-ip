@@ -214,14 +214,8 @@
 	background-color: var(--ys-footer-blue-bg);
 	background: color-mix(in srgb, var(--ys-footer-blue) 12%, transparent);
 }
-/* Social links keep their text label clickable, while the background marks
- * only the icon. This keeps the visual chip compact like the brand mark. */
-.ys-tool-footer-links .ys-tool-footer-link.github::before,
-.ys-tool-footer-links .ys-tool-footer-link.x::before {
-	left: .02em;
-	right: auto;
-	width: calc(1.6em + .36em);
-}
+/* When labels are visible, the chip covers the full social link. On mobile
+ * the label is hidden and the existing square icon chip remains. */
 .ys-tool-footer-link:hover,
 .ys-tool-footer a.ys-tool-footer-link:hover {
 	background: transparent;
