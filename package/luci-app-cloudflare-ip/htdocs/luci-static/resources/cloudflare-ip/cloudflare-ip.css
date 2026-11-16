@@ -41,8 +41,8 @@
 .cfi-stats-grid {
 	display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
 	gap: 1em;
-	margin-top: calc(var(--spacing, .25rem) * 1);
-	margin-bottom: calc(var(--spacing, .25rem) * 4);
+	margin-top: calc(var(--spacing, .25rem) * 4);
+	margin-bottom: 0;
 }
 /* The cards retain native CBI surfaces, while the grid owns their spacing. */
 #maincontent .cfi-stats-grid > .cfi-stat-card { margin: 0; }
@@ -259,9 +259,10 @@
  * compact themes the native CBI section margin can be zero; use the theme's
  * spacing scale without changing native section colors or typography. */
 #maincontent .cfi-overview-control-section {
-	margin-top: 0;
+	margin-top: calc(var(--spacing, .25rem) * 4);
 	margin-bottom: calc(var(--spacing, .25rem) * 4);
 }
+#maincontent .cfi-overview-control-section > h3 { margin-top: 0; }
 
 /* Shared table contract: every table on the page shares one first-column
  * basis (minimum width + alignment) instead of content-driven widths. */
