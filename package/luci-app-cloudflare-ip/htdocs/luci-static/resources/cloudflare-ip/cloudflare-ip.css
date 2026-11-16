@@ -183,6 +183,8 @@
 .ys-tool-footer-version { color: inherit; }
 .ys-tool-footer-link,
 .ys-tool-footer a.ys-tool-footer-link {
+	position: relative;
+	isolation: isolate;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -191,19 +193,36 @@
 	padding: .18em .5em;
 	border: 0;
 	border-radius: 4px;
-	background-color: var(--ys-footer-blue-bg);
-	background: color-mix(in srgb, var(--ys-footer-blue) 12%, transparent);
+	background: transparent;
 	color: var(--ys-footer-blue);
 	font-size: .86em;
 	font-weight: 700;
 	line-height: 1.6;
 	text-decoration: none;
 }
+.ys-tool-footer-link::before,
+.ys-tool-footer a.ys-tool-footer-link::before {
+	content: '';
+	position: absolute;
+	z-index: -1;
+	top: 50%;
+	left: 0;
+	right: 0;
+	height: calc(1.6em + .36em);
+	transform: translateY(-50%);
+	border-radius: 4px;
+	background-color: var(--ys-footer-blue-bg);
+	background: color-mix(in srgb, var(--ys-footer-blue) 12%, transparent);
+}
 .ys-tool-footer-link:hover,
 .ys-tool-footer a.ys-tool-footer-link:hover {
+	background: transparent;
+	text-decoration: none;
+}
+.ys-tool-footer-link:hover::before,
+.ys-tool-footer a.ys-tool-footer-link:hover::before {
 	background-color: var(--ys-footer-blue-bg-hover);
 	background: color-mix(in srgb, var(--ys-footer-blue) 18%, transparent);
-	text-decoration: none;
 }
 .ys-tool-footer-link-icon {
 	width: 1em;
@@ -223,7 +242,14 @@
 	.ys-tool-footer-project-separator { display: none; }
 	.ys-tool-footer-links { flex-wrap: wrap; white-space: normal; }
 	.ys-tool-footer-links .ys-tool-footer-link.github,
-	.ys-tool-footer-links .ys-tool-footer-link.x { min-width: 2rem; }
+	.ys-tool-footer-links .ys-tool-footer-link.x {
+		min-width: 2rem; background: transparent;
+	}
+	.ys-tool-footer-links .ys-tool-footer-link.github::before,
+	.ys-tool-footer-links .ys-tool-footer-link.x::before {
+		left: 50%; right: auto; width: calc(1.6em + .36em);
+		transform: translate(-50%, -50%);
+	}
 	.ys-tool-footer-links .ys-tool-footer-link.github .ys-tool-footer-link-label,
 	.ys-tool-footer-links .ys-tool-footer-link.x .ys-tool-footer-link-label { display: none; }
 }
