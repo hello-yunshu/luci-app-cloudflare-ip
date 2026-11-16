@@ -1,0 +1,91 @@
+name: Build LuCI UI package (OpenWrt SDK)
+
+on:
+  push:
+    paths:
+      - 'package/luci-app-cloudflare-ip/**'
+      - '.github/workflows/build-luci-ui.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-luci-ui-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  OPENWRT_VERSION: '25.12.5'
+  OPENWRT_TARGET: x86
+  OPENWRT_SUBTARGET: 64
+  SDK_PREFIX: x86-64
+
+jobs:
+  build-luci-ui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Install SDK host tools
+        run: sudo apt-get update && sudo apt-get install -y build-essential gettext libncurses-dev libssl-dev python3 rsync zstd
+
+      - name: Resolve and verify the official OpenWrt SDK
+        id: sdk
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://downloads.openwrt.org/releases/${OPENWRT_VERSION}/targets/${OPENWRT_TARGET}/${OPENWRT_SUBTARGET}"
+          index="$RUNNER_TEMP/openwrt-sdk-index.html"
+          sums="$RUNNER_TEMP/openwrt-sdk-sha256sums"
+          curl --fail --silent --show-error --location --retry 3 "$base/" -o "$index"
+          archive=$(grep -oE "openwrt-sdk-${OPENWRT_VERSION}-[^\"< ]+[.]tar[.]zst" "$index" | grep -m1 -F "${SDK_PREFIX}_")
+          test -n "$archive"
+          curl --fail --silent --show-error --location --retry 3 "$base/sha256sums" -o "$sums"
+          digest=$(awk -v name="$archive" '$2 == name || $2 == "*" name { print $1; exit }' "$sums")
+          [[ "$digest" =~ ^[0-9a-f]{64}$ ]]
+          {
+            echo "archive=$archive"
+            echo "sha256=$digest"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Download and unpack the official OpenWrt SDK
+        shell: bash
+        env:
+          SDK_ARCHIVE: ${{ steps.sdk.outputs.archive }}
+          SDK_SHA256: ${{ steps.sdk.outputs.sha256 }}
+        run: |
+          set -euo pipefail
+          base="https://downloads.openwrt.org/releases/${OPENWRT_VERSION}/targets/${OPENWRT_TARGET}/${OPENWRT_SUBTARGET}"
+          curl --fail --silent --show-error --location --retry 3 "$base/$SDK_ARCHIVE" -o "$RUNNER_TEMP/$SDK_ARCHIVE"
+          printf '%s *%s\n' "$SDK_SHA256" "$RUNNER_TEMP/$SDK_ARCHIVE" | sha256sum -c -
+          tar --zstd -xf "$RUNNER_TEMP/$SDK_ARCHIVE" -C "$RUNNER_TEMP"
+          sdk_dir=$(find "$RUNNER_TEMP" -maxdepth 1 -type d -name "openwrt-sdk-${OPENWRT_VERSION}-${SDK_PREFIX}_*" | head -n 1)
+          test -n "$sdk_dir"
+          echo "SDK_DIR=$sdk_dir" >> "$GITHUB_ENV"
+
+      - name: Install LuCI feeds and copy the exact CFI package
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$SDK_DIR"
+          ./scripts/feeds update base packages luci
+          ./scripts/feeds install luci-base rpcd luci-i18n-base-zh-cn bash curl flock tar jq ca-bundle ca-certificates
+          mkdir -p package/cloudflare-ip-local
+          cp -a "$GITHUB_WORKSPACE/package/luci-app-cloudflare-ip" package/cloudflare-ip-local/
+          make defconfig
+
+      - name: Build the Cloudflare IP LuCI APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$SDK_DIR"
+          make package/luci-app-cloudflare-ip/compile -j"$(nproc)" V=s
+          find bin -type f -name 'luci-app-cloudflare-ip-*.apk' -print -quit | grep -q .
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: cloudflare-ip-luci-ui-x86_64-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ env.SDK_DIR }}/bin/packages/**/luci-app-cloudflare-ip-*.apk
+          if-no-files-found: error
+          retention-days: 14
