@@ -46,7 +46,6 @@
 #maincontent .cfi-stats-grid > .cfi-stat-card { margin: 0; }
 .cfi-stat-card {
 	min-width: 0;
-	padding: 1em 1.2em; border-radius: 8px;
 	text-align: center;
 }
 .cfi-stat-card .cfi-stat-value {
