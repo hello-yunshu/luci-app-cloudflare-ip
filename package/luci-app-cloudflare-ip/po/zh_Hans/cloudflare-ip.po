@@ -67,11 +67,7 @@ msgid ""
 "Retained only for migration compatibility; it is not used by the 2.x engine."
 msgstr "仅为迁移兼容而保留；2.x 引擎不会使用此项。"
 
-#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/advanced.js:38
-msgid "Update policy"
-msgstr "更新策略"
-
-#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/advanced.js:39
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/advanced.js:35
 msgid "Deprecated / package-managed"
 msgstr "已弃用 / 由软件包管理"
 

@@ -72,11 +72,7 @@ msgid ""
 "Retained only for migration compatibility; it is not used by the 2.x engine."
 msgstr ""
 
-#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/advanced.js:38
-msgid "Update policy"
-msgstr ""
-
-#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/advanced.js:39
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/advanced.js:35
 msgid "Deprecated / package-managed"
 msgstr ""
 
