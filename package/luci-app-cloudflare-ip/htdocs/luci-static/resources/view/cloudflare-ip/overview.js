@@ -307,7 +307,7 @@ return view.extend({
 
 		container.appendChild(statsGrid);
 
-		var controlSection = E('div', { 'class': 'cbi-section' });
+		var controlSection = E('div', { 'class': 'cbi-section cfi-overview-control-section' });
 		controlSection.appendChild(E('h3', {}, _('Service Control')));
 
 		var btnGroup = E('div', { 'class': 'ys-actions' });

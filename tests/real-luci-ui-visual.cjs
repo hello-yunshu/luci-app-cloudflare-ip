@@ -96,6 +96,11 @@ async function measure(page, theme) {
           row.querySelector('td') && row.querySelector('td').classList.contains('td')))
     );
     const overviewLabels = Array.from(document.querySelectorAll('.cfi-dashboard th.cfi-overview-label'));
+    const overviewControlSection = location.pathname.endsWith('/overview') && main
+      ? main.querySelector('.cfi-overview-control-section') : null;
+    const overviewControlNext = overviewControlSection && overviewControlSection.nextElementSibling;
+    const overviewControlGap = overviewControlSection && overviewControlNext
+      ? Math.round(overviewControlNext.getBoundingClientRect().top - overviewControlSection.getBoundingClientRect().bottom) : null;
     const envBadgesIntact = Array.from((main && main.querySelectorAll('.cfi-env-table .label')) || []).every(badge => {
       const range = document.createRange();
       range.selectNodeContents(badge);
@@ -166,6 +171,7 @@ async function measure(page, theme) {
       themeLoaded,
       darkMode: root.getAttribute('data-darkmode'),
       overviewNativeRows,
+      overviewControlGap,
       overviewLabelCount: overviewLabels.length,
       ipHistoryNativeHeader,
       diagnosticsLinkGap,
@@ -260,6 +266,8 @@ function write() {
               if (metrics.visibleTabLinks !== metrics.tabLinks) failures.push('route-tabs-clipped-or-hidden');
               if (name === 'overview' && !metrics.envBadgesIntact) failures.push('environment-badge-wrapped');
               if (name === 'overview' && !metrics.overviewNativeRows) failures.push('overview-tables-missing-native-luci-row-classes');
+              if (name === 'overview' && (metrics.overviewControlGap == null || metrics.overviewControlGap < 16))
+                failures.push('overview-controls-and-service-information-too-close');
               if (metrics.darkMode !== theme.darkMode)
                 failures.push('theme-dark-mode-mismatch: expected ' + theme.darkMode + ', got ' + metrics.darkMode);
               if (name === 'overview' && width <= 600) {
