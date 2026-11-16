@@ -40,7 +40,9 @@
 /* ===== Overview Stats ===== */
 .cfi-stats-grid {
 	display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-	gap: 1em; margin-bottom: calc(var(--spacing, .25rem) * 4);
+	gap: 1em;
+	margin-top: calc(var(--spacing, .25rem) * 1);
+	margin-bottom: calc(var(--spacing, .25rem) * 4);
 }
 /* The cards retain native CBI surfaces, while the grid owns their spacing. */
 #maincontent .cfi-stats-grid > .cfi-stat-card { margin: 0; }
