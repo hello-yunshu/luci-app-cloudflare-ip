@@ -232,12 +232,6 @@
 	.ys-tool-footer-project-link,
 	.ys-tool-footer-project-separator { display: none; }
 	.ys-tool-footer-links { flex-wrap: wrap; white-space: normal; }
-	.ys-tool-footer-links .ys-tool-footer-link.github,
-	.ys-tool-footer-links .ys-tool-footer-link.x {
-		min-width: 2rem;
-	}
-	.ys-tool-footer-links .ys-tool-footer-link.github .ys-tool-footer-link-label,
-	.ys-tool-footer-links .ys-tool-footer-link.x .ys-tool-footer-link-label { display: none; }
 }
 
 /* Plugin-owned action groups use the active theme's spacing scale. Native
