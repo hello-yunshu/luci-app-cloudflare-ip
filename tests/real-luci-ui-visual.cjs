@@ -330,6 +330,7 @@ function write() {
             let metrics = null;
             let navigationError = null;
             let routeIdentity = null;
+            let viewportScreenshotFile = null;
             let screenshotFile = path.join(output, theme.id + '-' + viewport.width + 'x' + viewport.height + '-' + name + '.png');
             try {
               await page.goto(base + '/cgi-bin/luci/admin/services/cf_ip/' + name, { waitUntil: 'domcontentloaded', timeout: 30000 });
@@ -355,6 +356,8 @@ function write() {
               if (absentOptionalRoute)
                 screenshotFile = path.join(output, theme.id + '-' + viewport.width + 'x' + viewport.height + '-' + name + '-route-unavailable.png');
               await page.screenshot({ path: screenshotFile, fullPage: true, animations: 'disabled' });
+              viewportScreenshotFile = screenshotFile.replace(/\.png$/, '-viewport.png');
+              await page.screenshot({ path: viewportScreenshotFile, fullPage: false, animations: 'disabled' });
             } catch (error) {
               navigationError = error.message;
             } finally {
@@ -390,6 +393,7 @@ function write() {
               theme: theme.id, language, width: viewport.width, height: viewport.height, page: name,
               result, failures, metrics, routeIdentity, integrationInstalled,
               screenshot: path.basename(screenshotFile),
+              viewportScreenshot: viewportScreenshotFile ? path.basename(viewportScreenshotFile) : undefined,
               nAReason: absentOptionalRoute ? 'Optional LuCI route is not registered because its proxy integration is not installed; the direct URL falls back to Overview.' : undefined,
               consoleErrors: consoleErrors.slice(0, 6)
             };
