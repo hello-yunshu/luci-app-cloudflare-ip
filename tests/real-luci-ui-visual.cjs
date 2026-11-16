@@ -98,6 +98,28 @@ async function measure(page, theme) {
     const overviewLabels = Array.from(document.querySelectorAll('.cfi-dashboard th.cfi-overview-label'));
     const overviewControlSection = location.pathname.endsWith('/overview') && main
       ? main.querySelector('.cfi-overview-control-section') : null;
+    const overviewStatsGrid = location.pathname.endsWith('/overview') && main
+      ? main.querySelector('.cfi-stats-grid') : null;
+    const overviewStatusBanner = overviewStatsGrid && overviewStatsGrid.previousElementSibling;
+    const overviewFirstStatValue = overviewStatsGrid && overviewStatsGrid.querySelector('.cfi-stat-value');
+    const overviewStatLabels = overviewStatsGrid ? Array.from(overviewStatsGrid.querySelectorAll('.cfi-stat-label')) : [];
+    const overviewLastStatLabel = overviewStatLabels.length ? overviewStatLabels[overviewStatLabels.length - 1] : null;
+    const visibleTextRect = (element, edge) => {
+      if (!element) return null;
+      const range = document.createRange();
+      range.selectNodeContents(element);
+      const rects = Array.from(range.getClientRects());
+      if (!rects.length) return null;
+      const rect = edge === 'bottom' ? rects[rects.length - 1] : rects[0];
+      return edge === 'bottom' ? rect.bottom : rect.top;
+    };
+    const overviewControlHeading = overviewControlSection && overviewControlSection.querySelector('h3');
+    const overviewStatsVisibleTopGap = overviewStatusBanner && overviewFirstStatValue
+      ? Math.round(visibleTextRect(overviewFirstStatValue, 'top') - overviewStatusBanner.getBoundingClientRect().bottom) : null;
+    const overviewStatsVisibleBottomGap = overviewLastStatLabel && overviewControlHeading
+      ? Math.round(visibleTextRect(overviewControlHeading, 'top') - visibleTextRect(overviewLastStatLabel, 'bottom')) : null;
+    const overviewStatsVisibleGapDelta = overviewStatsVisibleTopGap == null || overviewStatsVisibleBottomGap == null
+      ? null : Math.abs(overviewStatsVisibleTopGap - overviewStatsVisibleBottomGap);
     const overviewControlNext = overviewControlSection && overviewControlSection.nextElementSibling;
     const overviewControlGap = overviewControlSection && overviewControlNext
       ? Math.round(overviewControlNext.getBoundingClientRect().top - overviewControlSection.getBoundingClientRect().bottom) : null;
@@ -172,6 +194,9 @@ async function measure(page, theme) {
       darkMode: root.getAttribute('data-darkmode'),
       overviewNativeRows,
       overviewControlGap,
+      overviewStatsVisibleTopGap,
+      overviewStatsVisibleBottomGap,
+      overviewStatsVisibleGapDelta,
       overviewLabelCount: overviewLabels.length,
       ipHistoryNativeHeader,
       diagnosticsLinkGap,
