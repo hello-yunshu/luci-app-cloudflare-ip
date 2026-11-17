@@ -133,8 +133,11 @@ async function measure(page, theme) {
     const customSourcesTable = main && main.querySelector('#cbi-cf_ip-source table.cfi-custom-sources-table');
     const customSourcesSection = customSourcesTable && customSourcesTable.closest('#cbi-cf_ip-source');
     const customSourcesEmptyState = customSourcesSection && customSourcesSection.querySelector('#cfi-custom-sources-empty');
-    const customSourcesEmptyStateWidthRatio = customSourcesSection && customSourcesEmptyState
-      ? Math.round(customSourcesEmptyState.getBoundingClientRect().width / customSourcesSection.getBoundingClientRect().width * 100) / 100 : null;
+    const customSourcesSectionStyle = customSourcesSection && getComputedStyle(customSourcesSection);
+    const customSourcesContentWidth = customSourcesSection && customSourcesSectionStyle
+      ? customSourcesSection.clientWidth - parseFloat(customSourcesSectionStyle.paddingLeft || 0) - parseFloat(customSourcesSectionStyle.paddingRight || 0) : null;
+    const customSourcesEmptyStateWidthRatio = customSourcesEmptyState && customSourcesContentWidth > 0
+      ? Math.round(customSourcesEmptyState.getBoundingClientRect().width / customSourcesContentWidth * 100) / 100 : null;
     const diagnosticsLink = location.pathname.endsWith('/logs') && main && main.querySelector('.cfi-link-button');
     const diagnosticsJson = location.pathname.endsWith('/logs') && main && main.querySelector('.cfi-log-pre');
     const logControls = location.pathname.endsWith('/logs') && main && main.querySelector('.cfi-log-controls');
