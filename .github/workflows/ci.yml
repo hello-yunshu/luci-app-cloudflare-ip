@@ -1042,7 +1042,11 @@ jobs:
           python3 scripts/release-preflight.py qualification.json "$public_dir" --commit "$GITHUB_SHA" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --apk-bin "$apk_bin" --output release-preflight.json
           python3 tests/release-preflight-real.py qualification.json "$public_dir" --commit "$GITHUB_SHA" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --apk-bin "$apk_bin" --output release-preflight-negatives.json
           (cd "$public_dir" && sha256sum -- * > "$GITHUB_WORKSPACE/SHA256SUMS")
-          python3 scripts/prepare-stable-review.py --manifest qualification.json --preflight release-preflight.json --negatives release-preflight-negatives.json --candidate "${{ github.event.pull_request.head.sha || github.sha }}" --repository "$GITHUB_REPOSITORY" --output stable-review.json
+          if [[ "$(jq -r '.channel' release-channel.json)" == stable ]]; then
+            python3 scripts/prepare-stable-review.py --manifest qualification.json --preflight release-preflight.json --negatives release-preflight-negatives.json --candidate "${{ github.event.pull_request.head.sha || github.sha }}" --repository "$GITHUB_REPOSITORY" --output stable-review.json
+          else
+            echo "Skipping Stable review receipt for $(jq -r '.channel' release-channel.json) channel candidate"
+          fi
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: qualification-evidence-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
