@@ -489,7 +489,7 @@ function loadSharedCSS() {
 		var link = E('link', {
 			'id': 'cfi-shared-css',
 			'rel': 'stylesheet',
-			'href': L.resource('cloudflare-ip/cloudflare-ip.css') + '?v=@PKG_FULL_VERSION@'
+			'href': L.resource('cloudflare-ip/cloudflare-ip.css') + '?v=@PKG_FULL_VERSION@&ui=footer-pm-match-1'
 		});
 		document.head.appendChild(link);
 	}

@@ -171,6 +171,21 @@ async function measure(page, theme) {
     });
     const links = Array.from(document.querySelectorAll('link[href],script[src]'));
     const themeLoaded = links.some(el => ((el.href || el.src || '')).includes('/luci-static/' + media + '/'));
+    const footer = document.querySelector('.ys-tool-footer');
+    const footerMark = footer && footer.querySelector('.ys-tool-footer-mark');
+    const footerSocial = footer && footer.querySelector('.ys-tool-footer-link.github');
+    const footerLabel = footerSocial && footerSocial.querySelector('.ys-tool-footer-link-label');
+    const footerCssFresh = links.some(el => (el.href || '').includes('cloudflare-ip.css') && (el.href || '').includes('ui=footer-pm-match-1'));
+    const footerMarkHeight = footerMark ? footerMark.getBoundingClientRect().height : null;
+    const footerSocialRect = footerSocial && footerSocial.getBoundingClientRect();
+    const footerLabelRect = footerLabel && footerLabel.getBoundingClientRect();
+    const footerSocialBg = footerSocial && getComputedStyle(footerSocial, '::before');
+    const footerMatchesPm = !!(footerMarkHeight && footerSocialRect && footerLabelRect && footerSocialBg &&
+      Math.abs(parseFloat(footerSocialBg.height) - footerMarkHeight) <= 1 &&
+      footerSocialBg.left === '0px' && footerSocialBg.right === '0px' &&
+      footerSocialBg.backgroundColor !== 'rgba(0, 0, 0, 0)' &&
+      getComputedStyle(footerSocial).backgroundColor === 'rgba(0, 0, 0, 0)' &&
+      footerLabelRect.left >= footerSocialRect.left && footerLabelRect.right <= footerSocialRect.right + 1);
     const truncated = Array.from((main || document).querySelectorAll('*'))
       .filter(el => {
         // Native input/textarea scrollWidth includes their internal editing area.
@@ -199,6 +214,8 @@ async function measure(page, theme) {
       loading: /Loading view|加载视图/.test(text),
       hasMain: !!main,
       themeLoaded,
+      footerCssFresh,
+      footerMatchesPm,
       darkMode: root.getAttribute('data-darkmode'),
       overviewNativeRows,
       overviewControlGap,
@@ -294,6 +311,7 @@ function write() {
             if (metrics) {
               if (!metrics.hasMain || metrics.mainLength < 20 || metrics.loading) failures.push('blank-or-loading-view');
               if (!metrics.themeLoaded) failures.push('theme-assets-not-loaded');
+              if (!metrics.footerCssFresh || !metrics.footerMatchesPm) failures.push('footer-not-matched-to-performance-manager');
               if (metrics.overflow) failures.push('horizontal-overflow');
               if (metrics.truncated.length) failures.push('truncated-non-dropdown-text');
               if (!metrics.activeTabVisible) failures.push('active-tab-outside-visible-strip');
