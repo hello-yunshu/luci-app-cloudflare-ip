@@ -535,7 +535,9 @@ jobs:
           path: luci-app-cloudflare-ip
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          ref: v2.6.0-2
+          # The legacy tag was retargeted after qualification. Keep migration
+          # evidence bound to the immutable source commit in the contract.
+          ref: 652476bd3cdc410bc16e3a47ee96b685c84acbbb
           path: legacy-r2
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
@@ -588,7 +590,7 @@ jobs:
           r8_sha=$(awk -v name="$r8_asset" '$2 == name {print $1}' "$work/r8-SHA256SUMS")
           test -n "$r8_sha"
           test "$(sha256sum "$work/$r8_asset" | awk '{print $1}')" = "$r8_sha"
-          test "$(git -C "$GITHUB_WORKSPACE/legacy-r2" rev-parse HEAD)" = "$(git -C "$GITHUB_WORKSPACE/legacy-r2" rev-parse 'v2.6.0-2^{commit}')"
+          test "$(git -C "$GITHUB_WORKSPACE/legacy-r2" rev-parse HEAD)" = "652476bd3cdc410bc16e3a47ee96b685c84acbbb"
       - name: Extract the current qualified Runtime binary
         shell: bash
         run: |
