@@ -152,30 +152,31 @@ return view.extend({
       node.querySelectorAll('table.cbi-section-table').forEach(function(table){
         var isCustomSources = !!table.closest('#cbi-cf_ip-source');
         if (isCustomSources) table.classList.add('cfi-custom-sources-table');
+        var tableWrap = table.parentNode;
         /* 8 列的来源表在 360/600 下宽约 590px，裸放会把文档撑开；
          * 套一层滚动容器，窄屏可横向滑动而不影响页面宽度。 */
-        if (!table.parentNode || !table.parentNode.classList.contains('cfi-table-scroll')) {
-          var wrap = E('div', { 'class': 'cfi-table-scroll' });
-          table.parentNode.insertBefore(wrap, table);
-          wrap.appendChild(table);
+        if (!tableWrap || !tableWrap.classList.contains('cfi-table-scroll')) {
+          tableWrap = E('div', { 'class': 'cfi-table-scroll' });
+          table.parentNode.insertBefore(tableWrap, table);
+          tableWrap.appendChild(table);
         }
         var heads = Array.prototype.map.call(table.querySelectorAll('thead th'), function(th){
           return (th.textContent || '').trim();
         });
         if (isCustomSources) {
-          /* Keep LuCI's empty-state message across the custom-source table.
-           * Some themes lay table rows out as grids/flex rows, where colspan
-           * and grid-column on the cell do not span the rendered columns. */
+          /* LuCI themes may lay table rows out as grids/flex rows, where
+           * colspan and grid-column do not span the rendered columns. Render
+           * the native section description after the table instead. */
           var emptyRow = table.querySelector('tbody > tr.placeholder');
           var emptyCell = emptyRow && emptyRow.querySelector(':scope > td');
           if (emptyCell) {
-            emptyCell.colSpan = Math.max(heads.length, 1);
-            emptyRow.style.gridColumn = '1 / -1';
-            emptyRow.style.display = 'block';
-            emptyRow.style.width = '100%';
-            emptyCell.style.display = 'block';
-            emptyCell.style.width = '100%';
-            emptyCell.removeAttribute('data-title');
+            var emptyState = E('div', {
+              'id': 'cfi-custom-sources-empty',
+              'class': 'cbi-section-descr',
+              'role': 'status'
+            }, E('em', {}, emptyCell.textContent.trim()));
+            emptyRow.remove();
+            tableWrap.parentNode.insertBefore(emptyState, tableWrap.nextSibling);
           }
         }
         table.querySelectorAll('tbody tr').forEach(function(tr){
