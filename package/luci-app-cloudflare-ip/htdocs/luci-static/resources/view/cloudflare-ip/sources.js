@@ -168,6 +168,9 @@ return view.extend({
           var emptyCell = table.querySelector('tbody > tr.placeholder > td');
           if (emptyCell) {
             emptyCell.colSpan = Math.max(heads.length, 1);
+            /* LuCI's Bootstrap table renderer uses CSS Grid for rows, where
+             * the HTML colspan alone does not make the empty cell span them. */
+            emptyCell.style.gridColumn = '1 / -1';
             emptyCell.removeAttribute('data-title');
           }
         }
