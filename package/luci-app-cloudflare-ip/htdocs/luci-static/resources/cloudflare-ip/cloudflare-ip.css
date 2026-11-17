@@ -162,8 +162,7 @@
 	gap: .35em;
 }
 .ys-tool-footer-brand { flex-wrap: wrap; }
-/* Link chips are buttons on touch screens: 8px apart minimum and a 32px tap
- * target, independent of the font-size derived height. */
+/* Keep a 32px link target while drawing its background close to the text. */
 .ys-tool-footer-links {
 	flex: 0 0 auto;
 	white-space: nowrap;
@@ -173,7 +172,7 @@
 	display: inline-flex;
 	align-items: center;
 	box-sizing: border-box;
-	min-height: 2rem;
+	min-height: 1.5rem;
 	padding: .18em .5em;
 	border-radius: 4px;
 	background-color: var(--ys-footer-blue-bg);
@@ -201,19 +200,34 @@
 	padding: .18em .5em;
 	border: 0;
 	border-radius: 4px;
-	background-color: var(--ys-footer-blue-bg);
-	background: color-mix(in srgb, var(--ys-footer-blue) 12%, transparent);
+	position: relative;
+	isolation: isolate;
+	background: transparent;
 	color: var(--ys-footer-blue);
 	font-size: .86em;
 	font-weight: 700;
 	line-height: 1.6;
 	text-decoration: none;
 }
+.ys-tool-footer-link::before,
+.ys-tool-footer a.ys-tool-footer-link::before {
+	position: absolute;
+	inset: .25rem 0;
+	border-radius: inherit;
+	background-color: var(--ys-footer-blue-bg);
+	background: color-mix(in srgb, var(--ys-footer-blue) 12%, transparent);
+	content: "";
+	z-index: -1;
+	pointer-events: none;
+}
 .ys-tool-footer-link:hover,
 .ys-tool-footer a.ys-tool-footer-link:hover {
+	text-decoration: none;
+}
+.ys-tool-footer-link:hover::before,
+.ys-tool-footer a.ys-tool-footer-link:hover::before {
 	background-color: var(--ys-footer-blue-bg-hover);
 	background: color-mix(in srgb, var(--ys-footer-blue) 18%, transparent);
-	text-decoration: none;
 }
 .ys-tool-footer-link-icon {
 	width: 1em;
