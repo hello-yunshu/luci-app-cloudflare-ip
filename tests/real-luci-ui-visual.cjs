@@ -130,6 +130,13 @@ async function measure(page, theme) {
     });
     const ipHistoryTable = document.querySelector('.cfi-table-scroll > table.table');
     const ipHistoryHeader = ipHistoryTable && ipHistoryTable.querySelector('thead > tr');
+    const customSourcesTable = main && main.querySelector('#cbi-cf_ip-source table.cfi-custom-sources-table');
+    const customSourcesEmptyRow = customSourcesTable && customSourcesTable.querySelector('tbody > tr.placeholder');
+    const customSourcesEmptyCell = customSourcesEmptyRow && customSourcesEmptyRow.querySelector(':scope > td');
+    const customSourcesEmptyRowWidthRatio = customSourcesTable && customSourcesEmptyRow
+      ? Math.round(customSourcesEmptyRow.getBoundingClientRect().width / customSourcesTable.getBoundingClientRect().width * 100) / 100 : null;
+    const customSourcesEmptyCellWidthRatio = customSourcesTable && customSourcesEmptyCell
+      ? Math.round(customSourcesEmptyCell.getBoundingClientRect().width / customSourcesTable.getBoundingClientRect().width * 100) / 100 : null;
     const diagnosticsLink = location.pathname.endsWith('/logs') && main && main.querySelector('.cfi-link-button');
     const diagnosticsJson = location.pathname.endsWith('/logs') && main && main.querySelector('.cfi-log-pre');
     const logControls = location.pathname.endsWith('/logs') && main && main.querySelector('.cfi-log-controls');
@@ -199,6 +206,8 @@ async function measure(page, theme) {
       overviewStatsVisibleGapDelta,
       overviewLabelCount: overviewLabels.length,
       ipHistoryNativeHeader,
+      customSourcesEmptyRowWidthRatio,
+      customSourcesEmptyCellWidthRatio,
       diagnosticsLinkGap,
       logControlsGap,
       intelligenceCopyGap,
@@ -293,6 +302,8 @@ function write() {
               if (name === 'overview' && !metrics.overviewNativeRows) failures.push('overview-tables-missing-native-luci-row-classes');
               if (name === 'overview' && (metrics.overviewControlGap == null || metrics.overviewControlGap < 16))
                 failures.push('overview-controls-and-service-information-too-close');
+              if (name === 'sources' && (!metrics.customSourcesEmptyRowWidthRatio || metrics.customSourcesEmptyRowWidthRatio < 0.9 || !metrics.customSourcesEmptyCellWidthRatio || metrics.customSourcesEmptyCellWidthRatio < 0.9))
+                failures.push('custom-sources-empty-state-does-not-span-table');
               if (metrics.darkMode !== theme.darkMode)
                 failures.push('theme-dark-mode-mismatch: expected ' + theme.darkMode + ', got ' + metrics.darkMode);
               if (name === 'overview' && width <= 600) {
@@ -384,6 +395,8 @@ function write() {
               if (name === 'intelligence' && metrics.intelligenceCopyGap != null && metrics.intelligenceCopyGap < 8) failures.push('copy-button-too-close-to-previous-row');
               if (name === 'overview' && !metrics.envBadgesIntact) failures.push('environment-badge-wrapped');
               if (name === 'overview' && !metrics.overviewNativeRows) failures.push('overview-tables-missing-native-luci-row-classes');
+              if (name === 'sources' && (!metrics.customSourcesEmptyRowWidthRatio || metrics.customSourcesEmptyRowWidthRatio < 0.9 || !metrics.customSourcesEmptyCellWidthRatio || metrics.customSourcesEmptyCellWidthRatio < 0.9))
+                failures.push('custom-sources-empty-state-does-not-span-table');
               if (metrics.darkMode !== theme.darkMode)
                 failures.push('theme-dark-mode-mismatch: expected ' + theme.darkMode + ', got ' + metrics.darkMode);
             }

@@ -163,14 +163,18 @@ return view.extend({
           return (th.textContent || '').trim();
         });
         if (isCustomSources) {
-          /* Bootstrap positions LuCI's one-cell empty placeholder over the
-           * first header cell. Span the grid and let the row own its layout. */
-          var emptyCell = table.querySelector('tbody > tr.placeholder > td');
+          /* Keep LuCI's empty-state message across the custom-source table.
+           * Some themes lay table rows out as grids/flex rows, where colspan
+           * and grid-column on the cell do not span the rendered columns. */
+          var emptyRow = table.querySelector('tbody > tr.placeholder');
+          var emptyCell = emptyRow && emptyRow.querySelector(':scope > td');
           if (emptyCell) {
             emptyCell.colSpan = Math.max(heads.length, 1);
-            /* LuCI's Bootstrap table renderer uses CSS Grid for rows, where
-             * the HTML colspan alone does not make the empty cell span them. */
-            emptyCell.style.gridColumn = '1 / -1';
+            emptyRow.style.gridColumn = '1 / -1';
+            emptyRow.style.display = 'block';
+            emptyRow.style.width = '100%';
+            emptyCell.style.display = 'block';
+            emptyCell.style.width = '100%';
             emptyCell.removeAttribute('data-title');
           }
         }
