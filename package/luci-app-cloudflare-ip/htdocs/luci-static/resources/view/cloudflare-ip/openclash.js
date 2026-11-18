@@ -148,7 +148,7 @@ return view.extend({
 				_('No backups available. Backups are created automatically when the config is updated.')));
 		} else {
 			var headers = [_('Backup Time'), _('Size'), _('Actions')];
-			var table = E('table', { 'class': 'table' });
+			var table = E('table', { 'class': 'table cfi-openclash-backup-table' });
 			var thead = E('thead');
 			var headerRow = E('tr');
 			headers.forEach(function(title) {

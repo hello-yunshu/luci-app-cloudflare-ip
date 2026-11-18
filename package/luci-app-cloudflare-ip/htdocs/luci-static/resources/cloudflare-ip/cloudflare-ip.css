@@ -96,6 +96,9 @@
  * 被 V8 判为裁切；容器内把负边距收回。 */
 @media screen and (max-width: 600px) {
 	.cfi-table-scroll > table.table .tr { margin: 0; }
+	/* Stacked LuCI cells already display each column's data-title. Hide this
+	 * narrow table header so its three headings do not collide above the rows. */
+	.cfi-openclash-backup-table > thead { display: none; }
 }
 
 /* LuCI's mobile table layout already labels each stacked data cell. Keep the
