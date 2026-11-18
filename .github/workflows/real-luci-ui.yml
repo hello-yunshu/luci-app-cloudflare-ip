@@ -125,6 +125,13 @@ jobs:
           EOF
               chmod 755 "/etc/init.d/$service"
             done
+            mkdir -p /tmp/cfi-proxy-ui-gate
+            uci set cf_ip.openclash.config=/tmp/cfi-proxy-ui-gate/config.yaml
+            uci commit cf_ip
+            printf "proxies: []\\n" > /tmp/cfi-proxy-ui-gate/config.yaml
+            for backup in 20261118000000 20261118010000 20261118020000; do
+              cp /tmp/cfi-proxy-ui-gate/config.yaml "/tmp/cfi-proxy-ui-gate/config.yaml.bak.$backup"
+            done
             rm -rf /tmp/luci-indexcache* /tmp/luci-modulecache*
             /etc/init.d/rpcd reload
             /etc/init.d/uhttpd restart >/dev/null 2>&1

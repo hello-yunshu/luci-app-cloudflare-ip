@@ -165,8 +165,9 @@ return view.extend({
 				row.appendChild(E('td', { 'class': 'td', 'data-title': headers[1] }, formatSize(backup.size)));
 
 				var actionsCell = E('td', { 'class': 'td', 'data-title': headers[2] });
+				var actions = E('div', { 'class': 'cfi-table-actions' });
 
-				actionsCell.appendChild(E('button', {
+				actions.appendChild(E('button', {
 					'class': 'cbi-button cbi-button-apply',
 					'disabled': restoreBlocked ? '' : null,
 					'title': restoreBlocked ? rubyRemedyInfo.reason : null,
@@ -203,7 +204,7 @@ return view.extend({
 					}
 				}, '\u21A9 ' + _('Restore')));
 
-				actionsCell.appendChild(E('button', {
+				actions.appendChild(E('button', {
 					'class': 'cbi-button cbi-button-reset',
 					'click': function() {
 						ui.showModal(_('Confirm Delete'), [
@@ -231,6 +232,7 @@ return view.extend({
 					}
 				}, _('Delete')));
 
+				actionsCell.appendChild(actions);
 				row.appendChild(actionsCell);
 				tbody.appendChild(row);
 			});

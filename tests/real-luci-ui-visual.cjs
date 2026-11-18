@@ -156,6 +156,18 @@ async function measure(page, theme) {
             return previous ? Math.round(button.getBoundingClientRect().top - previous.getBoundingClientRect().bottom) : null;
           }).filter(gap => gap != null) : [];
     const intelligenceCopyGap = intelligenceCopyGaps.length ? Math.min(...intelligenceCopyGaps) : null;
+    const openclashActionGaps = location.pathname.endsWith('/openclash')
+      ? Array.from(document.querySelectorAll('#oc-backups-section .cfi-table-actions')).flatMap(group => {
+          const buttons = Array.from(group.querySelectorAll('button')).filter(button => button.getClientRects().length > 0);
+          return buttons.slice(1).map((button, index) => {
+            const previous = buttons[index].getBoundingClientRect();
+            const current = button.getBoundingClientRect();
+            return Math.abs(current.top - previous.top) <= 1
+              ? Math.round(current.left - previous.right)
+              : Math.round(current.top - previous.bottom);
+          });
+        }) : [];
+    const openclashActionGapMin = openclashActionGaps.length ? Math.min(...openclashActionGaps) : null;
     const ipHistoryNativeHeader = !location.pathname.endsWith('/logs') || !!(
       ipHistoryTable && ipHistoryHeader &&
       ipHistoryHeader.classList.contains('tr') &&
@@ -175,7 +187,7 @@ async function measure(page, theme) {
     const footerMark = footer && footer.querySelector('.ys-tool-footer-mark');
     const footerSocial = footer && footer.querySelector('.ys-tool-footer-link.github');
     const footerLabel = footerSocial && footerSocial.querySelector('.ys-tool-footer-link-label');
-    const footerCssFresh = links.some(el => (el.href || '').includes('cloudflare-ip.css') && (el.href || '').includes('ui=footer-pm-match-1'));
+    const footerCssFresh = links.some(el => (el.href || '').includes('cloudflare-ip.css') && (el.href || '').includes('ui=proxy-action-gap-1'));
     const footerMarkHeight = footerMark ? footerMark.getBoundingClientRect().height : null;
     const footerSocialRect = footerSocial && footerSocial.getBoundingClientRect();
     const footerLabelRect = footerLabel && footerLabel.getBoundingClientRect();
@@ -228,6 +240,7 @@ async function measure(page, theme) {
       diagnosticsLinkGap,
       logControlsGap,
       intelligenceCopyGap,
+      openclashActionGapMin,
       envBadgesIntact,
       overviewLabelSeparator: overviewLabels.length ? getComputedStyle(overviewLabels[0], '::after').content : null,
       overviewLabelGap: overviewLabels.length ? parseFloat(getComputedStyle(overviewLabels[0], '::after').marginRight) : null,
@@ -411,6 +424,7 @@ function write() {
               if (name === 'logs' && (metrics.diagnosticsLinkGap == null || metrics.diagnosticsLinkGap < 12)) failures.push('diagnostics-link-and-json-too-close');
               if (name === 'logs' && (metrics.logControlsGap == null || metrics.logControlsGap < 12)) failures.push('log-controls-and-output-too-close');
               if (name === 'intelligence' && metrics.intelligenceCopyGap != null && metrics.intelligenceCopyGap < 8) failures.push('copy-button-too-close-to-previous-row');
+              if (name === 'openclash' && metrics.openclashActionGapMin != null && metrics.openclashActionGapMin < 6) failures.push('openclash-row-actions-too-close');
               if (name === 'overview' && !metrics.envBadgesIntact) failures.push('environment-badge-wrapped');
               if (name === 'overview' && !metrics.overviewNativeRows) failures.push('overview-tables-missing-native-luci-row-classes');
               if (name === 'sources' && (!metrics.customSourcesEmptyStateWidthRatio || metrics.customSourcesEmptyStateWidthRatio < 0.9))

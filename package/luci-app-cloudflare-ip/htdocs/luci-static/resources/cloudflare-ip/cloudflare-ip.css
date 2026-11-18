@@ -80,6 +80,7 @@
 
 /* ===== 原生表格滚动容器（例外 E21） ===== */
 .cfi-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.cfi-table-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5em; }
 
 @media screen and (max-width: 1279px) {
 	/* Keep all plugin routes discoverable on narrow screens. The native LuCI
