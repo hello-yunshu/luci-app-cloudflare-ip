@@ -35,8 +35,10 @@ docker cp "$PKG/root/etc/init.d/cf_ip" "$CONTAINER:/etc/init.d/cf_ip"
 docker cp "$PKG/root/usr/share/cf-ip/candidate-rill-feature-schema-v2.json" "$CONTAINER:/usr/share/cf-ip/"
 
 if [ -n "${CFIP_UI_LMO:-}" ]; then
+	LMO_LANG="${CFIP_UI_LMO_LANG:-$LANG_CODE}"
+	[ "$LMO_LANG" = "zh_cn" ] && LMO_LANG="zh-cn"
 	docker exec "$CONTAINER" mkdir -p /usr/lib/lua/luci/i18n
-	docker cp "$CFIP_UI_LMO" "$CONTAINER:/usr/lib/lua/luci/i18n/cloudflare-ip.zh-cn.lmo"
+	docker cp "$CFIP_UI_LMO" "$CONTAINER:/usr/lib/lua/luci/i18n/cloudflare-ip.$LMO_LANG.lmo"
 fi
 
 PKG_VERSION="$(sed -n 's/^PKG_VERSION:=//p' "$PKG/Makefile" | head -n1)"
