@@ -81,9 +81,15 @@ jobs:
           "$source_dir/modules/luci-base/src/po2lmo" \
             "$GITHUB_WORKSPACE/package/luci-app-cloudflare-ip/po/$po_language/cloudflare-ip.po" \
             "$RUNNER_TEMP/cloudflare-ip.$lmo_language.lmo"
-          test -s "$RUNNER_TEMP/cloudflare-ip.$lmo_language.lmo"
-          echo "CFIP_UI_LMO=$RUNNER_TEMP/cloudflare-ip.$lmo_language.lmo" >> "$GITHUB_ENV"
-          echo "CFIP_UI_LMO_LANG=$lmo_language" >> "$GITHUB_ENV"
+          if [ -s "$RUNNER_TEMP/cloudflare-ip.$lmo_language.lmo" ]; then
+            echo "CFIP_UI_LMO=$RUNNER_TEMP/cloudflare-ip.$lmo_language.lmo" >> "$GITHUB_ENV"
+            echo "CFIP_UI_LMO_LANG=$lmo_language" >> "$GITHUB_ENV"
+          elif [ "$language" = en ]; then
+            echo "English catalog contains no overrides; LuCI will render the English msgid strings."
+          else
+            echo "Selected catalog produced no usable LMO: $language" >&2
+            exit 1
+          fi
       - name: Provision the current working tree into real LuCI
         run: CFIP_UI_LANG='${{ inputs.language || 'en' }}' bash tests/real-luci-ui-provision.sh cfip-ui-gate 18080
       - name: Install Playwright bindings and use runner Chrome
