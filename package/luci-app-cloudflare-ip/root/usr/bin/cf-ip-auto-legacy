@@ -1870,6 +1870,15 @@ detect_ruby_psych() {
 	fi
 }
 
+passwall_process_running() {
+	local process_dir="${1:-/tmp/etc/passwall/bin}"
+	[[ -x "$INIT_DIR/passwall" && -d "$process_dir" ]] || return 1
+	command -v busybox >/dev/null 2>&1 || return 1
+	# Mirrors PassWall app.sh's own process check; its init script has no
+	# reliable `running` action and may return success after printing usage.
+	busybox pgrep -f "$process_dir" >/dev/null 2>&1
+}
+
 cmd_check_env() {
 	JSON_MODE=true
 	# Real-time detection without writing cache (like upnp-bridge-relay's do_check_env)
@@ -1905,8 +1914,8 @@ cmd_check_env() {
 
 	local passwall_installed=false
 	local passwall_running=false
-	[[ -x /etc/init.d/passwall ]] && passwall_installed=true
-	$passwall_installed && /etc/init.d/passwall running >/dev/null 2>&1 && passwall_running=true
+	[[ -x "$INIT_DIR/passwall" ]] && passwall_installed=true
+	$passwall_installed && passwall_process_running && passwall_running=true
 
 	local openclash_installed=false
 	local openclash_running=false
@@ -1966,8 +1975,8 @@ cmd_refresh_env() {
 
 	local passwall_installed=false
 	local passwall_running=false
-	[[ -x /etc/init.d/passwall ]] && passwall_installed=true
-	$passwall_installed && /etc/init.d/passwall running >/dev/null 2>&1 && passwall_running=true
+	[[ -x "$INIT_DIR/passwall" ]] && passwall_installed=true
+	$passwall_installed && passwall_process_running && passwall_running=true
 
 	local openclash_installed=false
 	local openclash_running=false

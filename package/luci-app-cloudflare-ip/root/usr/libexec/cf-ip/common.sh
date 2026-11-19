@@ -445,11 +445,25 @@ cfip_service_status_timeout() {
 cfip_service_running() {
     local service="$1" timeout_class="${2:-status}" timeout rc=0
     [[ -x "$CFIP_INIT_DIR/$service" ]] || return 1
+    # PassWall uses the classic rc.common path, whose unsupported `running`
+    # action prints help and can still exit successfully. Match the runtime
+    # process path used by PassWall's own start guard instead.
+    if [[ "$service" == passwall ]]; then
+        cfip_passwall_process_running /tmp/etc/passwall/bin
+        return $?
+    fi
     timeout="$(cfip_service_status_timeout "$timeout_class")" || return 2
     ((timeout > 0)) || return 124
     cfip_run_with_timeout "$timeout" "$CFIP_INIT_DIR/$service" running >/dev/null 2>&1 || rc=$?
     ((rc == 0)) && return 0
     [[ "$service" == openclash ]] && pidof clash >/dev/null 2>&1
+}
+
+cfip_passwall_process_running() {
+    local process_dir="${1:-/tmp/etc/passwall/bin}"
+    [[ -d "$process_dir" ]] || return 1
+    command -v busybox >/dev/null 2>&1 || return 1
+    busybox pgrep -f "$process_dir" >/dev/null 2>&1
 }
 
 # OpenClash's own start path waits up to 300 seconds for its local /group

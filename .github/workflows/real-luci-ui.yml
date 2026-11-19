@@ -137,14 +137,14 @@ jobs:
             /etc/init.d/uhttpd restart >/dev/null 2>&1
           '
           sleep 2
-      - name: Capture installed proxy integration forms on every theme and breakpoint
+      - name: Capture proxy status panels and integration forms on every theme and breakpoint
         run: |
           set -euo pipefail
           language='${{ inputs.language || 'en' }}'
           NODE_PATH="$RUNNER_TEMP/ui/node_modules" \
             CFIP_UI_LANG="$language" \
-            CFIP_VISUAL_PAGES='openclash,passwall' \
-            CFIP_VISUAL_SCENARIO='disposable-init-script-fixtures-installed-route-forms-only' \
+            CFIP_VISUAL_PAGES='overview,settings,openclash,passwall' \
+            CFIP_VISUAL_SCENARIO='disposable-init-script-fixtures-installed-status-panels-and-route-forms' \
             CFIP_VISUAL_OUT="$GITHUB_WORKSPACE/real-luci-ui-evidence/visual/${language}-proxy-installed" \
             node tests/real-luci-ui-visual.cjs
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7

@@ -2,16 +2,16 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"; TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
 mkdir -p "$TMP/init"
-cat >"$TMP/init/passwall" <<'EOF'
+cat >"$TMP/init/openclash" <<'EOF'
 #!/usr/bin/env bash
 [[ "${1:-}" == running ]] && sleep 30
 EOF
-chmod +x "$TMP/init/passwall"
+chmod +x "$TMP/init/openclash"
 source "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/common.sh"
 export CFIP_INIT_DIR="$TMP/init" CFIP_STATUS_TIMEOUT_SECONDS=1 CFIP_TIMEOUT_GRACE_SECONDS=0
 started="$(date +%s)"
 set +e
-cfip_service_running passwall status
+cfip_service_running openclash status
 rc=$?
 set -e
 elapsed=$(( $(date +%s) - started ))
