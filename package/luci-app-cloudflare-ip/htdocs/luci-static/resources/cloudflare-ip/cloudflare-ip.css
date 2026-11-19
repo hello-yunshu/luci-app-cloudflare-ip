@@ -106,7 +106,7 @@
  * visual flow where the four desktop columns are collapsed into two mobile
  * label/value pairs. The default header cells otherwise concatenate at 320px. */
 @media screen and (max-width: 700px) {
-	.cfi-source-status-table > thead {
+#maincontent .cfi-source-status-table > thead {
 		position: absolute;
 		width: 1px;
 		height: 1px;
