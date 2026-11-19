@@ -714,20 +714,24 @@ run_v2() {
 }
 
 cmd_status(){
-    local version="" metadata work_dir cfst_installed=false
+    local version="" metadata work_dir cfst_installed=false passwall_installed=false passwall_running=false openclash_installed=false openclash_running=false
     # Status must stay readable even when unrelated run configuration is invalid.
     work_dir="$(uci_get cf_ip.main.work_dir "$CFIP_WORK_DIR")"; [[ -n "$work_dir" ]] || work_dir=/usr/bin
     if [[ -x "$work_dir/cfst/cfst" ]]; then
         cfst_installed=true
         version="$(cfip_cfst_version "$work_dir/cfst/cfst" 2>/dev/null || true)"
     fi
+    [[ -x "$CFIP_INIT_DIR/passwall" ]] && passwall_installed=true
+    [[ "$passwall_installed" == true ]] && cfip_service_running passwall status && passwall_running=true
+    [[ -x "$CFIP_INIT_DIR/openclash" ]] && openclash_installed=true
+    [[ "$openclash_installed" == true ]] && cfip_service_running openclash status && openclash_running=true
     metadata="$(jq -cn --arg script "$SCRIPT_VERSION" --arg packageVersion "$SCRIPT_VERSION-r$PACKAGE_RELEASE" \
       --argjson tar "$(command -v tar >/dev/null 2>&1 && printf true || printf false)" \
       --argjson jq "$(command -v jq >/dev/null 2>&1 && printf true || printf false)" \
       --argjson cfst "$cfst_installed" \
-      --argjson passwall "$(test -x "$CFIP_INIT_DIR/passwall" && printf true || printf false)" \
-      --argjson openclash "$(test -x "$CFIP_INIT_DIR/openclash" && printf true || printf false)" \
-      '{script_version:$script,package_version:$packageVersion,env:{tar:$tar,jq:$jq,cfst_installed:$cfst,passwall_installed:$passwall,openclash_installed:$openclash,passwall_running:null,openclash_running:null}}')" || return 1
+      --argjson passwall "$passwall_installed" --argjson passwallRunning "$passwall_running" \
+      --argjson openclash "$openclash_installed" --argjson openclashRunning "$openclash_running" \
+      '{script_version:$script,package_version:$packageVersion,env:{tar:$tar,jq:$jq,cfst_installed:$cfst,passwall_installed:$passwall,passwall_running:$passwallRunning,openclash_installed:$openclash,openclash_running:$openclashRunning}}')" || return 1
     if [[ -f "$CFIP_STATUS_FILE" ]]; then
         jq --argjson current "$metadata" --arg version "$version" '
           . + ($current|del(.env)) + {

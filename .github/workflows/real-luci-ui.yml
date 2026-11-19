@@ -19,6 +19,11 @@ on:
           - en
           - zh_cn
         default: en
+      pages:
+        description: Comma-separated page IDs to check; empty keeps the full default matrix
+        required: false
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -105,6 +110,8 @@ jobs:
           docker cp "$RUNNER_TEMP/luci-theme-aurora.ipk" cfip-ui-gate:/tmp/luci-theme-aurora.ipk
           docker exec cfip-ui-gate opkg install /tmp/luci-theme-aurora.ipk
       - name: Capture all-page real theme and viewport visual matrix
+        env:
+          CFIP_VISUAL_PAGES: ${{ inputs.pages }}
         run: |
           set -euo pipefail
           language='${{ inputs.language || 'en' }}'
@@ -138,12 +145,13 @@ jobs:
           '
           sleep 2
       - name: Capture proxy status panels and integration forms on every theme and breakpoint
+        env:
+          CFIP_VISUAL_PAGES: ${{ inputs.pages || 'overview,settings,openclash,passwall' }}
         run: |
           set -euo pipefail
           language='${{ inputs.language || 'en' }}'
           NODE_PATH="$RUNNER_TEMP/ui/node_modules" \
             CFIP_UI_LANG="$language" \
-            CFIP_VISUAL_PAGES='overview,settings,openclash,passwall' \
             CFIP_VISUAL_SCENARIO='disposable-init-script-fixtures-installed-status-panels-and-route-forms' \
             CFIP_VISUAL_OUT="$GITHUB_WORKSPACE/real-luci-ui-evidence/visual/${language}-proxy-installed" \
             node tests/real-luci-ui-visual.cjs
