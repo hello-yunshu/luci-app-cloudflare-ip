@@ -153,7 +153,6 @@
 	align-items: center;
 	justify-content: space-between;
 	gap: .8em 1em;
-	margin-top: 2em;
 	padding: 1em 0 0;
 	color: var(--subtext-color, #666);
 	font-size: .875em;
