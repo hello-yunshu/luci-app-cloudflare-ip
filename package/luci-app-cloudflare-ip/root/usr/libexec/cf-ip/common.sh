@@ -445,10 +445,10 @@ cfip_service_status_timeout() {
 cfip_service_running() {
     local service="$1" timeout_class="${2:-status}" timeout rc=0
     [[ -x "$CFIP_INIT_DIR/$service" ]] || return 1
-    # PassWall uses the classic rc.common path, whose unsupported `running`
-    # action prints help and can still exit successfully. Match the runtime
-    # process path used by PassWall's own start guard instead.
-    if [[ "$service" == passwall ]]; then
+    # PassWall uses classic rc.common, whose unsupported `running` action can
+    # still exit successfully. Use its runtime process marker for UI status;
+    # lifecycle and recovery checks retain their existing init-action behavior.
+    if [[ "$service" == passwall && "$timeout_class" == status ]]; then
         cfip_passwall_process_running /tmp/etc/passwall/bin
         return $?
     fi

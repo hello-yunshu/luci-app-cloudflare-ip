@@ -31,6 +31,10 @@ if cfip_service_running passwall; then
     echo 'init script usage success was mistaken for a running PassWall process' >&2
     exit 1
 fi
+cfip_service_running passwall recovery || {
+    echo 'PassWall recovery check no longer uses its init service action' >&2
+    exit 1
+}
 if passwall_process_running "$CFIP_TEST_PROCESS_DIR"; then
     echo 'legacy probe mistook init script usage success for a running PassWall process' >&2
     exit 1
