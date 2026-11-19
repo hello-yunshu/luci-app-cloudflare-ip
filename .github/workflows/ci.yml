@@ -121,6 +121,7 @@ jobs:
           bash tests/v2-measurement-deadline.sh
           bash tests/service-running-timeout.sh
           bash tests/status-running-timeout.sh
+          bash tests/passwall-running-probe.sh
           bash tests/monotonic-deadline.sh
           bash tests/external-operation-timeout-tree.sh
           bash tests/watchdog-timer-cleanup.sh
