@@ -766,7 +766,12 @@ jobs:
               printf 'Package: %s\nVersion: 1\nArchitecture: x86_64\nStatus: install ok installed\n\n' "$package"
               : > "$probe/usr/lib/opkg/info/$package.list"
             done > "$probe/usr/lib/opkg/status"
-            if ! "$OPKG_BIN" --offline-root "$probe" --force-depends --noaction install "$legacy_base" >/dev/null 2>&1 || ! "$OPKG_BIN" --offline-root "$probe" --force-depends --noaction install "$legacy_addon" >/dev/null 2>&1; then
+            # Install for real into the throwaway probe: --noaction would not
+            # register the base package, so the addon dependency could never
+            # resolve.
+            if ! "$OPKG_BIN" --conf "$probe/etc/opkg.conf" --offline-root "$probe" --add-arch all:10 --force-depends install "$legacy_base" >"$RUNNER_TEMP/r2-probe.log" 2>&1 \
+               || ! "$OPKG_BIN" --conf "$probe/etc/opkg.conf" --offline-root "$probe" --add-arch all:10 --force-depends install "$legacy_addon" >>"$RUNNER_TEMP/r2-probe.log" 2>&1; then
+              cat "$RUNNER_TEMP/r2-probe.log" >&2 || true
               echo "rebuilt r2 package is not installable by the SDK opkg: $legacy_base" >&2
               exit 1
             fi

@@ -520,8 +520,13 @@ if [[ "$KIND" == apk ]]; then
             --info "name:$package" --info 'version:1-r0' --info 'arch:x86_64' \
             --info 'description:package migration test fixture'
     done
+    # apk resolves name=version installs by canonical <name>-<version>.apk, so
+    # historical artifacts must not keep their tag-based artifact filenames.
     for package in "$LEGACY_BASE" "$LEGACY_ADDON" "$CURRENT_BASE" "$CURRENT_ADDON" "$RECENT_BASE"; do
-        cp "$package" "$apk_repository/$(basename "$package")"
+        metadata=$("$APK" adbdump --format json "$package")
+        canonical=$(jq -r '"\(.info.name)-\(.info.version)"' <<<"$metadata")
+        test -n "$canonical"
+        cp "$package" "$apk_repository/$canonical.apk"
     done
     "$APK" --allow-untrusted mkndx --output "$apk_repository/packages.adb" "$apk_repository"/*.apk
     APK_REPOSITORIES_FILE="$WORK/apk-repositories"
