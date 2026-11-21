@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "method": "canonical same-byte offline preflight: real validators + SHA-256 of re-downloaded release assets vs manifest and sha256sums.txt",
+  "commit": "5f540aac8b56b73ab00074c8a76dd0707c0b6b76",
+  "runId": 44948136622,
+  "runAttempt": 1,
+  "manifestSha256": "e3b3b9460845da8c0780c1bd1b091d0cf16856d4152c80cd690d6bb567db9346",
+  "assets": [
+    {
+      "file": "luci-app-cloudflare-ip_2.6.2-r28_all.ipk",
+      "sha256": "303c47837ae1f16aafcaf7c72360066fcb6b15bd2dee01f5b69550cb2bcdc928",
+      "size": 215992,
+      "manifestMatch": true,
+      "sha256sumsMatch": true
+    },
+    {
+      "file": "luci-app-cloudflare-ip-2.6.2-r28.apk",
+      "sha256": "14611ed34cd8c6b7326203fe7d94b68e4de1f5b86a317582ac7cb7b980d8e3eb",
+      "size": 215853,
+      "manifestMatch": true,
+      "sha256sumsMatch": true
+    }
+  ],
+  "validators": [
+    "scripts/validate-qualification-evidence.py",
+    "scripts/validate-release-assets.py"
+  ]
+}

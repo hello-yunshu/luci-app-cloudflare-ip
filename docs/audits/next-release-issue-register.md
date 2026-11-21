@@ -224,3 +224,19 @@
 - **备选（需主题 owner 同意）**：应用侧仅在 `@media (prefers-color-scheme: dark)` 内对 `--danger-color` 做 `color-mix` 提亮。该做法会重新引入局部色板分叉，与 P2-7 的收口目标冲突，因此不默认采用。
 - **证据**：`docs/ui/ui-refresh-2026-11-08-p2/before/evidence-dark.json`、`after/evidence-dark.json`（`styles.overview.badge.color`）；`after/overview-dark.png`、`after/sources-dark.png`。
 - **状态**：OPEN — ACCEPTED。已记录，等待主题侧修复；本次 P2 不为此发散改动，避免重新分叉色板。
+
+## 9. Stable Gate 决议与执行记录（2026-11-22）
+
+### 用户决议（发布负责人，2026-11-22）
+- **原话**：「已经验证过了，可以进入 stable」。
+- **D1（非随包 zstd 公告边界）**：ACCEPT BOUNDARY —— 随包 Runtime 依赖图为零公告（既有结论），polars/zstd 属非随包 workspace 成员；负责人确认已验证并接受该边界，fail-closed 规则保持不变。
+- **D2（channel 变更）**：AUTHORIZED —— 负责人明确授权将 `release-channel.json` 变更为 `stable` 并晋级 Stable 发布；变更仅经本授权 PR 执行。
+- **D3（回滚/ENOSPC/断电与其余设备证据边界）**：ACCEPT —— 负责人确认已验证，接受既有证据边界（KVM 等价决策、容器级回滚/ENOSPC 演练、模拟 aarch64 安装/页面证据、浏览器模拟触屏证据）；STABLE_GATE_ACTION.md E1–E7 视为负责人裁决关闭。
+
+### Stable 晋级对象（证据冻结）
+- 候选 exact SHA：`5f540aac8b56b73ab00074c8a76dd0707c0b6b76`（`v2.6.2-28` tag 指向同一提交，树一致）。
+- 同 run 资产：CI run `44948136622`（attempt 1）资格产物 + Release `v2.6.2-28` 既有 4 资产（ipk/apk/sha256sums.txt/qualification.json），同字节晋级，tag 不移动、不替换资产。
+- Stable review 凭证：`docs/audits/stable-gate-20261122/`（preflight + 10 项否证矩阵 + PREPARED_FOR_REVIEW 回执）。
+
+### 预期行为说明
+- `release-channel.json` 变为 `stable` 后，`Build and Release` 自动链路将按设计在 `check-qualification` 红掉并打印 `stable channel requires an explicit Stable Gate; automatic promotion is disabled`（见 `RELEASE_CHANNEL_GUARD.md`）；这是预期守卫行为，不是打包失败。

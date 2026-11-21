@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "commit": "5f540aac8b56b73ab00074c8a76dd0707c0b6b76",
+  "runId": 44948136622,
+  "runAttempt": 1,
+  "manifestSha256": "e3b3b9460845da8c0780c1bd1b091d0cf16856d4152c80cd690d6bb567db9346",
+  "cases": [
+    {
+      "case": "wrong expected commit",
+      "status": "PASS",
+      "detail": "qualification validator given a wrong expected commit",
+      "exit": 1,
+      "rejection": "qualification evidence invalid: manifest commit does not match expected exact SHA"
+    },
+    {
+      "case": "wrong run",
+      "status": "PASS",
+      "detail": "qualification validator given a wrong run ID",
+      "exit": 1,
+      "rejection": "qualification evidence invalid: manifest runId does not match the source qualification workflow run"
+    },
+    {
+      "case": "wrong attempt",
+      "status": "PASS",
+      "detail": "qualification validator given a wrong run attempt",
+      "exit": 1,
+      "rejection": "qualification evidence invalid: manifest runAttempt does not match the source qualification workflow attempt"
+    },
+    {
+      "case": "noneligible",
+      "status": "PASS",
+      "detail": "manifest with releaseEligible=false fed to the publication-gate validator",
+      "exit": 1,
+      "rejection": "qualification evidence invalid: releaseEligible must be true"
+    },
+    {
+      "case": "asset path traversal",
+      "status": "PASS",
+      "detail": "manifest asset path escaping the artifact directory",
+      "exit": 1,
+      "rejection": "release asset binding invalid: asset path must not be absolute or contain traversal"
+    },
+    {
+      "case": "swapped digests",
+      "status": "PASS",
+      "detail": "digests swapped between the two package assets",
+      "exit": 1,
+      "rejection": "release asset binding invalid: asset SHA-256 mismatch: luci-app-cloudflare-ip_2.6.2-r28_all.ipk"
+    },
+    {
+      "case": "runtime pin",
+      "status": "PASS",
+      "detail": "Rill runtime commit pin tampered in the manifest",
+      "exit": 1,
+      "rejection": "qualification evidence invalid: Runtime commit does not match contract"
+    },
+    {
+      "case": "same length changed byte",
+      "status": "PASS",
+      "detail": "one byte flipped in the ipk keeping the same size",
+      "exit": 1,
+      "rejection": "release asset binding invalid: asset SHA-256 mismatch: luci-app-cloudflare-ip_2.6.2-r28_all.ipk"
+    },
+    {
+      "case": "extra package",
+      "status": "PASS",
+      "detail": "unexpected extra package file in the release directory",
+      "exit": 1,
+      "rejection": "release asset binding invalid: release directory contains an extra or substituted package"
+    },
+    {
+      "case": "symlink asset",
+      "status": "PASS",
+      "detail": "package asset replaced by a symlink",
+      "exit": 1,
+      "rejection": "release asset binding invalid: symlink release asset"
+    }
+  ]
+}

@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "status": "PREPARED_FOR_REVIEW",
+  "repository": "hello-yunshu/luci-app-cloudflare-ip",
+  "candidateCommit": "5f540aac8b56b73ab00074c8a76dd0707c0b6b76",
+  "testedCommit": "5f540aac8b56b73ab00074c8a76dd0707c0b6b76",
+  "tree": "a4c961dcb826c6770abff44f0f3f07da6cbd53b8",
+  "runId": 44948136622,
+  "runAttempt": 1,
+  "qualificationManifestSha256": "e3b3b9460845da8c0780c1bd1b091d0cf16856d4152c80cd690d6bb567db9346",
+  "identity": {
+    "name": "luci-app-cloudflare-ip",
+    "version": "2.6.2",
+    "release": 28,
+    "channel": "stable",
+    "tag": "v2.6.2-28",
+    "packageVersion": "2.6.2-r28"
+  },
+  "tagAvailable": false,
+  "tagState": "existing-equivalent",
+  "tagCommit": "5f540aac8b56b73ab00074c8a76dd0707c0b6b76",
+  "tagConflict": false,
+  "assets": [
+    {
+      "path": "luci-app-cloudflare-ip-ipk-v24.10.5/luci-app-cloudflare-ip_2.6.2-r28_all.ipk",
+      "sha256": "303c47837ae1f16aafcaf7c72360066fcb6b15bd2dee01f5b69550cb2bcdc928",
+      "size": 215992,
+      "package": {
+        "architecture": "all",
+        "format": "ipk",
+        "name": "luci-app-cloudflare-ip",
+        "packageVersion": "2.6.2-r28",
+        "release": 28,
+        "version": "2.6.2"
+      }
+    },
+    {
+      "path": "luci-app-cloudflare-ip-apk-v25.12.0/luci-app-cloudflare-ip-2.6.2-r28.apk",
+      "sha256": "14611ed34cd8c6b7326203fe7d94b68e4de1f5b86a317582ac7cb7b980d8e3eb",
+      "size": 215853,
+      "package": {
+        "architecture": "noarch",
+        "format": "apk",
+        "name": "luci-app-cloudflare-ip",
+        "packageVersion": "2.6.2-r28",
+        "release": 28,
+        "version": "2.6.2"
+      }
+    }
+  ],
+  "runtimeContract": {
+    "schemaVersion": 3,
+    "policy": {
+      "major": 1,
+      "track": "latest-qualified-stable"
+    },
+    "resolved": {
+      "version": "1.5.6",
+      "tag": "stable-main-1e962a8",
+      "upstreamCommit": "1e962a82443088229714877eee98617f1596eee8",
+      "sourceType": "immutable-git-commit"
+    },
+    "openwrtPackage": {
+      "repository": "hello-yunshu/rill-openwrt-packages",
+      "commit": "15031fa08fe029e9792ff55d6ecdd308b9240dd5",
+      "package": "rill-runtime",
+      "packageVersion": "1.5.6",
+      "packageRelease": 8,
+      "channel": "stable",
+      "binary": "/usr/bin/rill-runtime"
+    },
+    "qualification": {
+      "required": true,
+      "workflow": "qualify.yml",
+      "manifestSchemaVersion": 4,
+      "status": "PASS",
+      "runId": 44881757222,
+      "runAttempt": 1,
+      "manifestSha256": "70eb33b322f1bd9df21f5236dfc5a4d22c4377eb454d6d70e8a61bdf47470961"
+    },
+    "packageMigration": {
+      "legacyVersion": "2.6.0-r2",
+      "sourceTag": "v2.6.0-2",
+      "sourceSHA": "652476bd3cdc410bc16e3a47ee96b685c84acbbb"
+    },
+    "legacyRuntime": {
+      "package": "rill-runtime-preview",
+      "channel": "legacy-preview",
+      "migration": "explicit-uninstall-required"
+    }
+  },
+  "devicePolicy": {
+    "schemaVersion": 1,
+    "date": "2026-10-24",
+    "timezone": "Asia/Shanghai",
+    "source": "Current user instruction in this chat",
+    "instruction": "\u73b0\u5728\u4e0d\u7528\u628a\u672c\u5730\u5b9e\u673a\u9a8c\u8bc1\u4f5c\u4e3a\u963b\u585e\uff0c\u53ef\u4ee5\u5b8c\u6210\u5b9e\u673a\u9a8c\u8bc1\uff0c\u5b8c\u6210g6\u3001g7",
+    "deviceValidation": {
+      "authorized": true,
+      "blocksG6G7Completion": false,
+      "candidateAcceptance": "NOT RUN",
+      "scope": "Available 192.168.1.1 OpenWrt deployment; report actual coverage separately",
+      "requiresBackupAndRecoveryBeforeMutation": true
+    },
+    "soak": {
+      "status": "NOT STARTED",
+      "blocksG6G7Preparation": false,
+      "resultMustNotBeInferredFromSoftwareTests": true
+    },
+    "softwareQualification": "Still required for the final exact candidate and dependency bytes",
+    "publication": "Separate concrete proposal approval remains required; no merge/tag/Release/feed authorization inferred"
+  },
+  "actualDeviceCoverage": "See separate candidate deployment receipt; software results do not imply device PASS",
+  "publication": "NOT AUTHORIZED / NOT RUN",
+  "automaticStablePromotion": "DISABLED",
+  "approvalRequired": "Approve this exact SHA, tag, run/attempt, package digests, Runtime pins, support scope and rollback plan before merge/tag/Release/feed actions"
+}

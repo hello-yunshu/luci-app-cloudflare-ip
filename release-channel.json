@@ -1,5 +1,5 @@
 {
   "schemaVersion": 1,
-  "channel": "prerelease",
-  "reason": "The 2.6.2-r27 shared Runtime management and proxy compatibility changes remain a prerelease candidate; Stable promotion still requires exact-SHA qualification and the separate Stable Gate"
+  "channel": "stable",
+  "reason": "User decision 2026-11-22: exact-SHA qualification verified, release owner accepted the recorded device/soak/security boundaries and explicitly authorized the stable promotion of the v2.6.2-28 bytes (candidate 5f540aac8b56b73ab00074c8a76dd0707c0b6b76). Automatic promotion remains disabled; the stable release is executed only through the explicit Stable Gate with same-run assets and an immutable tag."
 }

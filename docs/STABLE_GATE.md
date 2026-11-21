@@ -1,6 +1,6 @@
 # Stable Gate — criteria, decision and review flow
 
-Status: **prepared, not executed.** `v2.6.0-8` and the P1-06 fix `v2.6.0-9` are published Pre-releases. No stable promotion and no channel change are authorized by this document. The compact operating list is [STABLE_GATE_ACTION.md](STABLE_GATE_ACTION.md).
+Status: **executed 2026-11-22 under explicit user authorization** (「已经验证过了，可以进入 stable」). The release owner accepted the recorded device/soak/security boundaries (D1–D3) and authorized the channel change and the same-byte Stable promotion of `v2.6.2-28` (candidate `5f540aac`). Evidence: [stable-gate-20261122](audits/stable-gate-20261122/) (preflight + 10-case negative matrix + PREPARED_FOR_REVIEW receipt) and the decision record in [next-release-issue-register.md](audits/next-release-issue-register.md) §9. This page itself still grants no authorization. The compact operating list is [STABLE_GATE_ACTION.md](STABLE_GATE_ACTION.md).
 
 ## 1. Current base
 
