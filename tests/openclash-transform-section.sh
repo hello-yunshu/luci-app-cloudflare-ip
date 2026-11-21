@@ -2,7 +2,7 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
-for engine in "$ROOT/cf-openwrt-auto.sh" "$ROOT/package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto-legacy"; do
+for engine in "$ROOT/package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto-legacy"; do
     (
     source "$engine"
     restart_service() { :; }

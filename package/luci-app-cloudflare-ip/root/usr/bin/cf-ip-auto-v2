@@ -705,13 +705,19 @@ run_v2() {
         [[ "$CFIP_OPENCLASH_DEFERRED" != true ]] || reuse_allowed=false
     fi
     if [[ "$reuse_allowed" == true ]] && cfip_reuse_try_current; then
-        CFIP_LAST_RESULT=success; CFIP_PHASE=done; CFIP_ERROR=""
+        # Reuse only revalidates the persisted candidate; it never applies it.
+        # Modes without a verified hot-apply path therefore remain a warning.
+        local reuse_result=success
+        case "$CFIP_MODE" in
+            passwall|passwall2|homeproxy) reuse_result=warning ;;
+        esac
+        CFIP_LAST_RESULT="$reuse_result"; CFIP_PHASE=done; CFIP_ERROR=""
         CFIP_OPERATIONAL_FINAL_EVENT=reuse-success; CFIP_OPERATIONAL_FINAL_REASON=validated_current_ip
         remember_history
-        write_status false done success ""
+        write_status false done "$reuse_result" ""
         release_lock
         trap - EXIT INT TERM
-        jq -cn --arg runId "$CFIP_RUN_ID" --argjson best "$(jq '[.[].ip]' "$CFIP_SELECTED_FILE")" --argjson requested "$CFIP_IP_COUNT" '{success:true,runId:$runId,best_ips:$best,eligible:($best|length),requested:$requested,reused:true,speedtestCompleted:false,nodeFileWritten:false,serviceApplied:false,degraded:(($best|length)<$requested)}'
+        jq -cn --arg runId "$CFIP_RUN_ID" --arg result "$reuse_result" --argjson best "$(jq '[.[].ip]' "$CFIP_SELECTED_FILE")" --argjson requested "$CFIP_IP_COUNT" '{success:true,runId:$runId,best_ips:$best,eligible:($best|length),requested:$requested,reused:true,last_result:$result,speedtestCompleted:false,nodeFileWritten:false,serviceApplied:false,degraded:(($best|length)<$requested)}'
         return 0
     fi
     write_status true "$CFIP_PHASE" "$CFIP_LAST_RESULT" ""
@@ -1034,7 +1040,19 @@ cfip_openclash_capture_backup_context(){
 }
 cmd_oc_list_backups(){
     load_config aux >/dev/null || return 1
-    cfip_openclash_capture_backup_context || { cfip_json_error "${CFIP_OPENCLASH_SERVICE_ERROR:-OpenClash file provider unavailable}"; return 1; }
+    if ! cfip_openclash_capture_backup_context; then
+        # Listing is read-only and must stay usable before OpenClash is
+        # configured. With OpenClash disabled there is no captured provider
+        # target, so there is nothing to enumerate yet.
+        local enabled
+        enabled="$(uci -q get openclash.config.enable 2>/dev/null)" || enabled=""
+        if [[ "$enabled" != 1 ]]; then
+            jq -cn '{success:true,backups:[]}'
+            return 0
+        fi
+        cfip_json_error "${CFIP_OPENCLASH_SERVICE_ERROR:-OpenClash file provider unavailable}"
+        return 1
+    fi
     local config="$CFIP_OPENCLASH_TARGET_CONFIG" file id size timestamp
     local -a backups=()
     shopt -s nullglob

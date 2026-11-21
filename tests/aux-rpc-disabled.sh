@@ -17,6 +17,7 @@ case "$args" in
   *"get cf_ip.main.work_dir"*) echo /usr/bin ;;
   *"get cf_ip.passwall.target_domain"*) echo "" ;;
   *"get cf_ip.openclash.config"*) echo /etc/openclash/config/config.yaml ;;
+  *"get openclash.config.enable"*) echo 0 ;;
   *"get cf_ip.rill.enabled"*) echo 0 ;;
   *"get cf_ip.rill.state_file"*) echo /etc/cf_ip/rill-state.json ;;
   *"show cf_ip.main.builtin_sources"*) echo "cf_ip.main.builtin_sources=cloudflare-official-v4" ;;

@@ -22,13 +22,45 @@ for fault in "${faults[@]}";do
  case_dir="$TMP/$fault";mkdir -p "$case_dir/runtime" "$case_dir/status"
  CFIP_RUNTIME_DIR="$case_dir/runtime";CFIP_STATUS_DIR="$case_dir/status";CFIP_RUN_ID=prepare-fault
  CFIP_PASSWALL_STATE_FILE="$case_dir/state.json";CFIP_OPENCLASH_CONFIG="$case_dir/live.yaml"
- echo retained-user-config >"$case_dir/user.uci";echo retained-openclash >"$CFIP_OPENCLASH_CONFIG"
+ echo retained-user-config >"$case_dir/user.uci"
  mode=passwall;case "$fault" in config-copy|enable) mode=openclash;;esac
+ if [[ "$mode" == openclash ]];then
+  cat >"$CFIP_OPENCLASH_CONFIG" <<'YAML'
+proxy-providers:
+  feed:
+    type: file
+    path: ./provider.yaml
+proxy-groups:
+  - name: proxy
+    type: select
+    use: [feed]
+YAML
+  cat >"$case_dir/provider.yaml" <<'YAML'
+proxies:
+  - name: node [CF-1]
+    type: vless
+    server: example.com
+    port: 443
+    tls: true
+    network: tcp
+YAML
+  cp "$CFIP_OPENCLASH_CONFIG" "$case_dir/main.before"
+  cp "$case_dir/provider.yaml" "$case_dir/provider.before"
+  export CFIP_OPENCLASH_TARGET_DOMAIN=example.com
+ else
+  echo retained-openclash >"$CFIP_OPENCLASH_CONFIG"
+  unset CFIP_OPENCLASH_TARGET_DOMAIN
+ fi
  if [[ "$fault" != marker-absent ]];then echo '{"retained":true}' >"$CFIP_PASSWALL_STATE_FILE";fi
  CFIP_TXN_DIR=;CFIP_TXN_STATE=NONE;CFIP_RECOVERY_ERROR=
  rc=0;cfip_txn_prepare "$mode" || rc=$?
  if [[ "$rc" == 0 || "$CFIP_TXN_STATE" == PREPARED ]];then echo "FAIL $fault accepted failed snapshot write";failures=$((failures+1));continue;fi
- grep -qx retained-openclash "$CFIP_OPENCLASH_CONFIG"
+ if [[ "$mode" == openclash ]];then
+  cmp -s "$case_dir/main.before" "$CFIP_OPENCLASH_CONFIG"
+  cmp -s "$case_dir/provider.before" "$case_dir/provider.yaml"
+ else
+  grep -qx retained-openclash "$CFIP_OPENCLASH_CONFIG"
+ fi
  grep -qx retained-user-config "$case_dir/user.uci"
  if [[ "$fault" == marker-present-rmfail ]];then
   [[ -n "$CFIP_TXN_DIR" && -d "$CFIP_TXN_DIR" && "$CFIP_RECOVERY_ERROR" == *"$CFIP_TXN_DIR"* ]] || { echo 'FAIL incomplete cleanup lost journal/error';exit 1; }

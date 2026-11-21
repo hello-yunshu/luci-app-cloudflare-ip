@@ -54,7 +54,12 @@ cfip_reuse_hard_gate_reason() {
     [[ "$last_full" =~ ^[0-9]+$ && $last_full -gt 0 ]] || { printf 'no_completed_full_optimize'; return 0; }
     ((now-last_full <= CFIP_REUSE_MAX_FULL_OPTIMIZE_INTERVAL)) || { printf 'full_optimize_interval_expired'; return 0; }
     [[ "$last_validation" =~ ^[0-9]+$ && $last_validation -gt 0 && "$(jq -r '.validationSuccess // false' <<<"$state")" == true ]] || { printf 'previous_validation_failed'; return 0; }
-    [[ "$(jq -r '.last_result // "unknown"' "$CFIP_STATUS_FILE")" == success ]] || { printf 'recent_run_failed'; return 0; }
+    # A warning still records a completed measurement; it means the proxy
+    # configuration is persisted but not hot-applied, so current-IP reuse stays
+    # valid. Anything else (failed/cancelled/running) is a failed recent run.
+    [[ "$(jq -r '.last_result // "unknown"' "$CFIP_STATUS_FILE")" == success \
+        || "$(jq -r '.last_result // "unknown"' "$CFIP_STATUS_FILE")" == warning ]] \
+        || { printf 'recent_run_failed'; return 0; }
     return 1
 }
 

@@ -64,7 +64,7 @@ update_openclash
 [[ "$(cat "$EVENTS")" == $'restore\nbridge' ]]
 jq -e 'length==2 and .[0].ip=="198.51.100.2" and .[0].family=="ipv4" and .[1].ip=="2001:db8::2" and .[1].family=="ipv6"' "$CANDIDATE_COPY" >/dev/null
 [[ "$(sed -n '1p' "$BRIDGE_ARGS")" == --apply-selected ]]
-[[ "$(sed -n '2p' "$BRIDGE_ARGS")" == "$CANDIDATE_COPY" ]]
+[[ "$(sed -n '2p' "$BRIDGE_ARGS")" == "$TMP"/cf-openclash-selected.* ]]
 [[ "$(sed -n '3p' "$BRIDGE_ARGS")" == openclash ]]
 [[ "$(sed -n '4p' "$BRIDGE_ARGS")" == "$OPENCLASH_CONFIG" ]]
 [[ "$(sed -n '5p' "$BRIDGE_ARGS")" == "$OPENCLASH_TARGET_DOMAIN" ]]
