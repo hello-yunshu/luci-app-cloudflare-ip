@@ -762,7 +762,7 @@ jobs:
             printf 'arch all 1\narch x86_64 10\n' > "$probe/etc/opkg.conf"
             # Mirror the migration matrix root so the probe resolves the same
             # dependencies instead of failing the candidate selection.
-            for package in libc luci-base bash flock curl tar jq ca-bundle ca-certificates uhttpd rill-runtime-preview; do
+            for package in libc luci-base bash flock curl tar jq ca-bundle ca-certificates uhttpd ruby-psych ruby-json rill-runtime rill-runtime-manager rill-runtime-preview; do
               printf 'Package: %s\nVersion: 1\nArchitecture: x86_64\nStatus: install ok installed\n\n' "$package"
               : > "$probe/usr/lib/opkg/info/$package.list"
             done > "$probe/usr/lib/opkg/status"
