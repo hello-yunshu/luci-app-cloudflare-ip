@@ -27,10 +27,10 @@ cfip_dns_maintenance_begin
 [[ "$(wc -l <"$CFIP_DNS_LEASE_LOG" | tr -d ' ')" == 1 ]]
 cfip_dns_maintenance_end
 [[ "$CFIP_DNS_MAINTENANCE_ACTIVE" == false ]]
-[[ "$(sed -n '1s/|.*//' "$CFIP_DNS_LEASE_LOG")" == --maintenance-begin ]]
-[[ "$(sed -n '2s/|.*//' "$CFIP_DNS_LEASE_LOG")" == --maintenance-end ]]
-[[ "$(sed -n '1s/.*|//' "$CFIP_DNS_LEASE_LOG")" == "$$" ]]
-[[ "$(sed -n '2s/.*|//' "$CFIP_DNS_LEASE_LOG")" == "$$" ]]
+[[ "$(sed -n '1s/|.*//p' "$CFIP_DNS_LEASE_LOG")" == --maintenance-begin ]]
+[[ "$(sed -n '2s/|.*//p' "$CFIP_DNS_LEASE_LOG")" == --maintenance-end ]]
+[[ "$(sed -n '1s/.*|//p' "$CFIP_DNS_LEASE_LOG")" == "$$" ]]
+[[ "$(sed -n '2s/.*|//p' "$CFIP_DNS_LEASE_LOG")" == "$$" ]]
 echo 'PASS CFI begins and releases an owner-bound DNS lease in the same process'
 
 : >"$CFIP_DNS_LEASE_LOG"
@@ -43,7 +43,7 @@ stop_calls=0
 cfip_stop_service() { stop_calls=$((stop_calls+1)); return 0; }
 if stop_service_for_measurement; then echo 'OpenClash stopped after lease refusal' >&2; exit 1; fi
 [[ "$stop_calls" == 0 && "$(wc -l <"$CFIP_DNS_LEASE_LOG" | tr -d ' ')" == 1 ]]
-[[ "$(sed -n '1s/|.*//' "$CFIP_DNS_LEASE_LOG")" == --maintenance-begin ]]
+[[ "$(sed -n '1s/|.*//p' "$CFIP_DNS_LEASE_LOG")" == --maintenance-begin ]]
 [[ "$CFIP_OPENCLASH_SERVICE_ERROR" == *'lease'* ]]
 echo 'PASS failed lease acquisition prevents OpenClash maintenance stop'
 

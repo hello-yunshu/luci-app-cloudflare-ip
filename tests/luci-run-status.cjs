@@ -2,7 +2,7 @@
 // Actual Overview click handler + utils polling, isolated DOM/RPC; not browser proof.
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
 String.prototype.format=function(...args){let i=0;return this.replace(/%s/g,()=>args[i++]);};
-function E(tag,attrs={},children=[]){return {tag,attrs,children:Array.isArray(children)?children:[children],isConnected:true,appendChild(c){this.children.push(c);return c;},getAttribute(k){return this.attrs[k]??null;},setAttribute(k,v){this.attrs[k]=v;},removeAttribute(k){delete this.attrs[k];},addEventListener(){},get textContent(){return this.children.map(c=>typeof c==='string'?c:c.textContent||'').join('');},set textContent(v){this.children=[v];}};}
+function E(tag,attrs={},children=[]){return {tag,attrs,children:Array.isArray(children)?children:[children],isConnected:true,appendChild(c){this.children.push(c);return c;},insertBefore(c,ref){const i=ref?this.children.indexOf(ref):-1;if(i<0)this.children.push(c);else this.children.splice(i,0,c);return c;},get childNodes(){return this.children;},getAttribute(k){return this.attrs[k]??null;},setAttribute(k,v){this.attrs[k]=v;},removeAttribute(k){delete this.attrs[k];},addEventListener(){},get textContent(){return this.children.map(c=>typeof c==='string'?c:c.textContent||'').join('');},set textContent(v){this.children=[v];}};}
 function find(n,p){if(n&&typeof n==='object'){if(p(n))return n;for(const c of n.children||[]){const r=find(c,p);if(r)return r;}}}
 const base=path.join(__dirname,'../package/luci-app-cloudflare-ip/htdocs/luci-static/resources');
 const utilsSource=fs.readFileSync(path.join(base,'cloudflare-ip/utils.js'),'utf8');

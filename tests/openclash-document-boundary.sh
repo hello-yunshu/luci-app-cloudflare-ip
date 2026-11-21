@@ -48,7 +48,7 @@ for engine in "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/openc
     )
 done
 
-for engine in "$ROOT/package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto-legacy" "$ROOT/cf-openwrt-auto.sh"; do
+for engine in "$ROOT/package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto-legacy"; do
     (
     source "$engine"
     restart_service() { :; }
@@ -82,3 +82,20 @@ for engine in "$ROOT/package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto-lega
     echo "PASS malformed generated document refuses before backup or publication: $(basename "$engine")"
     )
 done
+
+(
+source "$ROOT/cf-openwrt-auto.sh"
+restart_service() { echo 'unexpected service restart' >&2; exit 99; }
+OPENCLASH_CONFIG="$TMP/standalone-no-provider.yaml"
+cp "$TMP/good.yaml" "$OPENCLASH_CONFIG"; cp "$OPENCLASH_CONFIG" "$TMP/standalone-before"
+OPENCLASH_TARGET_DOMAIN=cdn.example.com; OPENCLASH_TRANSPORT_FILTER=''
+OPENCLASH_NAME_SUFFIX=' [CF-{n}]'; FAST_IPS=(104.16.1.1); IP_COUNT=1
+if (update_openclash) >"$TMP/standalone-out" 2>"$TMP/standalone-error"; then
+    echo 'standalone apply without the packaged provider was accepted' >&2; exit 1
+fi
+cmp "$OPENCLASH_CONFIG" "$TMP/standalone-before"
+! compgen -G "$OPENCLASH_CONFIG.tmp.*" >/dev/null
+! compgen -G "$OPENCLASH_CONFIG.bak.*" >/dev/null
+grep -q 'requires the packaged v2 provider transaction' "$TMP/standalone-error"
+echo "PASS standalone apply refuses without the packaged v2 provider: cf-openwrt-auto.sh"
+)

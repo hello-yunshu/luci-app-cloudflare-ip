@@ -261,7 +261,7 @@ EOF
 # ========== Lock File ==========
 
 acquire_lock() {
-	mkdir -p "$STATUS_DIR"
+	mkdir -p "$STATUS_DIR" "${LOCK_FILE%/*}"
 	local max_wait="${1:-0}" waited=0
 	while true; do
 		if mkdir "$LOCK_FILE" 2>/dev/null; then

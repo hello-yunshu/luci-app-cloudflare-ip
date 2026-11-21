@@ -4,7 +4,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
 source "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/openclash-readback.sh"
 declare -f cfip_openclash_yaml_supported >"$TMP/canonical"
-for engine in "$ROOT/cf-openwrt-auto.sh" "$ROOT/package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto-legacy"; do
+for engine in "$ROOT/package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto-legacy"; do
     name="$(basename "$engine")"; case_dir="$TMP/$name"; mkdir -p "$case_dir"
     config="$case_dir/config.yaml"
     cat >"$config" <<'YAML'

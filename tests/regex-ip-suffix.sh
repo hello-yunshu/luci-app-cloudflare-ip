@@ -5,8 +5,6 @@ repo_dir="$(CDPATH='' cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 # shellcheck source=cf-openwrt-auto.sh
 . "$repo_dir/cf-openwrt-auto.sh"
 
-restart_service() { :; }
-
 fail() { printf 'FAIL: %s\n' "$*" >&2; exit 1; }
 
 # ===== Test passwall_base_name =====
@@ -27,6 +25,11 @@ openclash_generated_index "VLESS-ws" && fail "openclash_generated_index: should 
 [[ "$(openclash_generated_index "VLESS-ws [CF-2]-5.6.7.8")" == "2" ]] || fail "openclash_generated_index: CF-2 with {ip}"
 
 # ===== Test OpenClash with {ip} suffix =====
+# Rendering moved to the packaged v2 provider; the shipped legacy renderer
+# keeps the historical {ip} rendering contract covered without host mutation.
+. "$repo_dir/package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto-legacy"
+restart_service() { :; }
+
 tmp_dir="$(mktemp -d)"
 trap 'rm -rf "$tmp_dir"' EXIT
 
@@ -79,6 +82,9 @@ for condition in unknown enabled external-core; do
     cmp -s "$OPENCLASH_CONFIG" "$tmp_dir/before.yaml" || fail "$condition changed config"
 done
 printf '0\n' >"$tmp_dir/enable"; : >"$tmp_dir/core-pid"
+# The service-state guard cases above already proved the real pre-write checks.
+# Rendering-only checks below run in isolation from host state.
+PURE_APPLY=true
 update_openclash
 
 # Should generate 2 variants with {ip} in name

@@ -91,7 +91,9 @@ test "$(wc -l <"$CFST_COUNT_FILE" | tr -d ' ')" -eq 1
 test "$(wc -l <"$POOL_COUNT_FILE" | tr -d ' ')" -eq 1
 test "$(wc -l <"$PROBE_COUNT_FILE" | tr -d ' ')" -eq 1
 jq -e '.fullOptimizeCount == 1 and .validationSuccess == true' "$CFIP_REUSE_STATE_FILE" >/dev/null
-jq -e '.last_result == "success" and .best_ips == ["104.16.1.1"]' "$CFIP_STATUS_FILE" >/dev/null
+# PassWall persists UCI without hot-applying the running service, so the
+# honest terminal state is a "warning" that still records the selected IP.
+jq -e '.last_result == "warning" and .phase == "done" and .best_ips == ["104.16.1.1"]' "$CFIP_STATUS_FILE" >/dev/null
 
 CFIP_PROCESS_ID=B bash -c 'load_config; run_v2 >/dev/null'
 test "$(wc -l <"$CFST_COUNT_FILE" | tr -d ' ')" -eq 1

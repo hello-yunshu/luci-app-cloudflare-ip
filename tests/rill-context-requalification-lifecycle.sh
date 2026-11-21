@@ -5,13 +5,13 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"; TMP="$(mktemp -d)"
 trap 'rc=$?; if ((rc != 0)); then cat "$TMP/log" 2>/dev/null || true; fi; rm -rf "$TMP"; exit "$rc"' EXIT
 mkdir -p "$TMP/bin"
 printf '%s\n' '#!/usr/bin/env bash' 'exit 0' >"$TMP/bin/uci"; chmod +x "$TMP/bin/uci"; export PATH="$TMP/bin:$PATH"
-printf 'preview\n' >"$TMP/channel"; export CFIP_RILL_CHANNEL_FILE="$TMP/channel"
+printf 'stable\n' >"$TMP/channel"; export CFIP_RILL_CHANNEL_FILE="$TMP/channel"
 cat >"$TMP/runtime" <<'SH'
 #!/usr/bin/env bash
 set -euo pipefail
 request="$(cat)"; method="$(jq -r '.request.method // empty' <<<"$request")"; id="$(jq -r '.requestId' <<<"$request")"; schema="$(jq -r '.featureSchemaHash' <<<"$request")"
 case "$method" in
-  handshake) jq -cn --arg id "$id" --arg schema "$schema" '{requestId:$id,apiVersion:3,modelGeneration:2,stateGeneration:0,response:{kind:"handshake",handlerApiVersion:2,capabilities:["org.rill.preview.decide","org.rill.preview.feedback"],featureSchemaHash:$schema,channel:"preview",runtimeIdentity:{version:"test"}}}' ;;
+  handshake) jq -cn --arg id "$id" --arg schema "$schema" '{requestId:$id,apiVersion:3,modelGeneration:2,stateGeneration:0,response:{kind:"handshake",handlerApiVersion:2,capabilities:["org.rill.preview.decide","org.rill.preview.feedback"],featureSchemaHash:$schema,channel:"stable",runtimeIdentity:{version:"test"}}}' ;;
   health) jq -cn --arg id "$id" '{requestId:$id,apiVersion:3,response:{kind:"health",status:"healthy",healthy:true,reasonCodes:[]}}' ;;
   inspect) jq -cn --arg id "$id" '{requestId:$id,apiVersion:3,response:{kind:"inspection",summary:{resourceUtilization:{stateBytes:1,pendingDecisions:0,completedDecisions:1},resourceProfile:{maxModelStateBytes:1000,maxPendingDecisions:100,maxCompletedDecisions:100}}}}' ;;
   decide) jq -cn --arg id "$id" --arg selected "2.2.2.2" --argjson generation "$(jq '.stateGeneration + 1' <<<"$request")" '{requestId:$id,apiVersion:3,modelGeneration:2,stateGeneration:$generation,response:{kind:"result",output:{accepted:true,selectedActionId:$selected,scores:[{id:"2.2.2.2",score:0.9},{id:"1.1.1.1",score:0.1}]}}}' ;;

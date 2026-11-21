@@ -6,7 +6,14 @@ const assert = require('node:assert/strict');
 String.prototype.format = function(...args) { let i = 0; return this.replace(/%s/g, () => args[i++]); };
 function E(tag, attrs = {}, children = []) {
   return { tag, attrs, children: Array.isArray(children) ? children : [children],
-    appendChild(child) { this.children.push(child); return child; } };
+    get childNodes() { return this.children; },
+    appendChild(child) { this.children.push(child); return child; },
+    insertBefore(child, ref) {
+      const index = ref ? this.children.indexOf(ref) : -1;
+      if (index < 0) this.children.push(child);
+      else this.children.splice(index, 0, child);
+      return child;
+    } };
 }
 const source = fs.readFileSync(path.join(__dirname, '../package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js'), 'utf8');
 const utils = {

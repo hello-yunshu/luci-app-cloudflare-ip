@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 # shellcheck shell=bash
 
+if ! declare -F cfip_managed_openclash_config_safe >/dev/null 2>&1; then
+    _cfip_txn_lib="${BASH_SOURCE[0]%/*}"
+    [[ "$_cfip_txn_lib" != "${BASH_SOURCE[0]}" ]] || _cfip_txn_lib=.
+    # shellcheck source=common.sh
+    . "$_cfip_txn_lib/common.sh"
+    unset _cfip_txn_lib
+fi
 # The transaction publishes OpenClash candidates and therefore needs the
 # document validator. Production sources readback first; standalone callers
 # (tests, recovery tools) get the sibling module loaded here.
