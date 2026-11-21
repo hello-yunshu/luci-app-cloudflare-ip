@@ -72,11 +72,7 @@ msgid ""
 "Retained only for migration compatibility; it is not used by the 2.x engine."
 msgstr ""
 
-#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/advanced.js:38
-msgid "Update policy"
-msgstr ""
-
-#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/advanced.js:39
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/advanced.js:35
 msgid "Deprecated / package-managed"
 msgstr ""
 
@@ -1209,6 +1205,9 @@ msgstr ""
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js:518
 msgid "Environment Detection"
+msgstr ""
+
+msgid "Proxy Software"
 msgstr ""
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js:523
@@ -2347,4 +2346,325 @@ msgid "Measurement & Ranking"
 msgstr ""
 
 msgid "Service Handling"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js:224
+msgid "Unable to load status"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js:225
+msgid "Retry the page. If it keeps failing, open Logs & Records."
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/sources.js:164
+msgid "Value"
+msgstr ""
+
+msgid "Allow Maintenance Stop for Speed Test"
+msgstr ""
+
+msgid "Allow a temporary proxy outage during measurement when no verified firewall bypass is available. Without this option, CFI fails closed instead of measuring through a running proxy. OpenClash uses its narrowly scoped runtime bypass when available."
+msgstr ""
+
+msgid "CFI writes PassWall UCI settings only; it does not hot-apply the running service. A separately managed PassWall restart is required, and runtime egress is not verified."
+msgstr ""
+
+msgid "PassWall Apply Status"
+msgstr ""
+
+msgid "PassWall settings were persisted, but the running service was not hot-applied. Apply them with a separately managed PassWall restart; runtime egress is unverified."
+msgstr ""
+
+msgid "HomeProxy"
+msgstr ""
+
+msgid "HomeProxy (unsupported installed version)"
+msgstr ""
+
+msgid "Installed HomeProxy version is not qualified for CFI persistence-only updates: %s"
+msgstr ""
+
+msgid "PassWall, OpenClash, or a qualified HomeProxy version is not installed. Please install a supported proxy before using this service."
+msgstr ""
+
+msgid "HomeProxy Update Target"
+msgstr ""
+
+msgid "Only the active ordinary SOCKS main_node whose address exactly matches this hostname is eligible. CFI writes only the top-ranked candidate to that one existing node; it never creates or copies nodes. The HomeProxy version and simple routing roles are checked again before every write."
+msgstr ""
+
+msgid "Application Behavior"
+msgstr ""
+
+msgid "Configuration Apply"
+msgstr ""
+
+msgid "CFI persists the node address only. With stop_service disabled, an active HomeProxy is not stopped and the update remains pending. If you explicitly enable the maintenance stop in Settings, CFI restores HomeProxy after measurement; service startup is recorded, but target-domain egress is still unverified. No hard restart fallback is used."
+msgstr ""
+
+msgid "Unable to check HomeProxy environment"
+msgstr ""
+
+msgid "HomeProxy version is not qualified for CFI updates: %s"
+msgstr ""
+
+msgid "CFI only accepts the exact HomeProxy package version qualified by its isolated runtime test. No node configuration was changed."
+msgstr ""
+
+msgid "not installed"
+msgstr ""
+
+msgid "unknown"
+msgstr ""
+
+msgid "HomeProxy Apply Status"
+msgstr ""
+
+msgid "HomeProxy was restored after the configured maintenance stop and loaded the persisted top candidate for one active main_node; target-domain egress remains unverified."
+msgstr ""
+
+msgid "Only the top candidate was persisted to one active HomeProxy main_node. The running service was not changed; runtime egress is unverified and application is pending."
+msgstr ""
+
+msgid "No supported proxy service is available. Install PassWall, OpenClash, or a qualified HomeProxy version before using this service."
+msgstr ""
+
+msgid "Updated node: %s; candidate: %s."
+msgstr ""
+
+msgid "PassWall2"
+msgstr ""
+
+msgid "PassWall2 (unsupported installed version)"
+msgstr ""
+
+msgid "Unable to check PassWall2 environment"
+msgstr ""
+
+msgid "PassWall2 version is not qualified for CFI updates: %s"
+msgstr ""
+
+msgid "CFI accepts only the exact PassWall2 package version qualified by its isolated guest. No node configuration was changed."
+msgstr ""
+
+msgid "CFI parses the active global node and the complete static leaf/_shunt reference closure. It updates only one exact-matching SOCKS leaf using the top-ranked candidate. ACL roots, extra SOCKS services, chains, URLTest/balancing/interface nodes, batch nodes, unknown protocols, and invalid references fail closed."
+msgstr ""
+
+msgid "CFI persists the selected address only. It does not call PassWall2 reload, restart, stop, or start from the transaction adapter. With stop_service disabled, an active service fails measurement before changes. If you explicitly allow a maintenance stop, CFI restores the original service before persisting the new address; service apply and target-domain egress remain unverified."
+msgstr ""
+
+msgid "Only the top candidate was persisted to one active PassWall2 graph leaf. The service was not reloaded or restarted; runtime egress is unverified and application is pending."
+msgstr ""
+
+msgid "PassWall2 Apply Status"
+msgstr ""
+
+msgid "PassWall2 Update Target"
+msgstr ""
+
+msgid "The configured maintenance stop was recovered before the PassWall2 UCI write; the running service was not reloaded and the update remains pending."
+msgstr ""
+
+msgid "No supported proxy service is available. Install PassWall, PassWall2, OpenClash, or a qualified HomeProxy version before using this service."
+msgstr ""
+
+msgid "Installed PassWall2 version is not qualified for CFI persistence-only updates: %s"
+msgstr ""
+
+
+msgid "Runtime management helper is not installed. Update CFI from the unified package feed to enable one-click management."
+msgstr "Runtime management helper is not installed. Update CFI from the unified package feed to enable one-click management."
+
+msgid "Unable to query Runtime package manager."
+msgstr "Unable to query Runtime package manager."
+
+msgid "Runtime is not supported for this OpenWrt release or architecture."
+msgstr "Runtime is not supported for this OpenWrt release or architecture."
+
+msgid "Runtime is installed from the Stable channel; CFI will not replace it."
+msgstr "Runtime is installed from the Stable channel; CFI will not replace it."
+
+msgid "Runtime source or channel is unknown; CFI will not update it."
+msgstr "Runtime source or channel is unknown; CFI will not update it."
+
+msgid "The installed Preview Runtime is incompatible or its compatibility is unknown; CFI will not update it."
+msgstr "The installed Preview Runtime is incompatible or its compatibility is unknown; CFI will not update it."
+
+msgid "Preview Runtime is installed and compatible."
+msgstr "Preview Runtime is installed and compatible."
+
+msgid "Runtime update is available."
+msgstr "Runtime update is available."
+
+msgid "Runtime is already up to date."
+msgstr "Runtime is already up to date."
+
+msgid "Runtime is not installed. CFI Native mode remains available."
+msgstr "Runtime is not installed. CFI Native mode remains available."
+
+msgid "Package manager rejected the request."
+msgstr "Package manager rejected the request."
+
+msgid "CFI remains usable in Native mode. Check package manager status before retrying."
+msgstr "CFI remains usable in Native mode. Check package manager status before retrying."
+
+msgid "Installing..."
+msgstr "Installing..."
+
+msgid "Runtime Package Status"
+msgstr "Runtime Package Status"
+
+msgid "Runtime Package Target"
+msgstr "Runtime Package Target"
+
+msgid "Unknown release"
+msgstr "Unknown release"
+
+msgid "Unknown architecture"
+msgstr "Unknown architecture"
+
+msgid "Unknown package format"
+msgstr "Unknown package format"
+
+msgid "Runtime Package Management"
+msgstr "Runtime Package Management"
+
+msgid "Check for updates"
+msgstr "Check for updates"
+
+msgid "Runtime management helper is not installed."
+msgstr "Runtime management helper is not installed."
+
+msgid "Runtime package index refreshed."
+msgstr "Runtime package index refreshed."
+
+msgid "Unable to refresh package index."
+msgstr "Unable to refresh package index."
+
+msgid "Refreshes the trusted unified feed package index. Runtime is optional; CFI Native mode remains available without it."
+msgstr "Refreshes the trusted unified feed package index. Runtime is optional; CFI Native mode remains available without it."
+
+msgid "Install Rill Runtime"
+msgstr "Install Rill Runtime"
+
+msgid "Install the optional Rill Preview Runtime? CFI Native mode will remain available."
+msgstr "Install the optional Rill Preview Runtime? CFI Native mode will remain available."
+
+msgid "Runtime package action completed. Reloading status."
+msgstr "Runtime package action completed. Reloading status."
+
+msgid "Unable to install Rill Runtime."
+msgstr "Unable to install Rill Runtime."
+
+msgid "Install"
+msgstr "Install"
+
+msgid "Installs only the package-managed Preview Runtime for this router release and architecture. Stable or unknown Runtime installations are preserved."
+msgstr "Installs only the package-managed Preview Runtime for this router release and architecture. Stable or unknown Runtime installations are preserved."
+
+msgid "Update Rill Runtime"
+msgstr "Update Rill Runtime"
+
+msgid "Update the shared Rill Preview Runtime? Other installed consumers will be checked before changes."
+msgstr "Update the shared Rill Preview Runtime? Other installed consumers will be checked before changes."
+
+msgid "Unable to update Rill Runtime."
+msgstr "Unable to update Rill Runtime."
+
+msgid "Update"
+msgstr "Update"
+
+msgid "Updates only a compatible Preview Runtime. Stable, unknown-source, and incompatible installations are not replaced."
+msgstr "Updates only a compatible Preview Runtime. Stable, unknown-source, and incompatible installations are not replaced."
+
+msgid "Update CFI"
+msgstr "Update CFI"
+
+msgid "Update CFI from the unified feed? The page will reload after the package update."
+msgstr "Update CFI from the unified feed? The page will reload after the package update."
+
+msgid "CFI package update completed. Reloading."
+msgstr "CFI package update completed. Reloading."
+
+msgid "Unable to update CFI from the unified feed."
+msgstr "Unable to update CFI from the unified feed."
+
+msgid "Uses the trusted unified package feed."
+msgstr "Uses the trusted unified package feed."
+
+msgid "Legacy CFI Update"
+msgstr "Legacy CFI Update"
+
+msgid "Update CFI via legacy GitHub release"
+msgstr "Update CFI via legacy GitHub release"
+
+msgid "Updating CFI..."
+msgstr "Updating CFI..."
+
+msgid "Legacy updater rejected the request."
+msgstr "Legacy updater rejected the request."
+
+msgid "Legacy CFI update started. Follow the package installer output on the router."
+msgstr "Legacy CFI update started. Follow the package installer output on the router."
+
+msgid "Unable to update CFI."
+msgstr "Unable to update CFI."
+
+msgid "The legacy GitHub updater is used only because the unified package helper is missing."
+msgstr "The legacy GitHub updater is used only because the unified package helper is missing."
+
+msgid "Legacy GitHub updater is available because the unified package helper is missing."
+msgstr ""
+
+msgid "Repair Rill Runtime"
+msgstr ""
+
+msgid "Repair"
+msgstr ""
+
+msgid "Repairing..."
+msgstr ""
+
+msgid "Reinstall the same trusted Preview Runtime package to restore its missing executable? This will not upgrade the Runtime."
+msgstr ""
+
+msgid "Runtime repair completed. Reloading status."
+msgstr ""
+
+msgid "Unable to repair Rill Runtime."
+msgstr ""
+
+msgid "Reinstalls the same trusted Preview package only when its executable is missing. It does not change Runtime versions."
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Legacy Preview Runtime is installed. Remove it explicitly before installing Stable Runtime; CFI will not remove it."
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Stable Runtime is installed."
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Install the optional Stable Rill Runtime? CFI Native mode will remain available."
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Installs the package-managed Stable Runtime for this router release and architecture. A legacy Preview Runtime must be removed explicitly first."
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Reinstall the same trusted Stable Runtime package to restore its missing executable? This will not upgrade the Runtime."
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Reinstalls the same trusted Stable package only when its executable is missing. It does not change Runtime versions."
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Update the shared Stable Rill Runtime? Other installed consumers will be checked before changes."
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Updates only the compatible Stable Runtime. Unknown-source, legacy Preview, and incompatible installations are not replaced."
 msgstr ""

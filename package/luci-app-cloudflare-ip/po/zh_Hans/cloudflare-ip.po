@@ -67,11 +67,7 @@ msgid ""
 "Retained only for migration compatibility; it is not used by the 2.x engine."
 msgstr "仅为迁移兼容而保留；2.x 引擎不会使用此项。"
 
-#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/advanced.js:38
-msgid "Update policy"
-msgstr "更新策略"
-
-#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/advanced.js:39
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/advanced.js:35
 msgid "Deprecated / package-managed"
 msgstr "已弃用 / 由软件包管理"
 
@@ -724,7 +720,7 @@ msgstr "运行自检"
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js:193
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js:567
 msgid "Checking..."
-msgstr "检测中..."
+msgstr "正在检查..."
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js:196
 msgid "Rill self-check passed."
@@ -1164,7 +1160,7 @@ msgstr "下载中..."
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js:431
 msgid "Updating..."
-msgstr "更新中..."
+msgstr "正在更新..."
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js:433
 msgid "Updating CFST, please wait..."
@@ -1219,6 +1215,9 @@ msgstr "GitHub"
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js:518
 msgid "Environment Detection"
 msgstr "环境检测"
+
+msgid "Proxy Software"
+msgstr "代理软件"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/overview.js:523
 msgid "tar"
@@ -1453,14 +1452,12 @@ msgid ""
 msgstr "跳过平均延迟超过此值的 IP。留空表示不设上限。"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/settings.js:130
-msgid "Stop Service Before Test"
-msgstr "测速前停止服务"
+msgid "Allow Maintenance Stop for Speed Test"
+msgstr "允许测速维护停服"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/settings.js:131
-msgid ""
-"Stop the proxy service before speed testing to avoid interference, and "
-"restart after updating."
-msgstr "测速前停止代理服务以避免干扰，更新配置后自动重启。"
+msgid "Allow a temporary proxy outage during measurement when no verified firewall bypass is available. Without this option, CFI fails closed instead of measuring through a running proxy. OpenClash uses its narrowly scoped runtime bypass when available."
+msgstr "没有经过验证的防火墙绕行方式时，允许测速期间暂时中断代理。关闭此项后，若代理正在运行且没有可用绕行，CFI 会失败关闭，不会经代理测速。OpenClash 在条件满足时使用范围受限的运行时绕行。"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/settings.js:135
 msgid "Keep CFST Across Upgrades"
@@ -2381,3 +2378,306 @@ msgstr "请重试本页。若仍失败，请打开「日志与记录」。"
 
 msgid "Value"
 msgstr "值"
+
+msgid "CFI writes PassWall UCI settings only; it does not hot-apply the running service. A separately managed PassWall restart is required, and runtime egress is not verified."
+msgstr "CFI 只写入 PassWall UCI 配置，不会热应用到运行中的服务。需要另行管理并重启 PassWall；运行态出站尚未验证。"
+
+msgid "PassWall Apply Status"
+msgstr "PassWall 应用状态"
+
+msgid "PassWall settings were persisted, but the running service was not hot-applied. Apply them with a separately managed PassWall restart; runtime egress is unverified."
+msgstr "PassWall 配置已持久化，但未热应用到运行中的服务。请另行管理并重启 PassWall；运行态出站尚未验证。"
+
+msgid "HomeProxy"
+msgstr "HomeProxy"
+
+msgid "HomeProxy (unsupported installed version)"
+msgstr "HomeProxy（已安装但版本不受支持）"
+
+msgid "Installed HomeProxy version is not qualified for CFI persistence-only updates: %s"
+msgstr "已安装的 HomeProxy 版本未通过 CFI 仅持久化更新验证：%s"
+
+msgid "PassWall, OpenClash, or a qualified HomeProxy version is not installed. Please install a supported proxy before using this service."
+msgstr "未检测到 PassWall、OpenClash 或通过验证的 HomeProxy 版本。请先安装受支持的代理。"
+
+msgid "HomeProxy Update Target"
+msgstr "HomeProxy 更新目标"
+
+msgid "Only the active ordinary SOCKS main_node whose address exactly matches this hostname is eligible. CFI writes only the top-ranked candidate to that one existing node; it never creates or copies nodes. The HomeProxy version and simple routing roles are checked again before every write."
+msgstr "仅当活动普通 SOCKS main_node 的地址与此主机名完全一致时才可更新。CFI 只把排名第一的候选写入这一个已有节点，不会创建或复制节点。每次写入前都会重新检查 HomeProxy 版本和简单路由角色。"
+
+msgid "Application Behavior"
+msgstr "应用行为"
+
+msgid "Configuration Apply"
+msgstr "配置应用状态"
+
+msgid "CFI persists the node address only. With stop_service disabled, an active HomeProxy is not stopped and the update remains pending. If you explicitly enable the maintenance stop in Settings, CFI restores HomeProxy after measurement; service startup is recorded, but target-domain egress is still unverified. No hard restart fallback is used."
+msgstr "CFI 只持久化节点地址。关闭 stop_service 时不会停止运行中的 HomeProxy，更新会保持待应用。若在设置中明确启用维护停服，CFI 会在测量后恢复 HomeProxy；系统会记录服务恢复，但目标域名出站仍未经验证。不会使用硬重启回退。"
+
+msgid "Unable to check HomeProxy environment"
+msgstr "无法检查 HomeProxy 环境"
+
+msgid "HomeProxy version is not qualified for CFI updates: %s"
+msgstr "此 HomeProxy 版本未通过 CFI 更新验证：%s"
+
+msgid "CFI only accepts the exact HomeProxy package version qualified by its isolated runtime test. No node configuration was changed."
+msgstr "CFI 仅接受已通过隔离运行时测试的精确 HomeProxy 软件包版本。未更改任何节点配置。"
+
+msgid "not installed"
+msgstr "未安装"
+
+msgid "unknown"
+msgstr "未知"
+
+msgid "HomeProxy Apply Status"
+msgstr "HomeProxy 应用状态"
+
+msgid "HomeProxy was restored after the configured maintenance stop and loaded the persisted top candidate for one active main_node; target-domain egress remains unverified."
+msgstr "维护停服后已恢复 HomeProxy，并加载写入活动 main_node 的排名第一候选；目标域名出站仍未经验证。"
+
+msgid "Only the top candidate was persisted to one active HomeProxy main_node. The running service was not changed; runtime egress is unverified and application is pending."
+msgstr "排名第一的候选仅已持久化到一个活动 HomeProxy main_node。运行中的服务未更改；运行时出站未经验证，更新仍待应用。"
+
+msgid "No supported proxy service is available. Install PassWall, OpenClash, or a qualified HomeProxy version before using this service."
+msgstr "当前没有可用的受支持代理。请先安装 PassWall、OpenClash 或通过验证的 HomeProxy 版本。"
+
+msgid "Updated node: %s; candidate: %s."
+msgstr "已更新节点：%s；候选地址：%s。"
+
+msgid "PassWall2"
+msgstr "PassWall2"
+
+msgid "PassWall2 (unsupported installed version)"
+msgstr "PassWall2（已安装的版本不受支持）"
+
+msgid "Unable to check PassWall2 environment"
+msgstr "无法检查 PassWall2 环境"
+
+msgid "PassWall2 version is not qualified for CFI updates: %s"
+msgstr "PassWall2 版本未经 CFI 更新资格验证：%s"
+
+msgid "CFI accepts only the exact PassWall2 package version qualified by its isolated guest. No node configuration was changed."
+msgstr "CFI 仅接受在隔离虚拟机中通过验证的精确 PassWall2 软件包版本。没有修改节点配置。"
+
+msgid "CFI parses the active global node and the complete static leaf/_shunt reference closure. It updates only one exact-matching SOCKS leaf using the top-ranked candidate. ACL roots, extra SOCKS services, chains, URLTest/balancing/interface nodes, batch nodes, unknown protocols, and invalid references fail closed."
+msgstr "CFI 会解析当前全局节点及其完整的静态叶节点/_shunt 引用闭包。它只使用排名第一的候选更新一个精确匹配的 SOCKS 叶节点。ACL 根节点、额外 SOCKS 服务、链式节点、URLTest/负载均衡/接口节点、批量节点、未知协议和无效引用均会触发安全拒绝。"
+
+msgid "CFI persists the selected address only. It does not call PassWall2 reload, restart, stop, or start from the transaction adapter. With stop_service disabled, an active service fails measurement before changes. If you explicitly allow a maintenance stop, CFI restores the original service before persisting the new address; service apply and target-domain egress remain unverified."
+msgstr "CFI 仅持久化所选地址。事务适配器不会调用 PassWall2 reload、restart、stop 或 start。stop_service 关闭时，若服务正在运行，会在更改前拒绝测速。若显式允许维护停服，CFI 会先恢复原服务，再持久化新地址；服务是否应用及目标域名出站仍未验证。"
+
+msgid "Only the top candidate was persisted to one active PassWall2 graph leaf. The service was not reloaded or restarted; runtime egress is unverified and application is pending."
+msgstr "仅将排名第一的候选持久化到活动 PassWall2 节点图中的一个叶节点。服务未 reload 或 restart；运行态出站尚未验证，应用仍待处理。"
+
+msgid "PassWall2 Apply Status"
+msgstr "PassWall2 应用状态"
+
+msgid "PassWall2 Update Target"
+msgstr "PassWall2 更新目标"
+
+msgid "The configured maintenance stop was recovered before the PassWall2 UCI write; the running service was not reloaded and the update remains pending."
+msgstr "在写入 PassWall2 UCI 前，已恢复因维护操作而停止的服务；运行中服务未 reload，更新仍待应用。"
+
+msgid "No supported proxy service is available. Install PassWall, PassWall2, OpenClash, or a qualified HomeProxy version before using this service."
+msgstr "没有可用的受支持代理服务。请先安装 PassWall、PassWall2、OpenClash 或通过验证的 HomeProxy 版本。"
+
+msgid "Installed PassWall2 version is not qualified for CFI persistence-only updates: %s"
+msgstr "已安装的 PassWall2 版本未经 CFI 仅持久化更新资格验证：%s"
+
+
+msgid "Runtime management helper is not installed. Update CFI from the unified package feed to enable one-click management."
+msgstr "尚未安装 Runtime 管理组件。请从统一软件源更新 CFI 以启用一键管理。"
+
+msgid "Unable to query Runtime package manager."
+msgstr "无法查询 Runtime 软件包管理器。"
+
+msgid "Runtime is not supported for this OpenWrt release or architecture."
+msgstr "此 OpenWrt 版本或架构不支持 Runtime。"
+
+msgid "Runtime is installed from the Stable channel; CFI will not replace it."
+msgstr "当前安装的是 Stable 渠道 Runtime；CFI 不会替换它。"
+
+msgid "Runtime source or channel is unknown; CFI will not update it."
+msgstr "Runtime 来源或渠道未知；CFI 不会更新它。"
+
+msgid "The installed Preview Runtime is incompatible or its compatibility is unknown; CFI will not update it."
+msgstr "已安装的 Preview Runtime 不兼容或兼容性未知；CFI 不会更新它。"
+
+msgid "Preview Runtime is installed and compatible."
+msgstr "已安装兼容的 Preview Runtime。"
+
+msgid "Runtime update is available."
+msgstr "有可用的 Runtime 更新。"
+
+msgid "Runtime is already up to date."
+msgstr "Runtime 已是最新版本。"
+
+msgid "Runtime is not installed. CFI Native mode remains available."
+msgstr "尚未安装 Runtime。CFI Native 模式仍可使用。"
+
+msgid "Package manager rejected the request."
+msgstr "软件包管理器拒绝了该请求。"
+
+msgid "CFI remains usable in Native mode. Check package manager status before retrying."
+msgstr "CFI Native 模式仍可使用。重试前请先检查软件包管理器状态。"
+
+msgid "Installing..."
+msgstr "正在安装..."
+
+msgid "Runtime Package Status"
+msgstr "Runtime 软件包状态"
+
+msgid "Runtime Package Target"
+msgstr "Runtime 软件包目标"
+
+msgid "Unknown release"
+msgstr "未知版本"
+
+msgid "Unknown architecture"
+msgstr "未知架构"
+
+msgid "Unknown package format"
+msgstr "未知软件包格式"
+
+msgid "Runtime Package Management"
+msgstr "Runtime 软件包管理"
+
+msgid "Check for updates"
+msgstr "检查更新"
+
+msgid "Runtime management helper is not installed."
+msgstr "尚未安装 Runtime 管理组件。"
+
+msgid "Runtime package index refreshed."
+msgstr "Runtime 软件包索引已刷新。"
+
+msgid "Unable to refresh package index."
+msgstr "无法刷新软件包索引。"
+
+msgid "Refreshes the trusted unified feed package index. Runtime is optional; CFI Native mode remains available without it."
+msgstr "刷新可信统一软件源的软件包索引。Runtime 为可选项；未安装时 CFI Native 模式仍可使用。"
+
+msgid "Install Rill Runtime"
+msgstr "安装 Rill Runtime"
+
+msgid "Install the optional Rill Preview Runtime? CFI Native mode will remain available."
+msgstr "要安装可选的 Rill Preview Runtime 吗？CFI Native 模式仍可使用。"
+
+msgid "Runtime package action completed. Reloading status."
+msgstr "Runtime 软件包操作已完成，正在刷新状态。"
+
+msgid "Unable to install Rill Runtime."
+msgstr "无法安装 Rill Runtime。"
+
+msgid "Install"
+msgstr "安装"
+
+msgid "Installs only the package-managed Preview Runtime for this router release and architecture. Stable or unknown Runtime installations are preserved."
+msgstr "仅为此路由器版本和架构安装由软件包管理的 Preview Runtime。现有 Stable 或来源未知的 Runtime 会保留。"
+
+msgid "Update Rill Runtime"
+msgstr "更新 Rill Runtime"
+
+msgid "Update the shared Rill Preview Runtime? Other installed consumers will be checked before changes."
+msgstr "要更新共享的 Rill Preview Runtime 吗？更改前会检查其他已安装的使用方。"
+
+msgid "Unable to update Rill Runtime."
+msgstr "无法更新 Rill Runtime。"
+
+msgid "Update"
+msgstr "更新"
+
+msgid "Updates only a compatible Preview Runtime. Stable, unknown-source, and incompatible installations are not replaced."
+msgstr "仅更新兼容的 Preview Runtime。Stable、来源未知或不兼容的安装不会被替换。"
+
+msgid "Update CFI"
+msgstr "更新 CFI"
+
+msgid "Update CFI from the unified feed? The page will reload after the package update."
+msgstr "要从统一软件源更新 CFI 吗？软件包更新后页面会重新加载。"
+
+msgid "CFI package update completed. Reloading."
+msgstr "CFI 软件包更新完成，正在重新加载。"
+
+msgid "Unable to update CFI from the unified feed."
+msgstr "无法从统一软件源更新 CFI。"
+
+msgid "Uses the trusted unified package feed."
+msgstr "使用可信的统一软件源。"
+
+msgid "Legacy CFI Update"
+msgstr "旧版 CFI 更新"
+
+msgid "Update CFI via legacy GitHub release"
+msgstr "通过旧版 GitHub Release 更新 CFI"
+
+msgid "Updating CFI..."
+msgstr "正在更新 CFI..."
+
+msgid "Legacy updater rejected the request."
+msgstr "旧版更新器拒绝了该请求。"
+
+msgid "Legacy CFI update started. Follow the package installer output on the router."
+msgstr "旧版 CFI 更新已启动。请查看路由器上的软件包安装器输出。"
+
+msgid "Unable to update CFI."
+msgstr "无法更新 CFI。"
+
+msgid "The legacy GitHub updater is used only because the unified package helper is missing."
+msgstr "仅在缺少统一软件包管理组件时使用旧版 GitHub 更新器。"
+
+msgid "Legacy GitHub updater is available because the unified package helper is missing."
+msgstr "由于缺少统一软件包管理组件，可使用旧版 GitHub 更新器。"
+
+msgid "Repair Rill Runtime"
+msgstr "修复 Rill Runtime"
+
+msgid "Repair"
+msgstr "修复"
+
+msgid "Repairing..."
+msgstr "正在修复..."
+
+msgid "Reinstall the same trusted Preview Runtime package to restore its missing executable? This will not upgrade the Runtime."
+msgstr "要重新安装同版本且可信的 Preview Runtime 软件包以恢复缺失的可执行文件吗？此操作不会升级 Runtime。"
+
+msgid "Runtime repair completed. Reloading status."
+msgstr "Runtime 修复完成，正在刷新状态。"
+
+msgid "Unable to repair Rill Runtime."
+msgstr "无法修复 Rill Runtime。"
+
+msgid "Reinstalls the same trusted Preview package only when its executable is missing. It does not change Runtime versions."
+msgstr "仅当可执行文件缺失时重新安装相同版本的可信 Preview 软件包，不会更改 Runtime 版本。"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Legacy Preview Runtime is installed. Remove it explicitly before installing Stable Runtime; CFI will not remove it."
+msgstr "已安装旧版 Preview Runtime。请先手动卸载，再安装 Stable Runtime；CFI 不会自动移除它。"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Stable Runtime is installed."
+msgstr "已安装 Stable Runtime。"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Install the optional Stable Rill Runtime? CFI Native mode will remain available."
+msgstr "要安装可选的 Stable Rill Runtime 吗？CFI Native 模式仍可使用。"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Installs the package-managed Stable Runtime for this router release and architecture. A legacy Preview Runtime must be removed explicitly first."
+msgstr "仅安装与此路由器版本和架构匹配的软件包管理版 Stable Runtime。必须先手动卸载旧版 Preview Runtime。"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Reinstall the same trusted Stable Runtime package to restore its missing executable? This will not upgrade the Runtime."
+msgstr "要重新安装相同且可信的 Stable Runtime 软件包以恢复缺失的可执行文件吗？此操作不会升级 Runtime。"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Reinstalls the same trusted Stable package only when its executable is missing. It does not change Runtime versions."
+msgstr "仅当可执行文件缺失时重新安装相同且可信的 Stable 软件包，不会更改 Runtime 版本。"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Update the shared Stable Rill Runtime? Other installed consumers will be checked before changes."
+msgstr "要更新共享的 Stable Rill Runtime 吗？更改前会检查其他已安装的使用方。"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Updates only the compatible Stable Runtime. Unknown-source, legacy Preview, and incompatible installations are not replaced."
+msgstr "仅更新兼容的 Stable Runtime。来源未知、旧版 Preview 或不兼容的安装不会被替换。"

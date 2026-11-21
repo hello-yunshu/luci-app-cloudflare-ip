@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Runtime channel matrix: Stable/unknown must be rejected by the Preview
-# consumer; Preview must be accepted. Run in a root-owned test rootfs.
+# Runtime channel matrix: only the canonical Stable package is accepted.
+# Legacy Preview and unknown Runtime ownership are rejected.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 TMP="$(mktemp -d)"
@@ -33,24 +33,21 @@ chmod +x "$TMP/bin/uci"
 printf 'stable\n' >"$TMP/channel-stable"
 printf 'preview\n' >"$TMP/channel-preview"
 printf 'unexpected\n' >"$TMP/channel-unknown"
+mkdir -p "$TMP/apkdb" "$TMP/opkginfo"
 
 run_validate() {
     local channel="$1"
     PATH="$TMP/bin:$PATH" CFIP_RILL_CHANNEL_FILE="$channel" \
     CFIP_LIB_DIR="$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip" \
+    CFIP_APK_PACKAGE_DB_DIR="$TMP/apkdb" CFIP_OPKG_INFO_DIR="$TMP/opkginfo" \
     CFIP_STATUS_DIR="$TMP/state" CFIP_RUNTIME_DIR="$TMP/run" CFIP_LOG_FILE="$TMP/log" \
     CFIP_WORK_DIR=/usr/bin \
     CFIP_RILL_SCHEMA_FILE="$ROOT/package/luci-app-cloudflare-ip/root/usr/share/cf-ip/candidate-rill-feature-schema-v2.json" \
     "$ROOT/package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto-v2" --validate-config 2>&1
 }
 
-set +e
-out="$(run_validate "$TMP/channel-stable")"
-rc=$?
-set -e
-[[ "$rc" -ne 0 ]]
-grep -q 'rill-runtime-preview' <<<"$out"
-echo 'PASS Stable Runtime channel rejected for Preview consumer'
+run_validate "$TMP/channel-stable" | jq -e '.success==true' >/dev/null
+echo 'PASS canonical Stable Runtime channel accepted'
 
 set +e
 out="$(run_validate "$TMP/channel-unknown")"
@@ -60,10 +57,16 @@ set -e
 grep -q 'rill-runtime-preview' <<<"$out"
 echo 'PASS Unknown Runtime channel rejected for Preview consumer'
 
-run_validate "$TMP/channel-preview" | jq -e '.success==true' >/dev/null
-echo 'PASS Preview Runtime channel accepted'
+set +e
+out="$(run_validate "$TMP/channel-preview")"
+rc=$?
+set -e
+[[ "$rc" -ne 0 ]]
+grep -q 'rill-runtime-preview' <<<"$out"
+echo 'PASS legacy Preview Runtime channel rejected pending explicit migration'
 
-# Migration must disable an enabled Rill consumer when Stable is installed.
+# Migration must disable an enabled Rill consumer when the legacy Preview
+# Runtime is detected. Stable Runtime remains the only accepted channel.
 cat >/etc/config/cf_ip <<'CONFIG'
 config service 'main'
 	option enabled '1'
@@ -83,7 +86,7 @@ config openclash 'openclash'
 	option config '/etc/openclash/config/config.yaml'
 CONFIG
 CFIP_LIB_DIR="$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip" \
-CFIP_RILL_CHANNEL_FILE="$TMP/channel-stable" CFIP_STATUS_DIR="$TMP/state" \
+CFIP_RILL_CHANNEL_FILE="$TMP/channel-preview" CFIP_STATUS_DIR="$TMP/state" \
   bash "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/migrate-managed-config.sh" >/dev/null
 [[ "$(uci -q get cf_ip.rill.enabled)" = 0 ]]
-echo 'PASS migration disables Rill on Stable Runtime'
+echo 'PASS migration disables Rill on legacy Preview Runtime'

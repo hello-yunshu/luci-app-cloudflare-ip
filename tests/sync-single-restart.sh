@@ -46,10 +46,11 @@ cat >"$TMP/status.json" <<'EOF_STATUS'
 EOF_STATUS
 export PATH="$TMP/bin:$PATH" UCI_FAKE_STATE="$TMP/passwall.state" UCI_WORK_DIR="/usr/bin" CFIP_INIT_DIR="$TMP/init" CFIP_STATUS_DIR="$TMP" CFIP_RUNTIME_DIR="$TMP/runtime" CFIP_STATUS_FILE="$TMP/status.json" CFIP_LOG_FILE="$TMP/log" CFIP_PASSWALL_STATE_FILE="$TMP/managed.json"
 CFIP_LIB_DIR="$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip" source "$ROOT/package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto-v2"
+cfip_managed_rill_state_safe() { return 0; } # This sync contract does not exercise Rill path ownership.
+cfip_managed_openclash_config_safe() { return 0; } # This fixture exercises PassWall only.
 CFIP_SERVICE_LOG="$TMP/services.log"; export CFIP_SERVICE_LOG
 cfip_probe_one() { jq -cn --arg ip "$1" --arg domain "$2" --arg family "$3" '{ip:$ip,domain:$domain,family:$family,success:true,totalMs:40,connectMs:10,tlsMs:10,ttfbMs:20}'; }
 result="$(cmd_sync passwall)"
-echo "$result" | jq -e '. == {success:true,synced:"passwall",health:"validated",restartCount:1}' >/dev/null
-test "$(grep -c '^restart$' "$TMP/services.log")" -eq 1
-test "$(grep -c '^stop$' "$TMP/services.log")" -eq 1
-echo 'manual sync single-restart behavior passed'
+echo "$result" | jq -e '.success and .synced=="passwall" and .configurationPersisted and (.serviceApplied|not) and .applyPending and .restartCount==0' >/dev/null
+! grep -Eq '^(stop|restart)$' "$TMP/services.log"
+echo 'manual sync persists PassWall UCI without stopping or restarting the live service'

@@ -7,13 +7,15 @@ source "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/openclash-re
 source "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/transaction.sh"
 cfip_begin_recovery() { :; }
 cfip_openclash_capture_state() { CFIP_OPENCLASH_EXPECTED_ENABLED=0; CFIP_OPENCLASH_INITIAL_HEALTHY=false; }
+cfip_managed_openclash_config_safe() { [[ -f "$1" ]]; }
+cfip_openclash_resolve_provider_target() { CFIP_OPENCLASH_RUNTIME_CONFIG="$case_dir/main.yaml"; CFIP_OPENCLASH_TARGET_CONFIG="$CFIP_OPENCLASH_CONFIG"; CFIP_OPENCLASH_PROVIDER_NAME=fixture; }
 cfip_openclash_check_before_write() { :; }
 cfip_openclash_readback_selected() {
     [[ "$fault" != staged-readback ]] || return 1
-    [[ "$fault" != live-readback || "$CFIP_OPENCLASH_CONFIG" != "$case_dir/live.yaml" ]]
+    [[ "$fault" != live-readback || "$CFIP_OPENCLASH_TARGET_CONFIG" != "$case_dir/live.yaml" ]]
 }
 cfip_openclash_apply_selected() {
-    printf 'proxies: []\n# transaction candidate\n' >"$CFIP_OPENCLASH_CONFIG"
+    printf 'proxies: []\n# transaction candidate\n' >"$CFIP_OPENCLASH_TARGET_CONFIG"
     if [[ "$fault" == outside-edit ]]; then printf 'external user edit\n' >"$case_dir/live.yaml"; fi
     [[ "$fault" != transform-after-write ]]
 }
@@ -36,6 +38,7 @@ for fault in transform-after-write written-snapshot candidate-copy backup-copy p
     CFIP_OPENCLASH_RECOVERY_ATTEMPTED=false; CFIP_OPENCLASH_SERVICE_APPLIED=false
     CFIP_OPENCLASH_FILE_WRITTEN=false; CFIP_OPENCLASH_SERVICE_ERROR=""
     CFIP_OPENCLASH_CONFIG="$case_dir/live.yaml"
+    printf 'main config fixture\n' >"$case_dir/main.yaml"
     printf 'user original\n' >"$CFIP_OPENCLASH_CONFIG"
     command cp "$CFIP_OPENCLASH_CONFIG" "$case_dir/original.yaml"
     printf '[{"ip":"104.16.1.1","family":"ipv4"}]\n' >"$case_dir/selected.json"

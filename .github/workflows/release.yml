@@ -67,6 +67,10 @@ jobs:
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 1
+      - name: Block promotion when proxy upstream refs need requalification
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 scripts/check-proxy-upstreams.py --baseline proxy-upstream-baseline.json --output "$RUNNER_TEMP/proxy-upstreams.json"
       - id: verify
         name: Verify exact SHA qualification manifest
         env:

@@ -11,11 +11,14 @@ def snapshot(root):
 with tempfile.TemporaryDirectory(prefix='cfip-kill-journal-') as directory:
  base=Path(directory);worker=base/'worker'
  worker.write_text(r'''set -euo pipefail
+source "$CFIP_TEST_LIB_DIR/common.sh"
 source "$CFIP_TEST_LIB_DIR/transaction.sh"
 uci(){ "$UCI_REAL_BIN" -c "$CFIP_TEST_CASE/config" -t "$CFIP_TEST_CASE/delta" "$@"; }
 cfip_service_running(){ return 1; }
 cfip_openclash_capture_state(){ CFIP_OPENCLASH_EXPECTED_ENABLED=0; CFIP_OPENCLASH_INITIAL_HEALTHY=false; }
 cfip_openclash_check_before_write(){ return 0; }
+cfip_managed_openclash_config_safe(){ [[ -f "$1" ]]; }
+cfip_openclash_resolve_provider_target(){ CFIP_OPENCLASH_TARGET_CONFIG="$CFIP_OPENCLASH_RUNTIME_CONFIG"; CFIP_OPENCLASH_PROVIDER_NAME=local; }
 if [[ "$1" == probe ]]; then
  rc=0; cfip_txn_prepare "$CFIP_TEST_MODE" || rc=$?
  jq -cn --argjson rc "$rc" --arg error "${CFIP_RECOVERY_ERROR:-}" --arg txn "$CFIP_TXN_DIR" '{rc:$rc,error:$error,txn:$txn}'
@@ -39,7 +42,7 @@ while :;do sleep 1;done
    root=base/(mode+'-'+phase)
    for name in ['config','delta','runtime','status']:(root/name).mkdir(parents=True,exist_ok=True)
    (root/'config/passwall').write_text("config nodes 'owned'\n option address 'cdn.example.com'\n option remarks 'retained user remarks'\n")
-   (root/'live.yaml').write_text('original config bytes\n')
+   (root/'live.yaml').write_text('proxies: []\nproxy-providers: {}\nproxy-groups: []\n')
    env=dict(os.environ,CFIP_TEST_LIB_DIR=LIB,CFIP_TEST_CASE=str(root),CFIP_RUNTIME_DIR=str(root/'runtime'),CFIP_STATUS_DIR=str(root/'status'),CFIP_RUN_ID='kill-'+mode+'-'+phase,CFIP_TEST_MODE=mode,CFIP_TEST_PHASE=phase,CFIP_OPENCLASH_CONFIG=str(root/'live.yaml'))
    child=subprocess.Popen([BASH,str(worker),'prepare'],env=env,start_new_session=True,stdout=subprocess.DEVNULL,stderr=subprocess.PIPE,text=True)
    try:

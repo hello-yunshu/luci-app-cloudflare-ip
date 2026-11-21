@@ -6,6 +6,10 @@ mkdir -p "$TMP/sdk/include" "$TMP/bin" "$TMP/build"
 : >"$TMP/sdk/rules.mk"; : >"$TMP/sdk/include/package.mk"
 cp -R "$ROOT/package/luci-app-cloudflare-ip/root" "$TMP/build/"
 cp -R "$ROOT/package/luci-app-cloudflare-ip/htdocs" "$TMP/build/"
+# Build/Compile is intentionally skipped by this install-recipe harness; the
+# package install rule still needs one staged catalog path to exercise copying.
+mkdir -p "$TMP/build/lmo"
+: >"$TMP/build/lmo/cloudflare-ip.zh-cn.lmo"
 cat >"$TMP/harness.mk" <<'MAKE'
 include $(REPO)/package/luci-app-cloudflare-ip/Makefile
 ifeq ($(DUMP),1)

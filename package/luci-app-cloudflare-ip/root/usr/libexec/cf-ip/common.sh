@@ -193,36 +193,45 @@ cfip_managed_work_dir_safe() {
     return 0
 }
 
-# Runtime packages share /usr/bin/rill-runtime. The CF consumer is qualified
-# only against Preview; detect the channel before invoking the binary.
+# Runtime packages share /usr/bin/rill-runtime. CFI accepts only the
+# package-managed Stable runtime; the former Preview package is legacy and
+# must be explicitly removed before Stable can be installed.
 cfip_rill_runtime_channel() {
     local marker="${CFIP_RILL_CHANNEL_FILE:-/usr/share/rill/runtime-channel}" value=""
+    local apk_db="${CFIP_APK_PACKAGE_DB_DIR:-/lib/apk/packages}"
+    local opkg_info="${CFIP_OPKG_INFO_DIR:-/usr/lib/opkg/info}"
+    # Package ownership takes precedence over a shared channel marker when
+    # both package records exist: never treat the legacy conflicting package
+    # as Stable just because a different package wrote the marker.
+    if [[ -f "$apk_db/rill-runtime-preview.list" || -f "$opkg_info/rill-runtime-preview.list" ]]; then
+        printf legacy-preview; return 0
+    fi
     if [[ -f "$marker" && ! -L "$marker" && -O "$marker" ]]; then
         # BusyBox tr treats '[:space:]' as literal characters; use sed.
         value="$(head -n 1 "$marker" 2>/dev/null | sed 's/[[:space:]]//g')"
-        case "$value" in stable|preview) printf '%s' "$value"; return 0 ;; esac
+        case "$value" in
+            stable) printf stable; return 0 ;;
+            preview) printf legacy-preview; return 0 ;;
+        esac
     fi
     # Package DB files avoid invoking the package manager while an install
     # transaction is still holding its lock.
-    if [[ -f /lib/apk/packages/rill-runtime-preview.list || -f /usr/lib/opkg/info/rill-runtime-preview.list ]]; then
-        printf preview; return 0
-    fi
-    if [[ -f /lib/apk/packages/rill-runtime.list || -f /usr/lib/opkg/info/rill-runtime.list ]]; then
+    if [[ -f "$apk_db/rill-runtime.list" || -f "$opkg_info/rill-runtime.list" ]]; then
         printf stable; return 0
     fi
     if command -v apk >/dev/null 2>&1; then
-        if apk info -e rill-runtime-preview >/dev/null 2>&1; then printf preview; return 0; fi
+        if apk info -e rill-runtime-preview >/dev/null 2>&1; then printf legacy-preview; return 0; fi
         if apk info -e rill-runtime >/dev/null 2>&1; then printf stable; return 0; fi
     fi
     if command -v opkg >/dev/null 2>&1; then
-        if opkg list-installed 2>/dev/null | grep -q '^rill-runtime-preview '; then printf preview; return 0; fi
+        if opkg list-installed 2>/dev/null | grep -q '^rill-runtime-preview '; then printf legacy-preview; return 0; fi
         if opkg list-installed 2>/dev/null | grep -q '^rill-runtime '; then printf stable; return 0; fi
     fi
     printf unknown
 }
 
 cfip_rill_runtime_allowed() {
-    [[ "$(cfip_rill_runtime_channel)" == preview ]]
+    [[ "$(cfip_rill_runtime_channel)" == stable ]]
 }
 
 cfip_managed_runtime_path_safe() {
@@ -445,11 +454,25 @@ cfip_service_status_timeout() {
 cfip_service_running() {
     local service="$1" timeout_class="${2:-status}" timeout rc=0
     [[ -x "$CFIP_INIT_DIR/$service" ]] || return 1
+    # PassWall uses classic rc.common, whose unsupported `running` action can
+    # still exit successfully. Status and measurement decisions need the
+    # runtime process marker; only recovery lifecycle checks use init actions.
+    if [[ "$service" == passwall && ( "$timeout_class" == status || "$timeout_class" == measurement ) ]]; then
+        cfip_passwall_process_running "${CFIP_PASSWALL_PROCESS_DIR:-/tmp/etc/passwall/bin}"
+        return $?
+    fi
     timeout="$(cfip_service_status_timeout "$timeout_class")" || return 2
     ((timeout > 0)) || return 124
     cfip_run_with_timeout "$timeout" "$CFIP_INIT_DIR/$service" running >/dev/null 2>&1 || rc=$?
     ((rc == 0)) && return 0
     [[ "$service" == openclash ]] && pidof clash >/dev/null 2>&1
+}
+
+cfip_passwall_process_running() {
+    local process_dir="${1:-/tmp/etc/passwall/bin}"
+    [[ -d "$process_dir" ]] || return 1
+    command -v busybox >/dev/null 2>&1 || return 1
+    busybox pgrep -f "$process_dir" >/dev/null 2>&1
 }
 
 # OpenClash's own start path waits up to 300 seconds for its local /group
@@ -491,7 +514,7 @@ cfip_openclash_read_enable() {
 }
 
 cfip_openclash_secret() {
-    local config="${CFIP_OPENCLASH_CONFIG:-/etc/openclash/config/config.yaml}" secret
+    local config="${CFIP_OPENCLASH_RUNTIME_CONFIG:-${CFIP_OPENCLASH_CONFIG:-/etc/openclash/config/config.yaml}}" secret
     [[ -r "$config" ]] || return 1
     secret="$(awk '
         /^[[:space:]]*secret:[[:space:]]*/ {
@@ -597,6 +620,9 @@ cfip_openclash_capture_state() {
 cfip_openclash_check_before_write() {
     local expected="${CFIP_OPENCLASH_EXPECTED_ENABLED:-}"
     [[ "${CFIP_OPENCLASH_CF_STOPPED:-false}" == true ]] && expected=0
+    if [[ "${CFIP_OPENCLASH_INITIAL_HEALTHY:-false}" == true ]] && declare -F cfip_openclash_runtime_unchanged >/dev/null 2>&1; then
+        cfip_openclash_runtime_unchanged || { CFIP_OPENCLASH_SERVICE_ERROR="OpenClash core identity changed before provider write"; return 1; }
+    fi
     cfip_openclash_read_enable || return 1
     [[ "$CFIP_OPENCLASH_ENABLE_VALUE" == "$expected" ]] || { CFIP_OPENCLASH_SERVICE_ERROR="OpenClash enable state changed before node write; no changes were made"; return 1; }
     if [[ "$expected" == 0 ]]; then

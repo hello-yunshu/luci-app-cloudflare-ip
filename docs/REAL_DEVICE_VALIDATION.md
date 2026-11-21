@@ -23,7 +23,7 @@
 ## Per-device procedure
 
 1. Record device model, firmware image digest, architecture, package commit and Runtime/package qualification IDs.
-2. Install the exact same-release base package, optional Rill package and Preview Runtime package; record package manager output and binary checksums.
+2. Install the exact same-release base package and canonical Stable Runtime package when validating Rill; record package manager output and binary checksums. Historical Preview package evidence remains labeled as legacy.
 3. Exercise both `reuse_enabled=1` and forced full optimize. Verify that reuse performs current-IP validation and that a failed validation enters full optimize without stale selection.
 4. Change target domain, IP type, protocol, source policy and proxy mode one at a time. Verify fingerprint invalidation, explicit sync mode, LuCI validation rejection, stop/apply/restart ordering and rollback.
 5. Restart the service between queue and delayed-feedback processing. Capture accepted, expired and schema/generation-rejected entries.

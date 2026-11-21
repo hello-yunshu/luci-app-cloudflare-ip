@@ -173,6 +173,57 @@ function makePluginBadge(installed, running) {
 	return E('span', { 'class': 'label warning' }, '\u2718 ' + _('Not Installed'));
 }
 
+function buildEnvironmentTable(environment, cfstVersion) {
+	var table = E('table', { 'class': 'table cfi-env-table' });
+	var items = [
+		{ label: _('tar'), key: 'tar' },
+		{ label: _('jq'), key: 'jq' },
+		{ label: _('PassWall'), key: 'passwall_installed', plugin: true, runningKey: 'passwall_running' },
+		{ label: _('PassWall2'), key: 'passwall2_installed', plugin: true, runningKey: 'passwall2_running' },
+		{ label: _('HomeProxy'), key: 'homeproxy_installed', plugin: true, runningKey: 'homeproxy_running' },
+		{ label: _('OpenClash'), key: 'openclash_installed', plugin: true, runningKey: 'openclash_running' },
+		{ label: _('CFST'), key: 'cfst_installed', cfst: true }
+	];
+	var detectedProxy = false;
+
+	for (var i = 0; i < items.length; i++) {
+		var item = items[i];
+		var val = environment[item.key];
+		var badge;
+
+		if (item.plugin) {
+			if (val !== true)
+				continue;
+			detectedProxy = true;
+			badge = makePluginBadge(val, environment[item.runningKey]);
+		} else if (item.cfst) {
+			if (typeof val !== 'boolean') {
+				badge = makeEnvBadge(null);
+			} else if (val) {
+				badge = E('span', { 'class': 'label success' }, '\u2714 ' + (cfstVersion || _('Installed')));
+			} else {
+				badge = E('span', { 'class': 'label important' }, '\u2718 ' + _('Not Installed'));
+			}
+		} else {
+			badge = makeEnvBadge(val);
+		}
+
+		table.appendChild(E('tr', { 'class': 'tr' }, [
+			E('th', { 'class': 'th cfi-overview-label', 'scope': 'row' }, item.label),
+			E('td', { 'class': 'td' }, [badge])
+		]));
+	}
+
+	if (!detectedProxy) {
+		table.insertBefore(E('tr', { 'class': 'tr' }, [
+			E('th', { 'class': 'th cfi-overview-label', 'scope': 'row' }, _('Proxy Software')),
+			E('td', { 'class': 'td' }, [E('span', { 'class': 'label important' }, '\u2718 ' + _('Not Installed'))])
+		]), table.childNodes[2] || null);
+	}
+
+	return table;
+}
+
 function buildDepSection(missingDeps, pkgManager) {
 	if (!missingDeps || missingDeps.length === 0)
 		return null;
@@ -307,7 +358,7 @@ return view.extend({
 
 		container.appendChild(statsGrid);
 
-		var controlSection = E('div', { 'class': 'cbi-section' });
+		var controlSection = E('div', { 'class': 'cbi-section cfi-overview-control-section' });
 		controlSection.appendChild(E('h3', {}, _('Service Control')));
 
 		var btnGroup = E('div', { 'class': 'ys-actions' });
@@ -426,14 +477,14 @@ return view.extend({
 
 		var infoTable = E('table', { 'class': 'table' });
 
-		infoTable.appendChild(E('tr', {}, [
-			E('th', {}, _('Mode')),
-			E('td', { 'data-title': _('Mode') }, mode)
+		infoTable.appendChild(E('tr', { 'class': 'tr' }, [
+			E('th', { 'class': 'th cfi-overview-label', 'scope': 'row' }, _('Mode')),
+			E('td', { 'class': 'td' }, mode)
 		]));
 
-		infoTable.appendChild(E('tr', {}, [
-			E('th', {}, _('Last Run Time')),
-			E('td', { 'data-title': _('Last Run Time') }, lastRun)
+		infoTable.appendChild(E('tr', { 'class': 'tr' }, [
+			E('th', { 'class': 'th cfi-overview-label', 'scope': 'row' }, _('Last Run Time')),
+			E('td', { 'class': 'td' }, lastRun)
 		]));
 
 		var lastResultBadge;
@@ -452,9 +503,9 @@ return view.extend({
 		} else {
 			lastResultBadge = E('span', { 'class': 'label important' }, '\u2718 ' + translateStatus(lastResult));
 		}
-		infoTable.appendChild(E('tr', {}, [
-			E('th', {}, _('Last Result')),
-			E('td', { 'data-title': _('Last Result') }, lastResultBadge)
+		infoTable.appendChild(E('tr', { 'class': 'tr' }, [
+			E('th', { 'class': 'th cfi-overview-label', 'scope': 'row' }, _('Last Result')),
+			E('td', { 'class': 'td' }, lastResultBadge)
 		]));
 		if (data.service && data.service.target === 'openclash') {
 			var serviceMessage;
@@ -470,31 +521,56 @@ return view.extend({
 					(data.service.recoveryVerified ? _('OpenClash service restored and health verified; new nodes were not applied.') : '');
 			}
 			if (serviceMessage)
-				infoTable.appendChild(E('tr', {}, [
-					E('th', {}, _('OpenClash Apply Status')),
-					E('td', { 'data-title': _('OpenClash Apply Status') }, serviceMessage)
+				infoTable.appendChild(E('tr', { 'class': 'tr' }, [
+					E('th', { 'class': 'th cfi-overview-label', 'scope': 'row' }, _('OpenClash Apply Status')),
+					E('td', { 'class': 'td' }, serviceMessage)
 				]));
+		} else if (data.service && data.service.target === 'passwall') {
+			infoTable.appendChild(E('tr', { 'class': 'tr' }, [
+				E('th', { 'class': 'th cfi-overview-label', 'scope': 'row' }, _('PassWall Apply Status')),
+				E('td', { 'class': 'td' }, _('PassWall settings were persisted, but the running service was not hot-applied. Apply them with a separately managed PassWall restart; runtime egress is unverified.'))
+			]));
+		} else if (data.service && data.service.target === 'passwall2') {
+			var passwall2Message = data.service.maintenanceRestarted ?
+				_('The configured maintenance stop was recovered before the PassWall2 UCI write; the running service was not reloaded and the update remains pending.') :
+				_('Only the top candidate was persisted to one active PassWall2 graph leaf. The service was not reloaded or restarted; runtime egress is unverified and application is pending.');
+			if (data.service.updatedNodeCount === 1 && data.service.updatedNode && data.service.appliedCandidate)
+				passwall2Message += ' ' + _('Updated node: %s; candidate: %s.').format(data.service.updatedNode, data.service.appliedCandidate);
+			infoTable.appendChild(E('tr', { 'class': 'tr' }, [
+				E('th', { 'class': 'th cfi-overview-label', 'scope': 'row' }, _('PassWall2 Apply Status')),
+				E('td', { 'class': 'td' }, passwall2Message)
+			]));
+		} else if (data.service && data.service.target === 'homeproxy') {
+			var homeproxyMessage = data.service.maintenanceRestarted ?
+				_('HomeProxy was restored after the configured maintenance stop and loaded the persisted top candidate for one active main_node; target-domain egress remains unverified.') :
+				_('Only the top candidate was persisted to one active HomeProxy main_node. The running service was not changed; runtime egress is unverified and application is pending.');
+			if (data.service.updatedNodeCount === 1 && data.service.updatedNode && data.service.appliedCandidate)
+				homeproxyMessage += ' ' + _('Updated node: %s; candidate: %s.').format(data.service.updatedNode, data.service.appliedCandidate);
+			infoTable.appendChild(E('tr', { 'class': 'tr' }, [
+				E('th', { 'class': 'th cfi-overview-label', 'scope': 'row' }, _('HomeProxy Apply Status')),
+				E('td', { 'class': 'td' }, homeproxyMessage)
+			]));
 		}
 
 		var bestIpsText = bestIps.length > 0 ? bestIps.slice(0, 5).join(', ') + (bestIps.length > 5 ? ' ...' : '') : '-';
-		infoTable.appendChild(E('tr', {}, [
-			E('th', {}, _('Best IPs')),
-			E('td', { 'data-title': _('Best IPs') }, bestIpsText)
+		infoTable.appendChild(E('tr', { 'class': 'tr' }, [
+			E('th', { 'class': 'th cfi-overview-label', 'scope': 'row' }, _('Best IPs')),
+			E('td', { 'class': 'td' }, bestIpsText)
 		]));
 
-		infoTable.appendChild(E('tr', {}, [
-			E('th', {}, _('Script Version')),
-			E('td', { 'data-title': _('Script Version') }, scriptVersion)
+		infoTable.appendChild(E('tr', { 'class': 'tr' }, [
+			E('th', { 'class': 'th cfi-overview-label', 'scope': 'row' }, _('Script Version')),
+			E('td', { 'class': 'td' }, scriptVersion)
 		]));
 
-		infoTable.appendChild(E('tr', {}, [
-			E('th', {}, _('CFST Version')),
-			E('td', { 'data-title': _('CFST Version') }, cfstVersion)
+		infoTable.appendChild(E('tr', { 'class': 'tr' }, [
+			E('th', { 'class': 'th cfi-overview-label', 'scope': 'row' }, _('CFST Version')),
+			E('td', { 'class': 'td' }, cfstVersion)
 		]));
 
-		infoTable.appendChild(E('tr', {}, [
-			E('th', {}, _('GitHub')),
-			E('td', { 'data-title': _('GitHub') }, E('a', {
+		infoTable.appendChild(E('tr', { 'class': 'tr' }, [
+			E('th', { 'class': 'th cfi-overview-label', 'scope': 'row' }, _('GitHub')),
+			E('td', { 'class': 'td' }, E('a', {
 				'href': 'https://github.com/hello-yunshu/luci-app-cloudflare-ip',
 				'target': '_blank',
 				'rel': 'noopener'
@@ -508,47 +584,7 @@ return view.extend({
 		var envSection = E('div', { 'class': 'cbi-section' });
 		envSection.appendChild(E('h3', {}, _('Environment Detection')));
 
-		var envTable = E('table', { 'class': 'table' });
-
-		var envItems = [
-			{ label: _('tar'), key: 'tar' },
-			{ label: _('jq'), key: 'jq' },
-			{ label: _('PassWall'), key: 'passwall_installed', plugin: true, runningKey: 'passwall_running' },
-			{ label: _('OpenClash'), key: 'openclash_installed', plugin: true, runningKey: 'openclash_running' },
-			{ label: _('CFST'), key: 'cfst_installed', cfst: true }
-		];
-
-		var envTds = [];
-		for (var i = 0; i < envItems.length; i++) {
-			var item = envItems[i];
-			var val = environment[item.key];
-			var badge;
-
-			if (item.plugin) {
-				var isRunning = environment[item.runningKey];
-				badge = makePluginBadge(val, isRunning);
-			} else if (item.cfst) {
-				if (typeof val !== 'boolean') {
-					badge = makeEnvBadge(null);
-				} else if (val) {
-					var cfstVer = data.cfst_version || '';
-					badge = E('span', { 'class': 'label success' }, '\u2714 ' + (cfstVer ? cfstVer : _('Installed')));
-				} else {
-					badge = E('span', { 'class': 'label important' }, '\u2718 ' + _('Not Installed'));
-				}
-			} else {
-				badge = makeEnvBadge(val);
-			}
-
-			var tdContent = [badge];
-
-			var td = E('td', { 'data-title': item.label }, tdContent);
-			envTds.push({ td: td, item: item });
-			envTable.appendChild(E('tr', {}, [
-				E('th', {}, item.label),
-				td
-			]));
-		}
+		var envTable = buildEnvironmentTable(environment, data.cfst_version);
 
 		envSection.appendChild(envTable);
 
@@ -561,31 +597,11 @@ return view.extend({
 				return callRefreshEnv().then(function(result) {
 					if (!result || result.success !== true)
 						throw new Error(result && result.error || _('Error'));
-					for (var j = 0; j < envTds.length; j++) {
-						var entry = envTds[j];
-						var it = entry.item;
-						var newVal = result[it.key];
-						var newBadge;
-
-						if (it.plugin) {
-							var newRunning = result[it.runningKey];
-							newBadge = makePluginBadge(newVal, newRunning);
-						} else if (it.cfst) {
-							if (typeof newVal !== 'boolean') {
-								newBadge = makeEnvBadge(null);
-							} else if (newVal) {
-								var ver = result.cfst_version || '';
-								newBadge = E('span', { 'class': 'label success' }, '\u2714 ' + (ver ? ver : _('Installed')));
-							} else {
-								newBadge = E('span', { 'class': 'label important' }, '\u2718 ' + _('Not Installed'));
-							}
-						} else {
-							newBadge = makeEnvBadge(newVal);
-						}
-
-						while (entry.td.firstChild) entry.td.removeChild(entry.td.firstChild);
-						entry.td.appendChild(newBadge);
-					}
+					var refreshedEnvironment = Object.assign({}, environment, result, result.env || {});
+					var refreshedTable = buildEnvironmentTable(refreshedEnvironment, result.cfst_version);
+					envSection.replaceChild(refreshedTable, envTable);
+					envTable = refreshedTable;
+					environment = refreshedEnvironment;
 
 					var newMissing = result.missing_deps || [];
 					var newDepSection = buildDepSection(newMissing, result.package_manager || 'opkg');

@@ -11,6 +11,112 @@ var callSelfCheck = rpc.declare({ object: 'cf_ip', method: 'rill-self-check', ex
 var callDiagnostics = rpc.declare({ object: 'cf_ip', method: 'rill-diagnostics', expect: { '': {} } });
 var callAdaptiveStatus = rpc.declare({ object: 'cf_ip', method: 'adaptive-status', expect: { '': {} } });
 var callReset = rpc.declare({ object: 'cf_ip', method: 'rill-reset', params: [ 'expectedGeneration' ], expect: { '': {} } });
+var callRuntimeManagerStatus = rpc.declare({ object: 'rill-runtime-manager', method: 'status', expect: { '': {} } });
+var callRuntimeManagerRefresh = rpc.declare({ object: 'rill-runtime-manager', method: 'refresh', expect: { '': {} } });
+var callRuntimeManagerInstall = rpc.declare({ object: 'rill-runtime-manager', method: 'install', params: [ 'package' ], expect: { '': {} } });
+var callRuntimeManagerUpdate = rpc.declare({ object: 'rill-runtime-manager', method: 'update', params: [ 'package' ], expect: { '': {} } });
+var callRuntimeManagerRepair = rpc.declare({ object: 'rill-runtime-manager', method: 'repair', params: [ 'package' ], expect: { '': {} } });
+var callLegacySelfUpdate = rpc.declare({ object: 'cf_ip', method: 'self-update', expect: { '': {} } });
+
+var runtimeManagementBusy = false;
+
+function runtimePackageStateText(manager) {
+	manager = manager || {};
+	if (manager.errorCode === 'manager-unavailable' || manager.helperAvailable === false)
+		return _('Runtime management helper is not installed. Update CFI from the unified package feed to enable one-click management.');
+	if (manager.channel === 'legacy-preview' || manager.errorCode === 'legacy-runtime-migration-required')
+		return _('Legacy Preview Runtime is installed. Remove it explicitly before installing Stable Runtime; CFI will not remove it.') +
+			' ' + (manager.version || _('version unknown')) + (manager.message ? ' / ' + manager.message : '');
+	if (manager.ok === false && manager.errorCode)
+		return (manager.message || _('Unable to query Runtime package manager.')) + ' / ' + manager.errorCode;
+	if (manager.supported === false)
+		return _('Runtime is not supported for this OpenWrt release or architecture.') + ' ' + (manager.message || '');
+	if (manager.channel === 'stable')
+		return _('Stable Runtime is installed.') + ' ' + (manager.version || _('version unknown')) +
+			(manager.updateAvailable ? ' / ' + _('Runtime update is available.') : ' / ' + _('Runtime is already up to date.'));
+	if (manager.channel === 'unknown')
+		return _('Runtime source or channel is unknown; CFI will not update it.');
+	if (manager.installed === true) {
+		if (manager.channel !== 'preview')
+			return _('Runtime source or channel is unknown; CFI will not update it.');
+		if (manager.compatible !== true)
+			return _('The installed Preview Runtime is incompatible or its compatibility is unknown; CFI will not update it.') + ' ' + (manager.message || '');
+		return _('Preview Runtime is installed and compatible.') + ' ' + (manager.version || _('version unknown')) +
+			(manager.updateAvailable ? ' / ' + _('Runtime update is available.') : ' / ' + _('Runtime is already up to date.'));
+	}
+	return _('Runtime is not installed. CFI Native mode remains available.');
+}
+
+function decorateRuntimeManagement(node, manager) {
+	if (!node || typeof node.querySelector !== 'function')
+		return node;
+	manager = manager || {};
+	var managerInstalled = manager.helperAvailable === true;
+	var helper = managerInstalled && manager.ok === true;
+	var supported = manager.supported === true;
+	var installed = manager.installed === true;
+	var installable = helper && supported && !installed && manager.channel !== 'stable' && manager.channel !== 'unknown' && manager.channel !== 'legacy-preview';
+	var compatibleStable = installed && manager.channel === 'stable' && manager.compatible === true;
+	[
+		[ '_package_refresh', helper ],
+		[ '_runtime_install', installable ],
+		[ '_runtime_repair', helper && manager.repairAvailable === true ],
+		[ '_runtime_update', helper && supported && compatibleStable && manager.updateAvailable === true ],
+		[ '_cfi_update', helper && manager.cfiUpdateAvailable === true ],
+		[ '_legacy_cfi_update', !managerInstalled ]
+	].forEach(function(item) {
+		var row = node.querySelector('.cbi-value[id$="-' + item[0] + '"]');
+		if (!row)
+			return;
+		row.style.display = item[1] ? '' : 'none';
+		row.classList.add('cfi-runtime-management');
+	});
+	setRuntimeManagementBusy(false);
+	return node;
+}
+
+function runRuntimeManagerAction(method, packageName, button, resultMessage, failureTitle, reloadPage) {
+	if (runtimeManagementBusy)
+		return Promise.resolve();
+
+	runtimeManagementBusy = true;
+	setRuntimeManagementBusy(true);
+	utils.setBusy(button, method === 'refresh' ? _('Checking...') : (method === 'install' ? _('Installing...') : (method === 'repair' ? _('Repairing...') : _('Updating...'))));
+	var action = method === 'refresh' ? callRuntimeManagerRefresh() :
+		(method === 'install' ? callRuntimeManagerInstall(packageName) : (method === 'repair' ? callRuntimeManagerRepair(packageName) : callRuntimeManagerUpdate(packageName)));
+
+	return action.then(function(result) {
+		if (!result || result.ok !== true)
+			throw new Error((result && (result.message || result.errorCode)) || _('Package manager rejected the request.'));
+		return callRuntimeManagerStatus().then(function(state) { return Object.assign({ helperAvailable: true }, state || {}); }).catch(function() { return null; });
+	}).then(function(state) {
+		if (state)
+			runtimeManagementState = Object.assign({ helperAvailable: true }, state);
+		ui.addNotification(null, E('p', resultMessage), 'info');
+		if (reloadPage)
+			window.setTimeout(function() { location.reload(); }, 1800);
+	}).catch(function(error) {
+		utils.noticeError(failureTitle, _('CFI remains usable in Native mode. Check package manager status before retrying.'), error);
+	}).finally(function() {
+		runtimeManagementBusy = false;
+		setRuntimeManagementBusy(false);
+		utils.resetBusy(button);
+	});
+}
+
+var runtimeManagementState = { ok: false, helperAvailable: false, errorCode: 'manager-unavailable' };
+
+function setRuntimeManagementBusy(busy) {
+	if (typeof document === 'undefined')
+		return;
+	var disabled = busy || runtimeManagementState.busy === true;
+	document.querySelectorAll('.cfi-runtime-management button').forEach(function(button) {
+			if (disabled)
+				button.setAttribute('disabled', 'disabled');
+			else if (!button.classList.contains('spinning'))
+				button.removeAttribute('disabled');
+	});
+}
 
 function runtimeSummary(status) {
 	status = status || {};
@@ -37,10 +143,10 @@ function runtimeSummary(status) {
 }
 
 function addCopyButton(field, text) {
-	if (!field || field.querySelector('.cfi-copy-btn'))
+	if (!field || field.querySelector('.cfi-intel-copy'))
 		return;
 	var button = E('button', {
-		'class': 'cbi-button',
+		'class': 'cbi-button cfi-intel-copy',
 		'type': 'button',
 		'aria-label': _('Copy'),
 		'click': function() {
@@ -58,6 +164,26 @@ function addCopyButton(field, text) {
 		}
 	}, _('Copy'));
 	field.appendChild(button);
+}
+
+function decorateAvailableRuntime(option, status) {
+	var intelligence = (status || {}).intelligence || {};
+	if (intelligence.available !== true)
+		return;
+
+	var renderWidget = option.renderWidget;
+	option.renderWidget = function(section_id, option_index, cfgvalue) {
+		var widget = renderWidget.call(this, section_id, option_index, cfgvalue);
+		var output = widget && widget.querySelector && widget.querySelector('output');
+		if (!output)
+			return widget;
+
+		output.classList.add('cfi-runtime-summary');
+		output.textContent = '';
+		output.appendChild(E('span', { 'class': 'label success' }, _('Available')));
+		output.appendChild(E('span', { 'class': 'cfi-runtime-version' }, intelligence.runtimeVersion || _('version unknown')));
+		return widget;
+	};
 }
 
 function decorateIntelligence(node, status, diagnostics) {
@@ -140,7 +266,8 @@ return view.extend({
 			uci.load('cf_ip'),
 			callStatus().catch(function() { return { _statusError: true }; }),
 			callDiagnostics().catch(function() { return {}; }),
-			callAdaptiveStatus().catch(function() { return {}; })
+			callAdaptiveStatus().catch(function() { return {}; }),
+			callRuntimeManagerStatus().then(function(result) { return Object.assign({ helperAvailable: true }, result || {}); }).catch(function() { return { ok: false, helperAvailable: false, errorCode: 'manager-unavailable' }; })
 		]);
 	},
 
@@ -150,6 +277,8 @@ return view.extend({
 		var status = data[1] || {};
 		var diagnostics = data[2] || {};
 		var adaptiveResponse = data[3] || {};
+		var runtimeManager = data[4] || { ok: false, helperAvailable: false, errorCode: 'manager-unavailable' };
+		runtimeManagementState = runtimeManager;
 		var adaptive = adaptiveResponse.adaptiveMeasurement || status.adaptiveMeasurement || {};
 		var adaptiveAggregate = adaptive.aggregate || {};
 		function adaptiveNumber(value, digits) {
@@ -163,6 +292,7 @@ return view.extend({
 		s.anonymous = true;
 		o = s.option(form.DummyValue, '_runtime_summary', _('Runtime'));
 		o.cfgvalue = function() { return runtimeSummary(status); };
+		decorateAvailableRuntime(o, status);
 
 		s = m.section(form.NamedSection, 'main', 'service', _('Measurement Policy'));
 		s.anonymous = true;
@@ -306,13 +436,115 @@ return view.extend({
 		s.anonymous = true;
 	o = s.option(form.DummyValue, '_state', _('Runtime'));
 	o.cfgvalue = function() { return runtimeSummary(status); };
-	o = s.option(form.DummyValue, '_install_help', _('Runtime installation'));
+	decorateAvailableRuntime(o, status);
+	o = s.option(form.DummyValue, '_package_manager', _('Runtime Package Status'));
+	o.cfgvalue = function() { return runtimePackageStateText(runtimeManager); };
+	o = s.option(form.DummyValue, '_package_target', _('Runtime Package Target'));
 	o.cfgvalue = function() {
-		var i = status.intelligence || {};
-		if (i.state === 'not-installed')
-			return _('Install rill-runtime-preview matching your OpenWrt release and CPU architecture.') + ' https://github.com/hello-yunshu/rill-openwrt-packages/releases';
-		return _('Runtime is optional; Native mode remains available without it.');
+		return [ runtimeManager.release || _('Unknown release'), runtimeManager.architecture || _('Unknown architecture'), runtimeManager.pkgtype || _('Unknown package format') ].join(' / ');
 	};
+
+	o = s.option(form.Button, '_package_refresh', _('Runtime Package Management'));
+	o.inputtitle = _('Check for updates');
+	o.inputstyle = 'reload';
+	o.rmempty = true;
+	o.cfgvalue = function() { return ''; };
+	o.write = function() {};
+	o.onclick = function(ev) {
+		var button = ev && ev.currentTarget && ev.currentTarget.tagName === 'BUTTON' ? ev.currentTarget :
+			(ev && ev.target && ev.target.tagName === 'BUTTON' ? ev.target : null);
+		if (!button && this && this.node) button = this.node.querySelector('button');
+		if (!runtimeManager.helperAvailable)
+			return Promise.reject(new Error(_('Runtime management helper is not installed.')));
+		return runRuntimeManagerAction('refresh', '', button, _('Runtime package index refreshed.'), _('Unable to refresh package index.'), true);
+	};
+	o.description = _('Refreshes the trusted unified feed package index. Runtime is optional; CFI Native mode remains available without it.');
+
+	o = s.option(form.Button, '_runtime_install', _('Install Rill Runtime'));
+	o.inputtitle = _('Install Rill Runtime');
+	o.inputstyle = 'apply';
+	o.rmempty = true;
+	o.cfgvalue = function() { return ''; };
+	o.write = function() {};
+	o.onclick = function(ev) {
+		var button = ev && ev.currentTarget && ev.currentTarget.tagName === 'BUTTON' ? ev.currentTarget :
+			(ev && ev.target && ev.target.tagName === 'BUTTON' ? ev.target : null);
+		if (!button && this && this.node) button = this.node.querySelector('button');
+		return utils.confirmAction(_('Install Rill Runtime'), _('Install the optional Stable Rill Runtime? CFI Native mode will remain available.'), function() {
+			return runRuntimeManagerAction('install', 'rill-runtime', button, _('Runtime package action completed. Reloading status.'), _('Unable to install Rill Runtime.'), true);
+		}, _('Install'));
+	};
+	o.description = _('Installs the package-managed Stable Runtime for this router release and architecture. A legacy Preview Runtime must be removed explicitly first.');
+
+	o = s.option(form.Button, '_runtime_repair', _('Repair Rill Runtime'));
+	o.inputtitle = _('Repair Rill Runtime');
+	o.inputstyle = 'apply';
+	o.rmempty = true;
+	o.cfgvalue = function() { return ''; };
+	o.write = function() {};
+	o.onclick = function(ev) {
+		var button = ev && ev.currentTarget && ev.currentTarget.tagName === 'BUTTON' ? ev.currentTarget :
+			(ev && ev.target && ev.target.tagName === 'BUTTON' ? ev.target : null);
+		if (!button && this && this.node) button = this.node.querySelector('button');
+		return utils.confirmAction(_('Repair Rill Runtime'), _('Reinstall the same trusted Stable Runtime package to restore its missing executable? This will not upgrade the Runtime.'), function() {
+			return runRuntimeManagerAction('repair', 'rill-runtime', button, _('Runtime repair completed. Reloading status.'), _('Unable to repair Rill Runtime.'), true);
+		}, _('Repair'));
+	};
+	o.description = _('Reinstalls the same trusted Stable package only when its executable is missing. It does not change Runtime versions.');
+
+	o = s.option(form.Button, '_runtime_update', _('Update Rill Runtime'));
+	o.inputtitle = _('Update Rill Runtime');
+	o.inputstyle = 'apply';
+	o.rmempty = true;
+	o.cfgvalue = function() { return ''; };
+	o.write = function() {};
+	o.onclick = function(ev) {
+		var button = ev && ev.currentTarget && ev.currentTarget.tagName === 'BUTTON' ? ev.currentTarget :
+			(ev && ev.target && ev.target.tagName === 'BUTTON' ? ev.target : null);
+		if (!button && this && this.node) button = this.node.querySelector('button');
+		return utils.confirmAction(_('Update Rill Runtime'), _('Update the shared Stable Rill Runtime? Other installed consumers will be checked before changes.'), function() {
+			return runRuntimeManagerAction('update', 'rill-runtime', button, _('Runtime package action completed. Reloading status.'), _('Unable to update Rill Runtime.'), true);
+		}, _('Update'));
+	};
+	o.description = _('Updates only the compatible Stable Runtime. Unknown-source, legacy Preview, and incompatible installations are not replaced.');
+
+	o = s.option(form.Button, '_cfi_update', _('Update CFI'));
+	o.inputtitle = _('Update CFI');
+	o.inputstyle = 'apply';
+	o.rmempty = true;
+	o.cfgvalue = function() { return ''; };
+	o.write = function() {};
+	o.onclick = function(ev) {
+		var button = ev && ev.currentTarget && ev.currentTarget.tagName === 'BUTTON' ? ev.currentTarget :
+			(ev && ev.target && ev.target.tagName === 'BUTTON' ? ev.target : null);
+		if (!button && this && this.node) button = this.node.querySelector('button');
+		return utils.confirmAction(_('Update CFI'), _('Update CFI from the unified feed? The page will reload after the package update.'), function() {
+			return runRuntimeManagerAction('update', 'luci-app-cloudflare-ip', button, _('CFI package update completed. Reloading.'), _('Unable to update CFI from the unified feed.'), true);
+		}, _('Update'));
+	};
+	o.description = _('Uses the trusted unified package feed.');
+
+	o = s.option(form.Button, '_legacy_cfi_update', _('Legacy CFI Update'));
+	o.inputtitle = _('Update CFI via legacy GitHub release');
+	o.inputstyle = 'reload';
+	o.rmempty = true;
+	o.cfgvalue = function() { return ''; };
+	o.write = function() {};
+	o.onclick = function(ev) {
+		var button = ev && ev.currentTarget && ev.currentTarget.tagName === 'BUTTON' ? ev.currentTarget :
+			(ev && ev.target && ev.target.tagName === 'BUTTON' ? ev.target : null);
+		if (!button && this && this.node) button = this.node.querySelector('button');
+		utils.setBusy(button, _('Updating CFI...'));
+		return callLegacySelfUpdate().then(function(result) {
+			if (!result || result.success !== true)
+				throw new Error((result && result.error) || _('Legacy updater rejected the request.'));
+			ui.addNotification(null, E('p', _('Legacy CFI update started. Follow the package installer output on the router.')), 'info');
+		}).catch(function(error) {
+			utils.noticeError(_('Unable to update CFI.'), _('The legacy GitHub updater is used only because the unified package helper is missing.'), error);
+		}).finally(function() { utils.resetBusy(button); });
+	};
+	o.description = _('Legacy GitHub updater is available because the unified package helper is missing.');
+
 	o = s.option(form.DummyValue, '_channel', _('Runtime Channel'));
 	o.cfgvalue = function() { return (status.intelligence || {}).channel || _('Unknown'); };
 	o = s.option(form.DummyValue, '_api', _('Runtime API'));
@@ -444,7 +676,7 @@ return view.extend({
 	utils.createHandleSave(m, this);
 	utils.createHandleSaveApply(m, this);
 	var renderContents = m.renderContents.bind(m);
-	m.renderContents = function() { return renderContents().then(function(node) { return decorateIntelligence(node, status, diagnostics); }); };
+	m.renderContents = function() { return renderContents().then(function(node) { decorateIntelligence(node, status, diagnostics); return decorateRuntimeManagement(node, runtimeManager); }); };
 	return utils.renderWithFooter(m.render(), utils.FOOTER_OPTIONS);
 	}
 });

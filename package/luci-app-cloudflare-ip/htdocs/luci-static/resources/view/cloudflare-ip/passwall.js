@@ -53,7 +53,7 @@ return view.extend({
 		var o;
 
 		o = s.option(form.Value, 'target_domain', _('Target Domain'));
-		o.description = _('Only PassWall nodes whose address equals this domain will be updated. Comma-separated for multiple domains.');
+		o.description = _('Only PassWall nodes whose address equals this domain will be updated. Comma-separated for multiple domains.') + ' ' + _('CFI writes PassWall UCI settings only; it does not hot-apply the running service. A separately managed PassWall restart is required, and runtime egress is not verified.');
 		o.placeholder = 'cdn.example.com';
 		o.rmempty = false;
 		o.datatype = 'string';

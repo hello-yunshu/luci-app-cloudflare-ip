@@ -25,14 +25,14 @@
 	white-space: pre-wrap;
 	max-height: 12em;
 	overflow: auto;
-	margin: 0.5em 0;
+	margin: calc(var(--spacing, .25rem) * 4) 0;
 }
 .cfi-log-pre.cfi-log-pre-tall { max-height: 28em; }
 
 /* ===== Log Filter Row ===== */
 .cfi-log-controls {
 	display: flex; flex-wrap: wrap; align-items: center;
-	gap: 0.8em; margin-bottom: 1em;
+	gap: calc(var(--spacing, .25rem) * 3); margin-bottom: 1em;
 }
 .cfi-log-controls .cfi-log-filter { flex: 1 1 12em; min-width: 0; }
 .cfi-log-controls .cfi-log-level { flex: 0 0 auto; }
@@ -40,11 +40,14 @@
 /* ===== Overview Stats ===== */
 .cfi-stats-grid {
 	display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-	gap: 1em; margin-bottom: 1.5em;
+	gap: 1em;
+	margin-top: calc(var(--spacing, .25rem) * 4);
+	margin-bottom: calc(var(--spacing, .25rem) * 4);
 }
+/* The cards retain native CBI surfaces, while the grid owns their spacing. */
+#maincontent .cfi-stats-grid > .cfi-stat-card { margin: 0; }
 .cfi-stat-card {
 	min-width: 0;
-	padding: 1em 1.2em; border-radius: 8px;
 	text-align: center;
 }
 .cfi-stat-card .cfi-stat-value {
@@ -63,6 +66,11 @@
 .cfi-form-map .cfi-collapse-toggle { margin: 0.25em 0 0.75em; }
 
 /* ===== Clipboard Fallback ===== */
+.cfi-intel-copy {
+	display: block;
+	margin-top: var(--ys-action-gap, calc(var(--spacing, .25rem) * 3));
+}
+
 .cfi-copy-source {
 	position: fixed;
 	left: -9999px;
@@ -72,6 +80,23 @@
 
 /* ===== 原生表格滚动容器（例外 E21） ===== */
 .cfi-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.cfi-table-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5em; }
+.cfi-source-status-table-wrap { margin-top: calc(var(--spacing, .25rem) * 3); }
+.cfi-inline-link { margin-block: calc(var(--spacing, .25rem) * 3) 0; }
+.cfi-runtime-summary {
+	display: inline-flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: calc(var(--spacing, .25rem) * 2);
+}
+
+@media screen and (max-width: 1279px) {
+	/* Keep all plugin routes discoverable on narrow screens. The native LuCI
+	 * strip otherwise clips later tabs when a page is opened directly. The
+	 * installed OpenClash/PassWall forms need the full set visible below 1280px. */
+	#tabmenu ul.tabs { flex-wrap: wrap; overflow-x: visible; }
+}
+
 @media screen and (max-width: 700px) {
 	.cfi-table-scroll > table.table { min-width: 0; width: 100%; table-layout: fixed; box-sizing: border-box; }
 }
@@ -79,6 +104,27 @@
  * 被 V8 判为裁切；容器内把负边距收回。 */
 @media screen and (max-width: 600px) {
 	.cfi-table-scroll > table.table .tr { margin: 0; }
+	/* Stacked LuCI cells already display each column's data-title. Hide this
+	 * narrow table header so its three headings do not collide above the rows. */
+	#maincontent .cfi-openclash-backup-table > thead { display: none; }
+}
+
+/* LuCI's mobile table layout already labels each stacked data cell. Keep the
+ * source status headings available to assistive technology, but out of the
+ * visual flow where the four desktop columns are collapsed into two mobile
+ * label/value pairs. The default header cells otherwise concatenate at 320px. */
+@media screen and (max-width: 700px) {
+#maincontent .cfi-source-status-table > thead {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border: 0;
+	}
 }
 
 /* ===== 长文本折行：日志与来源错误（例外 E2/E17） ===== */
@@ -92,58 +138,17 @@
 .cfi-source-error summary,
 #view .alert-message details > summary { display: flex; align-items: center; min-height: 32px; }
 
-/* ===== 模态限宽：aurora 把宽度写死为 1024px，窄屏会左右出界 ===== */
-@media screen and (max-width: 1048px) {
-	#modal_overlay > .modal { width: calc(100vw - 24px); max-width: calc(100vw - 24px); }
-}
-
 @media screen and (max-width: 420px) {
 	.cfi-stats-grid { grid-template-columns: 1fr; }
 }
 
-/* ===== Bootstrap 兼容层（例外 E21） ===== */
-/* 仅当 body.cfi-theme-bootstrap（由 utils.loadSharedCSS 按主题样式表探测）时生效，
- * aurora 与其他主题完全不受影响。 */
-
-/* 触摸目标 >= 32px（主题按钮 28–30px，达不到可访问性底线） */
-body.cfi-theme-bootstrap .cbi-button,
-body.cfi-theme-bootstrap .btn,
-body.cfi-theme-bootstrap .cbi-page-actions button { min-height: 32px; line-height: 30px; }
-
-/* 对比度补偿：括号内为按主题实际背景计算的对比度（WCAG AA 正文 >= 4.5） */
-/* Save 在 .cbi-page-actions 内、且前面有 Apply/Negative 时会被主题的
- * `.cbi-page-actions .cbi-button-apply + .cbi-button-save`（0,4,0）改成浅底绿字，
- * 这里用 (0,4,1) 压过它，统一成深绿底白字。 */
-body.cfi-theme-bootstrap .cbi-page-actions .cbi-button-save.cbi-button,
-body.cfi-theme-bootstrap .cbi-button-add {
-	background: #00713d; border-color: #006635; color: #fff; /* 6.1:1 */
+.cfi-env-table .label { white-space: nowrap; }
+@media screen and (max-width: 600px) {
+	.cfi-dashboard th.cfi-overview-label::after {
+		content: ':';
+		margin-right: .25em;
+	}
 }
-body.cfi-theme-bootstrap .cbi-button-reset,
-body.cfi-theme-bootstrap .cbi-button-remove { color: #b3261e; } /* 6.0:1 */
-html[data-darkmode="true"] body.cfi-theme-bootstrap .cbi-button-reset,
-html[data-darkmode="true"] body.cfi-theme-bootstrap .cbi-button-remove { color: #ff9d97; } /* 8.0:1 */
-body.cfi-theme-bootstrap .cbi-button-edit,
-body.cfi-theme-bootstrap .cbi-button-action,
-body.cfi-theme-bootstrap .cbi-dropdown > .open {
-	background: #2a6a80; border-color: #255d70; color: #fff; /* 6.1:1 */
-}
-body.cfi-theme-bootstrap .cbi-dropdown > ul > li { background: #2a6a80; color: #fff; } /* 6.1:1 */
-body.cfi-theme-bootstrap .label.success { background: #00713d; border-color: #006635; color: #fff; } /* 6.1:1 */
-/* 成功提示用的是 #007936→#009a4c 渐变，白字最浅处只有 3.3:1；压成纯深绿 */
-body.cfi-theme-bootstrap .alert-message.success { background: #007a4a; color: #fff; } /* 5.4:1 */
-body.cfi-theme-bootstrap .alert-message.success :is(h3,h4,h5,p,b,strong,li) { color: #fff; }
-/* danger/error 的渐变底在白字下最浅处只有 ~4.5:1，暗色还给了深灰字；统一成纯深红白字 */
-body.cfi-theme-bootstrap .alert-message.danger,
-body.cfi-theme-bootstrap .alert-message.error { background: #8c1d18; color: #fff; } /* 7.1:1 */
-body.cfi-theme-bootstrap .alert-message.danger :is(h3,h4,h5,p,b,strong,li,summary,pre),
-body.cfi-theme-bootstrap .alert-message.error :is(h3,h4,h5,p,b,strong,li,summary,pre) { color: #fff; }
-/* 红色提示里的按钮：主题让按钮继承白字、但底色仍是浅灰，对比度只有 1.1:1 */
-body.cfi-theme-bootstrap .alert-message.danger .cbi-button,
-body.cfi-theme-bootstrap .alert-message.error .cbi-button {
-	background: rgba(0, 0, 0, 0.28); border-color: rgba(255, 255, 255, 0.45); color: #fff; /* 9.7:1 */
-}
-body.cfi-theme-bootstrap span.more { color: #595959; } /* 6.4:1 on #f8f8f8 */
-html[data-darkmode="true"] body.cfi-theme-bootstrap span.more { color: #a0a0a0; } /* 5.6:1 on #282828 */
 
 /* Shared Yunshu OpenWrt plugin footer. Keep this block identical across
  * sibling LuCI plugins so every page shows the same version bar. */
@@ -156,7 +161,6 @@ html[data-darkmode="true"] body.cfi-theme-bootstrap span.more { color: #a0a0a0; 
 	align-items: center;
 	justify-content: space-between;
 	gap: .8em 1em;
-	margin-top: 2em;
 	padding: 1em 0 0;
 	color: var(--subtext-color, #666);
 	font-size: .875em;
@@ -169,8 +173,17 @@ html[data-darkmode="true"] body.cfi-theme-bootstrap span.more { color: #a0a0a0; 
 	gap: .35em;
 }
 .ys-tool-footer-brand { flex-wrap: wrap; }
-.ys-tool-footer-links { white-space: nowrap; }
+/* Keep a 32px link target while drawing its background close to the text. */
+.ys-tool-footer-links {
+	flex: 0 0 auto;
+	white-space: nowrap;
+	gap: calc(var(--spacing, .25rem) * 2);
+}
 .ys-tool-footer-mark {
+	display: inline-flex;
+	align-items: center;
+	box-sizing: border-box;
+	min-height: 1.5rem;
 	padding: .18em .5em;
 	border-radius: 4px;
 	background-color: var(--ys-footer-blue-bg);
@@ -189,24 +202,43 @@ html[data-darkmode="true"] body.cfi-theme-bootstrap span.more { color: #a0a0a0; 
 .ys-tool-footer-link,
 .ys-tool-footer a.ys-tool-footer-link {
 	display: inline-flex;
+	flex: 0 0 auto;
 	align-items: center;
+	justify-content: center;
 	gap: .35em;
+	min-height: 2rem;
+	box-sizing: border-box;
 	padding: .18em .5em;
 	border: 0;
 	border-radius: 4px;
-	background-color: var(--ys-footer-blue-bg);
-	background: color-mix(in srgb, var(--ys-footer-blue) 12%, transparent);
+	position: relative;
+	isolation: isolate;
+	background: transparent;
 	color: var(--ys-footer-blue);
 	font-size: .86em;
 	font-weight: 700;
 	line-height: 1.6;
 	text-decoration: none;
 }
+.ys-tool-footer-link::before,
+.ys-tool-footer a.ys-tool-footer-link::before {
+	position: absolute;
+	inset: .25rem 0;
+	border-radius: inherit;
+	background-color: var(--ys-footer-blue-bg);
+	background: color-mix(in srgb, var(--ys-footer-blue) 12%, transparent);
+	content: "";
+	z-index: -1;
+	pointer-events: none;
+}
 .ys-tool-footer-link:hover,
 .ys-tool-footer a.ys-tool-footer-link:hover {
+	text-decoration: none;
+}
+.ys-tool-footer-link:hover::before,
+.ys-tool-footer a.ys-tool-footer-link:hover::before {
 	background-color: var(--ys-footer-blue-bg-hover);
 	background: color-mix(in srgb, var(--ys-footer-blue) 18%, transparent);
-	text-decoration: none;
 }
 .ys-tool-footer-link-icon {
 	width: 1em;
@@ -225,29 +257,40 @@ html[data-darkmode="true"] body.cfi-theme-bootstrap span.more { color: #a0a0a0; 
 	.ys-tool-footer-project-link,
 	.ys-tool-footer-project-separator { display: none; }
 	.ys-tool-footer-links { flex-wrap: wrap; white-space: normal; }
-	.ys-tool-footer-links .ys-tool-footer-link.github .ys-tool-footer-link-label,
-	.ys-tool-footer-links .ys-tool-footer-link.x .ys-tool-footer-link-label { display: none; }
 }
 
-/* Shared interaction rhythm: side-by-side buttons follow the theme spacing
- * scale instead of hardcoded pixels. Keep identical across sibling plugins. */
-.ys-actions,
-.cbi-page-actions {
+/* Plugin-owned action groups use the active theme's spacing scale. Native
+ * .cbi-page-actions remain entirely controlled by the active LuCI theme. */
+#maincontent { --ys-action-gap: calc(var(--spacing, .25rem) * 3); }
+.ys-actions {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
-	gap: calc(var(--spacing, .25rem) * 3);
+	gap: var(--ys-action-gap);
 }
-.cbi-page-actions { justify-content: flex-end; }
+#maincontent .ys-actions { gap: var(--ys-action-gap); }
 .ys-actions > .cbi-button,
 .ys-actions > button,
 .ys-actions > select,
-.ys-actions > input,
-.cbi-page-actions > form,
-.cbi-page-actions > button { margin: 0; }
+.ys-actions > input { margin: 0; }
+
+/* Keep service controls apart from the following information section. On
+ * compact themes the native CBI section margin can be zero; use the theme's
+ * spacing scale and trim one unit so the status block's visible lower gap
+ * stays close to its upper gap without changing native section surfaces. */
+#maincontent .cfi-overview-control-section {
+	margin-top: calc(var(--spacing, .25rem) * 3);
+	margin-bottom: calc(var(--spacing, .25rem) * 4);
+}
+#maincontent .cfi-overview-control-section > h3 { margin-top: 0; }
 
 /* Shared table contract: every table on the page shares one first-column
  * basis (minimum width + alignment) instead of content-driven widths. */
+.table > thead > tr > :first-child,
+.table > tbody > tr > :first-child,
+.table > tr > :first-child {
+	vertical-align: middle;
+}
 @media screen and (min-width: 48rem) {
 	.table > thead > tr > :first-child,
 	.table > tbody > tr > :first-child,
@@ -255,7 +298,6 @@ html[data-darkmode="true"] body.cfi-theme-bootstrap span.more { color: #a0a0a0; 
 		width: 1%;
 		min-width: 9rem;
 		text-align: left;
-		vertical-align: top;
 	}
 }
 

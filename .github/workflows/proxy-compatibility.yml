@@ -1,0 +1,61 @@
+name: Proxy compatibility canary
+
+on:
+  push:
+    paths:
+      - '.github/workflows/proxy-compatibility.yml'
+      - 'proxy-upstream-baseline.json'
+      - 'scripts/check-proxy-upstreams.py'
+      - 'package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/**'
+      - 'package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto-v2'
+      - 'tests/openclash-*.sh'
+      - 'tests/passwall*.sh'
+      - 'tests/homeproxy-*.sh'
+  pull_request:
+    paths:
+      - '.github/workflows/proxy-compatibility.yml'
+      - 'proxy-upstream-baseline.json'
+      - 'scripts/check-proxy-upstreams.py'
+      - 'package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/**'
+      - 'package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto-v2'
+      - 'tests/openclash-*.sh'
+      - 'tests/passwall*.sh'
+      - 'tests/homeproxy-*.sh'
+  schedule:
+    - cron: '17 3 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: proxy-compatibility-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  adapter-contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Install contract-test tools
+        run: sudo apt-get update && sudo apt-get install -y jq ruby ruby-psych cmake pkg-config libjson-c-dev
+      - name: Build isolated real UCI CLI
+        run: bash tests/build-real-uci.sh "$RUNNER_TEMP/real-uci"
+      - name: Run proxy integration contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash tests/openclash-provider-transaction.sh
+          bash tests/openclash-measurement-bypass.sh
+          bash tests/passwall-measurement-policy.sh
+          UCI_REAL_BIN="$RUNNER_TEMP/real-uci/uci-build/uci" bash tests/passwall2-persistence-contract.sh
+          bash tests/homeproxy-persistence-contract.sh
+
+  upstream-drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Compare latest upstream refs with the qualified snapshot
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 scripts/check-proxy-upstreams.py --baseline proxy-upstream-baseline.json --output "$RUNNER_TEMP/proxy-upstreams.json"

@@ -28,11 +28,11 @@ CONFIG_VERSION="1.3.1"
 
 # 运行模式：
 #   passwall  = 修改 PassWall 节点
-#   openclash = 修改 OpenClash YAML 里的代理节点
+#   openclash = 需要打包版 v2；独立版将候选交给 v2 provider 事务热应用
 #
 # Mode:
 #   passwall  = update PassWall nodes
-#   openclash = update OpenClash YAML proxies
+#   openclash = requires packaged v2; standalone delegates to its provider transaction
 
 MODE="passwall"
 
@@ -211,20 +211,22 @@ OPENCLASH_TRANSPORT_FILTER=""
 
 OPENCLASH_BACKUP_COUNT="3"
 
-# 测速前停止代理服务：
-#   代理服务运行时会干扰 CloudflareSpeedTest 的测速结果。
-#   启用后，脚本会在测速前停止当前模式的代理服务（OpenClash 或 PassWall），
-#   测速完成并更新配置后自动重启。
-#   如果测速过程中脚本报错退出，也会通过 EXIT trap 自动重启服务，避免网络中断。
+# 允许测速维护停服：
+#   默认关闭。活动 PassWall 没有经过验证的在线绕行方式时，脚本失败关闭，
+#   不会经代理测速，也不会自动停服。启用后才允许短暂停止 PassWall，
+#   测速和写入 UCI 后恢复服务；这属于有中断的维护窗口。
+#   OpenClash 候选由打包版 v2 事务应用。独立测速没有已验证的在线绕行；
+#   若显式启用此项，脚本只恢复并核验自己停止的服务后才提交 provider 事务。
 #
-# Stop proxy service before speed test:
-#   Running proxy services can interfere with CloudflareSpeedTest results.
-#   When enabled, the script stops the active mode's service (OpenClash or PassWall)
-#   before speed testing, and restarts it after updating the config.
-#   If the script exits with an error during testing, the service is automatically
-#   restarted via an EXIT trap to prevent network outage.
+# Allow maintenance stop for speed test:
+#   Off by default. An active PassWall service has no verified online bypass yet,
+#   so the script fails closed instead of measuring through the proxy or stopping it.
+#   Enabling this option permits a temporary PassWall outage for measurement and
+#   UCI update, followed by service recovery. OpenClash measurement has no verified
+#   online bypass, so active-core runs require this maintenance stop; provider
+#   application is delegated to the packaged v2 hot-apply transaction.
 
-STOP_SERVICE_BEFORE_SPEEDTEST="true"
+STOP_SERVICE_BEFORE_SPEEDTEST="false"
 
 # 启动延迟：
 #   脚本启动后随机等待的秒数上限，适合多台路由器同时运行定时任务时错开启动时间。

@@ -11,7 +11,7 @@
  *   1. refreshing sources does not reload the page and keeps a typed draft;
  *   2. log/command text stays readable and Clear Logs uses a LuCI modal whose
  *      cancel path has no side effects;
- *   3. prefers-reduced-motion removes the running status pulse;
+ *   3. the accessible status banner does not pulse when reduced motion is preferred;
  *   4. a rejected cf_ip RPC is shown as an error, not as an empty/not-installed
  *      state.
  */
@@ -29,6 +29,17 @@ function arg(name, fallback) {
 const base = arg('base', process.env.CFIP_UI_BASE || 'http://127.0.0.1:18080');
 const container = arg('container', process.env.CFIP_UI_CONTAINER || 'cfip-ui-gate');
 const password = arg('password', process.env.CFIP_UI_PASSWORD || 'cfip-gate');
+const language = process.env.CFIP_UI_LANG || 'en';
+const copy = language === 'zh_cn' ? {
+	refreshSources: '刷新来源', clearLogs: '清除日志', cancel: '取消',
+	candidateCount: 'CFST 候选 IP 数量', refreshSuccess: '来源已刷新，候选池已准备。未保存的编辑已保留。',
+	refreshFailure: '无法刷新来源。', registryError: '无法加载来源注册表', retry: '重试'
+} : {
+	refreshSources: 'Refresh Sources', clearLogs: 'Clear Logs', cancel: 'Cancel',
+	candidateCount: 'CFST Candidate IP Count', refreshSuccess: 'Sources refreshed; candidate pool prepared. Unsaved edits were kept.',
+	refreshFailure: 'Unable to refresh sources.', registryError: 'Unable to load source registry', retry: 'Retry'
+};
+if (!['en', 'zh_cn'].includes(language)) throw new Error('Unsupported CFIP_UI_LANG: ' + language);
 const sha = arg('sha', process.env.CFIP_UI_SHA || execFileSync('git', ['rev-parse', '--short', 'HEAD'], { encoding: 'utf8' }).trim());
 const evidence = arg('evidence', process.env.CFIP_UI_EVIDENCE || path.join(process.cwd(), 'docs/audits/next-release-evidence', 'ui-gate-' + sha));
 
@@ -92,21 +103,21 @@ async function run() {
 
 		/* Scenario 1: real RPC refresh must not discard a typed draft. */
 		await page.goto(base + '/cgi-bin/luci/admin/services/cf_ip/sources', { waitUntil: 'domcontentloaded' });
-		await page.locator('button:has-text("Refresh Sources")').waitFor({ timeout: 30000 });
-		const budget = page.locator('.cbi-value:has-text("CFST Candidate IP Count") input').first();
+		await page.locator('button').filter({ hasText: copy.refreshSources }).waitFor({ timeout: 30000 });
+		const budget = page.locator('.cbi-value').filter({ hasText: copy.candidateCount }).locator('input').first();
 		const original = await budget.inputValue();
 		const draft = original === '256' ? '128' : '256';
 		await budget.fill(draft);
 		await page.evaluate(() => { window.__cfipGateSentinel = true; });
 		await page.screenshot({ path: path.join(evidence, sha + '-sources-draft.png') });
 
-		await page.locator('button:has-text("Refresh Sources")').click();
-		await page.waitForFunction(() => {
+		await page.locator('button').filter({ hasText: copy.refreshSources }).click();
+		await page.waitForFunction(copy => {
 			const messages = Array.from(document.querySelectorAll('.alert-message'));
-			return messages.some(node => /Unable to refresh sources|Sources refreshed/i.test(node.textContent || ''));
-		}, null, { timeout: 30000 });
+			return messages.some(node => (node.textContent || '').includes(copy.refreshFailure) || (node.textContent || '').includes(copy.refreshSuccess));
+		}, copy, { timeout: 30000 });
 		const sentinel = await page.evaluate(() => window.__cfipGateSentinel === true);
-		const kept = await page.locator('.cbi-value:has-text("CFST Candidate IP Count") input').first().inputValue();
+		const kept = await page.locator('.cbi-value').filter({ hasText: copy.candidateCount }).locator('input').first().inputValue();
 		if (!sentinel)
 			throw new Error('refresh reloaded the page');
 		if (kept !== draft)
@@ -121,6 +132,9 @@ async function run() {
 		const logFont = await page.locator('#log-area').evaluate(el => parseFloat(getComputedStyle(el).fontSize));
 		if (!(logFont >= 12))
 			throw new Error('log textarea font-size below 12px: ' + logFont);
+		const emptyLogRows = await page.locator('#log-area').evaluate(el => el.classList.contains('is-empty') ? el.rows : null);
+		if (emptyLogRows !== null && emptyLogRows > 4)
+			throw new Error('empty log textarea is not compact: ' + emptyLogRows + ' rows');
 		const cmdFont = await page.evaluate(() => {
 			const el = document.createElement('div');
 			el.className = 'cfi-cmd-box';
@@ -142,19 +156,25 @@ async function run() {
 			if ((request.postData() || '').includes('clear-log'))
 				clearRequests++;
 		});
-		await page.locator('button:has-text("Clear Logs")').click();
+		await page.locator('button').filter({ hasText: copy.clearLogs }).click();
 		const modal = page.locator('#modal_overlay .modal[role="dialog"]');
 		await modal.waitFor({ timeout: 10000 });
+		await page.waitForFunction(() => {
+			const dialog = document.querySelector('#modal_overlay .modal[role="dialog"]');
+			const overlay = document.querySelector('#modal_overlay');
+			return dialog && overlay && parseFloat(getComputedStyle(dialog).opacity) >= 0.99 &&
+				parseFloat(getComputedStyle(overlay).opacity) >= 0.99;
+		}, null, { timeout: 10000 });
 		const modalCount = await modal.count();
-		await page.locator('#modal_overlay button:has-text("Cancel")').click();
+		await page.screenshot({ path: path.join(evidence, sha + '-logs-confirm-modal.png') });
+		await page.locator('#modal_overlay button').filter({ hasText: copy.cancel }).click();
 		await page.waitForTimeout(400);
 		const modalClosed = (await page.locator('#modal_overlay .modal:visible').count()) === 0;
 		if (!modalCount || !modalClosed || nativeDialogs || clearRequests)
 			throw new Error('confirm is not a side-effect-free LuCI modal');
-		await page.screenshot({ path: path.join(evidence, sha + '-logs-confirm-modal.png') });
 		scenario('luci-modal-and-readable-text', 'PASS', 'log=' + logFont + 'px, cmd=' + cmdFont + 'px');
 
-		/* Scenario 3: prefers-reduced-motion removes the real status pulse. */
+		/* Scenario 3: the native status banner does not pulse with reduced motion. */
 		const reduced = await browser.newContext({
 			viewport: { width: 1280, height: 900 },
 			reducedMotion: 'reduce'
@@ -163,15 +183,17 @@ async function run() {
 		try {
 			await login(reducedPage);
 			await reducedPage.goto(base + '/cgi-bin/luci/admin/services/cf_ip/overview', { waitUntil: 'domcontentloaded' });
-			await reducedPage.locator('.cfi-status-icon').waitFor({ timeout: 30000 });
+			await reducedPage.locator('.cfi-dashboard [role="status"]').waitFor({ timeout: 30000 });
 			const motion = await reducedPage.evaluate(() => {
-				const icon = document.querySelector('.cfi-status-icon');
-				icon.classList.add('running-test');
-				return getComputedStyle(icon).animationName;
+				const banner = document.querySelector('.cfi-dashboard [role="status"]');
+				return {
+					preference: matchMedia('(prefers-reduced-motion: reduce)').matches,
+					animation: getComputedStyle(banner).animationName
+				};
 			});
-			if (motion !== 'none')
-				throw new Error('reduced motion still animates the status icon: ' + motion);
-			scenario('reduced-motion-disables-pulse', 'PASS', 'animation=' + motion);
+			if (!motion.preference || motion.animation !== 'none')
+				throw new Error('status banner animates with reduced motion: ' + JSON.stringify(motion));
+			scenario('reduced-motion-disables-pulse', 'PASS', 'animation=' + motion.animation);
 		} finally {
 			await reduced.close();
 		}
@@ -185,12 +207,14 @@ async function run() {
 		}
 		await login(page);
 		await page.goto(base + '/cgi-bin/luci/admin/services/cf_ip/sources', { waitUntil: 'domcontentloaded' });
-		await page.locator('text=Unable to load source registry').waitFor({ timeout: 30000 });
-		const retry = page.locator('button:has-text("Retry")');
+		await page.locator('text=' + copy.registryError).waitFor({ timeout: 30000 });
+		const retry = page.locator('button').filter({ hasText: copy.retry });
 		if (!(await retry.count()))
 			throw new Error('RPC error state has no Retry control');
+		if (await page.locator('.cbi-page-actions').count())
+			throw new Error('RPC error state shows save/apply actions without an editable form');
 		await page.screenshot({ path: path.join(evidence, sha + '-sources-rpc-error.png') });
-		scenario('sources-rpc-error-visible', 'PASS', 'explicit error + Retry');
+		scenario('sources-rpc-error-visible', 'PASS', 'explicit error + Retry; no empty save/apply bar');
 
 		report.consoleErrors = consoleErrors;
 	} finally {

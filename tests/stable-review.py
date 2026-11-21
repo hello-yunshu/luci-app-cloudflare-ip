@@ -16,6 +16,9 @@ review = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(review)
 
 
+TEST_TAG = 'v2.6.0-13'
+
+
 class ReviewBoundary(unittest.TestCase):
     def check_case(self, mutation=None, trees=None, refs=None, tag_tree=None):
         with tempfile.TemporaryDirectory() as temp:
@@ -34,7 +37,7 @@ class ReviewBoundary(unittest.TestCase):
             extra = [json.dumps(refs or [])]
             if (refs or []) and tag_tree:
                 extra.append(json.dumps({'tree': {'sha': tag_tree}}))
-            identity = dict(channel='stable', version='2.6.0', tag='v2.6.0-13')
+            identity = dict(channel='stable', version='2.6.0', tag=TEST_TAG)
             with patch.object(review.subprocess, 'check_output', side_effect=answers + extra), \
                     patch.object(review, 'source', return_value=identity):
                 return review.prepare(*paths, 'b' * 40, 'hello-yunshu/luci-app-cloudflare-ip')
@@ -47,7 +50,7 @@ class ReviewBoundary(unittest.TestCase):
         self.assertEqual(result['tagState'], 'available')
 
     def test_existing_tag_at_same_tree_is_release_reuse(self):
-        tag = [{'ref': 'refs/tags/' + review.source()['tag'],
+        tag = [{'ref': 'refs/tags/' + TEST_TAG,
                 'object': {'type': 'commit', 'sha': 'e' * 40}}]
         result = self.check_case(refs=tag, tag_tree='c' * 40)
         self.assertEqual(result['tagState'], 'existing-equivalent')
@@ -66,7 +69,7 @@ class ReviewBoundary(unittest.TestCase):
             self.check_case(trees=['c' * 40, 'd' * 40])
 
     def test_occupied_tag_with_different_tree_is_recorded(self):
-        tag = [{'ref': 'refs/tags/' + review.source()['tag'],
+        tag = [{'ref': 'refs/tags/' + TEST_TAG,
                 'object': {'type': 'commit', 'sha': 'e' * 40}}]
         result = self.check_case(refs=tag, tag_tree='d' * 40)
         self.assertEqual(result['tagState'], 'occupied-different')

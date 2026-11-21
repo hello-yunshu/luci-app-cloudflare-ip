@@ -11,6 +11,27 @@ if ! declare -F cfip_openclash_yaml_supported >/dev/null 2>&1; then
     . "$_cfip_txn_lib/openclash-readback.sh"
     unset _cfip_txn_lib
 fi
+if ! declare -F cfip_openclash_resolve_provider_target >/dev/null 2>&1; then
+    _cfip_txn_lib="${BASH_SOURCE[0]%/*}"
+    [[ "$_cfip_txn_lib" != "${BASH_SOURCE[0]}" ]] || _cfip_txn_lib=.
+    # shellcheck source=openclash-provider.sh
+    . "$_cfip_txn_lib/openclash-provider.sh"
+    unset _cfip_txn_lib
+fi
+if ! declare -F cfip_homeproxy_resolve_active_node >/dev/null 2>&1; then
+    _cfip_txn_lib="${BASH_SOURCE[0]%/*}"
+    [[ "$_cfip_txn_lib" != "${BASH_SOURCE[0]}" ]] || _cfip_txn_lib=.
+    # shellcheck source=homeproxy-transaction.sh
+    . "$_cfip_txn_lib/homeproxy-transaction.sh"
+    unset _cfip_txn_lib
+fi
+if ! declare -F cfip_pw2_resolve_target >/dev/null 2>&1; then
+    _cfip_txn_lib="${BASH_SOURCE[0]%/*}"
+    [[ "$_cfip_txn_lib" != "${BASH_SOURCE[0]}" ]] || _cfip_txn_lib=.
+    # shellcheck source=passwall2-transaction.sh
+    . "$_cfip_txn_lib/passwall2-transaction.sh"
+    unset _cfip_txn_lib
+fi
 
 CFIP_TXN_DIR=""
 CFIP_TXN_ROLLED_BACK=false
@@ -190,6 +211,38 @@ cfip_txn_prepare() {
     if [[ "$mode" == openclash ]]; then
         cfip_openclash_capture_state || return 20
         [[ "$CFIP_OPENCLASH_INITIAL_HEALTHY" == true ]] && CFIP_TXN_ORIGINAL_RUNNING=true
+        if [[ "$CFIP_TXN_ORIGINAL_RUNNING" == true ]]; then
+            cfip_openclash_capture_runtime || return 20
+            cfip_openclash_resolve_provider_target || return 20
+        elif [[ "$CFIP_OPENCLASH_EXPECTED_ENABLED" == 0 ]]; then
+            CFIP_OPENCLASH_RUNTIME_CONFIG="$(uci -q get openclash.config.config_path 2>/dev/null || true)"
+            [[ -n "$CFIP_OPENCLASH_RUNTIME_CONFIG" ]] || CFIP_OPENCLASH_RUNTIME_CONFIG="$CFIP_OPENCLASH_CONFIG"
+            cfip_managed_openclash_config_safe "$CFIP_OPENCLASH_RUNTIME_CONFIG" || {
+                CFIP_OPENCLASH_SERVICE_ERROR="OpenClash disabled config path is unavailable or unsafe"
+                return 20
+            }
+            CFIP_OPENCLASH_RUNTIME_ID=""
+            cfip_openclash_resolve_provider_target || return 20
+        else
+            CFIP_OPENCLASH_SERVICE_ERROR="OpenClash has no verified running file provider; refusing config rewrite or restart fallback"
+            return 20
+        fi
+    elif [[ "$mode" == homeproxy ]]; then
+        local pending_changes
+        pending_changes="$(uci changes homeproxy 2>/dev/null)" || return 1
+        [[ -z "$pending_changes" ]] || { CFIP_RECOVERY_ERROR="HomeProxy has pending user changes before transaction"; return 1; }
+        cfip_homeproxy_resolve_active_node "$CFIP_HOMEPROXY_TARGET_DOMAIN" || return 1
+        if declare -F cfip_service_running >/dev/null 2>&1 && cfip_service_running homeproxy measurement; then
+            CFIP_TXN_ORIGINAL_RUNNING=true
+        fi
+    elif [[ "$mode" == passwall2 ]]; then
+        local pending_changes
+        pending_changes="$(uci changes passwall2 2>/dev/null)" || return 1
+        [[ -z "$pending_changes" ]] || { CFIP_RECOVERY_ERROR="PassWall2 has pending user changes before transaction"; return 1; }
+        cfip_pw2_resolve_target "$CFIP_PASSWALL2_TARGET_DOMAIN" || return 1
+        if declare -F cfip_service_running >/dev/null 2>&1 && cfip_service_running passwall2 measurement; then
+            CFIP_TXN_ORIGINAL_RUNNING=true
+        fi
     elif declare -F cfip_service_running >/dev/null 2>&1 && cfip_service_running "$mode" measurement; then
         CFIP_TXN_ORIGINAL_RUNNING=true
     fi
@@ -210,9 +263,32 @@ cfip_txn_prepare() {
             printf '%s\n' absent >"$CFIP_TXN_DIR/passwall-managed.state" || { cfip_txn_prepare_failed "Failed to journal absent PassWall managed state"; return 1; }
         fi
         ;;
+      homeproxy)
+        uci export homeproxy >"$CFIP_TXN_DIR/homeproxy.uci" 2>/dev/null || { cfip_txn_prepare_failed "Failed to snapshot HomeProxy UCI"; return 1; }
+        if [[ -f "$(cfip_homeproxy_state_file)" ]]; then
+            cp -p "$(cfip_homeproxy_state_file)" "$CFIP_TXN_DIR/homeproxy-managed.json" || { cfip_txn_prepare_failed "Failed to snapshot HomeProxy ownership state"; return 1; }
+            printf '%s\n' present >"$CFIP_TXN_DIR/homeproxy-managed.state" || { cfip_txn_prepare_failed "Failed to journal present HomeProxy state"; return 1; }
+        else
+            printf '%s\n' absent >"$CFIP_TXN_DIR/homeproxy-managed.state" || { cfip_txn_prepare_failed "Failed to journal absent HomeProxy state"; return 1; }
+        fi
+        printf '[]\n' >"$CFIP_TXN_DIR/homeproxy-fields.json" || { cfip_txn_prepare_failed "Failed to initialize HomeProxy field journal"; return 1; }
+        ;;
+      passwall2)
+        uci export passwall2 >"$CFIP_TXN_DIR/passwall2.uci" 2>/dev/null || { cfip_txn_prepare_failed "Failed to snapshot PassWall2 UCI"; return 1; }
+        if [[ -f "$(cfip_pw2_state_file)" ]]; then
+            cp -p "$(cfip_pw2_state_file)" "$CFIP_TXN_DIR/passwall2-managed.json" || { cfip_txn_prepare_failed "Failed to snapshot PassWall2 ownership state"; return 1; }
+            printf '%s\n' present >"$CFIP_TXN_DIR/passwall2-managed.state" || { cfip_txn_prepare_failed "Failed to journal present PassWall2 state"; return 1; }
+        else
+            printf '%s\n' absent >"$CFIP_TXN_DIR/passwall2-managed.state" || { cfip_txn_prepare_failed "Failed to journal absent PassWall2 state"; return 1; }
+        fi
+        printf '{}\n' >"$CFIP_TXN_DIR/passwall2-fields.json" || { cfip_txn_prepare_failed "Failed to initialize PassWall2 field journal"; return 1; }
+        ;;
       openclash)
-        [[ -f "$CFIP_OPENCLASH_CONFIG" ]] || { cfip_txn_prepare_failed "OpenClash configuration is unavailable for snapshot"; return 1; }
-        cp -p "$CFIP_OPENCLASH_CONFIG" "$CFIP_TXN_DIR/openclash.yaml" || { cfip_txn_prepare_failed "Failed to snapshot OpenClash configuration"; return 1; }
+        [[ -f "$CFIP_OPENCLASH_RUNTIME_CONFIG" && -f "$CFIP_OPENCLASH_TARGET_CONFIG" ]] || { cfip_txn_prepare_failed "OpenClash runtime or provider file is unavailable for snapshot"; return 1; }
+        cp -p "$CFIP_OPENCLASH_RUNTIME_CONFIG" "$CFIP_TXN_DIR/openclash-main.yaml" || { cfip_txn_prepare_failed "Failed to snapshot OpenClash runtime config"; return 1; }
+        cp -p "$CFIP_OPENCLASH_TARGET_CONFIG" "$CFIP_TXN_DIR/openclash.yaml" || { cfip_txn_prepare_failed "Failed to snapshot OpenClash provider file"; return 1; }
+        printf '%s\n' "$CFIP_OPENCLASH_RUNTIME_ID" >"$CFIP_TXN_DIR/openclash-core.id" || { cfip_txn_prepare_failed "Failed to journal OpenClash core identity"; return 1; }
+        printf '%s\n' "$CFIP_OPENCLASH_PROVIDER_NAME" >"$CFIP_TXN_DIR/openclash-provider.name" || { cfip_txn_prepare_failed "Failed to journal OpenClash provider name"; return 1; }
         printf '%s\n' "$CFIP_OPENCLASH_EXPECTED_ENABLED" >"$CFIP_TXN_DIR/openclash.enable" || { cfip_txn_prepare_failed "Failed to journal OpenClash enable state"; return 1; }
         ;;
       *) cfip_txn_prepare_failed "Unsupported transaction mode"; return 1 ;;
@@ -230,6 +306,8 @@ cfip_txn_rollback() {
     CFIP_TXN_ROLLED_BACK=false
     CFIP_RECOVERY_ERROR=""
     rm -f "$CFIP_TXN_DIR/passwall-managed.json.pending" 2>/dev/null || true
+    rm -f "$CFIP_TXN_DIR/homeproxy-managed.json.pending" 2>/dev/null || true
+    rm -f "$CFIP_TXN_DIR/passwall2-managed.json.pending" 2>/dev/null || true
     case "$mode" in
       passwall)
         cfip_passwall_state_safe || return 1
@@ -244,57 +322,79 @@ cfip_txn_rollback() {
         else
             rm -f "$state_file" || return 1
         fi
-        local recovery_rc=0
-        cfip_txn_restart_original_service passwall recovery || recovery_rc=$?
-        if ((recovery_rc != 0)); then
-            ((recovery_rc == 124)) && CFIP_RECOVERY_ERROR="RecoveryTimeout" || CFIP_RECOVERY_ERROR="RecoveryRestartFailed"
+        # PassWall has no verified in-place apply API. Restoring its UCI fields
+        # must not restart the running proxy; a separate measurement lease may
+        # still own a later service restoration.
+        CFIP_TXN_ROLLED_BACK=true
+        CFIP_TXN_STATE=ROLLED_BACK
+        ;;
+      homeproxy)
+        cfip_homeproxy_state_safe || return 1
+        cfip_homeproxy_restore_fields || return 1
+        local hp_state_file
+        hp_state_file="$(cfip_homeproxy_state_file)"
+        cfip_homeproxy_state_safe || return 1
+        if cfip_homeproxy_state_matches_before; then :
+        elif [[ "$(cat "$CFIP_TXN_DIR/homeproxy-managed.state" 2>/dev/null)" == present ]]; then
+            mkdir -p "${hp_state_file%/*}" 2>/dev/null || return 1
+            cp -p "$CFIP_TXN_DIR/homeproxy-managed.json" "${hp_state_file}.rollback.$$" || return 1
+            mv "${hp_state_file}.rollback.$$" "$hp_state_file" || return 1
+        else
+            rm -f "$hp_state_file" || return 1
+        fi
+        if [[ "${CFIP_HOMEPROXY_MAINTENANCE_RESTARTED:-false}" == true ]]; then
+            CFIP_RECOVERY_ERROR="HomeProxy UCI fields were restored, but the running core may still use the previously loaded node; no hard restart was attempted"
             return 1
         fi
         CFIP_TXN_ROLLED_BACK=true
         CFIP_TXN_STATE=ROLLED_BACK
         ;;
-      openclash)
-        local restored_config=false service_failed=false
-        if { ((CFIP_OPENCLASH_RESTART_ATTEMPTS > 0)) || [[ "$CFIP_OPENCLASH_CF_STOPPED" == true && "$CFIP_OPENCLASH_RECOVERY_ATTEMPTED" == true ]]; } && [[ "$CFIP_OPENCLASH_SERVICE_APPLIED" != true ]]; then
-            # Restore the transaction snapshot first; never leave the failed
-            # candidate as the live config just because startup failed.
-            service_failed=true
-        fi
-        if cmp -s "$CFIP_OPENCLASH_CONFIG" "$CFIP_TXN_DIR/openclash.yaml"; then
-            :
-        elif [[ -f "$CFIP_TXN_DIR/openclash.written.yaml" ]] && cmp -s "$CFIP_OPENCLASH_CONFIG" "$CFIP_TXN_DIR/openclash.written.yaml"; then
-            cp "$CFIP_TXN_DIR/openclash.yaml" "${CFIP_OPENCLASH_CONFIG}.rollback.$$" || return 1
-            mv "${CFIP_OPENCLASH_CONFIG}.rollback.$$" "$CFIP_OPENCLASH_CONFIG" || return 1
-            restored_config=true
+      passwall2)
+        cfip_pw2_state_safe || return 1
+        cfip_pw2_restore_fields || return 1
+        local pw2_state_file
+        pw2_state_file="$(cfip_pw2_state_file)"
+        cfip_pw2_state_safe || return 1
+        if cfip_pw2_state_matches_before; then :
+        elif [[ "$(cat "$CFIP_TXN_DIR/passwall2-managed.state" 2>/dev/null)" == present ]]; then
+            mkdir -p "${pw2_state_file%/*}" 2>/dev/null || return 1
+            cp -p "$CFIP_TXN_DIR/passwall2-managed.json" "${pw2_state_file}.rollback.$$" || return 1
+            mv "${pw2_state_file}.rollback.$$" "$pw2_state_file" || return 1
         else
-            CFIP_RECOVERY_ERROR="OpenClash config changed outside this transaction; preserved current file and snapshot"
-            # Do not start a stopped service with bytes this transaction never
-            # validated. Keep the journal and report incomplete recovery.
-            CFIP_STOPPED_MODE=""
+            rm -f "$pw2_state_file" || return 1
+        fi
+        CFIP_TXN_ROLLED_BACK=true
+        CFIP_TXN_STATE=ROLLED_BACK
+        ;;
+      openclash)
+        local restored_config=false
+        if [[ "${CFIP_OPENCLASH_CF_STOPPED:-false}" != true ]] &&
+           ! cmp -s "$CFIP_OPENCLASH_RUNTIME_CONFIG" "$CFIP_TXN_DIR/openclash-main.yaml"; then
+            CFIP_RECOVERY_ERROR="OpenClash main config changed during provider transaction; preserved provider file and journal"
             return 1
         fi
-        if [[ "$service_failed" == true ]]; then
-            CFIP_STOPPED_MODE=""
-            CFIP_RECOVERY_ERROR="${CFIP_OPENCLASH_SERVICE_ERROR:-OpenClashRecoveryFailed}"
-            return 1
-        fi
-        if [[ "$CFIP_OPENCLASH_EXPECTED_ENABLED" == 1 ]] && {
-            [[ "$CFIP_OPENCLASH_CF_STOPPED" == true && "$CFIP_OPENCLASH_RECOVERY_ATTEMPTED" != true ]] ||
-            [[ "$restored_config" == true && "$CFIP_OPENCLASH_SERVICE_APPLIED" == true ]];
-        }; then
-            local recovery_rc=0
-            CFIP_OPENCLASH_RECOVERY_ATTEMPTED=true
-            cfip_txn_restart_original_service openclash recovery || recovery_rc=$?
-            CFIP_STOPPED_MODE=""
-            if ((recovery_rc != 0)); then
-                CFIP_RECOVERY_ERROR="${CFIP_OPENCLASH_SERVICE_ERROR:-OpenClashRecoveryFailed}"
+        if cmp -s "$CFIP_OPENCLASH_TARGET_CONFIG" "$CFIP_TXN_DIR/openclash.yaml"; then
+            :
+        elif [[ -f "$CFIP_TXN_DIR/openclash.written.yaml" ]] && cmp -s "$CFIP_OPENCLASH_TARGET_CONFIG" "$CFIP_TXN_DIR/openclash.written.yaml"; then
+            if [[ "$CFIP_TXN_ORIGINAL_RUNNING" == true && "${CFIP_OPENCLASH_CF_STOPPED:-false}" != true ]] &&
+               ! cfip_openclash_provider_inspect_runtime; then
+                CFIP_RECOVERY_ERROR="Could not inspect the live provider after an ambiguous apply; preserved provider file and transaction journal"
                 return 1
             fi
-            [[ "$restored_config" != true ]] || CFIP_OPENCLASH_SERVICE_APPLIED=false
+            cp "$CFIP_TXN_DIR/openclash.yaml" "${CFIP_OPENCLASH_TARGET_CONFIG}.rollback.$$" || return 1
+            mv "${CFIP_OPENCLASH_TARGET_CONFIG}.rollback.$$" "$CFIP_OPENCLASH_TARGET_CONFIG" || return 1
+            restored_config=true
         else
-            # A disabled service is deliberately left disabled. Do not rewrite
-            # UCI on rollback; this preserves detectable user changes.
-            CFIP_STOPPED_MODE=""
+            CFIP_RECOVERY_ERROR="OpenClash provider file changed outside this transaction; preserved current file and snapshot"
+            return 1
+        fi
+        if [[ "$restored_config" == true && "$CFIP_TXN_ORIGINAL_RUNNING" == true && "${CFIP_OPENCLASH_CF_STOPPED:-false}" != true ]]; then
+            CFIP_OPENCLASH_PROVIDER_REFRESHED=false
+            cfip_openclash_provider_refresh || {
+                CFIP_RECOVERY_ERROR="Provider file restored, but hot refresh could not be verified; transaction evidence retained"
+                return 1
+            }
+            CFIP_OPENCLASH_SERVICE_APPLIED=false
         fi
         CFIP_TXN_ROLLED_BACK=true
         CFIP_TXN_STATE=ROLLED_BACK
@@ -312,7 +412,7 @@ cfip_txn_trim_openclash_backups() {
     [[ "$keep" =~ ^[0-9]{1,6}$ ]] || return 1
     keep=$((10#$keep))
     if [[ -f "$CFIP_TXN_BACKUP_FILE" ]]; then ordered+=("$CFIP_TXN_BACKUP_FILE"); fi
-    for file in "${CFIP_OPENCLASH_CONFIG}.bak."*; do
+    for file in "${CFIP_OPENCLASH_TARGET_CONFIG}.bak."*; do
         [[ -f "$file" && ! -L "$file" && "$file" != "$CFIP_TXN_BACKUP_FILE" ]] || continue
         i=${#ordered[@]}
         while ((i > 0)); do
@@ -331,6 +431,16 @@ cfip_txn_commit() {
         cfip_passwall_state_matches_before || { CFIP_RECOVERY_ERROR="PassWall managed state changed before commit"; return 1; }
         cp "$CFIP_TXN_DIR/passwall-managed.json.pending" "$CFIP_TXN_DIR/passwall-managed.written.json" || return 1
         mv "$CFIP_TXN_DIR/passwall-managed.json.pending" "${CFIP_PASSWALL_STATE_FILE:-${CFIP_STATUS_DIR:-/etc/cf_ip}/passwall-managed.json}" || return 1
+    fi
+    if [[ -n "$CFIP_TXN_DIR" && -f "$CFIP_TXN_DIR/homeproxy-managed.json.pending" ]]; then
+        cfip_homeproxy_state_matches_before || { CFIP_RECOVERY_ERROR="HomeProxy managed state changed before commit"; return 1; }
+        cp "$CFIP_TXN_DIR/homeproxy-managed.json.pending" "$CFIP_TXN_DIR/homeproxy-managed.written.json" || return 1
+        mv "$CFIP_TXN_DIR/homeproxy-managed.json.pending" "$(cfip_homeproxy_state_file)" || return 1
+    fi
+    if [[ -n "$CFIP_TXN_DIR" && -f "$CFIP_TXN_DIR/passwall2-managed.json.pending" ]]; then
+        cfip_pw2_state_matches_before || { CFIP_RECOVERY_ERROR="PassWall2 managed state changed before commit"; return 1; }
+        cp "$CFIP_TXN_DIR/passwall2-managed.json.pending" "$CFIP_TXN_DIR/passwall2-managed.written.json" || return 1
+        mv "$CFIP_TXN_DIR/passwall2-managed.json.pending" "$(cfip_pw2_state_file)" || return 1
     fi
     CFIP_TXN_STATE=COMMITTED
     CFIP_TXN_COMMITTED=true
@@ -430,7 +540,8 @@ cfip_passwall_apply_selected() {
     jq -n --argjson sections "$(cat "$tmp")" '{schemaVersion:1,sections:$sections}' | cfip_atomic_write "$pending_state_file" || { rm -f "$tmp"; return 1; }
     CFIP_PASSWALL_UPDATED="${#sections[@]}"
     rm -f "$tmp"
-    [[ "${CFIP_TXN_APPLY:-false}" == true ]] || cfip_restart_service passwall
+    # UCI persistence is supported, but this package has no verified hot apply
+    # path. Direct sync therefore leaves the live PassWall process untouched.
 }
 
 # OpenClash uses the full 1.8.3 transformer through an explicit selected-IP
@@ -444,7 +555,7 @@ cfip_openclash_apply_selected() {
 }
 
 cfip_openclash_readback_selected() {
-    cfip_openclash_readback_intended "$1" "$CFIP_OPENCLASH_CONFIG" "$CFIP_TARGET_DOMAINS" "$CFIP_OPENCLASH_NAME_SUFFIX" "$CFIP_OPENCLASH_TRANSPORT_FILTER"
+    cfip_openclash_readback_intended "$1" "$CFIP_OPENCLASH_TARGET_CONFIG" "$CFIP_TARGET_DOMAINS" "$CFIP_OPENCLASH_NAME_SUFFIX" "$CFIP_OPENCLASH_TRANSPORT_FILTER"
 }
 
 cfip_passwall_base_remarks() {
@@ -463,7 +574,7 @@ cfip_passwall_expand_suffix() {
 # Journal expected bytes before publishing them. The final sibling rename is
 # atomic; the immediately preceding comparison rejects detected outside edits.
 cfip_txn_publish_openclash() {
-    local candidate="$1" config="$CFIP_OPENCLASH_CONFIG" temporary backup label="${2:-}"
+    local candidate="$1" config="$CFIP_OPENCLASH_TARGET_CONFIG" temporary backup label="${2:-}"
     [[ -z "$label" || "$label" == pre-restore ]] || return 1
     cfip_openclash_yaml_supported "$candidate" || {
         CFIP_OPENCLASH_SERVICE_ERROR="OpenClash candidate or backup is not a supported YAML document; nothing was published"
@@ -475,9 +586,9 @@ cfip_txn_publish_openclash() {
     backup="$(mktemp "${config}.bak.$(date +%Y%m%d%H%M%S)${label:+.$label}.XXXXXX")" || { rm -f "$temporary"; return 1; }
     if ! cp "$CFIP_TXN_DIR/openclash.yaml" "$backup"; then rm -f "$temporary" "$backup"; CFIP_OPENCLASH_SERVICE_ERROR="Failed to preserve OpenClash backup before publication"; return 1; fi
     CFIP_TXN_BACKUP_FILE="$backup"
-    if ! cfip_openclash_check_before_write || ! cmp -s "$config" "$CFIP_TXN_DIR/openclash.yaml"; then
+    if ! cfip_openclash_check_before_write || ! cmp -s "$CFIP_OPENCLASH_RUNTIME_CONFIG" "$CFIP_TXN_DIR/openclash-main.yaml" || ! cmp -s "$config" "$CFIP_TXN_DIR/openclash.yaml"; then
         rm -f "$temporary"
-        CFIP_OPENCLASH_SERVICE_ERROR="OpenClash config or service changed before publication; preserved current state"
+        CFIP_OPENCLASH_SERVICE_ERROR="OpenClash runtime config, provider file, or core changed before publication; preserved current state"
         return 1
     fi
     CFIP_TXN_STATE=MUTATED
@@ -491,8 +602,8 @@ cfip_txn_apply() {
     CFIP_TXN_MODE="$mode"
     if [[ "$mode" == openclash ]]; then
         cfip_openclash_check_before_write || return 17
-        cmp -s "$CFIP_OPENCLASH_CONFIG" "$CFIP_TXN_DIR/openclash.yaml" || {
-            CFIP_OPENCLASH_SERVICE_ERROR="OpenClash config changed before node write; preserved external changes"
+        { [[ -z "$CFIP_OPENCLASH_RUNTIME_ID" ]] || cfip_openclash_runtime_unchanged; } && cmp -s "$CFIP_OPENCLASH_RUNTIME_CONFIG" "$CFIP_TXN_DIR/openclash-main.yaml" && cmp -s "$CFIP_OPENCLASH_TARGET_CONFIG" "$CFIP_TXN_DIR/openclash.yaml" || {
+            CFIP_OPENCLASH_SERVICE_ERROR="OpenClash runtime config, provider file, or core changed before node write; preserved external changes"
             return 17
         }
     fi
@@ -505,16 +616,26 @@ cfip_txn_apply() {
             CFIP_TXN_APPLY=false
             if cfip_txn_rollback "$mode"; then return 11; else return 12; fi
         fi
-        if ! cfip_txn_restart_original_service passwall normal; then
+        CFIP_TXN_STATE=PERSISTED
+        ;;
+      homeproxy)
+        if ! cfip_homeproxy_apply_selected "$selected"; then
             CFIP_TXN_APPLY=false
             if cfip_txn_rollback "$mode"; then return 11; else return 12; fi
         fi
-        [[ "${CFIP_TXN_ORIGINAL_RUNNING:-false}" == true ]] && CFIP_TXN_STATE=RESTARTED
+        CFIP_TXN_STATE=PERSISTED
+        ;;
+      passwall2)
+        if ! cfip_pw2_apply_selected "$selected"; then
+            CFIP_TXN_APPLY=false
+            if cfip_txn_rollback "$mode"; then return 11; else return 12; fi
+        fi
+        CFIP_TXN_STATE=PERSISTED
         ;;
       openclash)
         local candidate="$CFIP_TXN_DIR/openclash.candidate.yaml" stage_rc=0
         if cp -p "$CFIP_TXN_DIR/openclash.yaml" "$candidate"; then
-            CFIP_OPENCLASH_CONFIG="$candidate" cfip_openclash_apply_selected "$selected" || stage_rc=$?
+            CFIP_OPENCLASH_CONFIG="$candidate" CFIP_OPENCLASH_TARGET_CONFIG="$candidate" cfip_openclash_apply_selected "$selected" || stage_rc=$?
             ((stage_rc == 0)) || CFIP_OPENCLASH_SERVICE_ERROR="OpenClash candidate rendering failed (exit $stage_rc)"
         else
             stage_rc=$?
@@ -524,7 +645,7 @@ cfip_txn_apply() {
             CFIP_TXN_APPLY=false
             if cfip_txn_rollback "$mode"; then return 13; else return 14; fi
         fi
-        if ! CFIP_OPENCLASH_CONFIG="$candidate" cfip_openclash_readback_selected "$selected"; then
+        if ! CFIP_OPENCLASH_TARGET_CONFIG="$candidate" cfip_openclash_readback_selected "$selected"; then
             CFIP_OPENCLASH_SERVICE_ERROR="OpenClash private candidate failed intended-mapping validation"
             CFIP_TXN_APPLY=false
             if cfip_txn_rollback "$mode"; then return 15; else return 16; fi
@@ -533,16 +654,29 @@ cfip_txn_apply() {
             CFIP_TXN_APPLY=false
             if cfip_txn_rollback "$mode"; then return 13; else return 14; fi
         fi
-        if ! cfip_openclash_readback_selected "$selected"; then
+        CFIP_OPENCLASH_TARGET_CONFIG="$CFIP_OPENCLASH_TARGET_CONFIG" cfip_openclash_readback_selected "$selected" || stage_rc=$?
+        if ((stage_rc != 0)); then
             CFIP_OPENCLASH_SERVICE_ERROR="OpenClash published config failed intended-mapping validation"
             CFIP_TXN_APPLY=false
             if cfip_txn_rollback "$mode"; then return 15; else return 16; fi
         fi
-        if [[ "${CFIP_OPENCLASH_EXPECTED_ENABLED:-}" == 1 ]] && ! cfip_txn_restart_original_service openclash normal; then
-            CFIP_TXN_APPLY=false
-            if cfip_txn_rollback "$mode"; then return 15; else return 16; fi
+        if [[ "${CFIP_OPENCLASH_EXPECTED_ENABLED:-0}" == 1 && "${CFIP_OPENCLASH_CF_STOPPED:-false}" != true ]]; then
+            CFIP_OPENCLASH_PROVIDER_REFRESHED=false
+            if ! cfip_openclash_provider_refresh; then
+                CFIP_OPENCLASH_SERVICE_ERROR="${CFIP_OPENCLASH_SERVICE_ERROR:-OpenClash provider hot refresh failed}"
+                CFIP_TXN_APPLY=false
+                if cfip_txn_rollback "$mode"; then return 15; else return 16; fi
+            fi
+            CFIP_OPENCLASH_SERVICE_APPLIED=true
+            CFIP_OPENCLASH_HOT_APPLIED=true
         fi
-        [[ "${CFIP_TXN_ORIGINAL_RUNNING:-false}" == true && "${CFIP_OPENCLASH_SERVICE_APPLIED:-false}" == true ]] && CFIP_TXN_STATE=RESTARTED
+        if [[ "${CFIP_OPENCLASH_EXPECTED_ENABLED:-0}" != 1 || "${CFIP_OPENCLASH_CF_STOPPED:-false}" == true ]]; then
+            # The maintenance stop already owns service restoration. Startup
+            # loads the persisted provider; do not turn this into a hot restart.
+            CFIP_OPENCLASH_SERVICE_APPLIED=false
+            CFIP_OPENCLASH_HOT_APPLIED=false
+        fi
+        [[ "${CFIP_TXN_ORIGINAL_RUNNING:-false}" == true && "${CFIP_OPENCLASH_SERVICE_APPLIED:-false}" == true ]] && CFIP_TXN_STATE=APPLIED
         ;;
       *) CFIP_TXN_APPLY=false; return 10 ;;
     esac

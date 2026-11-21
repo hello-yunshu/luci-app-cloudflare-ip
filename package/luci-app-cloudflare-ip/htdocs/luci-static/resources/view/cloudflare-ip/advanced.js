@@ -36,8 +36,6 @@ return view.extend({
 		o.rmempty = true;
 		o.readonly = true;
 		o.datatype = 'string';
-		o = s.option(form.DummyValue, '_self_update_note', _('Update policy'));
-		o.cfgvalue = function() { return _('Deprecated / package-managed'); };
 
 		/* Download */
 		s = m.section(form.TypedSection, 'service', _('Download'));

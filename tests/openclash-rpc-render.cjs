@@ -29,14 +29,14 @@ function flatten(node) {
 }
 const status = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
 let output = flatten(view.render(status));
-assert.match(output, /cfi-badge orange.*Warning/);
+assert.match(output, /label warning.*Warning/);
 assert.match(output, /OpenClash is disabled and the changes will take effect after it is started/);
 assert.match(output, /Service Enabled/);
 assert.doesNotMatch(output, /service applied and health verified/);
 output = flatten(view.render({ ...status, running: false, active_run: true, last_result: 'running' }));
-assert.match(output, /running-test/);
+assert.match(output, /alert-message success.*Speed Test Running/);
 output = flatten(view.render({ ...status, last_result: 'error', service: { target:'openclash', nodeFileWritten:true, serviceApplied:false, error:'controller health timeout' } }));
-assert.match(output, /cfi-badge red/);
+assert.match(output, /label important/);
 assert.match(output, /controller health timeout/);
 output = flatten(view.render({ ...status, last_result:'error', error:'OpenClash enable state is unreadable', service:{ target:'openclash', nodeFileWritten:false, serviceApplied:false } }));
 assert.match(output, /OpenClash enable state is unreadable/);

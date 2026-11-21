@@ -18,23 +18,23 @@ class QualifiedConsumer(unittest.TestCase):
         spec=importlib.util.spec_from_file_location('contract_check',ROOT/'scripts/check_rill_dependency.py')
         check=importlib.util.module_from_spec(spec);spec.loader.exec_module(check)
         contract=json.loads((ROOT/'contracts/rill-runtime.json').read_text())
-        contract['openwrtPackage']['packageVersion']='1.8.0'
+        contract['openwrtPackage']['packageVersion']=contract['resolved']['version']
         self.assertEqual(check.check_data(contract,None),[])
         contract['openwrtPackage']['packageVersion']='2.0.0'
         self.assertTrue(check.check_data(contract,None))
 
-    def test_old_package_checkout_without_byte_verifier_is_rejected(self):
+    def test_old_package_checkout_without_schema_four_byte_verifier_is_rejected(self):
         with tempfile.TemporaryDirectory() as directory:
-            with self.assertRaisesRegex(ValueError,'schema 3'):
+            with self.assertRaisesRegex(ValueError,'schema 4'):
                 qualified.upstream(Path(directory))
 
-    def test_preview_client_delegates_all_byte_verification_to_pinned_authority(self):
+    def test_stable_client_delegates_all_byte_verification_to_pinned_authority(self):
         fetch=Mock(return_value=(Path('/fixture/package.ipk'),{'binarySha256':'a'*64}))
         authority=SimpleNamespace(fetch_qualified=fetch)
         contract={'fixture':'consumer identity'};package=Path('/fixture/pinned-package')
         with patch.object(qualified,'upstream',return_value=authority):
-            qualified.fetch_preview(contract,package,'25.12.5','aarch64_generic','apk',Path('/fixture/output'),'fixture-apk')
-        fetch.assert_called_once_with(contract,package,'25.12.5','aarch64_generic','apk',Path('/fixture/output'),'fixture-apk',channel='preview')
+            qualified.fetch_stable(contract,package,'25.12.6','aarch64_generic','apk',Path('/fixture/output'),'fixture-apk')
+        fetch.assert_called_once_with(contract,package,'25.12.6','aarch64_generic','apk',Path('/fixture/output'),'fixture-apk',channel='stable')
 
 
 if __name__=='__main__':unittest.main(verbosity=2)

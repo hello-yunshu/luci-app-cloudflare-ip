@@ -22,7 +22,9 @@ return view.extend({
 		var env = data[1] || {};
 		var envError = env._rpcError;
 		var passwallInstalled = env.passwall_installed || false;
+		var passwall2Supported = env.passwall2_supported || false;
 		var openclashInstalled = env.openclash_installed || false;
+		var homeproxySupported = env.homeproxy_supported || false;
 
 		var m, s, o;
 
@@ -58,18 +60,35 @@ return view.extend({
 			_('Select which proxy service to update.'));
 		if (passwallInstalled)
 			o.value('passwall', 'PassWall');
+		if (passwall2Supported)
+			o.value('passwall2', 'PassWall2');
 		if (openclashInstalled)
 			o.value('openclash', 'OpenClash');
+		if (homeproxySupported)
+			o.value('homeproxy', 'HomeProxy');
 		var storedMode = uci.get('cf_ip', 'main', 'mode');
+		if (env.homeproxy_installed && !homeproxySupported)
+			o.value('homeproxy', _('HomeProxy (unsupported installed version)'));
+		if (env.passwall2_installed && !passwall2Supported)
+			o.value('passwall2', _('PassWall2 (unsupported installed version)'));
 		if (envError) {
-			o.value(storedMode === 'openclash' ? 'openclash' : 'passwall', _('Unknown (environment check failed)'));
+			o.value(storedMode === 'openclash' ? 'openclash' : (storedMode === 'homeproxy' ? 'homeproxy' : (storedMode === 'passwall2' ? 'passwall2' : 'passwall')), _('Unknown (environment check failed)'));
 			o.description = _('Unable to check the proxy environment. Retry from Overview and expand the technical details there.');
-		} else if (!passwallInstalled && !openclashInstalled) {
-			o.value(storedMode === 'openclash' ? 'openclash' : 'passwall', _('None (No proxy service detected)'));
+		} else if (!passwallInstalled && !passwall2Supported && !openclashInstalled && !homeproxySupported) {
+			o.value(storedMode === 'openclash' ? 'openclash' : (storedMode === 'homeproxy' ? 'homeproxy' : (storedMode === 'passwall2' ? 'passwall2' : 'passwall')), _('None (No proxy service detected)'));
 			o.readonly = true;
-			o.description = _('PassWall or OpenClash is not installed. Please install one before using this service.');
+			o.description = _('No supported proxy service is available. Install PassWall, PassWall2, OpenClash, or a qualified HomeProxy version before using this service.');
+		} else if (env.homeproxy_installed && !homeproxySupported) {
+			o.description = _('Installed HomeProxy version is not qualified for CFI persistence-only updates: %s').format(env.homeproxy_version || _('unknown'));
+		} else if (env.passwall2_installed && !passwall2Supported) {
+			o.description = _('Installed PassWall2 version is not qualified for CFI persistence-only updates: %s').format(env.passwall2_version || _('unknown'));
 		}
-		o.default = passwallInstalled ? 'passwall' : (openclashInstalled ? 'openclash' : (uci.get('cf_ip', 'main', 'mode') === 'openclash' ? 'openclash' : 'passwall'));
+		var defaultMode = storedMode === 'openclash' || storedMode === 'homeproxy' || storedMode === 'passwall2' ? storedMode : 'passwall';
+		if (homeproxySupported) defaultMode = 'homeproxy';
+		if (openclashInstalled) defaultMode = 'openclash';
+		if (passwall2Supported) defaultMode = 'passwall2';
+		if (passwallInstalled) defaultMode = 'passwall';
+		o.default = defaultMode;
 		o.rmempty = false;
 
 		s = m.section(form.TypedSection, 'service', _('Speed Test'));
@@ -143,9 +162,9 @@ return view.extend({
 		s = m.section(form.TypedSection, 'service', _('Service Handling'));
 		s.anonymous = true;
 
-		o = s.option(form.Flag, 'stop_service', _('Stop Service Before Test'),
-			_('Stop the proxy service before speed testing to avoid interference, and restart after updating.'));
-		o.default = '1';
+		o = s.option(form.Flag, 'stop_service', _('Allow Maintenance Stop for Speed Test'),
+			_('Allow a temporary proxy outage during measurement when no verified firewall bypass is available. Without this option, CFI fails closed instead of measuring through a running proxy. OpenClash uses its narrowly scoped runtime bypass when available.'));
+		o.default = '0';
 		o.rmempty = false;
 
 		o = s.option(form.Flag, 'cfst_persist', _('Keep CFST Across Upgrades'),

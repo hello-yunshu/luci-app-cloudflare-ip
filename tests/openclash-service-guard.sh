@@ -64,6 +64,13 @@ EOF_INIT
 chmod +x "$TMP/init/openclash"
 
 source "$ROOT/package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto-v2"
+CFIP_OPENCLASH_RUNTIME_CONFIG="$TMP/openclash.yaml"
+CFIP_OPENCLASH_RUNTIME_ID="1234:100:/tmp/clash:$TMP/openclash.yaml"
+CFIP_OPENCLASH_TARGET_CONFIG="$TMP/provider.yaml"
+CFIP_OPENCLASH_PROVIDER_NAME=local
+cfip_openclash_capture_runtime() { CFIP_OPENCLASH_RUNTIME_CONFIG="$TMP/openclash.yaml"; CFIP_OPENCLASH_RUNTIME_ID="1234:100:/tmp/clash:$TMP/openclash.yaml"; }
+cfip_openclash_resolve_provider_target() { CFIP_OPENCLASH_TARGET_CONFIG="$TMP/provider.yaml"; CFIP_OPENCLASH_PROVIDER_NAME=local; }
+cfip_managed_openclash_config_safe() { [[ -f "$1" ]]; } # Temporary paths in this fixture are not OpenWrt filesystem policy tests.
 CFIP_OPENCLASH_CONFIG="$TMP/openclash.yaml"; CFIP_MODE=openclash; CFIP_RUN_ID=guard-test
 CFIP_VERBOSE=false; CFIP_STOP_SERVICE=true
 export CFIP_OPENCLASH_CONFIG
@@ -79,6 +86,9 @@ reset_state() {
   CFIP_OPENCLASH_FILE_WRITTEN=false; CFIP_OPENCLASH_SERVICE_APPLIED=false
   CFIP_STOPPED_MODE=""; CFIP_TXN_DIR=""; CFIP_TXN_STATE=NONE; CFIP_TXN_ROLLED_BACK=false
   CFIP_TXN_COMMITTED=false; CFIP_TXN_ORIGINAL_RUNNING=false; CFIP_RECOVERY_ACTIVE=false; CFIP_RECOVERY_ERROR=""
+  CFIP_OPENCLASH_RUNTIME_CONFIG="$TMP/openclash.yaml"; CFIP_OPENCLASH_RUNTIME_ID="1234:100:/tmp/clash:$TMP/openclash.yaml"
+  CFIP_OPENCLASH_TARGET_CONFIG="$TMP/provider.yaml"; CFIP_OPENCLASH_PROVIDER_NAME=local
+  printf 'proxies:\n  - name: edge\n    type: vless\n    server: cdn.example.com\n    port: 443\n' >"$TMP/provider.yaml"
 }
 
 reset_state 0 '' down
@@ -144,10 +154,10 @@ echo 'unreadable enable fails closed'
 
 reset_state 1 live healthy
 cfip_openclash_capture_state; CFIP_STOP_SERVICE=false
-stop_service_for_measurement
+if stop_service_for_measurement; then echo 'measurement proceeded without a verified bypass' >&2; exit 1; fi
 test -z "$CFIP_STOPPED_MODE"; test "$(cat "$TMP/enable")" = 1; test ! -s "$TMP/service.log"
 CFIP_STOP_SERVICE=true
-echo 'stop_service disabled preserves a healthy service'
+echo 'stop_service disabled refuses an unverified online measurement without stopping OpenClash'
 
 reset_state 1 live healthy
 cfip_openclash_capture_state
@@ -184,7 +194,7 @@ echo 'init restart zero without core is a failed recovery'
 reset_state 1 live healthy start-fail; CFIP_OPENCLASH_EXPECTED_ENABLED=1; CFIP_OPENCLASH_CF_STOPPED=true; CFIP_STOPPED_MODE=openclash
 CFIP_OPENCLASH_FILE_WRITTEN=true
 if restore_stopped_service_if_needed; then echo 'start_fail state passed restoration' >&2; exit 1; fi
-test "$(cat "$TMP/enable")" = 0; test "$(cat "$TMP/restart-count")" = 1; test -z "$CFIP_STOPPED_MODE"
+test "$(cat "$TMP/enable")" = 0; test "$(cat "$TMP/restart-count")" = 1; test "$CFIP_STOPPED_MODE" = openclash
 test "$CFIP_OPENCLASH_FILE_WRITTEN" = true
 CFIP_STOPPED_MODE=openclash
 restore_stopped_service_if_needed || :
@@ -209,7 +219,7 @@ CFIP_OPENCLASH_CONFIG="$TMP/openclash.yaml"
 printf 'original\n' >"$CFIP_OPENCLASH_CONFIG"
 CFIP_TXN_DIR=""; CFIP_RUN_ID=guard-disabled
 cfip_txn_prepare openclash
-cfip_openclash_apply_selected() { printf 'proxies: []\n# updated\n' >"$CFIP_OPENCLASH_CONFIG"; }
+cfip_openclash_apply_selected() { printf 'proxies: []\n# updated\n' >"$CFIP_OPENCLASH_TARGET_CONFIG"; }
 cfip_openclash_readback_selected() { return 0; }
 printf '[]\n' >"$TMP/selected.json"
 cfip_txn_apply openclash "$TMP/selected.json"

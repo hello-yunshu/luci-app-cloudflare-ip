@@ -58,7 +58,7 @@ normalize_runtime_channel() {
     [[ "$(cfip_bool "$enabled")" == true ]] || return 0
     if ! cfip_rill_runtime_allowed; then
         set_value cf_ip.rill.enabled "$enabled" 0
-        logger -t cf_ip -p daemon.warn "Rill disabled: runtime channel is $(cfip_rill_runtime_channel), not preview"
+        logger -t cf_ip -p daemon.warn "Rill disabled: runtime channel is $(cfip_rill_runtime_channel), not stable"
     fi
 }
 
@@ -107,7 +107,7 @@ normalize_enum() {
 }
 normalize_enum cf_ip.main.ip_type "ipv4 ipv6 both" ipv4
 normalize_enum cf_ip.main.speedtest_protocol "tcp http" tcp
-normalize_enum cf_ip.main.mode "passwall openclash" passwall
+normalize_enum cf_ip.main.mode "passwall passwall2 openclash homeproxy" passwall
 normalize_enum cf_ip.main.source_policy "balanced official-heavy history-heavy diversity-heavy community-heavy" balanced
 normalize_enum cf_ip.main.adaptive_measurement_mode "off shadow guarded" shadow
 normalize_enum cf_ip.rill.mode "off shadow assisted" shadow

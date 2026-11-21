@@ -79,7 +79,7 @@ run_entry() {
    cmd_run
  fi
 }
-for entry in cf-ip-auto cf-ip-auto-legacy; do
+for entry in cf-ip-auto; do
  for scenario in disabled healthy stop-disabled enabled-down inconsistent read-fail recovery-fail measurement-fail daemon; do
   case "$scenario" in
    disabled|daemon) fixture 0 down ;;
@@ -130,43 +130,40 @@ for entry in cf-ip-auto cf-ip-auto-legacy; do
  echo "$entry preserves native CLI/daemon and guarded disabled/healthy/failure behavior without v2"
 done
 
-# Check the other installed legacy OpenClash entry points. These run through
-# the same native shell file, without the v2 engine or its libraries.
-for entry in cf-ip-auto-legacy; do
- ENTRY_FILE="$ROOT/package/luci-app-cloudflare-ip/root/usr/bin/$entry"; export ENTRY_FILE
- for scenario in sync-disabled sync-healthy restore-disabled restore-healthy selected-read-fail; do
-  action="${scenario%%-*}"
-  [[ "$action" != selected ]] || action=selected
-  case "$scenario" in
-   *-disabled) fixture 0 down ;;
-   *-healthy) fixture 1 live ;;
-   selected-read-fail) fixture 1 live; : >"$TMP/read-fail"; printf '[{"ip":"104.16.1.1"}]' >"$TMP/selected.json" ;;
-  esac
-  if [[ "$action" == restore ]]; then
-   printf 'secret: restored-test\nproxies:\n  - name: Backup\n    type: vless\n    server: backup.example.com\n    port: 443\n    uuid: backup-test\n    tls: true\n    network: xhttp\n' >"$TMP/config.yaml.bak.20261010120000"
-  fi
-  set +e
-  (set -e; run_entry) >"$TMP/result" 2>"$TMP/errors"
-  rc=$?
-  set -e
-  case "$scenario" in
-   sync-disabled)
-    test "$rc" = 0; test ! -s "$TMP/service.log"
-    jq -e '.success and .last_result=="warning" and .nodeFileWritten and (.serviceApplied|not)' "$TMP/result" >/dev/null
-    jq -e '.last_result=="warning" and .service.deferredUntilServiceStart' "$TMP/state/status.json" >/dev/null ;;
-   sync-healthy)
-    test "$rc" = 0; test "$(grep -c '^restart$' "$TMP/service.log")" = 1
-    jq -e '.last_result=="success" and .service.serviceApplied' "$TMP/state/status.json" >/dev/null ;;
-   restore-disabled)
-    test "$rc" = 0; test ! -s "$TMP/service.log"
-    jq -e '.success and .last_result=="warning" and .nodeFileWritten and (.serviceApplied|not)' "$TMP/result" >/dev/null
-    jq -e '.last_result=="warning" and .service.deferredUntilServiceStart' "$TMP/state/status.json" >/dev/null ;;
-   restore-healthy)
-    test "$rc" = 0; test "$(grep -c '^restart$' "$TMP/service.log")" = 1
-    jq -e '.success and .serviceApplied and .last_result=="success"' "$TMP/result" >/dev/null ;;
-   selected-read-fail)
-    test "$rc" != 0; test ! -s "$TMP/service.log"; test "$(cat "$TMP/enable")" = 1 ;;
-  esac
- done
- echo "$entry sync, selected-node and backup restore entry points preserve OpenClash state and report apply results"
+# The installed legacy engine cannot identify a runtime provider safely. Every
+# OpenClash mutation entry point must reject before touching files or service.
+ENTRY_FILE="$ROOT/package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto-legacy"; export ENTRY_FILE
+for scenario in run sync selected restore; do
+ fixture 1 live
+ printf '[{"ip":"104.16.1.1"}]' >"$TMP/selected.json"
+ printf 'old whole config backup\n' >"$TMP/config.yaml.bak.20261010120000"
+ case "$scenario" in
+  run) action=run ;;
+  sync) action=sync ;;
+  selected) action=selected ;;
+  restore) action=restore ;;
+ esac
+ set +e
+ (set -e; run_entry) >"$TMP/result" 2>"$TMP/errors"
+ rc=$?
+ set -e
+ test "$rc" != 0
+ test ! -s "$TMP/service.log"
+ cmp -s "$TMP/config.yaml" "$TMP/original.yaml"
+ test "$(cat "$TMP/enable")" = 1
 done
+echo 'installed legacy OpenClash run, sync, selected apply and whole-config restore fail closed without service changes'
+
+if bash -c 'source "$1"; MODE=openclash; CONFIG_VERSION=1.3.1; CFIP_V2_BIN=/usr/bin/true; OPENCLASH_CONFIG=/etc/hosts; OPENCLASH_TARGET_DOMAIN=cdn.example.com; validate_config' _ "$ROOT/cf-openwrt-auto.sh" >"$TMP/standalone.out" 2>"$TMP/standalone.err"; then
+	:
+else
+	echo 'FAIL: independent standalone rejected a configured packaged v2 bridge' >&2
+	exit 1
+fi
+if bash -c 'source "$1"; MODE=openclash; CONFIG_VERSION=1.3.1; CFIP_V2_BIN=/missing/cf-ip-auto; OPENCLASH_CONFIG=/etc/hosts; OPENCLASH_TARGET_DOMAIN=cdn.example.com; validate_config' _ "$ROOT/cf-openwrt-auto.sh" >"$TMP/missing-v2.out" 2>"$TMP/missing-v2.err"; then
+	echo 'FAIL: standalone accepted OpenClash mode without packaged v2 bridge' >&2
+	exit 1
+fi
+grep -q 'requires the packaged v2 provider transaction' "$TMP/missing-v2.err"
+grep -q 'openclash = requires packaged v2; standalone delegates to its provider transaction' "$ROOT/cf-openwrt-auto.conf.example"
+echo 'independent standalone requires packaged v2 bridge; installed legacy direct apply remains fail closed'

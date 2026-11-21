@@ -11,7 +11,7 @@ config service 'main'
 	option speedtest_ping_count '3'
 	option speedtest_tll '40'
 	option speedtest_tl ''
-	option stop_service '1'
+	option stop_service '0'
 	option startup_delay ''
 	option auto_update '0'
 	# Deprecated: legacy self-update is disabled; kept for migration compatibility.
@@ -73,6 +73,12 @@ config lan 'lan'
 config passwall 'passwall'
 	option target_domain ''
 	option name_suffix ' [CF-{n}]'
+
+config passwall2 'passwall2'
+	option target_domain ''
+
+config homeproxy 'homeproxy'
+	option target_domain ''
 
 config openclash 'openclash'
 	option config '/etc/openclash/config/config.yaml'

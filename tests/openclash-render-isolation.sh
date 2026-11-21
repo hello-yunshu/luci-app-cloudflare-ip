@@ -75,11 +75,15 @@ export CFIP_LIB_DIR="$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip
 source "$ROOT/package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto-v2"
 uci() {
     local first="${1:-}" second="${2:-}" third="${3:-}"
-    if [[ "$first" == -q && "$second" == get && "$third" == openclash.config.enable ]]; then printf '0\n'; else command uci "$@"; fi
+    if [[ "$first" == -q && "$second" == get && "$third" == openclash.config.enable ]]; then printf '0\n'
+    elif [[ "$first" == -q && "$second" == get && "$third" == openclash.config.config_path ]]; then printf '%s\n' "$CFIP_OPENCLASH_CONFIG"
+    else command uci "$@"; fi
 }
 pidof() { return 1; }
 CFIP_OPENCLASH_CONFIG="$TMP/live.yaml"; CFIP_OPENCLASH_TARGET_DOMAIN=cdn.example.com
 CFIP_TARGET_DOMAINS=cdn.example.com; CFIP_OPENCLASH_NAME_SUFFIX=' [CF-{n}]'
+cfip_managed_openclash_config_safe() { [[ -f "$1" ]]; }
+cfip_openclash_resolve_provider_target() { CFIP_OPENCLASH_RUNTIME_CONFIG="$CFIP_OPENCLASH_CONFIG"; CFIP_OPENCLASH_TARGET_CONFIG="$CFIP_OPENCLASH_CONFIG"; CFIP_OPENCLASH_PROVIDER_NAME=fixture; }
 CFIP_OPENCLASH_TRANSPORT_FILTER=""; CFIP_OPENCLASH_BACKUP_COUNT=3
 CFIP_LEGACY_BIN="$ROOT/package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto-legacy"
 CFIP_RUNTIME_DIR="$TMP/runtime"; mkdir -p "$CFIP_RUNTIME_DIR"; CFIP_RUN_ID=real-staged-render
@@ -122,7 +126,7 @@ for cycle in 2 3 4 5; do
         awk '/uuid: isolated-auth-token/ { n++; if(n==2) sub(/isolated-auth-token/,"second-slot-auth") } {print}' "$TMP/live.yaml" >"$TMP/with-auth.yaml"
         mv "$TMP/with-auth.yaml" "$TMP/live.yaml"
     else
-        ruby -rpsych -e 'raise "slot authentication changed" unless Psych.safe_load_file(ARGV[0])["proxies"].map { |x| x["uuid"] } == ["isolated-auth-token","second-slot-auth"]' "$TMP/live.yaml"
+        ruby -rpsych -e 'raise "slot authentication changed" unless Psych.safe_load(File.read(ARGV[0]), aliases: true)["proxies"].map { |x| x["uuid"] } == ["isolated-auth-token","second-slot-auth"]' "$TMP/live.yaml"
     fi
 done
 echo 'repeated real transactions grow and update existing CF variants without duplicate expectations or external side effects'

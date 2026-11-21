@@ -5,7 +5,7 @@ mkdir -p "$TMP/bin" "$TMP/init" "$TMP/runtime"
 cat >"$TMP/init/passwall" <<'EOF_INIT'
 #!/usr/bin/env bash
 printf '%s\n' "${1:-}" >>"${CFIP_SERVICE_LOG:?}"
-case "${1:-}" in running|restart) exit 0 ;; stop) exit 1 ;; *) exit 0 ;; esac
+exit 0
 EOF_INIT
 chmod +x "$TMP/init/passwall"
 cat >"$TMP/bin/uci" <<'EOF_UCI'
@@ -47,12 +47,15 @@ cat >"$TMP/status.json" <<'EOF_STATUS'
 EOF_STATUS
 export PATH="$TMP/bin:$PATH" UCI_FAKE_STATE="$TMP/passwall.state" UCI_WORK_DIR="/usr/bin" CFIP_INIT_DIR="$TMP/init" CFIP_STATUS_DIR="$TMP" CFIP_RUNTIME_DIR="$TMP/runtime" CFIP_STATUS_FILE="$TMP/status.json" CFIP_LOG_FILE="$TMP/log" CFIP_PASSWALL_STATE_FILE="$TMP/managed.json"
 CFIP_LIB_DIR="$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip" source "${CFIP_V2_SCRIPT:-$ROOT/package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto-v2}"
+cfip_managed_rill_state_safe() { return 0; } # This sync contract does not exercise Rill path ownership.
+cfip_managed_openclash_config_safe() { return 0; } # This fixture exercises PassWall only.
 CFIP_SERVICE_LOG="$TMP/services.log"; export CFIP_SERVICE_LOG
 cfip_probe_one() { jq -cn --arg ip "$1" --arg domain "$2" --arg family "$3" '{ip:$ip,domain:$domain,family:$family,success:true,totalMs:40,connectMs:10,tlsMs:10,ttfbMs:20}'; }
+cfip_txn_commit() { return 1; }
 if result="$(cmd_sync passwall)"; then echo "sync unexpectedly succeeded: $result" >&2; exit 1; fi
 echo "$result" | jq -e '.success==false and .rolledBack==true and .recoveryRequired==false' >/dev/null
-test "$(grep -c '^stop$' "$TMP/services.log")" -eq 1
-test "$(grep -c '^restart$' "$TMP/services.log")" -eq 1
+! grep -Eq '^(stop|restart)$' "$TMP/services.log"
 test ! -d "$CFIP_LOCK_DIR"
 test -z "$(find "$TMP/runtime" -maxdepth 1 -type d -name 'txn-*' -print -quit)"
-echo 'manual sync stop-failure rollback and lock cleanup passed'
+grep -q "passwall.s1.address='cdn.example.com'" "$TMP/passwall.state"
+echo 'manual sync commit-failure rolls back PassWall UCI without a proxy restart'

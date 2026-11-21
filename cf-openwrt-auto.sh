@@ -29,6 +29,7 @@ OPENCLASH_TARGET_DOMAIN=""
 OPENCLASH_NAME_SUFFIX=" [CF-{n}]"
 OPENCLASH_TRANSPORT_FILTER=""
 OPENCLASH_BACKUP_COUNT="3"
+CFIP_V2_BIN="${CFIP_V2_BIN:-/usr/bin/cf-ip-auto}"
 AUTO_UPDATE="true"
 SELF_UPDATE_URL="https://raw.githubusercontent.com/hello-yunshu/luci-app-cloudflare-ip/main/cf-openwrt-auto.sh"
 DOWNLOAD_RETRIES="3"
@@ -36,7 +37,7 @@ DOWNLOAD_RETRY_DELAY="5"
 VERBOSE="false"
 CLI_VERBOSE="false"
 GITHUB_MIRROR=""
-STOP_SERVICE_BEFORE_SPEEDTEST="true"
+STOP_SERVICE_BEFORE_SPEEDTEST="false"
 STARTUP_DELAY=""
 _STOPPED_SERVICE=""
 _OPENCLASH_ENABLE_SAVED=""
@@ -767,7 +768,43 @@ update_passwall() {
 	done
 
 	uci commit passwall >/dev/null || die "failed to commit passwall"
-	restart_service passwall
+	if [[ "$_STOPPED_SERVICE" == passwall ]]; then
+		restart_service passwall
+		_STOPPED_SERVICE=""
+	else
+		log "PassWall configuration persisted; the running service was not restarted, so the new address is pending service apply"
+	fi
+}
+
+passwall_process_running() {
+	local process_dir="${1:-/tmp/etc/passwall/bin}"
+	[[ -x "$INIT_DIR/passwall" && -d "$process_dir" ]] || return 1
+	if command -v busybox >/dev/null 2>&1; then
+		busybox pgrep -f "$process_dir" >/dev/null 2>&1
+	elif command -v pgrep >/dev/null 2>&1; then
+		pgrep -f "$process_dir" >/dev/null 2>&1
+	else
+		return 2
+	fi
+}
+
+passwall_measurement_preflight() {
+	[[ "$MODE" == passwall && "$STOP_SERVICE_BEFORE_SPEEDTEST" != true ]] || return 0
+	local rc=0
+	passwall_process_running || rc=$?
+	case "$rc" in
+		0) die "PassWall online measurement bypass is not verified; refusing to measure through the running proxy. Enable the maintenance stop option to accept a temporary outage" ;;
+		1) return 0 ;;
+		*) die "cannot determine whether PassWall is running; refusing to measure" ;;
+	esac
+}
+
+openclash_measurement_preflight() {
+	[[ "$MODE" == openclash && "$STOP_SERVICE_BEFORE_SPEEDTEST" != true ]] || return 0
+	command -v pidof >/dev/null 2>&1 || die "cannot determine whether OpenClash is running; refusing standalone measurement"
+	if pidof clash >/dev/null 2>&1; then
+		die "standalone OpenClash measurement has no verified online bypass; enable the explicit maintenance stop or use packaged v2 run"
+	fi
 }
 
 uci_unquote() {
@@ -1282,82 +1319,47 @@ CFIP_YAML_DOCUMENT
 }
 
 update_openclash() {
-	local line backup backup_ts backup_seq=0
-
-	[[ -f "$OPENCLASH_CONFIG" ]] || die "OpenClash config not found: $OPENCLASH_CONFIG"
-	[[ -n "$OPENCLASH_TARGET_DOMAIN" ]] || die "OPENCLASH_TARGET_DOMAIN is empty"
-	cfip_openclash_yaml_supported "$OPENCLASH_CONFIG" || die "unsupported OpenClash proxy YAML; original config preserved"
-	openclash_check_before_write || die "${_OPENCLASH_SERVICE_ERROR:-OpenClash state could not be verified}"
-	if [[ -n "$_OPENCLASH_CONFIG_SNAPSHOT" ]]; then
-		cmp -s "$OPENCLASH_CONFIG" "$_OPENCLASH_CONFIG_SNAPSHOT" || die "OpenClash config changed during measurement; preserved external changes"
+	# The package-owned bridge holds the shared writer lock and owns provider
+	# resolution, publication, readback, ambiguous PUT handling and hot rollback.
+	# This standalone script only passes a private, validated candidate list.
+	local selected bridge_error result rc=0 detail application
+	[[ -x "$CFIP_V2_BIN" ]] || die "standalone OpenClash apply requires the packaged v2 provider transaction: $CFIP_V2_BIN"
+	if [[ "$_STOPPED_SERVICE" == openclash ]]; then
+		# Restore only the service stopped by this run, then let the v2 transaction
+		# capture and verify the live core before publishing the provider file.
+		restart_service openclash || die "OpenClash maintenance restoration failed before provider apply; no provider changes were submitted"
+		_STOPPED_SERVICE=""
+		_OPENCLASH_ENABLE_SAVED=""
 	fi
-	log "updating OpenClash config: $OPENCLASH_CONFIG"
-
-	TMP_CONFIG="$(mktemp "${OPENCLASH_CONFIG}.tmp.XXXXXX")"
-	OPENCLASH_UPDATED=0
-	OPENCLASH_TEMPLATE_DOMAINS=()
-	OPENCLASH_TEMPLATE_TEXT=()
-	OPENCLASH_TEMPLATE_BASE_NAME=()
-	OPENCLASH_SEEN=()
-	OPENCLASH_WROTE_PROXY=false
-	OPENCLASH_LAST_LINE_BLANK=true
-	BLOCK_LINES=()
-
-	local in_proxies=false
-	while IFS= read -r line || [[ -n "$line" ]]; do
-		line="${line%$'\r'}"
-		if [[ "$line" =~ ^proxies:[[:space:]]*($|#) ]]; then
-			in_proxies=true
-			write_openclash_line "$line"
-			continue
-		fi
-		if [[ "$in_proxies" == true && "$line" =~ ^[^[:space:]#][^:]*: ]]; then
-			process_openclash_block
-			BLOCK_LINES=()
-			append_missing_openclash_variants
-			in_proxies=false
-		fi
-		if [[ "$in_proxies" != true ]]; then
-			printf '%s\n' "$line" >>"$TMP_CONFIG"
-			continue
-		fi
-		if [[ "$line" =~ ^[[:space:]]*-[[:space:]]+name:[[:space:]]*.+$ && ${#BLOCK_LINES[@]} -gt 0 ]]; then
-			process_openclash_block
-			BLOCK_LINES=("$line")
-		else
-			BLOCK_LINES+=("$line")
-		fi
-	done <"$OPENCLASH_CONFIG"
-	if [[ "$in_proxies" == true ]]; then
-		process_openclash_block
-		append_missing_openclash_variants
+	selected="$(mktemp "${TMPDIR:-/tmp}/cf-openclash-selected.XXXXXX")" || die "failed to allocate OpenClash candidate handoff"
+	bridge_error="$(mktemp "${TMPDIR:-/tmp}/cf-openclash-bridge-error.XXXXXX")" || { rm -f "$selected"; die "failed to allocate OpenClash bridge diagnostics"; }
+	chmod 600 "$selected" "$bridge_error" 2>/dev/null || true
+	if ! printf '%s\n' "${FAST_IPS[@]}" | jq -Rn '[inputs | select(length>0) | {ip:.,family:(if contains(":") then "ipv6" else "ipv4" end)}]' >"$selected"; then
+		rm -f "$selected" "$bridge_error"
+		die "failed to encode standalone OpenClash candidates"
 	fi
-
-	((OPENCLASH_UPDATED > 0)) || {
-		rm -f "$TMP_CONFIG"
-		die "no supported OpenClash proxy matched server: $OPENCLASH_TARGET_DOMAIN"
-	}
-	if ! cfip_openclash_yaml_supported "$TMP_CONFIG"; then
-		rm -f "$TMP_CONFIG"
-		die "rendered OpenClash YAML is unsupported; original config preserved"
+	result="$("$CFIP_V2_BIN" --apply-selected "$selected" openclash "$OPENCLASH_CONFIG" "$OPENCLASH_TARGET_DOMAIN" "$OPENCLASH_NAME_SUFFIX" "$OPENCLASH_TRANSPORT_FILTER" 2>"$bridge_error")" || rc=$?
+	if ((rc != 0)) || ! jq -e '.success==true' <<<"$result" >/dev/null 2>&1; then
+		detail="$(tail -n 8 "$bridge_error" 2>/dev/null | tr '\n' ' ')"
+		rm -f "$selected" "$bridge_error"
+		die "packaged v2 OpenClash transaction failed${detail:+: $detail}"
 	fi
-
-	backup_ts="$(date +%Y%m%d%H%M%S)"
-	backup="${OPENCLASH_CONFIG}.bak.${backup_ts}"
-	while [[ -e "$backup" ]]; do
-		backup_seq=$((backup_seq + 1))
-		backup="${OPENCLASH_CONFIG}.bak.${backup_ts}.${backup_seq}"
-	done
-	openclash_check_before_write || die "${_OPENCLASH_SERVICE_ERROR:-OpenClash state could not be verified}"
-	if [[ -n "$_OPENCLASH_CONFIG_SNAPSHOT" ]]; then
-		cmp -s "$OPENCLASH_CONFIG" "$_OPENCLASH_CONFIG_SNAPSHOT" || die "OpenClash config changed during node generation; preserved external changes"
+	application="$(jq -r '.applicationMethod // empty' <<<"$result")"
+	if [[ "$(jq -r '.hotApplied // false' <<<"$result")" == true && "$(jq -r '.restartCount // -1' <<<"$result")" == 0 ]]; then
+		_OPENCLASH_FILE_WRITTEN=true
+		_OPENCLASH_APPLIED=true
+		LAST_RESULT=success
+		log "OpenClash provider was hot-applied and verified by the packaged v2 transaction"
+	elif [[ "$application" == deferred_until_service_start ]]; then
+		_OPENCLASH_FILE_WRITTEN=true
+		_OPENCLASH_APPLIED=false
+		LAST_RESULT=warning
+		log "OpenClash is disabled; provider changes are pending until service start"
+	else
+		rm -f "$selected" "$bridge_error"
+		die "packaged v2 transaction did not report a verified no-restart provider application"
 	fi
-	cp "$OPENCLASH_CONFIG" "$backup"
-	rotate_openclash_backups "$OPENCLASH_CONFIG" "$OPENCLASH_BACKUP_COUNT"
-	mv "$TMP_CONFIG" "$OPENCLASH_CONFIG"
-	log "OpenClash config updated, backup saved to $backup"
-
-	restart_service openclash || die "${_OPENCLASH_SERVICE_ERROR:-OpenClash application failed}"
+	rm -f "$selected" "$bridge_error"
 }
 
 usage() {
@@ -1382,6 +1384,9 @@ validate_config() {
 		die "config version $CONFIG_VERSION is lower than required $MIN_CONFIG_VERSION; update cf-openwrt-auto.conf from cf-openwrt-auto.conf.example"
 	fi
 	[[ "$MODE" == "passwall" || "$MODE" == "openclash" ]] || die "unsupported mode: $MODE; use passwall or openclash"
+	if [[ "$MODE" == openclash ]]; then
+		[[ -x "$CFIP_V2_BIN" ]] || die "standalone OpenClash mode requires the packaged v2 provider transaction: $CFIP_V2_BIN"
+	fi
 	[[ "$IP_COUNT" =~ ^[1-9][0-9]*$ ]] || die "IP_COUNT must be a positive integer"
 	[[ "$IP_TYPE" == "ipv4" || "$IP_TYPE" == "ipv6" || "$IP_TYPE" == "both" ]] || die "IP_TYPE must be ipv4, ipv6, or both"
 	[[ "$SPEEDTEST_PROTOCOL" == "tcp" || "$SPEEDTEST_PROTOCOL" == "http" ]] || die "SPEEDTEST_PROTOCOL must be tcp or http"
@@ -1452,6 +1457,8 @@ main() {
 	[[ "$CLI_VERBOSE" == "true" ]] && VERBOSE="true"
 	normalize_mode "$MODE"
 	validate_config
+	passwall_measurement_preflight
+	openclash_measurement_preflight
 	if [[ "$MODE" == openclash ]]; then
 		openclash_capture_state || die "OpenClash preflight failed"
 		trap _on_exit EXIT
