@@ -35,6 +35,9 @@ jobs:
         run: |
           set -euo pipefail
           bash tests/build-real-uci.sh "$RUNNER_TEMP/real-uci"
+          # Later contract steps (e.g. passwall2 persistence) require the same
+          # real libuci CLI, so publish its path for the rest of the job.
+          echo "UCI_REAL_BIN=$RUNNER_TEMP/real-uci/uci-build/uci" >> "$GITHUB_ENV"
           UCI_REAL_BIN="$RUNNER_TEMP/real-uci/uci-build/uci" bash tests/passwall-real-uci-rollback.sh
           UCI_REAL_BIN="$RUNNER_TEMP/real-uci/uci-build/uci" bash tests/passwall-real-uci-faults.sh
           UCI_REAL_BIN="$RUNNER_TEMP/real-uci/uci-build/uci" python3 tests/transaction-kill-journal.py
