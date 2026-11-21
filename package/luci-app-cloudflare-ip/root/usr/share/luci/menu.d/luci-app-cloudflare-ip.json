@@ -88,5 +88,31 @@
 				"/etc/init.d/passwall": "executable"
 			}
 		}
+	},
+	"admin/services/cf_ip/passwall2": {
+		"title": "PassWall2",
+		"order": 42,
+		"action": {
+			"type": "view",
+			"path": "cloudflare-ip/passwall2"
+		},
+		"depends": {
+			"fs": {
+				"/etc/init.d/passwall2": "executable"
+			}
+		}
+	},
+	"admin/services/cf_ip/homeproxy": {
+		"title": "HomeProxy",
+		"order": 45,
+		"action": {
+			"type": "view",
+			"path": "cloudflare-ip/homeproxy"
+		},
+		"depends": {
+			"fs": {
+				"/etc/init.d/homeproxy": "executable"
+			}
+		}
 	}
 }

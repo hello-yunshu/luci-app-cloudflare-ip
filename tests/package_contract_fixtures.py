@@ -25,6 +25,8 @@ def assets_for(identity=None):
 
 def manifest(assets=None):
     c = json.loads((ROOT / 'contracts/rill-runtime.json').read_text())
+    qualification_run = 42
+    qualification_sha256 = 'c' * 64
     commit = '0123456789abcdef0123456789abcdef01234567'
     migration = dict(c['packageMigration'], currentSHA=commit, ipk='PASS', apk='PASS')
     migration.update({k:True for k in ('baseOnlyUpgrade','baseAddonToBaseUpgrade','addonRemovalSafe','recentToCurrent','runtimeAbsent','runtimePresent')})
@@ -43,13 +45,13 @@ def manifest(assets=None):
             dict(id=k,**{'from':old,'to':new},addon=addon,status='PASS',runtimeAbsent=True,runtimePresent=True,userDataPreserved=True,evidenceDirectory=kind+'-'+k)
             for k,(old,new,addon) in SCENARIOS.items()]))
     migration['currentMatrices']=matrices
+    rill_package_commit=c['openwrtPackage']['commit'] or 'a'*40
     return dict(schemaVersion=1, commit=commit, runId=42, runAttempt=1, jobs={name:dict(result="success") for name in REQUIRED_JOBS}, artifacts=[],
                 assetFiles=assets,
                 qualificationState='automated-qualification', releaseEligible=True,
-                packageMigration=migration, stableSourceArchiveSha256=c['resolved']['sourceArchiveSha256'],
-                rill=dict(schemaVersion=1, package=dict(repository=c['openwrtPackage']['repository'],
-                    commit=c['openwrtPackage']['commit'],qualificationRunId=c['qualification']['runId'],qualificationManifestSha256='c'*64),
-                    stablePackageQualification='PASS',previewRuntimeIntegration='PASS',
-                    stableCommit=c['resolved']['upstreamCommit'], previewCommit=c['preview']['commit'],
-                    runtime=dict(version=c['openwrtPackage']['packageVersion'],tag=c['preview']['channel'],commit=c['preview']['commit'],sourceArchiveSha256='not-applicable-preview',binarySha256='f'*64),
+                packageMigration=migration,
+                rill=dict(schemaVersion=4, package=dict(repository=c['openwrtPackage']['repository'],
+                    commit=rill_package_commit,qualificationRunId=qualification_run,qualificationManifestSha256=qualification_sha256),
+                    stablePackageQualification='PASS',stableRuntimeIntegration='PASS',
+                    runtime=dict(version=c['openwrtPackage']['packageVersion'],channel='stable',tag=c['resolved']['tag'],commit=c['resolved']['upstreamCommit'],sourceType=c['resolved']['sourceType'],binarySha256='f'*64),
                     integration=dict(status='pass',sameRelease=True)))

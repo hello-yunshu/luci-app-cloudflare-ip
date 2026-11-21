@@ -99,7 +99,7 @@ Enter the original domain from the node configuration, not an optimized IP. Pass
 | Benchmark protocol | `tcp` or `http` | `tcp` |
 | Run schedule | `6h`, `30m`, or five-field cron | `6h` |
 
-The proxy service is stopped before measurement by default to avoid proxy traffic affecting results, then restored to its previous state.
+New installations do not allow automatic service stops by default. OpenClash TCP/443 measurements first try a candidate-scoped firewall bypass. A running PassWall service, which has no verified bypass yet, fails closed instead of silently measuring through the proxy. Enable **Allow Maintenance Stop for Speed Test** to permit a temporary stop and recovery when no verified bypass is available. That path is a maintenance window, not an outage-free run. Upgrades preserve the existing `stop_service` value.
 
 ### PassWall
 
@@ -132,7 +132,9 @@ The default candidate budget is `128` unique IPs, with a range of `100–512`. A
 
 Adaptive Measurement is a Native pre-probe scheduler and defaults to `shadow`. It consumes pre-probe fields only. `guarded` becomes effective only after complete, compatible, fresh audit evidence meets recall, safety, and savings thresholds. Corrupt state, stale evidence, or probe failure returns the next run to the full Native flow.
 
-Rill is disabled by default. Most users do not need the Rill Runtime. To use Candidate Rill Shadow / Assisted, install the base package first, then install `rill-runtime-preview` matching your OpenWrt release and CPU architecture from [rill-openwrt-packages Releases](https://github.com/hello-yunshu/rill-openwrt-packages/releases), and enable Rill in the LuCI Intelligence page. Rill is only candidate assistance or Shadow observation; Native ranking and safety boundaries remain authoritative. If the Runtime is absent, the page shows `Rill Runtime: Not installed`; Native mode remains available.
+Rill is disabled by default. Most users do not need the Rill Runtime. To use Candidate Rill Shadow / Assisted, install the base package first, then install the Stable `rill-runtime` package matching your OpenWrt release and CPU architecture from [rill-openwrt-packages Releases](https://github.com/hello-yunshu/rill-openwrt-packages/releases), and enable Rill in the LuCI Intelligence page. Rill is only candidate assistance or Shadow observation; Native ranking and safety boundaries remain authoritative. Native mode remains available when the Runtime is absent.
+
+CFI and Performance Manager share the Stable `rill-runtime` package. An installed legacy `rill-runtime-preview` is shown as a migration conflict; CFI will not remove it automatically. Explicitly uninstall the old package in your package manager before installing Stable Runtime. See [RUNTIME_COMPATIBILITY.md](docs/RUNTIME_COMPATIBILITY.md) for the compatibility matrix.
 
 New users do not need to install `luci-app-cloudflare-ip-rill` manually. It is now a deprecated compatibility package for existing installations only.
 
@@ -174,7 +176,7 @@ Common checks:
 - **No nodes match**: make sure the target domain exactly matches PassWall `address` or OpenClash `server`.
 - **Measurement succeeds but apply fails**: check SNI/Host, TLS/network settings, and proxy service state; the transaction will attempt a rollback.
 - **CFST download fails**: check system time, CA certificates, DNS, network access, and the GitHub mirror.
-- **Rill is unavailable**: confirm `rill-runtime-preview` and `/usr/bin/rill-runtime`; the engine will fall back to Native.
+- **Rill is unavailable**: confirm Stable `rill-runtime` and `/usr/bin/rill-runtime`; the engine will fall back to Native.
 
 ## Project structure
 

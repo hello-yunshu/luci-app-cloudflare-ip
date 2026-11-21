@@ -31,7 +31,7 @@ def check(directory: Path, release_dir: bool = False, apk_bin: str | None = None
         for p in files:
             if p.is_symlink() or not p.is_file() or any(a.is_symlink() for a in p.parents if a == directory or directory in a.parents):
                 raise ValueError('unsafe package path')
-            if not p.name.startswith(('luci-app-cloudflare-ip', 'rill-runtime-preview')):
+            if not p.name.startswith(('luci-app-cloudflare-ip', 'rill-runtime')):
                 raise ValueError('extra unknown package')
         main = [p for p in files if p.name.startswith('luci-app-cloudflare-ip') and '-rill' not in p.name]
         formats = [p.suffix[1:] for p in main]

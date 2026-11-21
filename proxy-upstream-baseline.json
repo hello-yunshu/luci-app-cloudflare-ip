@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "policy": "A changed upstream ref requires fresh compatibility qualification before this baseline is advanced.",
+  "upstreams": [
+    {
+      "name": "OpenClash",
+      "repo": "vernesong/OpenClash",
+      "kind": "release",
+      "observedRef": "v0.48.002",
+      "qualification": "Full isolated provider transaction and rollback were qualified on v0.47.156; v0.48.002 has source-derived firewall evidence, not a full provider transaction qualification."
+    },
+    {
+      "name": "PassWall1",
+      "repo": "Openwrt-Passwall/openwrt-passwall",
+      "kind": "release",
+      "observedRef": "26.11.11-1",
+      "qualification": "CFI supports configuration persistence only; no running-service hot apply is claimed."
+    },
+    {
+      "name": "PassWall2",
+      "repo": "Openwrt-Passwall/openwrt-passwall2",
+      "kind": "release",
+      "observedRef": "26.11.11-1",
+      "qualification": "CFI PassWall2 adapter is unsupported; this canary tracks upstream drift and does not imply support."
+    },
+    {
+      "name": "HomeProxy",
+      "repo": "immortalwrt/homeproxy",
+      "kind": "branch",
+      "branch": "master",
+      "observedRef": "fadaa676104f59ff6ace480a780a258d846d0aec",
+      "qualification": "UCI persistence/transaction contract only; tested package 26.300.08316~d72e293 is not an apply-hot claim."
+    },
+    {
+      "name": "Mihomo",
+      "repo": "MetaCubeX/mihomo",
+      "kind": "release",
+      "observedRef": "v1.19.34",
+      "qualification": "Live provider PUT was tested on the device's alpha-smart-g2e80ed7 core; the latest tagged core has not been separately qualified."
+    },
+    {
+      "name": "sing-box",
+      "repo": "SagerNet/sing-box",
+      "kind": "release",
+      "observedRef": "v1.14.4",
+      "qualification": "HomeProxy runtime evidence used sing-box 1.12.25-r1; newer engine tags require a fresh runtime check."
+    }
+  ]
+}

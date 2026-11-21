@@ -41,7 +41,7 @@ DOWNLOAD_RETRY_DELAY="5"
 VERBOSE="false"
 CLI_VERBOSE="false"
 GITHUB_MIRROR=""
-STOP_SERVICE_BEFORE_SPEEDTEST="true"
+STOP_SERVICE_BEFORE_SPEEDTEST="false"
 STARTUP_DELAY=""
 SKIP_STARTUP_DELAY="false"
 CRON_INTERVAL="6h"
@@ -602,12 +602,40 @@ install_cached_speedtest_archive() {
 	install_speedtest_archive "$archive" "$version" "$source" "$digest" "$archive"
 }
 
+cfst_update_check_due() {
+	local stamp_file="${STATUS_DIR}/cfst-last-update-check" now last tmp
+	now="$(date +%s 2>/dev/null || true)"
+	[[ "$now" =~ ^[0-9]+$ ]] || return 0
+
+	if [[ -x "${CFST_DIR}/${BINARY_NAME}" && -f "$stamp_file" ]]; then
+		last="$(<"$stamp_file" 2>/dev/null || true)"
+		if [[ "$last" =~ ^[0-9]+$ ]] && ((now >= last && now - last < 86400)); then
+			return 1
+		fi
+	fi
+
+	# Persist every attempt, including failed release checks, so a transient
+	# GitHub/network error cannot trigger another check on every service start.
+	mkdir -p "$STATUS_DIR" 2>/dev/null || return 0
+	tmp="$(mktemp "${stamp_file}.XXXXXX" 2>/dev/null)" || return 0
+	if ! printf '%s\n' "$now" >"$tmp" || ! mv -f "$tmp" "$stamp_file"; then
+		rm -f "$tmp"
+	fi
+	return 0
+}
+
 download_speedtest() {
 	local tag version old_version asset archive url download_url tmp_archive release_json release_tmp file_size expected_digest actual_digest
 
 	need_cmd curl
 	need_cmd tar
 	ensure_jq
+	if ! cfst_update_check_due; then
+		local checked_at
+		checked_at="$(<"${STATUS_DIR}/cfst-last-update-check" 2>/dev/null || true)"
+		log "skipping CloudflareSpeedTest release check; last checked within 24 hours (${checked_at})"
+		return 0
+	fi
 
 	tag="$(detect_arch_tag)"
 	asset="${BINARY_NAME}_linux_${tag}.tar.gz"
@@ -1735,6 +1763,7 @@ apply_startup_delay() {
 
 run_main_flow() {
 	normalize_mode "$MODE"
+	[[ "$MODE" != openclash ]] || die "legacy OpenClash apply is disabled; use the v2 provider hot-apply transaction"
 	validate_config
 	if [[ "$MODE" == openclash ]]; then
 		openclash_prepare_run
@@ -1870,6 +1899,15 @@ detect_ruby_psych() {
 	fi
 }
 
+passwall_process_running() {
+	local process_dir="${1:-/tmp/etc/passwall/bin}"
+	[[ -x "$INIT_DIR/passwall" && -d "$process_dir" ]] || return 1
+	command -v busybox >/dev/null 2>&1 || return 1
+	# Mirrors PassWall app.sh's own process check; its init script has no
+	# reliable `running` action and may return success after printing usage.
+	busybox pgrep -f "$process_dir" >/dev/null 2>&1
+}
+
 cmd_check_env() {
 	JSON_MODE=true
 	# Real-time detection without writing cache (like upnp-bridge-relay's do_check_env)
@@ -1905,8 +1943,8 @@ cmd_check_env() {
 
 	local passwall_installed=false
 	local passwall_running=false
-	[[ -x /etc/init.d/passwall ]] && passwall_installed=true
-	$passwall_installed && /etc/init.d/passwall running >/dev/null 2>&1 && passwall_running=true
+	[[ -x "$INIT_DIR/passwall" ]] && passwall_installed=true
+	$passwall_installed && passwall_process_running && passwall_running=true
 
 	local openclash_installed=false
 	local openclash_running=false
@@ -1966,8 +2004,8 @@ cmd_refresh_env() {
 
 	local passwall_installed=false
 	local passwall_running=false
-	[[ -x /etc/init.d/passwall ]] && passwall_installed=true
-	$passwall_installed && /etc/init.d/passwall running >/dev/null 2>&1 && passwall_running=true
+	[[ -x "$INIT_DIR/passwall" ]] && passwall_installed=true
+	$passwall_installed && passwall_process_running && passwall_running=true
 
 	local openclash_installed=false
 	local openclash_running=false
@@ -2341,6 +2379,7 @@ cmd_sync() {
 	local sync_mode="${CLI_ARG1:-}"
 	[[ -n "$sync_mode" ]] || { json_error "missing plugin name (passwall or openclash)"; return 1; }
 	[[ "$sync_mode" == "passwall" || "$sync_mode" == "openclash" ]] || { json_error "unsupported plugin: $sync_mode; use passwall or openclash"; return 1; }
+	[[ "$sync_mode" != openclash ]] || { json_error "legacy OpenClash sync is disabled; use the v2 provider hot-apply transaction"; return 1; }
 
 	load_uci_config
 	[[ "$CLI_VERBOSE" == "true" ]] && VERBOSE="true"
@@ -2435,6 +2474,7 @@ cmd_apply_selected() {
 	JSON_MODE=true
 	local selected="${CLI_ARG1:-}" apply_mode="${CLI_ARG2:-}"
 	[[ -s "$selected" ]] && [[ "$apply_mode" == passwall || "$apply_mode" == openclash ]] || { json_error "invalid selected mapping"; return 1; }
+	[[ "$apply_mode" != openclash ]] || { json_error "legacy OpenClash apply is disabled; use the v2 provider hot-apply transaction"; return 1; }
 	load_uci_config
 	FAST_IPS=()
 	while IFS= read -r ip; do [[ -n "$ip" && "$ip" != null ]] && FAST_IPS+=("$ip"); done < <(jq -r '.[].ip' "$selected" 2>/dev/null)
@@ -2506,6 +2546,8 @@ cmd_oc_list_backups() {
 
 cmd_oc_restore_backup() {
 	JSON_MODE=true
+	json_error "legacy OpenClash whole-config backup restore is disabled; use a provider-only backup with the v2 transaction"
+	return 1
 	load_uci_config
 	local backup_id="${CLI_ARG1:-}"
 	[[ -n "$backup_id" ]] || { json_error "missing backup id"; return 1; }

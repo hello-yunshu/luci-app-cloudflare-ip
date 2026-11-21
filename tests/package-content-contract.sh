@@ -75,7 +75,7 @@ required=(
 if [[ "$MODE" == rill ]]; then
   required=()
 fi
-if [[ "$MODE" == preview ]]; then
+if [[ "$MODE" == stable ]]; then
   required=(usr/bin/rill-runtime)
 fi
 if ((${#required[@]})); then

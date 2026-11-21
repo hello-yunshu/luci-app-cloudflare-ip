@@ -60,7 +60,8 @@ reset() {
  printf '%s' "$1" >"$TMP/enable"; printf '%s' "$2" >"$TMP/pid"; printf '%s' "${3:-healthy}" >"$TMP/init-mode"
  printf 0 >"$TMP/clock"; printf 0 >"$TMP/probe-count"; : >"$TMP/service.log"
  rm -f "$TMP/read-fail" "$TMP/disable-during-health" "$TMP/slow-health" "$TMP/commit-fail"
- printf 'secret: test-only\nproxies: []\n' >"$TMP/config.yaml"
+ printf 'proxies:\n  - name: Original\n    type: vless\n    server: cdn.example.com\n    tls: true\n' >"$TMP/config.yaml"
+ printf 'runtime main config fixture\n' >"$TMP/main.yaml"
  CFIP_MODE=openclash; CFIP_OPENCLASH_CONFIG="$TMP/config.yaml"; CFIP_RUN_ID=review
  CFIP_OPENCLASH_EXPECTED_ENABLED=""; CFIP_OPENCLASH_INITIAL_HEALTHY=false; CFIP_OPENCLASH_CF_STOPPED=false
  CFIP_OPENCLASH_RECOVERY_ATTEMPTED=false; CFIP_OPENCLASH_RECOVERY_VERIFIED=false; CFIP_OPENCLASH_RESTART_ATTEMPTS=0; CFIP_OPENCLASH_SERVICE_APPLIED=false
@@ -69,8 +70,13 @@ reset() {
  CFIP_CLEANUP_DONE=false; CFIP_RECOVERY_ACTIVE=false; CFIP_RECOVERY_ERROR=""
  CFIP_MEASUREMENT_DEADLINE=0
 }
-cfip_openclash_apply_selected() { printf '# selected nodes\n' >>"$CFIP_OPENCLASH_CONFIG"; }
+cfip_openclash_apply_selected() { printf '# selected nodes\n' >>"$CFIP_OPENCLASH_TARGET_CONFIG"; }
+cfip_managed_openclash_config_safe() { [[ -f "$1" ]]; }
+cfip_openclash_resolve_provider_target() { CFIP_OPENCLASH_RUNTIME_CONFIG="$TMP/main.yaml"; CFIP_OPENCLASH_TARGET_CONFIG="$CFIP_OPENCLASH_CONFIG"; CFIP_OPENCLASH_PROVIDER_NAME=fixture; }
+cfip_openclash_runtime_unchanged() { return 0; }
+cfip_openclash_capture_runtime() { CFIP_OPENCLASH_RUNTIME_CONFIG="$TMP/main.yaml"; CFIP_OPENCLASH_RUNTIME_ID='1234:1:fixture'; }
 cfip_openclash_readback_selected() { return 0; }
+cfip_openclash_provider_inspect_runtime() { return 0; }
 printf '[]' >"$TMP/selected.json"
 
 reset 1 live
@@ -108,15 +114,13 @@ echo 'external start is detected before node mutation'
 
 reset 1 live no-core
 cfip_txn_prepare openclash; cfip_stop_service openclash; CFIP_STOPPED_MODE=openclash
-if cfip_txn_apply openclash "$TMP/selected.json"; then echo 'failed normal recovery passed' >&2; exit 1; fi
+cfip_txn_apply openclash "$TMP/selected.json"
+test "$(grep -c '^restart$' "$TMP/service.log" || true)" = 0
 rollback_active_transaction || :
-test "$(grep -c '^restart$' "$TMP/service.log")" = 1
-# H2: a restart failure must not leave the invalid written candidate in place.
-rg -q 'secret: test-only' "$CFIP_OPENCLASH_CONFIG"
 ! rg -q 'selected nodes' "$CFIP_OPENCLASH_CONFIG"
-test "$CFIP_OPENCLASH_FILE_WRITTEN" = true
-test -d "$CFIP_TXN_DIR"
-echo 'failed normal recovery restores the original snapshot and never retries from transaction cleanup'
+test "$(grep -c '^restart$' "$TMP/service.log" || true)" = 1
+test "$CFIP_STOPPED_MODE" = openclash
+echo 'maintenance restore is separately bounded; transaction rollback never restarts OpenClash'
 
 reset 1 live
 cfip_openclash_capture_state

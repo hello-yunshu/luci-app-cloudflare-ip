@@ -99,7 +99,7 @@ sha256sum -c sha256sums.txt
 | 测速协议 | `tcp` 或 `http` | `tcp` |
 | 运行调度 | `6h`、`30m` 或五字段 cron | `6h` |
 
-测速前默认停止代理服务，避免代理流量干扰结果。运行完成后会恢复原来的服务状态。
+新安装默认不允许自动停服。OpenClash TCP/443 测量会先尝试按候选 IP 临时绕行；PassWall 等尚无已验证绕行方式的运行中代理会失败关闭，不会静默经代理测速。只有启用“允许测速维护停服”后，才会在缺少已验证绕行时短暂停服并恢复；这属于维护窗口，不代表全程无停机。已有配置中的 `stop_service` 值不会因升级自动覆盖。
 
 ### PassWall
 
@@ -132,9 +132,9 @@ sha256sum -c sha256sums.txt
 
 Adaptive Measurement 是 Native 预探测调度层，默认 `shadow`，只消费测速前字段。`guarded` 只有在完整、兼容且未过期的审计证据达到召回率、安全性和节省阈值后才会生效；状态损坏、证据过期或探测失败会回退到完整 Native 流程。
 
-Rill 默认关闭。普通用户不需要 Rill Runtime。只有希望使用 Candidate Rill Shadow / Assisted 时，才需要先安装主包，再从 [rill-openwrt-packages Releases](https://github.com/hello-yunshu/rill-openwrt-packages/releases) 安装与你的 OpenWrt 版本和 CPU 架构匹配的 `rill-runtime-preview`，然后在 LuCI Intelligence 页面启用 Rill。Rill 只作为候选辅助或 Shadow 观测，Native 排序和安全边界始终保留；Rill Runtime 不存在时页面会显示 `Rill Runtime: Not installed`，Native mode remains available。
+Rill 默认关闭。普通用户不需要 Rill Runtime。只有希望使用 Candidate Rill Shadow / Assisted 时，才需要先安装主包，再从 [rill-openwrt-packages Releases](https://github.com/hello-yunshu/rill-openwrt-packages/releases) 安装与你的 OpenWrt 版本和 CPU 架构匹配的 `rill-runtime` Stable 软件包，然后在 LuCI Intelligence 页面启用 Rill。Rill 只作为候选辅助或 Shadow 观测，Native 排序和安全边界始终保留；Rill Runtime 不存在时页面会显示未安装状态，Native 模式仍可使用。
 
-本包只支持 Preview Runtime；`rill-runtime`（Stable）与 `performance-manager-rill` 属于另一渠道，不能与本包的 Rill 功能同时使用。完整矩阵见 [RUNTIME_COMPATIBILITY.md](docs/RUNTIME_COMPATIBILITY.md)。升级时若检测到 Stable/unknown 渠道，迁移脚本会关闭 `rill.enabled` 而保留其余配置。
+CFI 与 Performance Manager 共用 `rill-runtime` Stable 包。旧 `rill-runtime-preview` 会显示为迁移冲突；CFI 不会自动卸载它。请先在软件包管理器中明确卸载旧包，再安装 Stable 包。完整矩阵见 [RUNTIME_COMPATIBILITY.md](docs/RUNTIME_COMPATIBILITY.md)。
 
 不要要求新用户手工安装 `luci-app-cloudflare-ip-rill`。它已进入兼容迁移阶段，仅用于已有安装的依赖兼容。
 
@@ -176,7 +176,7 @@ LAN Publisher 默认关闭，只允许绑定到 LAN 地址，拒绝 `0.0.0.0`。
 - **没有匹配节点**：确认目标域名与 PassWall 的 `address` 或 OpenClash 的 `server` 完全一致。
 - **测速成功但应用失败**：检查目标域名的 SNI/Host、TLS/传输协议和代理服务状态；事务流程会尝试回滚。
 - **CFST 下载失败**：检查设备时间、CA 证书、DNS、网络连接和 GitHub 镜像设置。
-- **Rill 不可用**：确认 `rill-runtime-preview` 与路径 `/usr/bin/rill-runtime`；否则会自动使用 Native。
+- **Rill 不可用**：确认 Stable `rill-runtime` 与路径 `/usr/bin/rill-runtime`；否则会自动使用 Native。
 
 ## 项目结构
 

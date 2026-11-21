@@ -54,19 +54,29 @@ cfip_parse_cfst() {
 }
 
 cfip_probe_one() {
-    local ip="$1" domain="$2" family="$3" timeout_s="${4:-5}" resolve_ip="$ip" proto rc=0 raw remaining
+    local ip="$1" domain="$2" family="$3" timeout_s="${4:-5}" resolve_ip proto rc=0 raw remaining
+    resolve_ip="$ip"
     remaining="$(cfip_deadline_remaining 2>/dev/null || printf 86400)"
     ((remaining>0)) || { jq -cn --arg ip "$ip" --arg domain "$domain" --arg family "$family" '{schemaVersion:1,ip:$ip,domain:$domain,family:$family,success:false,errorClass:"measurement_budget",curlExit:124,httpCode:0,connectMs:0,tlsMs:0,ttfbMs:0,totalMs:0}'; return 0; }
     ((timeout_s>remaining)) && timeout_s="$remaining"
     [[ "$family" == ipv6 ]] && resolve_ip="[$ip]"
     [[ "$family" == ipv6 ]] && proto=-6 || proto=-4
-    raw="$(curl -sS "$proto" --connect-timeout "$timeout_s" --max-time "$timeout_s" \
-        --resolve "${domain}:443:${resolve_ip}" "https://${domain}/" -o /dev/null \
-        -w '%{http_code},%{time_connect},%{time_appconnect},%{time_starttransfer},%{time_total}' 2>/dev/null)" || rc=$?
+    if [[ "${CFIP_OPENCLASH_BYPASS_ACTIVE:-false}" == true ]] && declare -F cfip_openclash_measurement_command >/dev/null 2>&1; then
+        raw="$(cfip_openclash_measurement_command curl -sS "$proto" --connect-timeout "$timeout_s" --max-time "$timeout_s" \
+            --resolve "${domain}:443:${resolve_ip}" "https://${domain}/" -o /dev/null \
+            -w '%{http_code},%{time_connect},%{time_appconnect},%{time_starttransfer},%{time_total}' 2>/dev/null)" || rc=$?
+    else
+        raw="$(curl -sS "$proto" --connect-timeout "$timeout_s" --max-time "$timeout_s" \
+            --resolve "${domain}:443:${resolve_ip}" "https://${domain}/" -o /dev/null \
+            -w '%{http_code},%{time_connect},%{time_appconnect},%{time_starttransfer},%{time_total}' 2>/dev/null)" || rc=$?
+    fi
     local code=0 connect=0 tls=0 ttfb=0 total=0 success=false err=none
     if [[ -n "$raw" ]]; then IFS=',' read -r code connect tls ttfb total <<<"$raw"; fi
     if ((rc == 0)) && [[ "$code" =~ ^[0-9]+$ ]] && ((code >= 200 && code < 500)); then success=true; else
-        case "$rc" in 6) err=dns ;; 7) err=connect ;; 28) err=timeout ;; 35|51|60) err=tls ;; 124) err=measurement_budget ;; *) err=http_or_transport ;; esac
+        case "$rc" in 6) err=dns ;; 7) err=connect ;; 28) err=timeout ;; 35|51|60) err=tls ;; 124) err=measurement_budget ;; 125) err=measurement_bypass_lost ;; *) err=http_or_transport ;; esac
+    fi
+    if [[ "${CFIP_OPENCLASH_BYPASS_ACTIVE:-false}" == true ]] && ! cfip_openclash_measurement_bypass_assert; then
+        success=false; err=measurement_bypass_lost; rc=125
     fi
     jq -cn --arg ip "$ip" --arg domain "$domain" --arg family "$family" --arg err "$err" \
       --argjson success "$success" --argjson rc "$rc" --argjson code "${code:-0}" \

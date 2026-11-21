@@ -13,18 +13,24 @@ for name in (sys.argv[1],sys.argv[1]+".valid"):
 PYFIXTURE
 
 VALIDATOR="$ROOT/scripts/validate-qualification-evidence.py"
-python3 "$VALIDATOR" "$TMP/manifest.json" --commit 0123456789abcdef0123456789abcdef01234567 --require-assets 2 --require-release-eligible --run-id 42 --run-attempt 1
-if python3 "$VALIDATOR" "$TMP/manifest.json.valid" --require-assets 2 --require-release-eligible --run-id 42 --run-attempt 1 >/dev/null 2>&1; then echo 'strict gate accepted missing expected commit' >&2; exit 1; fi
-if python3 "$VALIDATOR" "$TMP/manifest.json.valid" --commit 0123456789abcdef0123456789abcdef01234567 --require-assets 2 --require-release-eligible >/dev/null 2>&1; then echo 'strict gate accepted missing expected run id' >&2; exit 1; fi
+CONTRACT_FIXTURE="$TMP/rill-runtime.json"
+python3 - "$ROOT/contracts/rill-runtime.json" "$CONTRACT_FIXTURE" <<'PY'
+import json,sys
+data=json.load(open(sys.argv[1])); data['qualification'].update(status='PASS',runId=42,runAttempt=1,manifestSha256='c'*64)
+json.dump(data,open(sys.argv[2],'w'))
+PY
+python3 "$VALIDATOR" "$TMP/manifest.json" --contract "$CONTRACT_FIXTURE" --commit 0123456789abcdef0123456789abcdef01234567 --require-assets 2 --require-release-eligible --run-id 42 --run-attempt 1
+if python3 "$VALIDATOR" "$TMP/manifest.json.valid" --contract "$CONTRACT_FIXTURE" --require-assets 2 --require-release-eligible --run-id 42 --run-attempt 1 >/dev/null 2>&1; then echo 'strict gate accepted missing expected commit' >&2; exit 1; fi
+if python3 "$VALIDATOR" "$TMP/manifest.json.valid" --contract "$CONTRACT_FIXTURE" --commit 0123456789abcdef0123456789abcdef01234567 --require-assets 2 --require-release-eligible >/dev/null 2>&1; then echo 'strict gate accepted missing expected run id' >&2; exit 1; fi
 python3 - "$TMP/manifest.json" <<'PY'
 import json,sys
 p=sys.argv[1]; d=json.load(open(p)); d['releaseEligible']=False; d['qualificationState']='incomplete'; json.dump(d,open(p,'w'))
 PY
-python3 "$VALIDATOR" "$TMP/manifest.json" --commit 0123456789abcdef0123456789abcdef01234567 --require-assets 2 | grep -F 'diagnostic only: releaseEligible=False'
-if python3 "$VALIDATOR" "$TMP/manifest.json" --commit 0123456789abcdef0123456789abcdef01234567 --require-assets 2 --require-release-eligible --run-id 42 --run-attempt 1 >/dev/null 2>&1; then echo 'strict release gate accepted false evidence' >&2; exit 1; fi
+python3 "$VALIDATOR" "$TMP/manifest.json" --contract "$CONTRACT_FIXTURE" --commit 0123456789abcdef0123456789abcdef01234567 --require-assets 2 | grep -F 'diagnostic only: releaseEligible=False'
+if python3 "$VALIDATOR" "$TMP/manifest.json" --contract "$CONTRACT_FIXTURE" --commit 0123456789abcdef0123456789abcdef01234567 --require-assets 2 --require-release-eligible --run-id 42 --run-attempt 1 >/dev/null 2>&1; then echo 'strict release gate accepted false evidence' >&2; exit 1; fi
 # Model the workflow dependency: a failed strict check must prevent every publish-side command.
 printf 'publish-called\n' >"$TMP/publish.log"
-if python3 "$VALIDATOR" "$TMP/manifest.json" --commit 0123456789abcdef0123456789abcdef01234567 --require-assets 2 --require-release-eligible --run-id 42 --run-attempt 1 >/dev/null 2>&1; then
+if python3 "$VALIDATOR" "$TMP/manifest.json" --contract "$CONTRACT_FIXTURE" --commit 0123456789abcdef0123456789abcdef01234567 --require-assets 2 --require-release-eligible --run-id 42 --run-attempt 1 >/dev/null 2>&1; then
   printf '%s\n' tag create upload promotion >>"$TMP/publish.log"
 fi
 test "$(wc -l <"$TMP/publish.log")" -eq 1
@@ -32,19 +38,19 @@ python3 - "$TMP/manifest.json" <<'PY'
 import json,sys
 p=sys.argv[1]; d=json.load(open(p)); d['releaseEligible']=True; d['qualificationState']='automated-qualification'; d['runId']=True; json.dump(d,open(p,'w'))
 PY
-if python3 "$VALIDATOR" "$TMP/manifest.json" --commit 0123456789abcdef0123456789abcdef01234567 --require-release-eligible --run-id 42 --run-attempt 1 >/dev/null 2>&1; then echo 'strict release gate accepted bool run id' >&2; exit 1; fi
+if python3 "$VALIDATOR" "$TMP/manifest.json" --contract "$CONTRACT_FIXTURE" --commit 0123456789abcdef0123456789abcdef01234567 --require-release-eligible --run-id 42 --run-attempt 1 >/dev/null 2>&1; then echo 'strict release gate accepted bool run id' >&2; exit 1; fi
 python3 - "$TMP/manifest.json" <<'PY'
 import json,sys
-p=sys.argv[1]; d=json.load(open(p)); d['runId']=42; d['rill']['stableCommit']='0'*40; json.dump(d,open(p,'w'))
+p=sys.argv[1]; d=json.load(open(p)); d['runId']=42; d['rill']['runtime']['commit']='0'*40; json.dump(d,open(p,'w'))
 PY
-if python3 "$VALIDATOR" "$TMP/manifest.json" --commit 0123456789abcdef0123456789abcdef01234567 --require-release-eligible --run-id 42 --run-attempt 1 >/dev/null 2>&1; then echo 'strict release gate accepted wrong fixed Runtime pin' >&2; exit 1; fi
+if python3 "$VALIDATOR" "$TMP/manifest.json" --contract "$CONTRACT_FIXTURE" --commit 0123456789abcdef0123456789abcdef01234567 --require-release-eligible --run-id 42 --run-attempt 1 >/dev/null 2>&1; then echo 'strict release gate accepted wrong fixed Runtime pin' >&2; exit 1; fi
 python3 - "$TMP/manifest.json" <<'PY'
 import json,sys
-p=sys.argv[1]; d=json.load(open(p)); d['rill']['stableCommit']=json.load(open(p+'.valid'))['rill']['stableCommit']; d['packageMigration']['sourceSHA']='0'*40; json.dump(d,open(p,'w'))
+p=sys.argv[1]; d=json.load(open(p)); d['rill']['runtime']['commit']=json.load(open(p+'.valid'))['rill']['runtime']['commit']; d['packageMigration']['sourceSHA']='0'*40; json.dump(d,open(p,'w'))
 PY
-if python3 "$VALIDATOR" "$TMP/manifest.json" --commit 0123456789abcdef0123456789abcdef01234567 --require-release-eligible --run-id 42 --run-attempt 1 >/dev/null 2>&1; then echo 'strict release gate accepted wrong migration SHA' >&2; exit 1; fi
+if python3 "$VALIDATOR" "$TMP/manifest.json" --contract "$CONTRACT_FIXTURE" --commit 0123456789abcdef0123456789abcdef01234567 --require-release-eligible --run-id 42 --run-attempt 1 >/dev/null 2>&1; then echo 'strict release gate accepted wrong migration SHA' >&2; exit 1; fi
 echo 'Strict qualification evidence validator blocks noneligible and mismatched release evidence'
-python3 - "$VALIDATOR" "$TMP/manifest.json.valid" "$ROOT/contracts/rill-runtime.json" <<'PY'
+python3 - "$VALIDATOR" "$TMP/manifest.json.valid" "$CONTRACT_FIXTURE" <<'PY'
 import copy, importlib.util, json, pathlib, sys
 spec=importlib.util.spec_from_file_location("qualification",sys.argv[1]); module=importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
 valid=json.load(open(sys.argv[2])); contract=pathlib.Path(sys.argv[3]); commit=valid["commit"]

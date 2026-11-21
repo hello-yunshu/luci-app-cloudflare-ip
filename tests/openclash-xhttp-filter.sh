@@ -4,8 +4,9 @@
 set -Eeuo pipefail
 
 repo_dir="$(CDPATH='' cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-# shellcheck source=cf-openwrt-auto.sh
-. "$repo_dir/cf-openwrt-auto.sh"
+# shellcheck source=tests/fixtures/legacy-cf-ip-auto
+. "$repo_dir/tests/fixtures/legacy-cf-ip-auto"
+PURE_APPLY=true
 
 restart_service() {
 	:

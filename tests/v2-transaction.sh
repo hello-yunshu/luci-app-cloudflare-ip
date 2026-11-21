@@ -3,9 +3,12 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
 CFIP_OPENCLASH_CONFIG="$TMP/config.yaml"; printf 'original\n' >"$CFIP_OPENCLASH_CONFIG"
+CFIP_OPENCLASH_MAIN_FIXTURE="$TMP/main.yaml"; printf 'main config\n' >"$CFIP_OPENCLASH_MAIN_FIXTURE"
 source "$ROOT/package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/transaction.sh"
+CFIP_OPENCLASH_RUNTIME_CONFIG="$CFIP_OPENCLASH_MAIN_FIXTURE"
+CFIP_OPENCLASH_TARGET_CONFIG="$CFIP_OPENCLASH_CONFIG"
 
-cfip_txn_prepare() { CFIP_TXN_DIR="$TMP/txn"; mkdir -p "$CFIP_TXN_DIR"; cp "$CFIP_OPENCLASH_CONFIG" "$CFIP_TXN_DIR/openclash.yaml"; return 0; }
+cfip_txn_prepare() { CFIP_TXN_DIR="$TMP/txn"; mkdir -p "$CFIP_TXN_DIR"; cp "$CFIP_OPENCLASH_RUNTIME_CONFIG" "$CFIP_TXN_DIR/openclash-main.yaml"; cp "$CFIP_OPENCLASH_TARGET_CONFIG" "$CFIP_TXN_DIR/openclash.yaml"; return 0; }
 cfip_openclash_check_before_write() { return 0; }
 cfip_passwall_apply_selected() { return 1; }
 cfip_openclash_apply_selected() { return 1; }

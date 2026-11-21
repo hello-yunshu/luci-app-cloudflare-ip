@@ -46,8 +46,8 @@ class Contracts(unittest.TestCase):
                 bad=dict(meta,packageVersion=f'{version}-r{release+1}')
                 with self.assertRaises(ValueError):filename(bad)
                 with self.assertRaises(ValueError):validate_metadata(meta,filename(meta),dict(identity,release=release+1))
-            # Product changes do not alter the protocol or historical pins.
-            self.assertEqual(json.loads((ROOT/'contracts/rill-runtime.json').read_text())['preview']['modelGeneration'],2)
+            # Product changes do not alter the Runtime package channel contract.
+            self.assertEqual(json.loads((ROOT/'contracts/rill-runtime.json').read_text())['openwrtPackage']['channel'],'stable')
 
     def test_invalid_authorities_and_channels(self):
         original=self.make.read_text();current=source()
@@ -95,52 +95,51 @@ class Contracts(unittest.TestCase):
 
     def test_sync_extensions_noop_update_and_failed_write(self):
         package=self.root/'runtime-package'
-        for name in ['metadata','package/rill-runtime-preview']:(package/name).mkdir(parents=True)
+        for name in ['metadata','package/rill-runtime']:(package/name).mkdir(parents=True)
         contract=json.loads((ROOT/'contracts/rill-runtime.json').read_text())
-        resolved=contract['resolved']; preview=contract['preview']; pkg=contract['openwrtPackage']
-        (package/'metadata/rill-runtime.json').write_text(json.dumps({'upstream':{'version':resolved['version'],'commit':resolved['upstreamCommit'],'archiveSha256':resolved['sourceArchiveSha256']}}))
-        (package/'metadata/rill-runtime-preview.json').write_text(json.dumps({'channel':preview['channel'],'upstream':{'version':pkg['packageVersion'],'commit':preview['commit']},'package':{'name':pkg['package'],'version':pkg['packageVersion'],'release':pkg['packageRelease'],'binary':pkg['binary']}}))
-        (package/'package/rill-runtime-preview/Makefile').write_text(f"PKG_VERSION:={pkg['packageVersion']}\nPKG_RELEASE:={pkg['packageRelease']}\nPKG_SOURCE_VERSION:={preview['commit']}\n")
-        contract['extension']={'future':True};contract['preview']['future']='keep'
+        resolved=contract['resolved']; pkg=contract['openwrtPackage']
+        package_meta={'name':'rill-runtime','version':pkg['packageVersion'],'release':pkg['packageRelease'],'canonicalRecipe':'package/rill-runtime/Makefile','binary':pkg['binary']}
+        upstream={'version':resolved['version'],'tag':resolved['tag'],'commit':resolved['upstreamCommit'],'sourceType':'immutable-git-commit'}
+        metadata_path=package/'metadata/rill-runtime.json'
+        metadata_path.write_text(json.dumps({'upstream':upstream,'package':package_meta}))
+        recipe=package/'package/rill-runtime/Makefile'
+        recipe.write_text(f"PKG_VERSION:={pkg['packageVersion']}\nPKG_RELEASE:={pkg['packageRelease']}\nPKG_SOURCE_VERSION:={resolved['upstreamCommit']}\n")
+        # This test synthesizes a fully qualified package state. The checked-in
+        # contract correctly keeps its package commit null while qualification
+        # is pending; give the isolated fixture its own immutable commit.
+        contract['openwrtPackage']['commit']='a'*40
+        contract['extension']={'future':True};contract['resolved']['future']='keep'
         contract['packageMigration']['extraEvidence']={'historical':'keep'}
         destination=self.root/'contract.json';destination.write_text(json.dumps(contract))
-        proof_raw=b'validated schema 3 fixture'
-        contract['qualification'].update(runAttempt=1,manifestSha256=hashlib.sha256(proof_raw).hexdigest())
+        proof_raw=b'validated schema 4 fixture'
+        contract['qualification'].update(status='PASS',runId=42,runAttempt=1,manifestSha256=hashlib.sha256(proof_raw).hexdigest())
         destination.write_text(json.dumps(contract))
         run=contract['qualification']['runId']; head=contract['openwrtPackage']['commit']
         def api(path):
-            if '/releases?' in path:return [dict(tag_name=contract['resolved']['tag'],draft=False,prerelease=False)]
             return {'workflow_runs':[dict(id=run,conclusion='success',run_attempt=1)]}
         def proof(*args):
-            return {'upstream':resolved | {'commit':resolved['upstreamCommit'],'archiveSha256':resolved['sourceArchiveSha256']},
-                    'previewPackage':{**json.loads((package/'metadata/rill-runtime-preview.json').read_text())['package'],
-                                      'upstream':{'commit':preview['commit']}}}, proof_raw, []
+            return {'schemaVersion':4,'upstream':upstream,'package':package_meta}, proof_raw, []
         with contextlib.redirect_stdout(io.StringIO()),patch.object(sync,'CONTRACT',destination),patch.object(sync,'api',api),patch.object(sync,'fetch_manifest',proof),patch.object(sync.subprocess,'run',return_value=subprocess.CompletedProcess([],0,head+'\n','')):
             before=destination.read_bytes();sync.sync(package);self.assertEqual(before,destination.read_bytes())
             contract['qualification']['runId']=run+1;destination.write_text(json.dumps(contract))
             sync.sync(package);after=json.loads(destination.read_text())
-            self.assertEqual(after['packageMigration'],contract['packageMigration']);self.assertEqual(after['extension'],contract['extension']);self.assertEqual(after['preview']['future'],'keep')
+            self.assertEqual(after['packageMigration'],contract['packageMigration']);self.assertEqual(after['extension'],contract['extension']);self.assertEqual(after['resolved']['future'],'keep')
             self.assertEqual(after['qualification']['runId'],run)
-            with patch.object(sync,'api',return_value=[]):
-                before=destination.read_bytes()
-                with self.assertRaises(RuntimeError):sync.sync(package)
-                self.assertEqual(before,destination.read_bytes())
-            # Positive future package releases derive from metadata/recipe, not a fixed 2.
-            meta_path=package/'metadata/rill-runtime-preview.json';meta=json.loads(meta_path.read_text());meta['package']['release']=17;meta_path.write_text(json.dumps(meta))
-            recipe=package/'package/rill-runtime-preview/Makefile';recipe.write_text(recipe.read_text().replace('PKG_RELEASE:='+str(pkg['packageRelease']),'PKG_RELEASE:=17'))
+            meta=json.loads(metadata_path.read_text());meta['package']['release']=17;metadata_path.write_text(json.dumps(meta))
+            recipe.write_text(recipe.read_text().replace('PKG_RELEASE:='+str(pkg['packageRelease']),'PKG_RELEASE:=17'))
+            package_meta['release']=17
             sync.sync(package);self.assertEqual(json.loads(destination.read_text())['openwrtPackage']['packageRelease'],17)
-            before=destination.read_bytes();meta['package']['release']=0;meta_path.write_text(json.dumps(meta))
+            before=destination.read_bytes();meta['package']['release']=0;metadata_path.write_text(json.dumps(meta))
             with self.assertRaises(ValueError):sync.sync(package)
             self.assertEqual(before,destination.read_bytes())
-            meta['package']['release']=17;meta_path.write_text(json.dumps(meta))
+            meta['package']['release']=17;metadata_path.write_text(json.dumps(meta))
             forced=json.loads(destination.read_text());forced['qualification']['runId']=run+1;destination.write_text(json.dumps(forced));before=destination.read_bytes()
             with patch.object(sync.os,'replace',side_effect=OSError('injected atomic rename failure')):
                 with self.assertRaises(OSError):sync.sync(package)
             self.assertEqual(before,destination.read_bytes())
             self.assertFalse(list(destination.parent.glob('.rill-contract-*')))
-            def no_qualification(path):
-                return api(path) if '/releases?' in path else {'workflow_runs':[]}
-            with patch.object(sync,'api',no_qualification):sync.sync(package)
+            with patch.object(sync,'api',return_value={'workflow_runs':[]}):
+                self.assertEqual(sync.sync(package),0)
             self.assertEqual(before,destination.read_bytes())
             bad=json.loads(destination.read_text());bad['schemaVersion']=99;destination.write_text(json.dumps(bad));before=destination.read_bytes()
             with self.assertRaises(ValueError):sync.sync(package)

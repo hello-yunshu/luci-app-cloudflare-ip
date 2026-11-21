@@ -61,7 +61,7 @@ cfip_builtin_registry_json() {
 [
   {"id":"cloudflare-official-v4","name":"Cloudflare Official IPv4","group":"official","sourceClass":"official","family":"ipv4","parser":"cidr","url":"https://www.cloudflare.com/ips-v4","defaultEnabled":true},
   {"id":"cloudflare-official-v6","name":"Cloudflare Official IPv6","group":"official","sourceClass":"official","family":"ipv6","parser":"cidr","url":"https://www.cloudflare.com/ips-v6","defaultEnabled":true},
-  {"id":"lancelotrar-best-cf-ipv4","name":"LancelotRar best-cf-ips","group":"recommended","sourceClass":"community","family":"ipv4","parser":"ip-text","url":"https://raw.githubusercontent.com/LancelotRar/best-cf-ips/main/best-cf-ipv4.txt","defaultEnabled":false},
+  {"id":"lancelotrar-best-cf-ipv4","name":"LancelotRar best-cf-ips","group":"recommended","sourceClass":"community","family":"ipv4","parser":"ip-text","url":"https://raw.githubusercontent.com/LancelotRar/best-cf-ips/main/best-cf-ip-scanned-top100.txt","defaultEnabled":false},
   {"id":"ipdb-bestcf-v4","name":"IPDB BestCF IPv4","group":"recommended","sourceClass":"community","family":"ipv4","parser":"ip-text","url":"https://ipdb.api.030101.xyz/?type=bestcfv4","defaultEnabled":false},
   {"id":"ipdb-bestcf-v6","name":"IPDB BestCF IPv6","group":"recommended","sourceClass":"community","family":"ipv6","parser":"ip-text","url":"https://ipdb.api.030101.xyz/?type=bestcfv6","defaultEnabled":false},
   {"id":"dustinwin-bestcf-generic","name":"DustinWin BestCF","group":"recommended","sourceClass":"community","family":"auto","parser":"ip-text","url":"https://raw.githubusercontent.com/DustinWin/BestCF/bestcf/bestcf-ip.txt","defaultEnabled":false},
@@ -543,7 +543,7 @@ cfip_expand_ipv6_hex() {
     local -a lg
     local -a rg
     groups=(); lg=(); rg=()
-    addr="$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')"
+    addr="$(printf '%s' "$1" | tr 'A-Z' 'a-z')"
     [[ "$addr" != *:::* && "$addr" != *::*::* ]] || return 1
     if [[ "$addr" == *::* ]]; then
         left="${addr%%::*}"; right="${addr##*::}"

@@ -1,41 +1,41 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "policy": {
     "major": 1,
     "track": "latest-qualified-stable"
   },
   "resolved": {
     "version": "1.5.6",
-    "tag": "v1.5.6",
-    "upstreamCommit": "b990cd7043d313b0ff29c9693f091a94a5bdaf47",
-    "sourceArchiveSha256": "c06a792811d1f08aa7b640c10ee36047c44f825cf7272aa0f75c42ab60806a84"
-  },
-  "preview": {
-    "repository": "hello-yunshu/rill-ml",
-    "commit": "da8389fec7f879b826d8d17cbc6bb98c03ef8462",
-    "channel": "preview-exact-commit",
-    "featureSchemaVersion": 2,
-    "modelGeneration": 2
+    "tag": "stable-main-1e962a8",
+    "upstreamCommit": "1e962a82443088229714877eee98617f1596eee8",
+    "sourceType": "immutable-git-commit"
   },
   "openwrtPackage": {
     "repository": "hello-yunshu/rill-openwrt-packages",
-    "commit": "0567336375f4cd3cae29c013699ca9279d0ace52",
-    "package": "rill-runtime-preview",
+    "commit": "15031fa08fe029e9792ff55d6ecdd308b9240dd5",
+    "package": "rill-runtime",
     "packageVersion": "1.5.6",
-    "packageRelease": 6,
+    "packageRelease": 8,
+    "channel": "stable",
     "binary": "/usr/bin/rill-runtime"
   },
   "qualification": {
     "required": true,
     "workflow": "qualify.yml",
-    "runId": 42169166493,
-    "verdict": "PASS",
+    "manifestSchemaVersion": 4,
+    "status": "PASS",
+    "runId": 44881757222,
     "runAttempt": 1,
-    "manifestSha256": "2b98f49d3154a3388876181f6ced9a923870a2e528061f36abf5b3fda0ae2517"
+    "manifestSha256": "70eb33b322f1bd9df21f5236dfc5a4d22c4377eb454d6d70e8a61bdf47470961"
   },
   "packageMigration": {
     "legacyVersion": "2.6.0-r2",
     "sourceTag": "v2.6.0-2",
     "sourceSHA": "652476bd3cdc410bc16e3a47ee96b685c84acbbb"
+  },
+  "legacyRuntime": {
+    "package": "rill-runtime-preview",
+    "channel": "legacy-preview",
+    "migration": "explicit-uninstall-required"
   }
 }

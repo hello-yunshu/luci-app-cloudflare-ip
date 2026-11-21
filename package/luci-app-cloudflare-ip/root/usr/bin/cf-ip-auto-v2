@@ -12,6 +12,12 @@ CFIP_LOG_FILE="${CFIP_LOG_FILE:-/tmp/cf_ip/cf-ip-auto.log}"
 CFIP_RUNTIME_DIR="${CFIP_RUNTIME_DIR:-/tmp/cf_ip}"
 CFIP_LOCK_DIR="$CFIP_RUNTIME_DIR/cf-ip-auto-v2.lock"
 CFIP_RUN_HISTORY="$CFIP_STATUS_DIR/run-history.ndjson"
+CFIP_DNS_GUARD_BIN="${CFIP_DNS_GUARD_BIN:-/usr/sbin/openclash-dns-guard.sh}"
+CFIP_PROBE_EXEC="${CFIP_PROBE_EXEC:-/usr/libexec/cf-ip/probe-exec}"
+CFIP_DNS_MAINTENANCE_TTL="${CFIP_DNS_MAINTENANCE_TTL:-180}"
+CFIP_DNS_MAINTENANCE_ACTIVE=false; CFIP_DNS_MAINTENANCE_ID=""; CFIP_DNS_MAINTENANCE_ERROR=""; CFIP_DNS_MAINTENANCE_RELEASE_ALLOWED=false
+CFIP_OPENCLASH_HOT_APPLIED=false; CFIP_OPENCLASH_MAINTENANCE_RESTARTED=false
+CFIP_OPENCLASH_MEASUREMENT_BYPASS_DISABLED=false
 CFIP_VERBOSE=false
 CFIP_RUN_ID=""; CFIP_PHASE="idle"; CFIP_LAST_RESULT="unknown"; CFIP_ERROR=""; CFIP_STOPPED_MODE=""; CFIP_CLEANUP_DONE=false
 CFIP_SKIP_STARTUP_DELAY=false
@@ -23,7 +29,7 @@ CFIP_SPEEDTEST_COMPLETED=false
 CFIP_BUILTIN_SOURCES="cloudflare-official-v4 cloudflare-official-v6"; CFIP_SOURCE_POLICY=balanced
 CFIP_PUBLISH_ENABLED=false; CFIP_PUBLISH_BIND=""; CFIP_PUBLISH_PORT=12345
 CFIP_PASSWALL_TARGET_DOMAIN=""; CFIP_PASSWALL_NAME_SUFFIX=" [CF-{n}]"
-CFIP_OPENCLASH_CONFIG="/etc/openclash/config/config.yaml"; CFIP_OPENCLASH_TARGET_DOMAIN=""; CFIP_OPENCLASH_NAME_SUFFIX=" [CF-{n}]"; CFIP_OPENCLASH_TRANSPORT_FILTER=""; CFIP_OPENCLASH_BACKUP_COUNT=3
+CFIP_OPENCLASH_CONFIG="/etc/openclash/config/config.yaml"; CFIP_OPENCLASH_RUNTIME_CONFIG=""; CFIP_OPENCLASH_TARGET_CONFIG=""; CFIP_OPENCLASH_PROVIDER_NAME=""; CFIP_OPENCLASH_TARGET_DOMAIN=""; CFIP_OPENCLASH_NAME_SUFFIX=" [CF-{n}]"; CFIP_OPENCLASH_TRANSPORT_FILTER=""; CFIP_OPENCLASH_BACKUP_COUNT=3
 CFIP_GITHUB_MIRROR=""
 CFIP_RILL_ENABLED=false; CFIP_RILL_MODE=shadow; CFIP_RILL_RUNTIME="${CFIP_RILL_RUNTIME_BIN:-/usr/bin/rill-runtime}"; CFIP_RILL_STATE="$CFIP_STATUS_DIR/rill-state.json"; CFIP_RILL_TIMEOUT_S=2; CFIP_RILL_SAFE_TOP_K=3; CFIP_RILL_MIN_FEEDBACK_SAMPLES=30; CFIP_RILL_EVALUATION_MAX_AGE_SECONDS=86400; CFIP_RILL_DELAYED_FEEDBACK_SECONDS=600; CFIP_RILL_DELAYED_PROBE_TIMEOUT=5
 CFIP_ADAPTIVE_MEASUREMENT_ENABLED=true; CFIP_ADAPTIVE_MEASUREMENT_MODE=shadow; CFIP_ADAPTIVE_TARGET_RATIO_PERCENT=25; CFIP_ADAPTIVE_MIN_PROBE_COUNT=8; CFIP_ADAPTIVE_EXPLORATION_RATIO_PERCENT=10; CFIP_ADAPTIVE_MIN_EVIDENCE=50; CFIP_ADAPTIVE_EVIDENCE_WINDOW=100; CFIP_ADAPTIVE_EVALUATION_MAX_AGE_SECONDS=604800; CFIP_ADAPTIVE_AUDIT_INTERVAL=20; CFIP_ADAPTIVE_MAX_PROBE_COUNT=60; CFIP_ADAPTIVE_EXPANSION_BATCH_SIZE=8; CFIP_ADAPTIVE_NOW="$(date +%s)"; CFIP_ADAPTIVE_CONTEXT_FINGERPRINT=""
@@ -34,7 +40,7 @@ CFIP_CFST_INSTALL_TIMEOUT="${CFIP_CFST_INSTALL_TIMEOUT:-120}"
 CFIP_CANDIDATES_FILE=""; CFIP_PROBED_FILE=""; CFIP_NATIVE_FILE=""; CFIP_SELECTED_FILE=""; CFIP_RILL_FILE=""; CFIP_DECISION_FILE=""; CFIP_OUTCOME_FILE=""; CFIP_TXN_RESULT_FILE=""; CFIP_REUSE_DECISION_FILE=""; CFIP_ADAPTIVE_PLAN_FILE=""; CFIP_ADAPTIVE_PROBE_INPUT_FILE=""; CFIP_ADAPTIVE_AUDIT_FILE=""
 CFIP_INPUT_POOL_FILE=""; CFIP_CANDIDATE_INPUT_FILE=""; CFIP_PROBE_INPUT_FILE=""; CFIP_SOURCE_STATUS_FILE=""; CFIP_MEASUREMENT_DEADLINE=0; CFIP_MEASUREMENT_STARTED_AT=0; CFIP_RECOVERY_DEADLINE=0; CFIP_RECOVERY_STARTED_AT=0; CFIP_RECOVERY_ACTIVE=false; CFIP_RECOVERY_ERROR=""
 
-for lib in writer-lock.sh common.sh config.sh status.sh source.sh scheduler.sh cfst.sh observe.sh adaptive-measurement.sh context-policy.sh transaction.sh openclash-transform.sh openclash-readback.sh publisher.sh rill-disabled.sh reuse.sh operational-health.sh; do
+for lib in writer-lock.sh common.sh config.sh status.sh source.sh scheduler.sh cfst.sh observe.sh adaptive-measurement.sh context-policy.sh transaction.sh openclash-transform.sh openclash-readback.sh openclash-provider.sh openclash-bypass.sh homeproxy-transaction.sh passwall2-transaction.sh publisher.sh rill-disabled.sh reuse.sh operational-health.sh; do
     if [[ -r "$CFIP_LIB_DIR/$lib" ]]; then source "$CFIP_LIB_DIR/$lib"; else printf '[cloudflare-ip] ERROR: missing library %s\n' "$CFIP_LIB_DIR/$lib" >&2; exit 1; fi
 done
 if [[ -r "$CFIP_LIB_DIR/candidate-rill.sh" ]]; then source "$CFIP_LIB_DIR/candidate-rill.sh"; fi
@@ -54,9 +60,9 @@ load_config() {
     command -v uci >/dev/null 2>&1 || { cfip_json_error "uci command not found"; return 1; }
     CFIP_ENABLED="$(cfip_bool "$(uci_get cf_ip.main.enabled 0)")"; CFIP_MODE="$(uci_get cf_ip.main.mode passwall)"; CFIP_IP_COUNT="$(uci_get cf_ip.main.ip_count 4)"; CFIP_IP_TYPE="$(uci_get cf_ip.main.ip_type ipv4)"
     CFIP_SPEEDTEST_PROTOCOL="$(uci_get cf_ip.main.speedtest_protocol tcp)"; CFIP_SPEEDTEST_CFCOLO="$(uci_get cf_ip.main.speedtest_cfcolo '')"; CFIP_SPEEDTEST_DN="$(uci_get cf_ip.main.speedtest_dn 8)"; CFIP_SPEEDTEST_DT="$(uci_get cf_ip.main.speedtest_dt 6)"; CFIP_SPEEDTEST_TLL="$(uci_get cf_ip.main.speedtest_tll 40)"; CFIP_SPEEDTEST_TL="$(uci_get cf_ip.main.speedtest_tl '')"; CFIP_SPEEDTEST_THREADS="$(uci_get cf_ip.main.speedtest_threads 200)"; CFIP_SPEEDTEST_PING_COUNT="$(uci_get cf_ip.main.speedtest_ping_count 3)"
-    CFIP_STOP_SERVICE="$(cfip_bool "$(uci_get cf_ip.main.stop_service 1)")"; CFIP_STARTUP_DELAY="$(uci_get cf_ip.main.startup_delay '')"; CFIP_WORK_DIR="$(uci_get cf_ip.main.work_dir /usr/bin)"; [[ -n "$CFIP_WORK_DIR" ]] || CFIP_WORK_DIR=/usr/bin
+    CFIP_STOP_SERVICE="$(cfip_bool "$(uci_get cf_ip.main.stop_service 0)")"; CFIP_STARTUP_DELAY="$(uci_get cf_ip.main.startup_delay '')"; CFIP_WORK_DIR="$(uci_get cf_ip.main.work_dir /usr/bin)"; [[ -n "$CFIP_WORK_DIR" ]] || CFIP_WORK_DIR=/usr/bin
     CFIP_CRON_INTERVAL="$(uci_get cf_ip.main.cron_interval 6h)"; CFIP_CANDIDATE_BUDGET="$(uci_get cf_ip.main.candidate_budget 128)"; CFIP_PROBE_TOP_COUNT="$(uci_get cf_ip.main.probe_top_count "$(uci_get cf_ip.main.candidate_limit 8)")"; CFIP_PROBE_CONCURRENCY="$(uci_get cf_ip.main.probe_concurrency 4)"; CFIP_PROBE_TIMEOUT="$(uci_get cf_ip.main.probe_timeout 5)"; CFIP_MEASUREMENT_TIMEOUT="$(uci_get cf_ip.main.measurement_timeout 180)"; CFIP_RECOVERY_TIMEOUT="$(uci_get cf_ip.main.recovery_timeout 30)"; CFIP_PROBE_BATCH_SIZE="$(uci_get cf_ip.main.probe_batch_size 4)"; CFIP_MAX_PROBE_COUNT="$(uci_get cf_ip.main.max_probe_count "$CFIP_PROBE_TOP_COUNT")"; CFIP_EARLY_STOP_ENABLED="$(cfip_bool "$(uci_get cf_ip.main.early_stop_enabled 1)")"; CFIP_ADAPTIVE_MEASUREMENT_ENABLED="$(cfip_bool "$(uci_get cf_ip.main.adaptive_measurement_enabled 1)")"; CFIP_ADAPTIVE_MEASUREMENT_MODE="$(uci_get cf_ip.main.adaptive_measurement_mode shadow)"; CFIP_ADAPTIVE_TARGET_RATIO_PERCENT="$(uci_get cf_ip.main.adaptive_target_ratio_percent 25)"; CFIP_ADAPTIVE_MIN_PROBE_COUNT="$(uci_get cf_ip.main.adaptive_min_probe_count 8)"; CFIP_ADAPTIVE_EXPLORATION_RATIO_PERCENT="$(uci_get cf_ip.main.adaptive_exploration_ratio_percent 10)"; CFIP_ADAPTIVE_MIN_EVIDENCE="$(uci_get cf_ip.main.adaptive_min_evidence 50)"; CFIP_ADAPTIVE_EVIDENCE_WINDOW="$(uci_get cf_ip.main.adaptive_evidence_window 100)"; CFIP_ADAPTIVE_EVALUATION_MAX_AGE_SECONDS="$(uci_get cf_ip.main.adaptive_evaluation_max_age_seconds 604800)"; CFIP_ADAPTIVE_AUDIT_INTERVAL="$(uci_get cf_ip.main.adaptive_audit_interval 20)"; CFIP_ADAPTIVE_MAX_PROBE_COUNT="$(uci_get cf_ip.main.adaptive_max_probe_count 60)"; CFIP_ADAPTIVE_EXPANSION_BATCH_SIZE="$(uci_get cf_ip.main.adaptive_expansion_batch_size 8)"; CFIP_BUILTIN_SOURCES="$(cfip_configured_builtin_sources)"; CFIP_SOURCE_POLICY="$(uci_get cf_ip.main.source_policy balanced)"; CFIP_GITHUB_MIRROR="$(uci_get cf_ip.main.github_mirror '')"; CFIP_VERBOSE="$(cfip_bool "$(uci_get cf_ip.main.verbose 0)")"
-    CFIP_PASSWALL_TARGET_DOMAIN="$(uci_get cf_ip.passwall.target_domain '')"; CFIP_PASSWALL_NAME_SUFFIX="$(uci_get cf_ip.passwall.name_suffix ' [CF-{n}]')"
+    CFIP_PASSWALL_TARGET_DOMAIN="$(uci_get cf_ip.passwall.target_domain '')"; CFIP_PASSWALL_NAME_SUFFIX="$(uci_get cf_ip.passwall.name_suffix ' [CF-{n}]')"; CFIP_HOMEPROXY_TARGET_DOMAIN="$(uci_get cf_ip.homeproxy.target_domain '')"; CFIP_PASSWALL2_TARGET_DOMAIN="$(uci_get cf_ip.passwall2.target_domain '')"
     CFIP_OPENCLASH_CONFIG="$(uci_get cf_ip.openclash.config /etc/openclash/config/config.yaml)"; CFIP_OPENCLASH_TARGET_DOMAIN="$(uci_get cf_ip.openclash.target_domain '')"; CFIP_OPENCLASH_NAME_SUFFIX="$(uci_get cf_ip.openclash.name_suffix ' [CF-{n}]')"; CFIP_OPENCLASH_TRANSPORT_FILTER="$(uci_get cf_ip.openclash.transport_filter '')"; CFIP_OPENCLASH_BACKUP_COUNT="$(uci_get cf_ip.openclash.backup_count 3)"
     CFIP_PUBLISH_ENABLED="$(cfip_bool "$(uci_get cf_ip.lan.enabled 0)")"; CFIP_PUBLISH_BIND="$(uci_get cf_ip.lan.bind_address '')"; CFIP_PUBLISH_PORT="$(uci_get cf_ip.lan.port 12345)"
     CFIP_RILL_ENABLED="$(cfip_bool "$(uci_get cf_ip.rill.enabled 0)")"; CFIP_RILL_MODE="$(uci_get cf_ip.rill.mode shadow)"; CFIP_RILL_RUNTIME="${CFIP_RILL_RUNTIME_BIN:-/usr/bin/rill-runtime}"; CFIP_RILL_STATE="$(uci_get cf_ip.rill.state_file "$CFIP_STATUS_DIR/rill-state.json")"; CFIP_RILL_SAFE_TOP_K="$(uci_get cf_ip.rill.safe_top_k 3)"; CFIP_RILL_MIN_FEEDBACK_SAMPLES="$(uci_get cf_ip.rill.min_feedback_samples 30)"; CFIP_RILL_EVALUATION_MAX_AGE_SECONDS="$(uci_get cf_ip.rill.evaluation_max_age_seconds 86400)"; local delayed_minutes; delayed_minutes="$(uci_get cf_ip.rill.delayed_feedback_minutes 10)"; [[ "$delayed_minutes" =~ ^[1-9][0-9]*$ ]] || delayed_minutes=10; CFIP_RILL_DELAYED_FEEDBACK_SECONDS="$((delayed_minutes*60))"
@@ -75,7 +81,7 @@ reconcile_committed_context() {
 }
 
 validate_config() {
-    [[ "$CFIP_MODE" == passwall || "$CFIP_MODE" == openclash ]] || { cfip_json_error "invalid mode"; return 1; }
+    [[ "$CFIP_MODE" == passwall || "$CFIP_MODE" == passwall2 || "$CFIP_MODE" == openclash || "$CFIP_MODE" == homeproxy ]] || { cfip_json_error "invalid mode"; return 1; }
     [[ "$CFIP_IP_COUNT" =~ ^[1-9][0-9]*$ && "$CFIP_CANDIDATE_BUDGET" =~ ^[1-9][0-9]*$ && "$CFIP_PROBE_TOP_COUNT" =~ ^[1-9][0-9]*$ ]] || { cfip_json_error "invalid candidate count"; return 1; }
     ((CFIP_CANDIDATE_BUDGET >= 100 && CFIP_CANDIDATE_BUDGET <= 512)) || { cfip_json_error "candidate_budget must be 100..512"; return 1; }
     ((CFIP_PROBE_TOP_COUNT >= CFIP_IP_COUNT && CFIP_PROBE_TOP_COUNT <= 32 && CFIP_PROBE_TOP_COUNT <= CFIP_CANDIDATE_BUDGET)) || { cfip_json_error "probe_top_count must be between ip_count and min(32,candidate_budget)"; return 1; }
@@ -118,7 +124,7 @@ validate_config() {
         [[ "$CFIP_RILL_RUNTIME" == /usr/bin/rill-runtime ]] || { cfip_json_error "rill runtime path is not package-managed"; return 1; }
     fi
     if [[ "$CFIP_RILL_ENABLED" == true && ( "${1:-run}" == run || "${1:-run}" == save ) ]]; then
-        cfip_rill_runtime_allowed || { cfip_json_error "Rill requires rill-runtime-preview; stable or unknown Runtime channel is rejected"; return 1; }
+        cfip_rill_runtime_allowed || { cfip_json_error "Rill requires Stable rill-runtime; legacy rill-runtime-preview must be removed explicitly before migration"; return 1; }
     fi
     local schedule="$CFIP_CRON_INTERVAL" custom_schedule=""
     if [[ "$schedule" == custom ]]; then
@@ -145,6 +151,20 @@ validate_config() {
         if [[ "$require_proxy" == true && ! -f "$CFIP_OPENCLASH_CONFIG" ]]; then cfip_json_error "OpenClash config not found"; return 1; fi
         if [[ "$require_proxy" == true || -n "$CFIP_OPENCLASH_TARGET_DOMAIN" ]]; then
           CFIP_TARGET_DOMAINS="$(cfip_normalize_domain_list "$CFIP_OPENCLASH_TARGET_DOMAIN")" || { cfip_json_error "invalid or empty OpenClash target_domain"; return 1; }
+        fi ;;
+      homeproxy)
+        if [[ "$require_proxy" == true || -n "$CFIP_HOMEPROXY_TARGET_DOMAIN" ]]; then
+          CFIP_TARGET_DOMAINS="$(cfip_homeproxy_normalize_domain "$CFIP_HOMEPROXY_TARGET_DOMAIN")" || { cfip_json_error "HomeProxy requires exactly one valid target DNS hostname"; return 1; }
+          if [[ "$require_proxy" == true ]]; then
+            cfip_homeproxy_resolve_active_node "$CFIP_TARGET_DOMAINS" || { cfip_json_error "$CFIP_RECOVERY_ERROR"; return 1; }
+          fi
+        fi ;;
+      passwall2)
+        if [[ "$require_proxy" == true || -n "$CFIP_PASSWALL2_TARGET_DOMAIN" ]]; then
+          CFIP_TARGET_DOMAINS="$(cfip_pw2_normalize_target "$CFIP_PASSWALL2_TARGET_DOMAIN")" || { cfip_json_error "PassWall2 requires exactly one valid target DNS hostname"; return 1; }
+          if [[ "$require_proxy" == true ]]; then
+            cfip_pw2_resolve_target "$CFIP_TARGET_DOMAINS" || { cfip_json_error "$CFIP_RECOVERY_ERROR"; return 1; }
+          fi
         fi ;;
     esac
 }
@@ -177,6 +197,15 @@ write_status() {
     operational="$(cfip_operational_state_json 2>/dev/null || printf '{}')"
     if [[ "$CFIP_MODE" == openclash ]]; then
         proxy_service="$(jq -cn --argjson enabled "${CFIP_OPENCLASH_EXPECTED_ENABLED:-null}" --argjson speedtest "${CFIP_SPEEDTEST_COMPLETED:-false}" --argjson initiallyRunning "${CFIP_OPENCLASH_INITIAL_RUNNING:-false}" --argjson initiallyHealthy "${CFIP_OPENCLASH_INITIAL_HEALTHY:-false}" --argjson stoppedByCf "${CFIP_OPENCLASH_CF_STOPPED:-false}" --argjson fileWritten "${CFIP_OPENCLASH_FILE_WRITTEN:-false}" --argjson applied "${CFIP_OPENCLASH_SERVICE_APPLIED:-false}" --argjson deferred "${CFIP_OPENCLASH_DEFERRED:-false}" --argjson recoveryAttempted "${CFIP_OPENCLASH_RECOVERY_ATTEMPTED:-false}" --argjson recoveryVerified "${CFIP_OPENCLASH_RECOVERY_VERIFIED:-false}" --arg error "${CFIP_OPENCLASH_SERVICE_ERROR:-}" '{target:"openclash",expectedEnabled:$enabled,speedtestCompleted:$speedtest,initiallyRunning:$initiallyRunning,initiallyHealthy:$initiallyHealthy,stoppedByCf:$stoppedByCf,nodeFileWritten:$fileWritten,serviceApplied:($applied and $fileWritten),deferredUntilServiceStart:$deferred,recoveryAttempted:$recoveryAttempted,recoveryVerified:$recoveryVerified,error:(if $error=="" then null else $error end)}')"
+    elif [[ "$CFIP_MODE" == homeproxy && "$phase" == done ]]; then
+        local hp_maintenance=false hp_applied=false hp_method=none
+        local hp_node="${CFIP_HOMEPROXY_NODE_SECTION:-}" hp_candidate="$(jq -r '.[0].ip // empty' "${CFIP_SELECTED_FILE:-/dev/null}" 2>/dev/null)"
+        [[ "${CFIP_HOMEPROXY_MAINTENANCE_RESTARTED:-false}" == true ]] && { hp_maintenance=true; hp_applied=true; hp_method=maintenance_restart; }
+        proxy_service="$(jq -cn --arg node "$hp_node" --arg candidate "$hp_candidate" --argjson applied "$hp_applied" --argjson maintenance "$hp_maintenance" --arg method "$hp_method" '{target:"homeproxy",configurationPersisted:true,serviceApplied:$applied,applyPending:true,maintenanceRestarted:$maintenance,applicationMethod:$method,updatedNodeCount:(if $node=="" then 0 else 1 end),updatedNode:(if $node=="" then null else $node end),appliedCandidate:(if $candidate=="" then null else $candidate end),runtimeEgressVerified:false,restartCount:(if $maintenance then 1 else 0 end)}')"
+    elif [[ "$CFIP_MODE" == passwall2 && "$phase" == done ]]; then
+        local pw2_maintenance=false pw2_node="${CFIP_PW2_TARGET_NODE:-}" pw2_candidate="$(jq -r '.[0].ip // empty' "${CFIP_SELECTED_FILE:-/dev/null}" 2>/dev/null)"
+        [[ "${CFIP_PW2_MAINTENANCE_RESTARTED:-false}" == true ]] && pw2_maintenance=true
+        proxy_service="$(jq -cn --arg node "$pw2_node" --arg candidate "$pw2_candidate" --argjson maintenance "$pw2_maintenance" '{target:"passwall2",configurationPersisted:true,serviceApplied:false,applyPending:true,maintenanceRestarted:$maintenance,applicationMethod:"persisted_only",updatedNodeCount:(if $node=="" then 0 else 1 end),updatedNode:(if $node=="" then null else $node end),appliedCandidate:(if $candidate=="" then null else $candidate end),runtimeEgressVerified:false,restartCount:0}')"
     fi
     why="$(cfip_operational_why_run 2>/dev/null || printf '')"
     if declare -F cfip_rill_context_json >/dev/null 2>&1; then context="$(cfip_rill_context_json 2>/dev/null || printf '{}')"; fi
@@ -187,7 +216,7 @@ write_status() {
     completed_at="$last_completed"
     if [[ "$active_run" == false && ("$phase" == done || "$phase" == failed) ]]; then completed_at="$(date -u -r "$status_now" '+%Y-%m-%dT%H:%M:%SZ' 2>/dev/null || date -u '+%Y-%m-%dT%H:%M:%SZ')"; fi
     mkdir -p "$CFIP_STATUS_DIR"
-    local tar_ok=false jq_ok=false cfst_ok=false cfst_version="" passwall_installed=false passwall_running=false openclash_installed=false openclash_running=false
+    local tar_ok=false jq_ok=false cfst_ok=false cfst_version="" passwall_installed=false passwall_running=false openclash_installed=false openclash_running=false homeproxy_env='{}' passwall2_env='{}'
     command -v tar >/dev/null 2>&1 && tar_ok=true
     command -v jq >/dev/null 2>&1 && jq_ok=true
     [[ -x "$CFIP_WORK_DIR/cfst/cfst" ]] && cfst_ok=true
@@ -196,11 +225,13 @@ write_status() {
     [[ "$passwall_installed" == true ]] && cfip_service_running passwall status && passwall_running=true
     [[ -x "$CFIP_INIT_DIR/openclash" ]] && openclash_installed=true
     [[ "$openclash_installed" == true ]] && cfip_service_running openclash status && openclash_running=true
+    homeproxy_env="$(cfip_homeproxy_environment_json 2>/dev/null || printf '{}')"
+    passwall2_env="$(cfip_pw2_environment_json 2>/dev/null || printf '{}')"
     local recovery_remaining recovery_active
     recovery_remaining="$(cfip_recovery_remaining)"
     [[ "${CFIP_RECOVERY_ACTIVE:-false}" == true ]] && recovery_active=true || recovery_active=false
-    jq -n --argjson schemaVersion "$ENGINE_SCHEMA_VERSION" --argjson activeRun "$active_run" --argjson enabled "$CFIP_ENABLED" --argjson speedtestCompleted "${CFIP_SPEEDTEST_COMPLETED:-false}" --arg runId "$CFIP_RUN_ID" --arg requestId "${CFIP_RUN_REQUEST_ID:-}" --arg phase "$phase" --arg lastResult "$result" --arg error "$error" --arg mode "$CFIP_MODE" --arg ipType "$CFIP_IP_TYPE" --arg protocol "$CFIP_SPEEDTEST_PROTOCOL" --arg version "$SCRIPT_VERSION" --arg packageVersion "$SCRIPT_VERSION-r$PACKAGE_RELEASE" --arg cfstVersion "$cfst_version" --argjson requested "$CFIP_IP_COUNT" --argjson candidates "$candidates" --argjson inputCount "$input_count" --argjson budget "$CFIP_CANDIDATE_BUDGET" --argjson eligible "$eligible" --argjson selected "$selected" --argjson best "$best" --argjson intelligence "$rill" --argjson adaptive "$adaptive" --argjson transaction "$transaction" --argjson sources "$sources" --argjson publisher "$publisher" --argjson decision "$decision" --argjson probeMetrics "$probe_metrics" --argjson sourcePolicy "$source_policy" --argjson context "$context" --argjson evidenceAggregate "$evidence_aggregate" --argjson operational "$operational" --argjson proxyService "$proxy_service" --arg why "$why" --argjson tar "$tar_ok" --argjson jq "$jq_ok" --argjson cfst "$cfst_ok" --argjson pi "$passwall_installed" --argjson pr "$passwall_running" --argjson oi "$openclash_installed" --argjson openclashRunning "$openclash_running" --argjson recoveryRemaining "$recovery_remaining" --argjson recoveryActive "$recovery_active" --arg recoveryError "${CFIP_RECOVERY_ERROR:-}" --arg statusUpdatedAt "$(date -u -r "$status_now" '+%Y-%m-%dT%H:%M:%SZ' 2>/dev/null || date -u '+%Y-%m-%dT%H:%M:%SZ')" --arg lastCompleted "$completed_at" '
-      {schemaVersion:$schemaVersion,running:$enabled,enabled:$enabled,scheduled:$enabled,disabled:($enabled|not),active_run:$activeRun,jobRunning:$activeRun,speedtestCompleted:$speedtestCompleted,runId:$runId,requestId:(if $requestId=="" then null else $requestId end),phase:$phase,last_result:$lastResult,error:$error,mode:$mode,ip_type:$ipType,ip_count:$selected,requested_ip_count:$requested,speedtest_protocol:$protocol,best_ips:$best,script_version:$version,package_version:$packageVersion,cfst_version:(if $cfstVersion=="" then null else $cfstVersion end),candidate_budget:$budget,measurement_input_count:$inputCount,candidate_count:$candidates,eligible_count:$eligible,degraded_candidate_count:($selected<$requested),probeMetrics:$probeMetrics,efficiency:$probeMetrics,sourcePolicy:$sourcePolicy,learningContext:$context,evidenceAggregate:$evidenceAggregate,adaptiveMeasurement:$adaptive,operationalHealth:$operational,whyThisRun:(if $why=="" then null else $why end),tar:$tar,jq:$jq,cfst_installed:$cfst,passwall_installed:$pi,passwall_running:$pr,openclash_installed:$oi,openclash_running:$openclashRunning,service:$proxyService,env:{tar:$tar,jq:$jq,cfst_installed:$cfst,passwall_installed:$pi,passwall_running:$pr,openclash_installed:$oi,openclash_running:$openclashRunning},sources:$sources,publisher:$publisher,intelligence:$intelligence,decision:$decision,confidenceLevel:($decision.confidenceLevel // null),confidenceReasons:($decision.confidenceReasons // []),requestedMode:($decision.requestedMode // null),effectiveMode:($decision.effectiveMode // null),fallbackReason:($decision.fallbackReason // null),authorityActionId:($decision.authorityActionId // null),nativeRillTop1Agreement:($decision.nativeRillTop1Agreement // null),rillTop3Overlap:($decision.rillTop3Overlap // null),transaction:$transaction,recovery:{active:$recoveryActive,remaining:$recoveryRemaining,error:(if $recoveryError=="" then null else $recoveryError end)},status_updated_at:$statusUpdatedAt,last_completed_run_at:(if $lastCompleted=="" then null else $lastCompleted end),last_run:(if $lastCompleted=="" then null else $lastCompleted end)}' | cfip_atomic_write "$CFIP_STATUS_FILE"
+    jq -n --argjson schemaVersion "$ENGINE_SCHEMA_VERSION" --argjson activeRun "$active_run" --argjson enabled "$CFIP_ENABLED" --argjson speedtestCompleted "${CFIP_SPEEDTEST_COMPLETED:-false}" --arg runId "$CFIP_RUN_ID" --arg requestId "${CFIP_RUN_REQUEST_ID:-}" --arg phase "$phase" --arg lastResult "$result" --arg error "$error" --arg mode "$CFIP_MODE" --arg ipType "$CFIP_IP_TYPE" --arg protocol "$CFIP_SPEEDTEST_PROTOCOL" --arg version "$SCRIPT_VERSION" --arg packageVersion "$SCRIPT_VERSION-r$PACKAGE_RELEASE" --arg cfstVersion "$cfst_version" --argjson requested "$CFIP_IP_COUNT" --argjson candidates "$candidates" --argjson inputCount "$input_count" --argjson budget "$CFIP_CANDIDATE_BUDGET" --argjson eligible "$eligible" --argjson selected "$selected" --argjson best "$best" --argjson intelligence "$rill" --argjson adaptive "$adaptive" --argjson transaction "$transaction" --argjson sources "$sources" --argjson publisher "$publisher" --argjson decision "$decision" --argjson probeMetrics "$probe_metrics" --argjson sourcePolicy "$source_policy" --argjson context "$context" --argjson evidenceAggregate "$evidence_aggregate" --argjson operational "$operational" --argjson proxyService "$proxy_service" --argjson homeproxyEnv "$homeproxy_env" --argjson passwall2Env "$passwall2_env" --arg why "$why" --argjson tar "$tar_ok" --argjson jq "$jq_ok" --argjson cfst "$cfst_ok" --argjson pi "$passwall_installed" --argjson pr "$passwall_running" --argjson oi "$openclash_installed" --argjson openclashRunning "$openclash_running" --argjson recoveryRemaining "$recovery_remaining" --argjson recoveryActive "$recovery_active" --arg recoveryError "${CFIP_RECOVERY_ERROR:-}" --arg statusUpdatedAt "$(date -u -r "$status_now" '+%Y-%m-%dT%H:%M:%SZ' 2>/dev/null || date -u '+%Y-%m-%dT%H:%M:%SZ')" --arg lastCompleted "$completed_at" '
+      {schemaVersion:$schemaVersion,running:$enabled,enabled:$enabled,scheduled:$enabled,disabled:($enabled|not),active_run:$activeRun,jobRunning:$activeRun,speedtestCompleted:$speedtestCompleted,runId:$runId,requestId:(if $requestId=="" then null else $requestId end),phase:$phase,last_result:$lastResult,error:$error,mode:$mode,ip_type:$ipType,ip_count:$selected,requested_ip_count:$requested,speedtest_protocol:$protocol,best_ips:$best,script_version:$version,package_version:$packageVersion,cfst_version:(if $cfstVersion=="" then null else $cfstVersion end),candidate_budget:$budget,measurement_input_count:$inputCount,candidate_count:$candidates,eligible_count:$eligible,degraded_candidate_count:($selected<$requested),probeMetrics:$probeMetrics,efficiency:$probeMetrics,sourcePolicy:$sourcePolicy,learningContext:$context,evidenceAggregate:$evidenceAggregate,adaptiveMeasurement:$adaptive,operationalHealth:$operational,whyThisRun:(if $why=="" then null else $why end),tar:$tar,jq:$jq,cfst_installed:$cfst,passwall_installed:$pi,passwall_running:$pr,openclash_installed:$oi,openclash_running:$openclashRunning,service:$proxyService,env:({tar:$tar,jq:$jq,cfst_installed:$cfst,passwall_installed:$pi,passwall_running:$pr,openclash_installed:$oi,openclash_running:$openclashRunning}+$homeproxyEnv+$passwall2Env),sources:$sources,publisher:$publisher,intelligence:$intelligence,decision:$decision,confidenceLevel:($decision.confidenceLevel // null),confidenceReasons:($decision.confidenceReasons // []),requestedMode:($decision.requestedMode // null),effectiveMode:($decision.effectiveMode // null),fallbackReason:($decision.fallbackReason // null),authorityActionId:($decision.authorityActionId // null),nativeRillTop1Agreement:($decision.nativeRillTop1Agreement // null),rillTop3Overlap:($decision.rillTop3Overlap // null),transaction:$transaction,recovery:{active:$recoveryActive,remaining:$recoveryRemaining,error:(if $recoveryError=="" then null else $recoveryError end)},status_updated_at:$statusUpdatedAt,last_completed_run_at:(if $lastCompleted=="" then null else $lastCompleted end),last_run:(if $lastCompleted=="" then null else $lastCompleted end)}' | cfip_atomic_write "$CFIP_STATUS_FILE"
     if [[ -s "${CFIP_REUSE_DECISION_FILE:-}" && -s "$CFIP_STATUS_FILE" ]]; then
         jq --slurpfile reuse "$CFIP_REUSE_DECISION_FILE" '. + {reusePolicy: ($reuse[0] // {})}' "$CFIP_STATUS_FILE" | cfip_atomic_write "$CFIP_STATUS_FILE"
     fi
@@ -243,7 +274,7 @@ ensure_cfst(){
 }
 
 run_cfst() {
-    local cfst="$CFIP_WORK_DIR/cfst/cfst" out="$CFIP_RUNTIME_DIR/cfst-$CFIP_RUN_ID.csv" remaining rc=0
+    local cfst="$CFIP_WORK_DIR/cfst/cfst" out="$CFIP_RUNTIME_DIR/cfst-$CFIP_RUN_ID.csv" input="$CFIP_CANDIDATE_INPUT_FILE" remaining rc=0 workdir=""
     local -a args
     [[ -x "$cfst" && -s "$CFIP_CANDIDATE_INPUT_FILE" ]] || return 1
     cfip_cfst_invocation_record
@@ -253,43 +284,141 @@ run_cfst() {
         [[ -n "$CFIP_SPEEDTEST_CFCOLO" ]] && args+=(-cfcolo "$CFIP_SPEEDTEST_CFCOLO")
     fi
     [[ -n "$CFIP_SPEEDTEST_TL" ]] && args+=(-tl "$CFIP_SPEEDTEST_TL")
+    if [[ "${CFIP_OPENCLASH_BYPASS_ACTIVE:-false}" == true ]]; then
+        workdir="$(mktemp -d "${TMPDIR:-/tmp}/cfip-probe-${CFIP_RUN_ID}.XXXXXX")" || return 1
+        chown "$CFIP_OPENCLASH_BYPASS_UID:$CFIP_OPENCLASH_BYPASS_GID" "$workdir" || { rm -rf "$workdir"; return 1; }
+        chmod 700 "$workdir"
+        input="$workdir/candidates.txt"
+        out="$workdir/cfst.csv"
+        cp "$CFIP_CANDIDATE_INPUT_FILE" "$input" && chown "$CFIP_OPENCLASH_BYPASS_UID:$CFIP_OPENCLASH_BYPASS_GID" "$input" && chmod 600 "$input" || { rm -rf "$workdir"; return 1; }
+        args=(-f "$input" "${args[@]:2}")
+    fi
     args+=(-o "$out")
-    remaining="$(cfip_deadline_remaining)"; ((remaining>0)) || return 124
-    cfip_run_with_timeout "$remaining" "$cfst" "${args[@]}" >/dev/null 2>&1 || rc=$?
-    ((rc==124)) && return 124
-    [[ -s "$out" ]] || return 2
+    remaining="$(cfip_deadline_remaining)"; ((remaining>0)) || { [[ -z "$workdir" ]] || rm -rf "$workdir"; return 124; }
+    if [[ "${CFIP_OPENCLASH_BYPASS_ACTIVE:-false}" == true ]]; then
+        cfip_openclash_measurement_bypass_assert || { [[ -z "$workdir" ]] || rm -rf "$workdir"; return 125; }
+        cfip_run_with_timeout "$remaining" start-stop-daemon -S -c \
+            "$CFIP_OPENCLASH_BYPASS_USER:$CFIP_OPENCLASH_BYPASS_GROUP" \
+            -x "$CFIP_PROBE_EXEC" -- "$cfst" "${args[@]}" >/dev/null 2>&1 || rc=$?
+    else
+        cfip_run_with_timeout "$remaining" "$cfst" "${args[@]}" >/dev/null 2>&1 || rc=$?
+    fi
+    if ((rc==124)); then [[ -z "$workdir" ]] || rm -rf "$workdir"; return 124; fi
+    if [[ "${CFIP_OPENCLASH_BYPASS_ACTIVE:-false}" == true ]] && ! cfip_openclash_measurement_bypass_assert; then
+        CFIP_OPENCLASH_SERVICE_ERROR="${CFIP_OPENCLASH_BYPASS_ERROR:-OpenClash bypass changed during CloudflareSpeedTest; measurements discarded}"
+        rm -rf "$workdir"
+        return 125
+    fi
+    [[ -s "$out" ]] || { [[ -z "$workdir" ]] || rm -rf "$workdir"; return 2; }
     cfip_parse_cfst "$CFIP_CANDIDATES_FILE" "$CFIP_SPEEDTEST_PROTOCOL" "$CFIP_PROBE_TOP_COUNT" "$out:auto"
     local parse_rc=$?
-    rm -f "$out"
+    if [[ -n "$workdir" ]]; then rm -rf "$workdir"; else rm -f "$out"; fi
     return "$parse_rc"
+}
+
+cfip_dns_maintenance_begin(){
+    [[ -x "$CFIP_DNS_GUARD_BIN" ]] || return 0
+    [[ "$CFIP_DNS_MAINTENANCE_ACTIVE" == true ]] && return 0
+    local txn_id="${CFIP_RUN_ID:-cf-ip-$$}"
+    txn_id="$(printf '%s' "$txn_id" | tr -cd 'A-Za-z0-9._:')"
+    [[ -n "$txn_id" ]] || txn_id="cf-ip-$$"
+    [[ "$CFIP_DNS_MAINTENANCE_TTL" =~ ^[1-9][0-9]{0,2}$ ]] && ((CFIP_DNS_MAINTENANCE_TTL <= 180)) || {
+        CFIP_DNS_MAINTENANCE_ERROR="invalid DNS maintenance lease TTL"
+        return 1
+    }
+    if ! "$CFIP_DNS_GUARD_BIN" --maintenance-begin "$txn_id" "$CFIP_DNS_MAINTENANCE_TTL" >/dev/null 2>&1; then
+        CFIP_DNS_MAINTENANCE_ERROR="DNS guard refused the bounded maintenance lease; OpenClash was not stopped"
+        return 1
+    fi
+    CFIP_DNS_MAINTENANCE_ID="$txn_id"
+    CFIP_DNS_MAINTENANCE_ACTIVE=true
+    CFIP_DNS_MAINTENANCE_RELEASE_ALLOWED=false
+    CFIP_DNS_MAINTENANCE_ERROR=""
+}
+
+cfip_dns_maintenance_end(){
+    [[ "$CFIP_DNS_MAINTENANCE_ACTIVE" == true ]] || return 0
+    if ! "$CFIP_DNS_GUARD_BIN" --maintenance-end "$CFIP_DNS_MAINTENANCE_ID" >/dev/null 2>&1; then
+        CFIP_DNS_MAINTENANCE_ERROR="DNS guard maintenance lease did not release cleanly; the owner-bound lease will still expire or fail closed"
+        return 1
+    fi
+    CFIP_DNS_MAINTENANCE_ACTIVE=false
+    CFIP_DNS_MAINTENANCE_ID=""
+    CFIP_DNS_MAINTENANCE_ERROR=""
+    CFIP_DNS_MAINTENANCE_RELEASE_ALLOWED=false
 }
 
 stop_service_for_measurement(){
     if [[ "$CFIP_MODE" == openclash ]]; then
         [[ "${CFIP_OPENCLASH_EXPECTED_ENABLED:-}" == 1 ]] || return 0
+        if [[ "${CFIP_OPENCLASH_MEASUREMENT_BYPASS_DISABLED:-false}" != true ]] && cfip_openclash_measurement_bypass_begin; then
+            cfip_log "OpenClash measurement bypass active: low-privilege uid=${CFIP_OPENCLASH_BYPASS_UID}, non-OpenClash-exempt gid=${CFIP_OPENCLASH_BYPASS_GID}, candidate TCP/443 only; no proxy restart"
+            return 0
+        fi
+        [[ "$CFIP_STOP_SERVICE" == true ]] || {
+            CFIP_OPENCLASH_SERVICE_ERROR="${CFIP_OPENCLASH_BYPASS_ERROR:-OpenClash measurement bypass is unavailable and stop_service is disabled}"
+            return 1
+        }
+        [[ -z "${CFIP_OPENCLASH_BYPASS_ERROR:-}" ]] || cfip_log "OpenClash measurement bypass unavailable; using explicit maintenance stop: $CFIP_OPENCLASH_BYPASS_ERROR"
         [[ "$CFIP_STOP_SERVICE" == true ]] || return 0
         CFIP_OPENCLASH_SERVICE_ERROR=""
         if ! cfip_openclash_health_wait 10; then
             CFIP_OPENCLASH_SERVICE_ERROR="OpenClash became unhealthy before stop; no node file was changed"
             return 1
         fi
+        cfip_dns_maintenance_begin || {
+            CFIP_OPENCLASH_SERVICE_ERROR="${CFIP_DNS_MAINTENANCE_ERROR:-DNS maintenance lease could not be acquired}"
+            return 1
+        }
         cfip_stop_service openclash || {
-            [[ "${CFIP_OPENCLASH_CF_STOPPED:-false}" == true ]] && CFIP_STOPPED_MODE=openclash
+            if [[ "${CFIP_OPENCLASH_CF_STOPPED:-false}" == true ]]; then
+                CFIP_STOPPED_MODE=openclash
+            else
+                CFIP_DNS_MAINTENANCE_RELEASE_ALLOWED=true
+                cfip_dns_maintenance_end || cfip_log "$CFIP_DNS_MAINTENANCE_ERROR"
+            fi
             return 1
         }
         CFIP_STOPPED_MODE=openclash
         return 0
     fi
-    [[ "$CFIP_STOP_SERVICE" == true ]] || return 0
-    if cfip_service_running "$CFIP_MODE" measurement; then CFIP_STOPPED_MODE="$CFIP_MODE"; cfip_stop_service "$CFIP_MODE" || return 1; fi
+    if cfip_service_running "$CFIP_MODE" measurement; then
+        [[ "$CFIP_STOP_SERVICE" == true ]] || {
+            CFIP_MEASUREMENT_ERROR="${CFIP_MODE} online measurement bypass is not verified; refusing to measure through the running proxy. Enable the explicit maintenance stop option to accept a temporary outage"
+            return 1
+        }
+        CFIP_STOPPED_MODE="$CFIP_MODE"
+        cfip_stop_service "$CFIP_MODE" || return 1
+    fi
 }
 restore_stopped_service_if_needed(){
     [[ -n "$CFIP_STOPPED_MODE" ]] || return 0
     cfip_begin_recovery
-    local service="$CFIP_STOPPED_MODE" rc=0
+    local service="$CFIP_STOPPED_MODE" rc=0 old_config="${CFIP_OPENCLASH_RUNTIME_CONFIG:-}" old_target="${CFIP_OPENCLASH_TARGET_CONFIG:-}" old_provider="${CFIP_OPENCLASH_PROVIDER_NAME:-}"
     [[ "$service" == openclash ]] && CFIP_OPENCLASH_RECOVERY_ATTEMPTED=true
     cfip_restart_service "$service" recovery || rc=$?
-    [[ "$service" == openclash ]] && CFIP_STOPPED_MODE=""
+    if ((rc==0)); then
+        # A successful bounded start means the service is running again. Drop
+        # stop ownership before any DNS lease release attempt so an end failure
+        # can never make cleanup restart the already-running core a second time.
+        [[ "$service" != openclash ]] || { CFIP_STOPPED_MODE=""; CFIP_OPENCLASH_CF_STOPPED=false; }
+        if [[ "$service" == openclash ]]; then
+            cfip_openclash_capture_runtime && cfip_openclash_resolve_provider_target || rc=1
+            if ((rc==0)) && [[ "$CFIP_OPENCLASH_RUNTIME_CONFIG" != "$old_config" || "$CFIP_OPENCLASH_TARGET_CONFIG" != "$old_target" || "$CFIP_OPENCLASH_PROVIDER_NAME" != "$old_provider" ]]; then
+                CFIP_OPENCLASH_SERVICE_ERROR="OpenClash maintenance restart changed core config or provider identity"
+                rc=1
+            fi
+            if ((rc==0)); then
+                CFIP_OPENCLASH_SERVICE_APPLIED=true
+                CFIP_OPENCLASH_MAINTENANCE_RESTARTED=true
+                CFIP_DNS_MAINTENANCE_RELEASE_ALLOWED=true
+                cfip_dns_maintenance_end || {
+                    CFIP_OPENCLASH_SERVICE_ERROR="$CFIP_DNS_MAINTENANCE_ERROR"
+                    rc=1
+                }
+            fi
+        fi
+    fi
     if ((rc==0)); then
         CFIP_STOPPED_MODE=""
     elif ((rc==124)); then
@@ -298,6 +427,10 @@ restore_stopped_service_if_needed(){
         CFIP_RECOVERY_ERROR="${CFIP_OPENCLASH_SERVICE_ERROR:-RecoveryRestartFailed}"
     fi
     return "$rc"
+}
+cfip_dns_maintenance_cleanup(){
+    [[ "${CFIP_DNS_MAINTENANCE_ACTIVE:-false}" == true && "${CFIP_DNS_MAINTENANCE_RELEASE_ALLOWED:-false}" == true && -z "${CFIP_STOPPED_MODE:-}" ]] || return 0
+    cfip_dns_maintenance_end
 }
 
 build_decision() {
@@ -402,11 +535,15 @@ select_assisted_candidates() {
 rollback_active_transaction() {
     local recovery_rc=0
     [[ "${CFIP_CLEANUP_DONE:-false}" == true ]] && return 0
+    if [[ "${CFIP_OPENCLASH_BYPASS_ACTIVE:-false}" == true ]]; then
+        cfip_openclash_measurement_bypass_end || {
+            CFIP_RECOVERY_ERROR="${CFIP_OPENCLASH_BYPASS_ERROR:-temporary OpenClash measurement rule cleanup failed}"
+            recovery_rc=1
+        }
+    fi
     if [[ -n "${CFIP_TXN_DIR:-}" && -d "${CFIP_TXN_DIR:-}" && "${CFIP_TXN_COMMITTED:-false}" != true ]]; then
         cfip_txn_rollback "${CFIP_TXN_MODE:-$CFIP_MODE}" || recovery_rc=$?
-        ((recovery_rc == 0)) && CFIP_STOPPED_MODE=""
     fi
-    [[ "${CFIP_TXN_ROLLED_BACK:-false}" == true ]] && CFIP_STOPPED_MODE=""
     if [[ -n "$CFIP_STOPPED_MODE" ]]; then
         restore_stopped_service_if_needed || recovery_rc=$?
     fi
@@ -447,6 +584,10 @@ run_cleanup(){
     trap - EXIT INT TERM
     cfip_cancel_active_operation || true
     rollback_active_transaction || recovery_rc=$?
+    cfip_dns_maintenance_cleanup || {
+        CFIP_RECOVERY_ERROR="${CFIP_DNS_MAINTENANCE_ERROR:-DNS maintenance lease cleanup failed}"
+        recovery_rc=1
+    }
     if ((recovery_rc!=0)); then
         CFIP_RECOVERY_ERROR="${CFIP_RECOVERY_ERROR:-rollback or service restoration failed}"
         cfip_log "RECOVERY REQUIRED: ${CFIP_RECOVERY_ERROR}; transaction snapshot retained at ${CFIP_TXN_DIR:-unknown}"
@@ -538,7 +679,8 @@ run_v2() {
     local reuse_allowed=true
     CFIP_RUN_ENTERED=false; CFIP_RUN_STATUS_CAPTURED=false; CFIP_ERROR=""
     CFIP_SPEEDTEST_COMPLETED=false
-    CFIP_OPENCLASH_EXPECTED_ENABLED=""; CFIP_OPENCLASH_INITIAL_RUNNING=false; CFIP_OPENCLASH_INITIAL_HEALTHY=false; CFIP_OPENCLASH_DEFERRED=false; CFIP_OPENCLASH_CF_STOPPED=false; CFIP_OPENCLASH_RECOVERY_ATTEMPTED=false; CFIP_OPENCLASH_RECOVERY_VERIFIED=false; CFIP_OPENCLASH_RESTART_ATTEMPTS=0; CFIP_OPENCLASH_FILE_WRITTEN=false; CFIP_OPENCLASH_SERVICE_APPLIED=false; CFIP_OPENCLASH_SERVICE_ERROR=""; CFIP_RECOVERY_ERROR=""
+    CFIP_OPENCLASH_EXPECTED_ENABLED=""; CFIP_OPENCLASH_INITIAL_RUNNING=false; CFIP_OPENCLASH_INITIAL_HEALTHY=false; CFIP_OPENCLASH_DEFERRED=false; CFIP_OPENCLASH_CF_STOPPED=false; CFIP_OPENCLASH_RECOVERY_ATTEMPTED=false; CFIP_OPENCLASH_RECOVERY_VERIFIED=false; CFIP_OPENCLASH_RESTART_ATTEMPTS=0; CFIP_OPENCLASH_FILE_WRITTEN=false; CFIP_OPENCLASH_SERVICE_APPLIED=false; CFIP_OPENCLASH_HOT_APPLIED=false; CFIP_OPENCLASH_MAINTENANCE_RESTARTED=false; CFIP_DNS_MAINTENANCE_ACTIVE=false; CFIP_DNS_MAINTENANCE_ID=""; CFIP_DNS_MAINTENANCE_ERROR=""; CFIP_DNS_MAINTENANCE_RELEASE_ALLOWED=false; CFIP_OPENCLASH_SERVICE_ERROR=""; CFIP_RECOVERY_ERROR=""
+    CFIP_HOMEPROXY_MAINTENANCE_RESTARTED=false; CFIP_PW2_MAINTENANCE_RESTARTED=false
     load_config || return 1
     # The boot delay must not hold the writer lock: an auto-run waiting here is
     # not an active task, so a manual "Run now" must not be reported as busy.
@@ -583,7 +725,7 @@ run_v2() {
     CFIP_MEASUREMENT_DEADLINE=$((CFIP_MEASUREMENT_STARTED_AT+CFIP_MEASUREMENT_TIMEOUT))
     cfip_txn_prepare "$CFIP_MODE" || { fail_run "${CFIP_RECOVERY_ERROR:-${CFIP_OPENCLASH_SERVICE_ERROR:-failed to snapshot proxy configuration}}"; return 1; }
     write_status true "$CFIP_PHASE" "$CFIP_LAST_RESULT" ""
-    stop_service_for_measurement || { fail_run "failed to stop proxy service before measurement"; return 1; }
+    stop_service_for_measurement || { fail_run "${CFIP_OPENCLASH_SERVICE_ERROR:-${CFIP_MEASUREMENT_ERROR:-failed to stop proxy service before measurement}}"; return 1; }
     local cfstrc=0
     run_cfst || cfstrc=$?
     if ((cfstrc!=0)); then
@@ -622,6 +764,12 @@ run_v2() {
     CFIP_MEASUREMENT_DURATION_MS=$(( $(cfip_now_millis) - CFIP_MEASUREMENT_STARTED_MS )); ((CFIP_MEASUREMENT_DURATION_MS < 0)) && CFIP_MEASUREMENT_DURATION_MS=0
     cfip_adaptive_record_run_metrics "$CFIP_ADAPTIVE_PLAN_FILE" "$CFIP_PROBED_FILE" "$CFIP_PROBE_METRICS_FILE" || cfip_log "adaptive operational metrics unavailable"
     [[ "$(cfip_deadline_remaining)" -gt 0 ]] || { fail_run "measurement timeout during target probe"; return 1; }
+    if [[ "${CFIP_OPENCLASH_BYPASS_ACTIVE:-false}" == true ]]; then
+        cfip_openclash_measurement_bypass_end || {
+            fail_run "${CFIP_OPENCLASH_BYPASS_ERROR:-temporary OpenClash measurement bypass was lost; candidate results are invalid}"
+            return 1
+        }
+    fi
     CFIP_PHASE=ranking
     cfip_native_rank "$CFIP_PROBED_FILE" "$CFIP_NATIVE_FILE" || { fail_run "native ranking failed"; return 1; }
     eligible="$(jq 'length' "$CFIP_NATIVE_FILE")"
@@ -636,6 +784,13 @@ run_v2() {
     select_assisted_candidates
     build_decision
     prepare_adaptive_final_selection
+    if [[ ( "$CFIP_MODE" == passwall && "$CFIP_STOPPED_MODE" == passwall ) || ( "$CFIP_MODE" == passwall2 && "$CFIP_STOPPED_MODE" == passwall2 ) ]]; then
+        # PassWall has no verified hot-apply path. Restore the service with its
+        # old runtime configuration before changing UCI, so a later failure can
+        # roll back persistence without needing a proxy restart.
+        restore_stopped_service_if_needed || { fail_run "PassWall measurement maintenance restart could not be verified"; return 1; }
+        [[ "$CFIP_MODE" != passwall2 ]] || CFIP_PW2_MAINTENANCE_RESTARTED=true
+    fi
     CFIP_PHASE=applying
     local txrc=0 holdout_json='{}'
     cfip_txn_apply "$CFIP_MODE" "$CFIP_SELECTED_FILE" || txrc=$?
@@ -646,16 +801,28 @@ run_v2() {
         fail_run "apply transaction failed (rc=$txrc)"
         return 1
     fi
-    CFIP_STOPPED_MODE=""
+    if [[ -n "$CFIP_STOPPED_MODE" ]]; then
+        local maintenance_service="$CFIP_STOPPED_MODE"
+        restore_stopped_service_if_needed || { fail_run "$maintenance_service maintenance restart could not be verified"; return 1; }
+        [[ "$maintenance_service" != homeproxy ]] || CFIP_HOMEPROXY_MAINTENANCE_RESTARTED=true
+    else
+        CFIP_STOPPED_MODE=""
+    fi
     CFIP_PHASE=verifying
     CFIP_DECISION_ACTION_ID="$(jq -r '.authorityActionId // .selectedActionId // empty' "$CFIP_DECISION_FILE")"
-    if ! cfip_post_apply_probe "$CFIP_SELECTED_FILE" "$CFIP_TARGET_DOMAINS" "$CFIP_PROBE_TIMEOUT" "$CFIP_OUTCOME_FILE"; then
+    if [[ "$CFIP_MODE" != passwall && "$CFIP_MODE" != passwall2 && "$CFIP_MODE" != homeproxy ]] && ! cfip_post_apply_probe "$CFIP_SELECTED_FILE" "$CFIP_TARGET_DOMAINS" "$CFIP_PROBE_TIMEOUT" "$CFIP_OUTCOME_FILE"; then
         cfip_rill_queue_feedback "$CFIP_DECISION_FILE" "$CFIP_OUTCOME_FILE" || true
         rollback_active_transaction || true
         jq -cn --argjson rolledBack "${CFIP_TXN_ROLLED_BACK:-false}" --arg recovery "${CFIP_RECOVERY_ERROR:-}" '{success:false,reason:"post_apply_probe_failed",rolledBack:$rolledBack,recoveryVerified:($recovery==""),recoveryError:(if $recovery=="" then null else $recovery end)}' | cfip_atomic_write "$CFIP_TXN_RESULT_FILE"
         finalize_adaptive_audit false
         fail_run "post-apply validation failed"
         return 1
+    fi
+    if [[ "$CFIP_MODE" == passwall || "$CFIP_MODE" == passwall2 || "$CFIP_MODE" == homeproxy ]]; then
+        local outcome_reason=passwall_runtime_apply_unverified
+        [[ "$CFIP_MODE" != homeproxy ]] || outcome_reason=homeproxy_runtime_egress_unverified
+        [[ "$CFIP_MODE" != passwall2 ]] || outcome_reason=passwall2_apply_pending
+        jq -cn --arg reason "$outcome_reason" '{schemaVersion:2,candidateOutcome:"unknown",hostOutcome:"unknown",censored:true,reason:$reason}' | cfip_atomic_write "$CFIP_OUTCOME_FILE" || true
     fi
     CFIP_TXN_STATE=HEALTH_OK
     CFIP_MEASUREMENT_DEADLINE=0
@@ -698,12 +865,41 @@ run_v2() {
     CFIP_OPERATIONAL_FINAL_EVENT=full-optimize-success; CFIP_OPERATIONAL_FINAL_REASON=full_optimize_completed
     local completion_notice="" completion_result=success service_json='null'
     if [[ "$CFIP_MODE" == openclash ]]; then
-        service_json="$(jq -cn --argjson enabled "$CFIP_OPENCLASH_EXPECTED_ENABLED" --argjson speedtest "$CFIP_SPEEDTEST_COMPLETED" --argjson nodeFileWritten "$CFIP_OPENCLASH_FILE_WRITTEN" --argjson applied "$CFIP_OPENCLASH_SERVICE_APPLIED" --argjson deferred "$CFIP_OPENCLASH_DEFERRED" --argjson recoveryAttempted "$CFIP_OPENCLASH_RECOVERY_ATTEMPTED" --argjson recoveryVerified "${CFIP_OPENCLASH_RECOVERY_VERIFIED:-false}" '{target:"openclash",expectedEnabled:$enabled,speedtestCompleted:$speedtest,nodeFileWritten:$nodeFileWritten,serviceApplied:($applied and $nodeFileWritten),deferredUntilServiceStart:$deferred,recoveryAttempted:$recoveryAttempted,recoveryVerified:$recoveryVerified}')"
+        local apply_method=none
+        [[ "$CFIP_OPENCLASH_HOT_APPLIED" == true ]] && apply_method=file_provider_put
+        [[ "$CFIP_OPENCLASH_MAINTENANCE_RESTARTED" == true ]] && apply_method=maintenance_restart
+        [[ "$CFIP_OPENCLASH_DEFERRED" == true ]] && apply_method=deferred_until_service_start
+        service_json="$(jq -cn --argjson enabled "$CFIP_OPENCLASH_EXPECTED_ENABLED" --argjson speedtest "$CFIP_SPEEDTEST_COMPLETED" --argjson bypassUsed "${CFIP_OPENCLASH_MEASUREMENT_BYPASS_USED:-false}" --argjson nodeFileWritten "$CFIP_OPENCLASH_FILE_WRITTEN" --argjson applied "$CFIP_OPENCLASH_SERVICE_APPLIED" --argjson hotApplied "$CFIP_OPENCLASH_HOT_APPLIED" --argjson maintenanceRestarted "$CFIP_OPENCLASH_MAINTENANCE_RESTARTED" --arg method "$apply_method" --argjson deferred "$CFIP_OPENCLASH_DEFERRED" --argjson recoveryAttempted "$CFIP_OPENCLASH_RECOVERY_ATTEMPTED" --argjson recoveryVerified "${CFIP_OPENCLASH_RECOVERY_VERIFIED:-false}" '{target:"openclash",expectedEnabled:$enabled,speedtestCompleted:$speedtest,measurementBypassUsed:$bypassUsed,nodeFileWritten:$nodeFileWritten,serviceApplied:($applied and $nodeFileWritten),hotApplied:$hotApplied,maintenanceRestarted:$maintenanceRestarted,applicationMethod:$method,deferredUntilServiceStart:$deferred,recoveryAttempted:$recoveryAttempted,recoveryVerified:$recoveryVerified}')"
         if [[ "$CFIP_OPENCLASH_DEFERRED" == true ]]; then
             completion_result=warning
             completion_notice="Nodes updated; OpenClash is disabled and the changes will take effect after it is started"
             CFIP_OPERATIONAL_FINAL_EVENT=nodes-updated-service-disabled; CFIP_OPERATIONAL_FINAL_REASON=openclash_disabled_pending
         fi
+    elif [[ "$CFIP_MODE" == passwall ]]; then
+        local maintenance_restarted=false
+        [[ "${CFIP_TXN_ORIGINAL_RUNNING:-false}" == true && "${CFIP_SPEEDTEST_COMPLETED:-false}" == true && "$CFIP_STOP_SERVICE" == true ]] && maintenance_restarted=true
+        service_json="$(jq -cn --argjson running "${CFIP_TXN_ORIGINAL_RUNNING:-false}" --argjson maintenanceRestarted "$maintenance_restarted" '{target:"passwall",configurationPersisted:true,serviceApplied:false,applyPending:true,maintenanceRestarted:$maintenanceRestarted,runtimeEgressVerified:false}')"
+        completion_result=warning
+        completion_notice="PassWall configuration was written but the running service was not hot-applied; apply it with a separately managed PassWall restart"
+        CFIP_OPERATIONAL_FINAL_EVENT=passwall-config-persisted; CFIP_OPERATIONAL_FINAL_REASON=manual_apply_pending
+    elif [[ "$CFIP_MODE" == passwall2 ]]; then
+        local pw2_maintenance=false
+        [[ "${CFIP_PW2_MAINTENANCE_RESTARTED:-false}" == true ]] && pw2_maintenance=true
+        service_json="$(jq -cn --arg node "$CFIP_PW2_TARGET_NODE" --arg candidate "$(jq -r '.[0].ip // empty' "$CFIP_SELECTED_FILE")" --argjson maintenance "$pw2_maintenance" '{target:"passwall2",configurationPersisted:true,serviceApplied:false,applyPending:true,maintenanceRestarted:$maintenance,applicationMethod:"persisted_only",updatedNodeCount:1,updatedNode:$node,appliedCandidate:$candidate,runtimeEgressVerified:false,restartCount:0}')"
+        completion_result=warning
+        completion_notice="PassWall2 UCI was persisted to one active graph leaf; the running service was not reloaded and runtime egress is unverified. The update remains pending."
+        CFIP_OPERATIONAL_FINAL_EVENT=passwall2-config-persisted; CFIP_OPERATIONAL_FINAL_REASON=manual_apply_pending
+    elif [[ "$CFIP_MODE" == homeproxy ]]; then
+        local hp_maintenance=false hp_applied=false hp_method=none hp_restart_count=0
+        [[ "${CFIP_HOMEPROXY_MAINTENANCE_RESTARTED:-false}" == true ]] && { hp_maintenance=true; hp_applied=true; hp_method=maintenance_restart; hp_restart_count=1; }
+        service_json="$(jq -cn --arg node "$CFIP_HOMEPROXY_NODE_SECTION" --arg candidate "$(jq -r '.[0].ip // empty' "$CFIP_SELECTED_FILE")" --argjson applied "$hp_applied" --argjson maintenance "$hp_maintenance" --arg method "$hp_method" --argjson restartCount "$hp_restart_count" '{target:"homeproxy",configurationPersisted:true,serviceApplied:$applied,applyPending:true,maintenanceRestarted:$maintenance,applicationMethod:$method,updatedNodeCount:1,updatedNode:$node,appliedCandidate:$candidate,runtimeEgressVerified:false,restartCount:$restartCount}')"
+        completion_result=warning
+        if [[ "$hp_maintenance" == true ]]; then
+            completion_notice="HomeProxy was restored after the configured maintenance stop and loaded the persisted node; target-domain egress remains unverified."
+        else
+            completion_notice="HomeProxy UCI was persisted; the running service was not changed. Apply the node update through a separately managed HomeProxy action."
+        fi
+        CFIP_OPERATIONAL_FINAL_EVENT=homeproxy-config-persisted; CFIP_OPERATIONAL_FINAL_REASON=manual_apply_pending
     fi
     CFIP_LAST_RESULT="$completion_result"; CFIP_PHASE=done; CFIP_ERROR="$completion_notice"
     remember_history
@@ -714,20 +910,26 @@ run_v2() {
 }
 
 cmd_status(){
-    local version="" metadata work_dir cfst_installed=false
+    local version="" metadata work_dir cfst_installed=false passwall_installed=false passwall_running=false openclash_installed=false openclash_running=false homeproxy_env='{}' passwall2_env='{}'
     # Status must stay readable even when unrelated run configuration is invalid.
     work_dir="$(uci_get cf_ip.main.work_dir "$CFIP_WORK_DIR")"; [[ -n "$work_dir" ]] || work_dir=/usr/bin
     if [[ -x "$work_dir/cfst/cfst" ]]; then
         cfst_installed=true
         version="$(cfip_cfst_version "$work_dir/cfst/cfst" 2>/dev/null || true)"
     fi
-    metadata="$(jq -cn --arg script "$SCRIPT_VERSION" --arg packageVersion "$SCRIPT_VERSION-r$PACKAGE_RELEASE" \
+    [[ -x "$CFIP_INIT_DIR/passwall" ]] && passwall_installed=true
+    [[ "$passwall_installed" == true ]] && cfip_service_running passwall status && passwall_running=true
+    [[ -x "$CFIP_INIT_DIR/openclash" ]] && openclash_installed=true
+    [[ "$openclash_installed" == true ]] && cfip_service_running openclash status && openclash_running=true
+    homeproxy_env="$(cfip_homeproxy_environment_json 2>/dev/null || printf '{}')"
+    passwall2_env="$(cfip_pw2_environment_json 2>/dev/null || printf '{}')"
+    metadata="$(jq -cn --arg script "$SCRIPT_VERSION" --arg packageVersion "$SCRIPT_VERSION-r$PACKAGE_RELEASE" --argjson homeproxy "$homeproxy_env" --argjson passwall2 "$passwall2_env" \
       --argjson tar "$(command -v tar >/dev/null 2>&1 && printf true || printf false)" \
       --argjson jq "$(command -v jq >/dev/null 2>&1 && printf true || printf false)" \
       --argjson cfst "$cfst_installed" \
-      --argjson passwall "$(test -x "$CFIP_INIT_DIR/passwall" && printf true || printf false)" \
-      --argjson openclash "$(test -x "$CFIP_INIT_DIR/openclash" && printf true || printf false)" \
-      '{script_version:$script,package_version:$packageVersion,env:{tar:$tar,jq:$jq,cfst_installed:$cfst,passwall_installed:$passwall,openclash_installed:$openclash,passwall_running:null,openclash_running:null}}')" || return 1
+      --argjson passwall "$passwall_installed" --argjson passwallRunning "$passwall_running" \
+      --argjson openclash "$openclash_installed" --argjson openclashRunning "$openclash_running" \
+      '{script_version:$script,package_version:$packageVersion,env:({tar:$tar,jq:$jq,cfst_installed:$cfst,passwall_installed:$passwall,passwall_running:$passwallRunning,openclash_installed:$openclash,openclash_running:$openclashRunning}+$homeproxy+$passwall2)}')" || return 1
     if [[ -f "$CFIP_STATUS_FILE" ]]; then
         jq --argjson current "$metadata" --arg version "$version" '
           . + ($current|del(.env)) + {
@@ -738,7 +940,14 @@ cmd_status(){
     fi
     jq -cn --argjson current "$metadata" --arg cfstVersion "$version" '$current + {schemaVersion:2,running:false,enabled:false,active_run:false,phase:"idle",last_result:"unknown",best_ips:[],cfst_version:(if $cfstVersion=="" then null else $cfstVersion end),intelligence:{available:false}}'
 }
-cmd_check_env(){ [[ -x "$CFIP_LEGACY_BIN" ]] && "$CFIP_LEGACY_BIN" --check-env || jq -cn '{success:false,error:"legacy environment probe unavailable"}'; }
+cmd_check_env(){
+    local legacy='{}' homeproxy_env='{}' passwall2_env='{}'
+    if [[ -x "$CFIP_LEGACY_BIN" ]]; then legacy="$("$CFIP_LEGACY_BIN" --check-env 2>/dev/null || printf '{}')"; fi
+    jq -e 'type=="object"' <<<"$legacy" >/dev/null 2>&1 || legacy='{}'
+    homeproxy_env="$(cfip_homeproxy_environment_json 2>/dev/null || printf '{}')"
+    passwall2_env="$(cfip_pw2_environment_json 2>/dev/null || printf '{}')"
+    jq -cn --argjson legacy "$legacy" --argjson homeproxy "$homeproxy_env" --argjson passwall2 "$passwall2_env" '$legacy+$homeproxy+$passwall2'
+}
 cmd_version(){ jq -cn --arg script "$SCRIPT_VERSION" --arg release "$PACKAGE_RELEASE" '{success:true,version:$script,script_version:$script,package_release:$release,package_version:($script+"-r"+$release),engine_schema:2,runtime_api_version:3}'; }
 cmd_clear_log(){ mkdir -p "${CFIP_LOG_FILE%/*}"; : >"$CFIP_LOG_FILE"; jq -cn '{success:true,cleared:true}'; }
 cmd_ip_history(){ local runs='[]' legacy='{}'; [[ -f "$CFIP_RUN_HISTORY" ]] && runs="$(tail -n 100 "$CFIP_RUN_HISTORY" | jq -s '.' 2>/dev/null || printf '[]')"; [[ -x "$CFIP_LEGACY_BIN" ]] && legacy="$("$CFIP_LEGACY_BIN" --ip-history 2>/dev/null || printf '{}')"; jq -n --argjson runs "$runs" --argjson legacy "$legacy" '{success:true,runs:$runs,ips:($legacy.ips//[])}'; }
@@ -810,9 +1019,23 @@ cmd_rill_reset(){
 }
 
 backup_id_valid(){ [[ "${1:-}" =~ ^[0-9]{14}([.][A-Za-z0-9_-]+)*$ ]]; }
+cfip_openclash_capture_backup_context(){
+    if cfip_openclash_capture_runtime; then
+        cfip_openclash_resolve_provider_target
+        return $?
+    fi
+    local enabled config
+    enabled="$(uci -q get openclash.config.enable 2>/dev/null)" || enabled=""
+    [[ "$enabled" == 0 ]] || { CFIP_OPENCLASH_SERVICE_ERROR="OpenClash runtime identity unavailable"; return 1; }
+    config="$(uci -q get openclash.config.config_path 2>/dev/null)" || config=""
+    cfip_managed_openclash_config_safe "$config" || { CFIP_OPENCLASH_SERVICE_ERROR="disabled OpenClash main config path is unavailable or unsafe"; return 1; }
+    CFIP_OPENCLASH_RUNTIME_CONFIG="$config"; CFIP_OPENCLASH_RUNTIME_ID=""
+    cfip_openclash_resolve_provider_target
+}
 cmd_oc_list_backups(){
     load_config aux >/dev/null || return 1
-    local config="$CFIP_OPENCLASH_CONFIG" file id size timestamp
+    cfip_openclash_capture_backup_context || { cfip_json_error "${CFIP_OPENCLASH_SERVICE_ERROR:-OpenClash file provider unavailable}"; return 1; }
+    local config="$CFIP_OPENCLASH_TARGET_CONFIG" file id size timestamp
     local -a backups=()
     shopt -s nullglob
     for file in "$config".bak.*; do
@@ -831,7 +1054,8 @@ cmd_oc_list_backups(){
 }
 cmd_oc_restore_backup(){
     load_config aux >/dev/null || return 1
-    local id="${1:-}" config="$CFIP_OPENCLASH_CONFIG" backup pre file
+    cfip_openclash_capture_backup_context || { cfip_json_error "${CFIP_OPENCLASH_SERVICE_ERROR:-OpenClash file provider unavailable}"; return 1; }
+    local id="${1:-}" config="$CFIP_OPENCLASH_TARGET_CONFIG" backup pre file
     backup_id_valid "$id" || { cfip_json_error "invalid backup id"; return 1; }
     backup="$config.bak.$id"
     if [ ! -f "$backup" ]; then
@@ -842,6 +1066,10 @@ cmd_oc_restore_backup(){
     fi
     [ -n "$backup" ] && [ -f "$backup" ] || { cfip_json_error "backup not found: $id"; return 1; }
     [ -f "$config" ] || { cfip_json_error "OpenClash config not found"; return 1; }
+    if ! cfip_openclash_provider_document_valid "$backup" || ! cfip_openclash_provider_expected_names "$backup" >/dev/null; then
+        cfip_json_error "backup is not a provider-only document; legacy whole-config backups cannot be restored through the provider API"
+        return 1
+    fi
     CFIP_MODE=openclash; CFIP_RUN_ID="$(cfip_generate_run_id)"; CFIP_SPEEDTEST_COMPLETED=false
     cfip_txn_prepare openclash || { cfip_json_error "${CFIP_RECOVERY_ERROR:-${CFIP_OPENCLASH_SERVICE_ERROR:-failed to snapshot OpenClash config}}"; return 1; }
     cfip_openclash_check_before_write || { sync_recovery_failure "${CFIP_OPENCLASH_SERVICE_ERROR:-OpenClash state changed}"; return 1; }
@@ -849,15 +1077,21 @@ cmd_oc_restore_backup(){
         sync_recovery_failure "${CFIP_OPENCLASH_SERVICE_ERROR:-failed to stage and publish restored config}"; return 1
     fi
     pre="$CFIP_TXN_BACKUP_FILE"
-    if [[ "$CFIP_OPENCLASH_EXPECTED_ENABLED" == 1 ]] && ! cfip_restart_service openclash normal; then
-        sync_recovery_failure "${CFIP_OPENCLASH_SERVICE_ERROR:-OpenClash backup application failed}"; return 1
+    if [[ "$CFIP_OPENCLASH_EXPECTED_ENABLED" == 1 && "$CFIP_OPENCLASH_DEFERRED" != true ]]; then
+        if ! cfip_openclash_provider_refresh; then
+            cfip_txn_rollback openclash >/dev/null 2>&1 || true
+            cfip_json_error "${CFIP_OPENCLASH_SERVICE_ERROR:-OpenClash backup hot refresh failed; rollback was attempted without restart}"
+            return 1
+        fi
+        CFIP_OPENCLASH_SERVICE_APPLIED=true
     fi
     cfip_txn_commit || { sync_recovery_failure "backup restore commit failed"; return 1; }
     jq -cn --arg restored "$backup" --arg pre "$pre" --argjson deferred "$CFIP_OPENCLASH_DEFERRED" --argjson applied "$CFIP_OPENCLASH_SERVICE_APPLIED" '{success:true,restored_from:$restored,pre_restore_backup:$pre,nodeFileWritten:true,serviceApplied:$applied,deferredUntilServiceStart:$deferred,last_result:(if $deferred then "warning" else "success" end),warning:(if $deferred then "Nodes updated; OpenClash is disabled and the changes will take effect after it is started" else null end)}'
 }
 cmd_oc_delete_backup(){
     load_config aux >/dev/null || return 1
-    local id="${1:-}" config="$CFIP_OPENCLASH_CONFIG" file
+    cfip_openclash_capture_backup_context || { cfip_json_error "${CFIP_OPENCLASH_SERVICE_ERROR:-OpenClash file provider unavailable}"; return 1; }
+    local id="${1:-}" config="$CFIP_OPENCLASH_TARGET_CONFIG" file
     backup_id_valid "$id" || { cfip_json_error "invalid backup id"; return 1; }
     local found=false
     shopt -s nullglob
@@ -880,40 +1114,143 @@ cmd_validate_config(){
     fi
     CFIP_VALIDATE_CANDIDATE_JSON="$candidate" load_config save && jq -cn --arg mode "$CFIP_MODE" --arg schedule "$CFIP_CRON_INTERVAL" '{success:true,valid:true,mode:$mode,cron_interval:$schedule}'
 }
-cmd_sync(){ local mode="$1" txrc=0; load_config >/dev/null || return 1; [[ "$mode" == passwall || "$mode" == openclash ]] || { cfip_json_error "invalid sync target"; return 1; }; [[ -f "$CFIP_STATUS_FILE" ]] || { cfip_json_error "no status"; return 1; }; init_run_paths; jq '[.best_ips[]?|{ip:.,family:(if contains(":") then "ipv6" else "ipv4" end)}]' "$CFIP_STATUS_FILE" >"$CFIP_SELECTED_FILE"; CFIP_MEASUREMENT_STARTED_AT="$(cfip_monotonic_seconds)"; CFIP_MEASUREMENT_DEADLINE=$((CFIP_MEASUREMENT_STARTED_AT+CFIP_MEASUREMENT_TIMEOUT)); cfip_txn_prepare "$mode" || { cfip_json_error "${CFIP_RECOVERY_ERROR:-failed to snapshot proxy configuration}"; return 1; }; stop_service_for_measurement || { cfip_json_error "failed to stop proxy service"; return 1; }; cfip_txn_apply "$mode" "$CFIP_SELECTED_FILE" || txrc=$?; if ((txrc!=0)); then CFIP_STOPPED_MODE=""; jq -cn --argjson rc "$txrc" --argjson rolledBack "${CFIP_TXN_ROLLED_BACK:-false}" --arg recovery "${CFIP_RECOVERY_ERROR:-}" '{success:false,error:"sync transaction failed",rc:$rc,rolledBack:$rolledBack,recoveryVerified:($recovery=="")}' ; return 1; fi; CFIP_STOPPED_MODE=""; if ! cfip_post_apply_probe "$CFIP_SELECTED_FILE" "$CFIP_TARGET_DOMAINS" "$CFIP_PROBE_TIMEOUT" "$CFIP_OUTCOME_FILE"; then cfip_txn_rollback "$mode" >/dev/null 2>&1 || true; CFIP_STOPPED_MODE=""; jq -cn --arg recovery "${CFIP_RECOVERY_ERROR:-}" --argjson rolledBack "${CFIP_TXN_ROLLED_BACK:-false}" '{success:false,error:"sync post-apply validation failed",rolledBack:$rolledBack,recoveryVerified:($recovery=="")}' ; return 1; fi; CFIP_MEASUREMENT_DEADLINE=0; if ! cfip_txn_commit; then cfip_txn_rollback "$mode" >/dev/null 2>&1 || true; CFIP_STOPPED_MODE=""; jq -cn --arg recovery "${CFIP_RECOVERY_ERROR:-}" --argjson rolledBack "${CFIP_TXN_ROLLED_BACK:-false}" '{success:false,error:"sync transaction commit failed",rolledBack:$rolledBack,recoveryVerified:($recovery=="")}' ; return 1; fi; jq -cn --arg mode "$mode" '{success:true,synced:$mode,health:"validated",restartCount:1}'; }
-cmd_sync_explicit(){
-    local mode="$1" txrc=0
-    CFIP_SPEEDTEST_COMPLETED=false; CFIP_OPENCLASH_EXPECTED_ENABLED=""; CFIP_OPENCLASH_INITIAL_RUNNING=false; CFIP_OPENCLASH_INITIAL_HEALTHY=false; CFIP_OPENCLASH_DEFERRED=false; CFIP_OPENCLASH_CF_STOPPED=false; CFIP_OPENCLASH_RECOVERY_ATTEMPTED=false; CFIP_OPENCLASH_RECOVERY_VERIFIED=false; CFIP_OPENCLASH_RESTART_ATTEMPTS=0; CFIP_OPENCLASH_FILE_WRITTEN=false; CFIP_OPENCLASH_SERVICE_APPLIED=false; CFIP_OPENCLASH_SERVICE_ERROR=""; CFIP_RECOVERY_ERROR=""
+cmd_sync(){
+    local mode="$1" txrc=0 restart_count=0
     load_config >/dev/null || return 1
-    [[ "$mode" == passwall || "$mode" == openclash ]] || { cfip_json_error "invalid sync target"; return 1; }
-    [[ -f "$CFIP_STATUS_FILE" ]] || { cfip_json_error "no status"; return 1; }
+    [[ "$mode" == passwall || "$mode" == passwall2 || "$mode" == openclash || "$mode" == homeproxy ]] || { cfip_json_error "invalid sync target"; return 1; }
     CFIP_MODE="$mode"
     case "$mode" in
-      passwall) CFIP_TARGET_DOMAINS="$(cfip_normalize_domain_list "$CFIP_PASSWALL_TARGET_DOMAIN")" || { cfip_json_error "invalid or empty PassWall target_domain"; return 1; } ;;
-      openclash) [[ -f "$CFIP_OPENCLASH_CONFIG" ]] || { cfip_json_error "OpenClash config not found"; return 1; }; CFIP_TARGET_DOMAINS="$(cfip_normalize_domain_list "$CFIP_OPENCLASH_TARGET_DOMAIN")" || { cfip_json_error "invalid or empty OpenClash target_domain"; return 1; } ;;
+      passwall) CFIP_TARGET_DOMAINS="$(cfip_normalize_domain_list "$CFIP_PASSWALL_TARGET_DOMAIN")" || { cfip_json_error "invalid PassWall target_domain"; return 1; } ;;
+      openclash) CFIP_TARGET_DOMAINS="$(cfip_normalize_domain_list "$CFIP_OPENCLASH_TARGET_DOMAIN")" || { cfip_json_error "invalid OpenClash target_domain"; return 1; }; restart_count=0 ;;
+      homeproxy) CFIP_TARGET_DOMAINS="$(cfip_homeproxy_normalize_domain "$CFIP_HOMEPROXY_TARGET_DOMAIN")" || { cfip_json_error "invalid HomeProxy target_domain"; return 1; } ;;
+      passwall2) CFIP_TARGET_DOMAINS="$(cfip_pw2_normalize_target "$CFIP_PASSWALL2_TARGET_DOMAIN")" || { cfip_json_error "invalid PassWall2 target_domain"; return 1; } ;;
     esac
+    [[ -f "$CFIP_STATUS_FILE" ]] || { cfip_json_error "no status"; return 1; }
     init_run_paths
     jq '[.best_ips[]?|{ip:.,family:(if contains(":") then "ipv6" else "ipv4" end)}]' "$CFIP_STATUS_FILE" >"$CFIP_SELECTED_FILE"
     CFIP_MEASUREMENT_STARTED_AT="$(cfip_monotonic_seconds)"; CFIP_MEASUREMENT_DEADLINE=$((CFIP_MEASUREMENT_STARTED_AT+CFIP_MEASUREMENT_TIMEOUT))
     cfip_txn_prepare "$mode" || { cfip_json_error "${CFIP_RECOVERY_ERROR:-${CFIP_OPENCLASH_SERVICE_ERROR:-failed to snapshot proxy configuration}}"; return 1; }
-    stop_service_for_measurement || { sync_recovery_failure "failed to stop proxy service"; return 1; }
+    cfip_txn_apply "$mode" "$CFIP_SELECTED_FILE" || txrc=$?
+    if ((txrc!=0)); then CFIP_STOPPED_MODE=""; jq -cn --argjson rc "$txrc" --argjson rolledBack "${CFIP_TXN_ROLLED_BACK:-false}" --arg recovery "${CFIP_RECOVERY_ERROR:-}" '{success:false,error:"sync transaction failed",rc:$rc,rolledBack:$rolledBack,recoveryVerified:($recovery=="")}' ; return 1; fi
+    CFIP_STOPPED_MODE=""
+    if [[ "$mode" != passwall && "$mode" != passwall2 && "$mode" != homeproxy ]] && ! cfip_post_apply_probe "$CFIP_SELECTED_FILE" "$CFIP_TARGET_DOMAINS" "$CFIP_PROBE_TIMEOUT" "$CFIP_OUTCOME_FILE"; then cfip_txn_rollback "$mode" >/dev/null 2>&1 || true; jq -cn --arg recovery "${CFIP_RECOVERY_ERROR:-}" --argjson rolledBack "${CFIP_TXN_ROLLED_BACK:-false}" '{success:false,error:"sync post-apply validation failed",rolledBack:$rolledBack,recoveryVerified:($recovery=="")}' ; return 1; fi
+    if [[ "$mode" == passwall ]]; then jq -cn '{schemaVersion:2,candidateOutcome:"unknown",hostOutcome:"unknown",censored:true,reason:"passwall_runtime_apply_unverified"}' | cfip_atomic_write "$CFIP_OUTCOME_FILE" || true; fi
+    if [[ "$mode" == homeproxy ]]; then jq -cn '{schemaVersion:2,candidateOutcome:"unknown",hostOutcome:"unknown",censored:true,reason:"homeproxy_apply_pending"}' | cfip_atomic_write "$CFIP_OUTCOME_FILE" || true; fi
+    if [[ "$mode" == passwall2 ]]; then jq -cn '{schemaVersion:2,candidateOutcome:"unknown",hostOutcome:"unknown",censored:true,reason:"passwall2_apply_pending"}' | cfip_atomic_write "$CFIP_OUTCOME_FILE" || true; fi
+    CFIP_MEASUREMENT_DEADLINE=0
+    if ! cfip_txn_commit; then cfip_txn_rollback "$mode" >/dev/null 2>&1 || true; jq -cn --arg recovery "${CFIP_RECOVERY_ERROR:-}" --argjson rolledBack "${CFIP_TXN_ROLLED_BACK:-false}" '{success:false,error:"sync transaction commit failed",rolledBack:$rolledBack,recoveryVerified:($recovery=="")}' ; return 1; fi
+    if [[ "$mode" == passwall ]]; then
+        jq -cn --arg mode "$mode" '{success:true,synced:$mode,configurationPersisted:true,serviceApplied:false,applyPending:true,last_result:"warning",warning:"PassWall has no verified hot-apply path; the running service was not restarted",restartCount:0}'
+    elif [[ "$mode" == passwall2 ]]; then
+        jq -cn --arg mode "$mode" --arg node "$CFIP_PW2_TARGET_NODE" --arg ip "$(jq -r '.[0].ip // empty' "$CFIP_SELECTED_FILE")" '{success:true,synced:$mode,configurationPersisted:true,serviceApplied:false,applyPending:true,updatedNodeCount:1,updatedNode:$node,appliedCandidate:$ip,runtimeEgressVerified:false,last_result:"warning",warning:"Only the top candidate was persisted to one active PassWall2 graph leaf; the service was not reloaded or restarted",restartCount:0}'
+    elif [[ "$mode" == homeproxy ]]; then
+        jq -cn --arg mode "$mode" --arg section "$CFIP_HOMEPROXY_NODE_SECTION" --arg ip "$(jq -r '.[0].ip // empty' "$CFIP_SELECTED_FILE")" '{success:true,synced:$mode,configurationPersisted:true,serviceApplied:false,applyPending:true,updatedNodeCount:1,updatedNode:$section,appliedCandidate:$ip,runtimeEgressVerified:false,last_result:"warning",warning:"Only the active HomeProxy main node was updated to the top candidate; the service was not changed",restartCount:0}'
+    elif [[ "$CFIP_OPENCLASH_DEFERRED" == true ]]; then
+        jq -cn --arg mode "$mode" '{success:true,synced:$mode,configurationPersisted:true,serviceApplied:false,applyPending:true,applicationMethod:"deferred_until_service_start",last_result:"warning",warning:"OpenClash is disabled; provider changes take effect when it starts",restartCount:0}'
+    else
+        jq -cn --arg mode "$mode" --argjson applied "${CFIP_OPENCLASH_SERVICE_APPLIED:-false}" --argjson hot "${CFIP_OPENCLASH_HOT_APPLIED:-false}" --argjson restarts "$restart_count" '{success:true,synced:$mode,serviceApplied:$applied,hotApplied:$hot,maintenanceRestarted:false,applicationMethod:(if $hot then "file_provider_put" else "none" end),health:"validated",restartCount:$restarts}'
+    fi
+}
+cmd_sync_explicit(){
+    local mode="$1" external_selected="${2:-}" txrc=0
+    CFIP_SPEEDTEST_COMPLETED=false; CFIP_OPENCLASH_EXPECTED_ENABLED=""; CFIP_OPENCLASH_INITIAL_RUNNING=false; CFIP_OPENCLASH_INITIAL_HEALTHY=false; CFIP_OPENCLASH_DEFERRED=false; CFIP_OPENCLASH_CF_STOPPED=false; CFIP_OPENCLASH_RECOVERY_ATTEMPTED=false; CFIP_OPENCLASH_RECOVERY_VERIFIED=false; CFIP_OPENCLASH_RESTART_ATTEMPTS=0; CFIP_OPENCLASH_FILE_WRITTEN=false; CFIP_OPENCLASH_SERVICE_APPLIED=false; CFIP_OPENCLASH_HOT_APPLIED=false; CFIP_OPENCLASH_MAINTENANCE_RESTARTED=false; CFIP_OPENCLASH_SERVICE_ERROR=""; CFIP_RECOVERY_ERROR=""
+    load_config >/dev/null || return 1
+    [[ "$mode" == passwall || "$mode" == passwall2 || "$mode" == openclash || "$mode" == homeproxy ]] || { cfip_json_error "invalid sync target"; return 1; }
+    [[ -n "$external_selected" || -f "$CFIP_STATUS_FILE" ]] || { cfip_json_error "no status"; return 1; }
+    CFIP_MODE="$mode"
+    case "$mode" in
+      passwall) CFIP_TARGET_DOMAINS="$(cfip_normalize_domain_list "$CFIP_PASSWALL_TARGET_DOMAIN")" || { cfip_json_error "invalid or empty PassWall target_domain"; return 1; } ;;
+      openclash) [[ -f "$CFIP_OPENCLASH_CONFIG" ]] || { cfip_json_error "OpenClash config not found"; return 1; }; CFIP_TARGET_DOMAINS="$(cfip_normalize_domain_list "$CFIP_OPENCLASH_TARGET_DOMAIN")" || { cfip_json_error "invalid or empty OpenClash target_domain"; return 1; } ;;
+      homeproxy) CFIP_TARGET_DOMAINS="$(cfip_homeproxy_normalize_domain "$CFIP_HOMEPROXY_TARGET_DOMAIN")" || { cfip_json_error "invalid HomeProxy target_domain"; return 1; } ;;
+      passwall2) CFIP_TARGET_DOMAINS="$(cfip_pw2_normalize_target "$CFIP_PASSWALL2_TARGET_DOMAIN")" || { cfip_json_error "invalid PassWall2 target_domain"; return 1; } ;;
+    esac
+    init_run_paths
+    if [[ -n "$external_selected" ]]; then
+        [[ "$mode" == openclash && -f "$external_selected" && ! -L "$external_selected" ]] || { cfip_json_error "invalid external OpenClash selection"; return 1; }
+        jq -e 'type=="array" and length>0 and length<=64 and all(.[]; type=="object" and (.ip|type)=="string" and (.family=="ipv4" or .family=="ipv6") and .family==(if (.ip|contains(":")) then "ipv6" else "ipv4" end)) and ([.[].ip]|unique|length)==length' "$external_selected" >/dev/null 2>&1 || { cfip_json_error "external selection is malformed or contains duplicate candidates"; return 1; }
+        while IFS= read -r ip; do cfip_ip_family "$ip" >/dev/null || { cfip_json_error "external selection contains an invalid IP"; return 1; }; done < <(jq -r '.[].ip' "$external_selected")
+        cp "$external_selected" "$CFIP_SELECTED_FILE" || { cfip_json_error "failed to snapshot external OpenClash selection"; return 1; }
+    else
+        jq '[.best_ips[]?|{ip:.,family:(if contains(":") then "ipv6" else "ipv4" end)}]' "$CFIP_STATUS_FILE" >"$CFIP_SELECTED_FILE"
+    fi
+    CFIP_MEASUREMENT_STARTED_AT="$(cfip_monotonic_seconds)"; CFIP_MEASUREMENT_DEADLINE=$((CFIP_MEASUREMENT_STARTED_AT+CFIP_MEASUREMENT_TIMEOUT))
+    cfip_txn_prepare "$mode" || { cfip_json_error "${CFIP_RECOVERY_ERROR:-${CFIP_OPENCLASH_SERVICE_ERROR:-failed to snapshot proxy configuration}}"; return 1; }
+    if [[ -n "$external_selected" ]]; then
+        [[ "$CFIP_OPENCLASH_RUNTIME_CONFIG" == "$CFIP_BRIDGE_EXPECTED_CONFIG" ]] || { CFIP_OPENCLASH_SERVICE_ERROR="active OpenClash config does not match the standalone script config"; sync_recovery_failure "$CFIP_OPENCLASH_SERVICE_ERROR"; return 1; }
+    fi
+    if [[ "$mode" == openclash ]]; then
+        CFIP_OPENCLASH_RESTART_ATTEMPTS=0
+    fi
     cfip_txn_apply "$mode" "$CFIP_SELECTED_FILE" || txrc=$?
     if ((txrc!=0)); then sync_recovery_failure "sync transaction failed (rc=$txrc)"; return 1; fi
     CFIP_STOPPED_MODE=""
-    if ! cfip_post_apply_probe "$CFIP_SELECTED_FILE" "$CFIP_TARGET_DOMAINS" "$CFIP_PROBE_TIMEOUT" "$CFIP_OUTCOME_FILE"; then sync_recovery_failure "sync post-apply validation failed"; return 1; fi
+    if [[ "$mode" != passwall && "$mode" != passwall2 && "$mode" != homeproxy ]] && ! cfip_post_apply_probe "$CFIP_SELECTED_FILE" "$CFIP_TARGET_DOMAINS" "$CFIP_PROBE_TIMEOUT" "$CFIP_OUTCOME_FILE"; then sync_recovery_failure "sync post-apply validation failed"; return 1; fi
+    if [[ "$mode" == passwall ]]; then jq -cn '{schemaVersion:2,candidateOutcome:"unknown",hostOutcome:"unknown",censored:true,reason:"passwall_runtime_apply_unverified"}' | cfip_atomic_write "$CFIP_OUTCOME_FILE" || true; fi
+    if [[ "$mode" == homeproxy ]]; then jq -cn '{schemaVersion:2,candidateOutcome:"unknown",hostOutcome:"unknown",censored:true,reason:"homeproxy_apply_pending"}' | cfip_atomic_write "$CFIP_OUTCOME_FILE" || true; fi
+    if [[ "$mode" == passwall2 ]]; then jq -cn '{schemaVersion:2,candidateOutcome:"unknown",hostOutcome:"unknown",censored:true,reason:"passwall2_apply_pending"}' | cfip_atomic_write "$CFIP_OUTCOME_FILE" || true; fi
     CFIP_MEASUREMENT_DEADLINE=0
     if ! cfip_txn_commit; then sync_recovery_failure "sync transaction commit failed"; return 1; fi
     if [[ "$mode" == openclash && "$CFIP_OPENCLASH_DEFERRED" == true ]]; then
-        jq -cn --arg message "Nodes updated; OpenClash is disabled and the changes will take effect after it is started" --argjson best "$(jq '[.[].ip]' "$CFIP_SELECTED_FILE")" '{success:true,synced:"openclash",speedtestCompleted:false,nodeFileWritten:true,serviceApplied:false,serviceState:"disabled_pending",best_ips:$best,last_result:"warning",warning:$message,restartCount:0}'
+        jq -cn --arg message "Nodes updated; OpenClash is disabled and the changes will take effect after it is started" --argjson best "$(jq '[.[].ip]' "$CFIP_SELECTED_FILE")" '{success:true,synced:"openclash",speedtestCompleted:false,nodeFileWritten:true,serviceApplied:false,hotApplied:false,maintenanceRestarted:false,applicationMethod:"deferred_until_service_start",serviceState:"disabled_pending",best_ips:$best,last_result:"warning",warning:$message,restartCount:0}'
     elif [[ "$mode" == openclash ]]; then
-        jq -cn --arg mode "$mode" --argjson applied "${CFIP_OPENCLASH_SERVICE_APPLIED:-true}" --argjson fileWritten "${CFIP_OPENCLASH_FILE_WRITTEN:-true}" --argjson restarts "${CFIP_OPENCLASH_RESTART_ATTEMPTS:-1}" '{success:true,synced:$mode,speedtestCompleted:false,nodeFileWritten:$fileWritten,serviceApplied:($applied and $fileWritten),serviceState:(if $mode=="openclash" then "running_verified" else "applied" end),health:"validated",last_result:"success",restartCount:(if $mode=="openclash" then $restarts else 1 end)}'
+        jq -cn --arg mode "$mode" --argjson applied "${CFIP_OPENCLASH_SERVICE_APPLIED:-true}" --argjson hot "${CFIP_OPENCLASH_HOT_APPLIED:-false}" --argjson deferred "${CFIP_OPENCLASH_DEFERRED:-false}" --argjson fileWritten "${CFIP_OPENCLASH_FILE_WRITTEN:-true}" --argjson restarts "${CFIP_OPENCLASH_RESTART_ATTEMPTS:-0}" '{success:true,synced:$mode,speedtestCompleted:false,nodeFileWritten:$fileWritten,serviceApplied:($applied and $fileWritten),hotApplied:$hot,maintenanceRestarted:false,applicationMethod:(if $deferred then "deferred_until_service_start" elif $hot then "file_provider_put" else "none" end),serviceState:(if $deferred then "disabled_pending" else "running_verified" end),health:"validated",last_result:(if $deferred then "warning" else "success" end),restartCount:$restarts}'
+    elif [[ "$mode" == homeproxy ]]; then
+        jq -cn --arg mode "$mode" --arg section "$CFIP_HOMEPROXY_NODE_SECTION" --arg ip "$(jq -r '.[0].ip // empty' "$CFIP_SELECTED_FILE")" '{success:true,synced:$mode,speedtestCompleted:false,configurationPersisted:true,serviceApplied:false,applyPending:true,updatedNodeCount:1,updatedNode:$section,appliedCandidate:$ip,runtimeEgressVerified:false,last_result:"warning",warning:"Only the active HomeProxy main node was updated to the top candidate; the service was not changed",restartCount:0}'
+    elif [[ "$mode" == passwall2 ]]; then
+        jq -cn --arg mode "$mode" --arg node "$CFIP_PW2_TARGET_NODE" --arg ip "$(jq -r '.[0].ip // empty' "$CFIP_SELECTED_FILE")" '{success:true,synced:$mode,speedtestCompleted:false,configurationPersisted:true,serviceApplied:false,applyPending:true,updatedNodeCount:1,updatedNode:$node,appliedCandidate:$ip,runtimeEgressVerified:false,last_result:"warning",warning:"Only the top candidate was persisted to one active PassWall2 graph leaf; the service was not reloaded or restarted",restartCount:0}'
     else
-        jq -cn --arg mode "$mode" '{success:true,synced:$mode,health:"validated",restartCount:1}'
+        jq -cn --arg mode "$mode" '{success:true,synced:$mode,configurationPersisted:true,serviceApplied:false,applyPending:true,last_result:"warning",warning:"PassWall has no verified hot-apply path; the running service was not restarted",restartCount:0}'
     fi
+}
+cmd_apply_selected_bridge(){
+    local selected="$1" mode="$2" expected_config="$3" expected_domains="$4" expected_suffix="$5" expected_transport="$6" domains
+    [[ "$mode" == openclash && "$expected_config" == /* && -f "$expected_config" && ! -L "$expected_config" ]] || { cfip_json_error "invalid standalone OpenClash bridge context"; return 1; }
+    [[ -f "$selected" && ! -L "$selected" ]] || { cfip_json_error "invalid external OpenClash selection"; return 1; }
+    jq -e 'type=="array" and length>0 and length<=64 and all(.[]; type=="object" and (.ip|type)=="string" and (.family=="ipv4" or .family=="ipv6") and .family==(if (.ip|contains(":")) then "ipv6" else "ipv4" end)) and ([.[].ip]|unique|length)==length' "$selected" >/dev/null 2>&1 || { cfip_json_error "external selection is malformed or contains duplicate candidates"; return 1; }
+    load_config >/dev/null || return 1
+    domains="$(cfip_normalize_domain_list "$expected_domains")" || { cfip_json_error "invalid standalone OpenClash target domain"; return 1; }
+    [[ "$domains" == "$(cfip_normalize_domain_list "$CFIP_OPENCLASH_TARGET_DOMAIN")" ]] || { cfip_json_error "standalone and packaged OpenClash target domains differ"; return 1; }
+    [[ "$expected_suffix" == "$CFIP_OPENCLASH_NAME_SUFFIX" ]] || { cfip_json_error "standalone and packaged OpenClash name suffixes differ"; return 1; }
+    [[ "$expected_transport" == "$CFIP_OPENCLASH_TRANSPORT_FILTER" ]] || { cfip_json_error "standalone and packaged OpenClash transport filters differ"; return 1; }
+    CFIP_MODE=openclash; CFIP_TARGET_DOMAINS="$domains"; CFIP_BRIDGE_EXPECTED_CONFIG="$expected_config"
+    cmd_sync_explicit openclash "$selected"
 }
 
 cmd_refresh_env(){ [[ -x "$CFIP_LEGACY_BIN" ]] && "$CFIP_LEGACY_BIN" --refresh-env || cmd_check_env; }
-cmd_write_status(){ load_config aux >/dev/null || return 1; CFIP_RUN_ID=""; write_status false scheduled scheduled ""; }
+cmd_write_status(){
+    load_config aux >/dev/null || return 1
+    local previous='{}' latest_history='{}' last_success='{}' current
+    if [[ -s "$CFIP_STATUS_FILE" ]]; then
+        previous="$(jq -ce 'select(type=="object")' "$CFIP_STATUS_FILE" 2>/dev/null || printf '{}')"
+    fi
+    if [[ -s "$CFIP_RUN_HISTORY" ]]; then
+        latest_history="$(tail -n 100 "$CFIP_RUN_HISTORY" 2>/dev/null | jq -cs '[.[] | select(type=="object" and (.runId|type)=="string" and (.result|type)=="string")][-1] // {}' 2>/dev/null || printf '{}')"
+        last_success="$(tail -n 100 "$CFIP_RUN_HISTORY" 2>/dev/null | jq -cs '[.[] | select(type=="object" and .result=="success" and (.bestIps|type)=="array" and (.bestIps|length)>0)][-1] // {}' 2>/dev/null || printf '{}')"
+    fi
+
+    CFIP_RUN_ID=""
+    write_status false scheduled scheduled "" || return $?
+    current="$(cat "$CFIP_STATUS_FILE" 2>/dev/null || printf '{}')"
+    jq -cn --argjson current "$current" --argjson previous "$previous" \
+        --argjson latest "$latest_history" --argjson lastSuccess "$last_success" '
+      def terminal_status:
+        type=="object" and .active_run!=true and .jobRunning!=true and
+        (.last_completed_run_at!=null) and
+        (.last_result!=null and .last_result!="scheduled" and .last_result!="running" and .last_result!="unknown");
+      ($previous|terminal_status) as $hasPrevious |
+      (if $hasPrevious then $previous.last_result else ($latest.result // $current.last_result) end) as $lastResult |
+      (if $hasPrevious and ($previous.best_ips|type)=="array" and ($previous.best_ips|length)>0 then $previous.best_ips
+       elif ($lastSuccess.bestIps|type)=="array" and ($lastSuccess.bestIps|length)>0 then $lastSuccess.bestIps
+       else $current.best_ips end) as $best |
+      $current + {
+        last_result:$lastResult,
+        best_ips:$best,
+        ip_count:(if ($best|type)=="array" and ($best|length)>0 then ($best|length) else ($previous.ip_count // $current.ip_count) end),
+        eligible_count:(if ($previous|terminal_status) and (($previous.eligible_count // 0)>0) then $previous.eligible_count else ($best|length) end),
+        runId:(if $hasPrevious then ($previous.runId // "") else ($latest.runId // $current.runId) end),
+        error:(if $hasPrevious then ($previous.error // null) else null end)
+      }' | cfip_atomic_write "$CFIP_STATUS_FILE"
+}
 cmd_mark_stopped(){
     local status='{}'
     if [[ -s "$CFIP_STATUS_FILE" ]]; then
@@ -951,13 +1288,19 @@ to_cron(){
 }
 
 usage(){ cat <<'EOF_U'
-Usage: cf-ip-auto [--run|--status|--check-env|--validate-config|--version|--read-log|--clear-log|--ip-history|--download-cfst|--source-status|--source-registry|--source-refresh|--publisher-status|--adaptive-status|--rill-self-check|--rill-diagnostics|--rill-reset [GENERATION]|--self-update|--sync MODE|--write-status|--mark-stopped|--to-cron INTERVAL [CUSTOM]]
+Usage: cf-ip-auto [--run|--status|--check-env|--validate-config|--version|--read-log|--clear-log|--ip-history|--download-cfst|--source-status|--source-registry|--source-refresh|--publisher-status|--adaptive-status|--rill-self-check|--rill-diagnostics|--rill-reset [GENERATION]|--self-update|--sync MODE|--apply-selected FILE openclash CONFIG DOMAIN SUFFIX TRANSPORT|--write-status|--mark-stopped|--to-cron INTERVAL [CUSTOM]]
 EOF_U
 }
 
 cmd_sync(){ run_locked_entry true cmd_sync_explicit "$@"; }
 
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+    if [[ "${1:-}" == "--apply-selected" ]]; then
+        shift
+        if (($# != 6)); then cfip_json_error "--apply-selected requires FILE MODE CONFIG DOMAIN SUFFIX TRANSPORT"; exit 2; fi
+        run_locked_entry true cmd_apply_selected_bridge "$@"
+        exit $?
+    fi
     action=""; arg=""; arg2=""; no_delay=false
     while (($#)); do case "$1" in --run) action=run ;; --status) action=status ;; --check-env) action=check-env ;; --refresh-env) action=refresh-env ;; --validate-config) action=validate-config; if (($# > 1)); then shift; arg="${1:-}"; fi ;; --version) action=version ;; --read-log) action=read-log ;; --clear-log) action=clear-log ;; --ip-history) action=ip-history ;; --download-cfst) action=download-cfst ;; --source-status) action=source-status ;; --source-registry) action=source-registry ;; --source-refresh) action=source-refresh ;; --publisher-status) action=publisher-status ;; --adaptive-status) action=adaptive-status ;; --rill-self-check) action=rill-self-check ;; --rill-diagnostics) action=rill-diagnostics ;; --rill-reset) action=rill-reset; if (($# > 1)); then shift; arg="${1:-}"; fi ;; --self-update) action=self-update ;; --oc-list-backups) action=oc-list-backups ;; --oc-restore-backup) action=oc-restore-backup; if (($# > 1)); then shift; arg="${1:-}"; fi ;; --oc-delete-backup) action=oc-delete-backup; if (($# > 1)); then shift; arg="${1:-}"; fi ;; --write-status) action=write-status ;; --write-status-held) action=write-status-held ;; --mark-stopped) action=mark-stopped ;; --mark-stopped-held) action=mark-stopped-held ;; --no-delay) no_delay=true ;; --sync) action=sync; if (($# > 1)); then shift; arg="${1:-}"; fi ;; --to-cron) action=to-cron; if (($# > 1)); then shift; arg="${1:-}"; fi; if (($# > 1)); then shift; arg2="${1:-}"; fi ;; -h|--help) usage; exit 0 ;; *) cfip_json_error "unexpected argument: $1"; exit 2 ;; esac; shift; done
     [[ "$no_delay" == true ]] && CFIP_SKIP_STARTUP_DELAY=true

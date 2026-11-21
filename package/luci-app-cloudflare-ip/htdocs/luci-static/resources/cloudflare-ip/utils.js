@@ -427,6 +427,8 @@ function buildStagedCandidate() {
 				'min_feedback_samples', 'delayed_feedback_minutes' ],
 		lan: [ 'enabled', 'bind_address', 'port' ],
 		passwall: [ 'target_domain', 'name_suffix' ],
+		passwall2: [ 'target_domain' ],
+		homeproxy: [ 'target_domain' ],
 		openclash: [ 'config', 'target_domain', 'name_suffix', 'transport_filter', 'backup_count' ]
 	};
 	var candidate = {};
@@ -489,25 +491,31 @@ function loadSharedCSS() {
 		var link = E('link', {
 			'id': 'cfi-shared-css',
 			'rel': 'stylesheet',
-			'href': L.resource('cloudflare-ip/cloudflare-ip.css') + '?v=@PKG_FULL_VERSION@'
+			'href': L.resource('cloudflare-ip/cloudflare-ip.css') + '?v=@PKG_FULL_VERSION@&ui=proxy-action-layout-2'
 		});
 		document.head.appendChild(link);
 	}
 
-	/* 主题没有在 body 上留标记，唯一可靠的信号是主题样式表本身。
-	 * 只在 bootstrap 下加类，供 CSS 做兼容覆盖，避免污染 aurora。 */
-	var body = document.body;
-	if (body && document.querySelector('link[rel="stylesheet"][href*="/bootstrap/"]'))
-		body.classList.add('cfi-theme-bootstrap');
+	/* The native LuCI tab strip scrolls horizontally on narrow screens. Direct
+	 * links can leave the active tab outside the clipped strip, so reveal it
+	 * after LuCI has applied the active route. Keep the native strip and styles. */
+	function revealActiveTab() {
+		var menu = document.getElementById('tabmenu');
+		var active = menu && menu.querySelector('.active a, a.active, a[aria-current="page"]');
 
-	/* 离开插件页时移除，防止兼容样式泄漏到其他视图 */
-	if (!loadSharedCSS.unwatch) {
-		loadSharedCSS.unwatch = true;
-		window.addEventListener('hashchange', function() {
-			if (document.body)
-				document.body.classList.remove('cfi-theme-bootstrap');
-		});
+		if (!active)
+			return;
+
+		var rect = active.getBoundingClientRect();
+		if (rect.left < 0 || rect.right > window.innerWidth)
+			active.scrollIntoView({ block: 'nearest', inline: 'nearest' });
 	}
+
+	if (window.requestAnimationFrame)
+		window.requestAnimationFrame(function() {
+			window.requestAnimationFrame(revealActiveTab);
+		});
+
 }
 
 function footerSeparator(extraClass) {

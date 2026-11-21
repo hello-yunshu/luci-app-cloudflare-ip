@@ -115,12 +115,22 @@ jobs:
           bash tests/openclash-pending-uci.sh
           bash tests/openclash-restore-validation.sh
           bash tests/openclash-service-guard.sh
+          bash tests/openclash-dns-maintenance-lease.sh
+          bash tests/openclash-provider-transaction.sh
+          bash tests/openclash-measurement-bypass.sh
+          bash tests/openclash-cfst-bypass-runner.sh
+          bash tests/passwall-measurement-policy.sh
+          bash tests/homeproxy-persistence-contract.sh
+          bash tests/passwall2-persistence-contract.sh
+          bash tests/standalone-passwall-policy.sh
+          bash tests/observe-candidate-resolve.sh
           bash tests/openclash-suffix-contract.sh
           bash tests/v2-candidate-budget.sh
           bash tests/v2-cfst-exact-input.sh
           bash tests/v2-measurement-deadline.sh
           bash tests/service-running-timeout.sh
           bash tests/status-running-timeout.sh
+          bash tests/passwall-running-probe.sh
           bash tests/monotonic-deadline.sh
           bash tests/external-operation-timeout-tree.sh
           bash tests/watchdog-timer-cleanup.sh
@@ -217,10 +227,13 @@ jobs:
           bash tests/rpc-readonly-policy.sh
           node tests/luci-refresh-error.cjs
           node tests/luci-status-observation.cjs
+          node tests/luci-overview-proxy-detection.cjs
           node tests/luci-view-bindings.cjs
           node tests/luci-raw-error-contract.cjs
           bash tests/openclash-rpc-contract.sh
           bash tests/openclash-legacy-service-guard.sh
+          bash tests/openclash-external-selected-bridge.sh
+          bash tests/standalone-openclash-apply-guard.sh
           bash tests/openclash-url-migration.sh
           bash tests/openclash-ruby-precheck.sh
           node tests/openclash-ruby-precheck.cjs
@@ -389,7 +402,7 @@ jobs:
             /builder/dl/cargo
             /builder/rustup
             /builder/cargo
-          key: cloudflare-openwrt-rust-${{ runner.os }}-${{ matrix.branch }}-${{ hashFiles('rill-openwrt-packages/metadata/build-toolchain.json', 'rill-openwrt-packages/package/rill-runtime/Makefile', 'rill-openwrt-packages/package/rill-runtime-preview/Makefile', 'rill-openwrt-packages/scripts/prepare_rust_toolchain.sh') }}
+          key: cloudflare-openwrt-rust-${{ runner.os }}-${{ matrix.branch }}-${{ hashFiles('rill-openwrt-packages/metadata/build-toolchain.json', 'rill-openwrt-packages/package/rill-runtime/Makefile', 'rill-openwrt-packages/scripts/prepare_rust_toolchain.sh') }}
           restore-keys: |
             cloudflare-openwrt-rust-${{ runner.os }}-${{ matrix.branch }}-
       - name: Prepare SDK
@@ -418,12 +431,11 @@ jobs:
               ./scripts/prepare_rust_toolchain.sh
           )
           cp -r "$GITHUB_WORKSPACE/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip" ./package/
+          cp -r "$GITHUB_WORKSPACE/rill-openwrt-packages/package/rill-runtime-manager" ./package/
           cp -r "$GITHUB_WORKSPACE/rill-openwrt-packages/package/rill-runtime" ./package/
-          cp -r "$GITHUB_WORKSPACE/rill-openwrt-packages/package/rill-runtime-preview" ./package/
           {
             echo 'CONFIG_PACKAGE_flock=y'
             echo 'CONFIG_PACKAGE_rill-runtime=y'
-            echo 'CONFIG_PACKAGE_rill-runtime-preview=y'
             echo 'CONFIG_PACKAGE_luci-app-cloudflare-ip=y'
             echo 'CONFIG_PACKAGE_luci-app-cloudflare-ip-rill=y'
           } >> .config
@@ -442,7 +454,6 @@ jobs:
           test -n "$flock_target"
           bash "$build_helper" "$flock_target"
           bash "$build_helper" package/rill-runtime/compile
-          bash "$build_helper" package/rill-runtime-preview/compile
           if [ "${{ matrix.pkgtype }}" = apk ]; then
             # APK rejects the source development suffix. Patch only the
             # checked-out package Makefile so dependency PKG_VERSION values
@@ -474,12 +485,11 @@ jobs:
           mkdir -p "$GITHUB_WORKSPACE/output"
           base_file=$(find ./bin -type f -name "luci-app-cloudflare-ip*.${{ matrix.pkgtype }}" ! -name '*-rill*' | head -n1)
           rill_file=$(find ./bin -type f -name "luci-app-cloudflare-ip-rill*.${{ matrix.pkgtype }}" | head -n1)
-          preview_file=$(find ./bin -type f -name "rill-runtime-preview*.${{ matrix.pkgtype }}" | head -n1)
-          stable_file=$(find ./bin -type f -name "rill-runtime*.${{ matrix.pkgtype }}" ! -name 'rill-runtime-preview*' | head -n1)
-          test -n "$base_file"; test -n "$rill_file"; test -n "$preview_file"; test -n "$stable_file"
-          for file in "$base_file" "$rill_file" "$preview_file"; do
+          runtime_file=$(find ./bin -type f -name "rill-runtime*.${{ matrix.pkgtype }}" ! -name 'rill-runtime-manager*' | head -n1)
+          test -n "$base_file"; test -n "$rill_file"; test -n "$runtime_file"
+          for file in "$base_file" "$rill_file" "$runtime_file"; do
             cp "$file" "$GITHUB_WORKSPACE/output/"
-            mode=base; [[ "${file##*/}" == *-rill* ]] && mode=rill; [[ "${file##*/}" == rill-runtime-preview* ]] && mode=preview
+            mode=base; [[ "${file##*/}" == *-rill* ]] && mode=rill; [[ "${file##*/}" == rill-runtime* ]] && mode=stable
             echo "Inspecting package content: ${file##*/} (mode=$mode)"
             case "${file##*.}" in
               ipk) tar -tf "$file" >/dev/null
@@ -496,8 +506,7 @@ jobs:
             esac
           done
           echo "Verifying Runtime channel markers in same-release package bytes"
-          APK=/builder/staging_dir/host/bin/apk bash "$GITHUB_WORKSPACE/luci-app-cloudflare-ip/tests/runtime-channel-package-contract.sh" "$stable_file" "${{ matrix.pkgtype }}" stable
-          APK=/builder/staging_dir/host/bin/apk bash "$GITHUB_WORKSPACE/luci-app-cloudflare-ip/tests/runtime-channel-package-contract.sh" "$preview_file" "${{ matrix.pkgtype }}" preview
+          APK=/builder/staging_dir/host/bin/apk bash "$GITHUB_WORKSPACE/luci-app-cloudflare-ip/tests/runtime-channel-package-contract.sh" "$runtime_file" "${{ matrix.pkgtype }}" stable
           python3 "$GITHUB_WORKSPACE/luci-app-cloudflare-ip/scripts/openwrt-package-metadata.py" "$base_file" \
             --format "${{ matrix.pkgtype }}" --apk-bin /builder/staging_dir/host/bin/apk \
             --package-name luci-app-cloudflare-ip \
@@ -505,7 +514,7 @@ jobs:
             --output "$GITHUB_WORKSPACE/output/${base_file##*/}.metadata.json"
           (
             cd "$GITHUB_WORKSPACE/output"
-            sha256sum -- "${base_file##*/}" "${rill_file##*/}" "${preview_file##*/}"
+            sha256sum -- "${base_file##*/}" "${rill_file##*/}" "${runtime_file##*/}"
           ) > "$GITHUB_WORKSPACE/output/SHA256SUMS"
           runtime_libgcc=$(find /builder/staging_dir/toolchain-* -type f -name libgcc_s.so.1 -print -quit)
           test -n "$runtime_libgcc"
@@ -528,7 +537,7 @@ jobs:
           - branch: v24.10.8
             pkgtype: ipk
             arch: x86_64
-          - branch: v25.12.5
+          - branch: v25.12.6
             pkgtype: apk
             arch: x86_64
     container:
@@ -540,7 +549,9 @@ jobs:
           path: luci-app-cloudflare-ip
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          ref: v2.6.0-2
+          # The legacy tag was retargeted after qualification. Keep migration
+          # evidence bound to the immutable source commit in the contract.
+          ref: 652476bd3cdc410bc16e3a47ee96b685c84acbbb
           path: legacy-r2
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
@@ -593,30 +604,30 @@ jobs:
           r8_sha=$(awk -v name="$r8_asset" '$2 == name {print $1}' "$work/r8-SHA256SUMS")
           test -n "$r8_sha"
           test "$(sha256sum "$work/$r8_asset" | awk '{print $1}')" = "$r8_sha"
-          test "$(git -C "$GITHUB_WORKSPACE/legacy-r2" rev-parse HEAD)" = "$(git -C "$GITHUB_WORKSPACE/legacy-r2" rev-parse 'v2.6.0-2^{commit}')"
+          test "$(git -C "$GITHUB_WORKSPACE/legacy-r2" rev-parse HEAD)" = "652476bd3cdc410bc16e3a47ee96b685c84acbbb"
       - name: Extract the current qualified Runtime binary
         shell: bash
         run: |
           set -euo pipefail
-          preview_package=$(find runtime-output -type f -name 'rill-runtime-preview*.ipk' -print -quit)
-          test -n "$preview_package"
-          preview_dir="$RUNNER_TEMP/preview"
-          mkdir -p "$preview_dir/data"
-          data_member=$(tar -tf "$preview_package" | sed 's#^\./##' | grep '^data\.tar' | head -n1)
-          tar -xf "$preview_package" -C "$preview_dir" "./$data_member"
+          runtime_package=$(find runtime-output -type f -name 'rill-runtime*.ipk' ! -name 'rill-runtime-manager*.ipk' -print -quit)
+          test -n "$runtime_package"
+          runtime_dir="$RUNNER_TEMP/stable-runtime"
+          mkdir -p "$runtime_dir/data"
+          data_member=$(tar -tf "$runtime_package" | sed 's#^\./##' | grep '^data\.tar' | head -n1)
+          tar -xf "$runtime_package" -C "$runtime_dir" "./$data_member"
           case "$data_member" in
-            *.zst) tar --zstd -xf "$preview_dir/$data_member" -C "$preview_dir/data" ;;
-            *.gz) tar -xzf "$preview_dir/$data_member" -C "$preview_dir/data" ;;
-            *) tar -xf "$preview_dir/$data_member" -C "$preview_dir/data" ;;
+            *.zst) tar --zstd -xf "$runtime_dir/$data_member" -C "$runtime_dir/data" ;;
+            *.gz) tar -xzf "$runtime_dir/$data_member" -C "$runtime_dir/data" ;;
+            *) tar -xf "$runtime_dir/$data_member" -C "$runtime_dir/data" ;;
           esac
-          runtime_bin=$(find "$preview_dir/data" -type f -path '*/usr/bin/rill-runtime' -print -quit)
+          runtime_bin=$(find "$runtime_dir/data" -type f -path '*/usr/bin/rill-runtime' -print -quit)
           test -x "$runtime_bin"
           runtime_libgcc=$(find runtime-output -type f -path '*/validation-runtime/libgcc_s.so.1' -print -quit)
           test -n "$runtime_libgcc"
-          runtime_lib_dir="$RUNNER_TEMP/preview/host-libs"
+          runtime_lib_dir="$RUNNER_TEMP/stable-runtime/host-libs"
           mkdir -p "$runtime_lib_dir"
           cp "$runtime_libgcc" "$runtime_lib_dir/libgcc_s.so.1"
-          runtime_wrapper="$RUNNER_TEMP/rill-runtime-with-sdk-libs"
+          runtime_wrapper="$RUNNER_TEMP/rill-runtime-stable-with-sdk-libs"
           cat > "$runtime_wrapper" <<'EOF'
           #!/usr/bin/env bash
           set -euo pipefail
@@ -719,9 +730,9 @@ jobs:
             image: openwrt/rootfs:x86_64-24.10.8
             r8: luci-app-cloudflare-ip_2.6.0-r8_all.ipk
             r9: luci-app-cloudflare-ip_2.6.0-r9_all.ipk
-          - branch: v25.12.5
+          - branch: v25.12.6
             pkgtype: apk
-            image: openwrt/rootfs:x86_64-25.12.5
+            image: openwrt/rootfs:x86_64-25.12.6
             r8: luci-app-cloudflare-ip-2.6.0-r8.apk
             r9: luci-app-cloudflare-ip-2.6.0-r9.apk
     steps:
@@ -796,7 +807,7 @@ jobs:
           git -C rill-openwrt-packages fetch --depth=1 origin "$package_commit"
           git -C rill-openwrt-packages checkout --detach "$package_commit"
           test "$(git -C rill-openwrt-packages rev-parse HEAD)" = "$package_commit"
-      - name: Download exact qualified Preview package bytes
+      - name: Download exact qualified Stable package bytes
         id: qualification
         env:
           GH_TOKEN: ${{ github.token }}
@@ -809,37 +820,36 @@ jobs:
             --openwrt-version "$(jq -r .openwrtVersion <<<"$target")" --architecture x86_64 --pkgtype ipk \
             --output runtime-package > runtime-package-selection.json
           echo "qualification_manifest_sha256=$(sha256sum runtime-package/qualification.json | awk '{print $1}')" >> "$GITHUB_OUTPUT"
-      - name: Extract and verify the actual Preview package Runtime
+      - name: Extract and verify the actual Stable package Runtime
         id: runtime
         shell: bash
         run: |
           set -euo pipefail
           package_commit=$(git -C rill-openwrt-packages rev-parse HEAD)
-          preview_package=$(find runtime-package -type f -name 'rill-runtime-preview*.ipk' -print -quit)
-          test -n "$preview_package"
-          mkdir -p "$RUNNER_TEMP/preview-ipk/control" "$RUNNER_TEMP/preview-ipk/data"
-          data_member=$(tar -tf "$preview_package" | sed 's#^\./##' | grep '^data\.tar' | head -n1)
-          tar -xf "$preview_package" -C "$RUNNER_TEMP/preview-ipk" "./$data_member"
-          case "$data_member" in *.zst) tar --zstd -xf "$RUNNER_TEMP/preview-ipk/$data_member" -C "$RUNNER_TEMP/preview-ipk/data" ;; *.gz) tar -xzf "$RUNNER_TEMP/preview-ipk/$data_member" -C "$RUNNER_TEMP/preview-ipk/data" ;; *) tar -xf "$RUNNER_TEMP/preview-ipk/$data_member" -C "$RUNNER_TEMP/preview-ipk/data" ;; esac
-          test -x "$RUNNER_TEMP/preview-ipk/data/usr/bin/rill-runtime"
-          bash tests/runtime-channel-package-contract.sh "$preview_package" ipk preview
+          stable_package=$(find runtime-package -type f -name 'rill-runtime*.ipk' -print -quit)
+          test -n "$stable_package"
+          mkdir -p "$RUNNER_TEMP/stable-ipk/control" "$RUNNER_TEMP/stable-ipk/data"
+          data_member=$(tar -tf "$stable_package" | sed 's#^\./##' | grep '^data\.tar' | head -n1)
+          tar -xf "$stable_package" -C "$RUNNER_TEMP/stable-ipk" "./$data_member"
+          case "$data_member" in *.zst) tar --zstd -xf "$RUNNER_TEMP/stable-ipk/$data_member" -C "$RUNNER_TEMP/stable-ipk/data" ;; *.gz) tar -xzf "$RUNNER_TEMP/stable-ipk/$data_member" -C "$RUNNER_TEMP/stable-ipk/data" ;; *) tar -xf "$RUNNER_TEMP/stable-ipk/$data_member" -C "$RUNNER_TEMP/stable-ipk/data" ;; esac
+          test -x "$RUNNER_TEMP/stable-ipk/data/usr/bin/rill-runtime"
+          bash tests/runtime-channel-package-contract.sh "$stable_package" ipk stable
           expected_binary_sha=$(jq -r '.qualifiedTarget.binarySha256' runtime-package-selection.json)
-          test "$(sha256sum "$RUNNER_TEMP/preview-ipk/data/usr/bin/rill-runtime" | awk '{print $1}')" = "$expected_binary_sha"
-          upstream_commit=$(jq -r '.preview.commit' contracts/rill-runtime.json)
-          test "$(jq -r '.upstream.commit' rill-openwrt-packages/metadata/rill-runtime-preview.json)" = "$upstream_commit"
+          test "$(sha256sum "$RUNNER_TEMP/stable-ipk/data/usr/bin/rill-runtime" | awk '{print $1}')" = "$expected_binary_sha"
+          upstream_commit=$(jq -r '.resolved.upstreamCommit' contracts/rill-runtime.json)
+          test "$(jq -r '.upstream.commit' rill-openwrt-packages/metadata/rill-runtime.json)" = "$upstream_commit"
           version=$(jq -r '.openwrtPackage.packageVersion' contracts/rill-runtime.json)
           {
             echo "version=$version"
             echo "package_commit=$package_commit"
-            echo "stable_commit=$(jq -r '.resolved.upstreamCommit' contracts/rill-runtime.json)"
             echo "qualification_run=$(jq -r '.qualification.runId' contracts/rill-runtime.json)"
             echo "qualification_manifest_sha256=${{ steps.qualification.outputs.qualification_manifest_sha256 }}"
-            echo "upstream_tag=preview-exact-commit"
+            echo "upstream_tag=$(jq -r '.resolved.tag' contracts/rill-runtime.json)"
             echo "commit=$upstream_commit"
-            echo "source_archive_sha256=not-applicable-preview"
-            echo "binary_sha256=$(sha256sum "$RUNNER_TEMP/preview-ipk/data/usr/bin/rill-runtime" | awk '{print $1}')"
+            echo "source_type=$(jq -r '.resolved.sourceType' contracts/rill-runtime.json)"
+            echo "binary_sha256=$(sha256sum "$RUNNER_TEMP/stable-ipk/data/usr/bin/rill-runtime" | awk '{print $1}')"
           } >> "$GITHUB_OUTPUT"
-      - name: Install musl loader for the actual OpenWrt Preview binary
+      - name: Install musl loader for the actual OpenWrt Stable binary
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends musl
@@ -849,13 +859,20 @@ jobs:
             -v "$RUNNER_TEMP/musl-libs:/out" alpine:3.20 \
             sh -c 'apk add --no-cache libgcc >/dev/null && cp /usr/lib/libgcc_s.so.1 /out/libgcc_s.so.1'
           test -s "$RUNNER_TEMP/musl-libs/libgcc_s.so.1"
+          runtime_wrapper="$RUNNER_TEMP/rill-stable-runtime"
+          cat >"$runtime_wrapper" <<'EOF_RUNTIME_WRAPPER'
+          #!/bin/sh
+          set -eu
+          exec env LD_LIBRARY_PATH="${RUNNER_TEMP}/musl-libs:/lib/x86_64-linux-musl:/usr/lib/x86_64-linux-musl:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu" \
+            "${RUNNER_TEMP}/stable-ipk/data/usr/bin/rill-runtime" "$@"
+          EOF_RUNTIME_WRAPPER
+          chmod +x "$runtime_wrapper"
+          echo "CFIP_STABLE_RUNTIME_BIN=$runtime_wrapper" >> "$GITHUB_ENV"
       - name: Execute the real Cloudflare feedback integration
-        env:
-          LD_LIBRARY_PATH: ${{ runner.temp }}/musl-libs:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu
         run: |
-          bash tests/rill-feedback-integration.sh "$RUNNER_TEMP/preview-ipk/data/usr/bin/rill-runtime"
+          bash tests/rill-feedback-integration.sh "$CFIP_STABLE_RUNTIME_BIN"
           bash tests/rill-feedback-negative.sh
-          bash tests/rill-real-runtime-full-lifecycle.sh "$RUNNER_TEMP/preview-ipk/data/usr/bin/rill-runtime"
+          bash tests/rill-real-runtime-full-lifecycle.sh "$CFIP_STABLE_RUNTIME_BIN"
       - name: Record same-release evidence
         shell: bash
         env:
@@ -863,15 +880,14 @@ jobs:
           PACKAGE_COMMIT: ${{ steps.runtime.outputs.package_commit }}
           QUALIFICATION_RUN: ${{ steps.runtime.outputs.qualification_run }}
           QUALIFICATION_MANIFEST_SHA256: ${{ steps.runtime.outputs.qualification_manifest_sha256 }}
-          STABLE_COMMIT: ${{ steps.runtime.outputs.stable_commit }}
-          PREVIEW_COMMIT: ${{ steps.runtime.outputs.commit }}
+          RILL_COMMIT: ${{ steps.runtime.outputs.commit }}
           UPSTREAM_TAG: ${{ steps.runtime.outputs.upstream_tag }}
-          SOURCE_ARCHIVE_SHA256: ${{ steps.runtime.outputs.source_archive_sha256 }}
+          SOURCE_TYPE: ${{ steps.runtime.outputs.source_type }}
           BINARY_SHA256: ${{ steps.runtime.outputs.binary_sha256 }}
         run: |
           set -euo pipefail
-          jq -n --arg version "$VERSION" --arg packageCommit "$PACKAGE_COMMIT" --arg qualificationRun "$QUALIFICATION_RUN" --arg qualificationManifestSha256 "$QUALIFICATION_MANIFEST_SHA256" --arg upstreamTag "$UPSTREAM_TAG" --arg stableCommit "$STABLE_COMMIT" --arg previewCommit "$PREVIEW_COMMIT" --arg sourceArchiveSha256 "$SOURCE_ARCHIVE_SHA256" --arg binarySha256 "$BINARY_SHA256" \
-            '{schemaVersion:1,consumer:"hello-yunshu/luci-app-cloudflare-ip",package:{repository:"hello-yunshu/rill-openwrt-packages",commit:$packageCommit,qualificationRunId:($qualificationRun|tonumber),qualificationManifestSha256:$qualificationManifestSha256},stablePackageQualification:"PASS",previewRuntimeIntegration:"PASS",stableCommit:$stableCommit,previewCommit:$previewCommit,runtime:{version:$version,tag:$upstreamTag,commit:$previewCommit,sourceArchiveSha256:$sourceArchiveSha256,binarySha256:$binarySha256},integration:{test:"tests/rill-feedback-integration.sh",status:"pass",sameRelease:true,sourcePackage:"rill-runtime-preview",packageBinary:"/usr/bin/rill-runtime"}}' \
+          jq -n --arg version "$VERSION" --arg packageCommit "$PACKAGE_COMMIT" --arg qualificationRun "$QUALIFICATION_RUN" --arg qualificationManifestSha256 "$QUALIFICATION_MANIFEST_SHA256" --arg upstreamTag "$UPSTREAM_TAG" --arg rillCommit "$RILL_COMMIT" --arg sourceType "$SOURCE_TYPE" --arg binarySha256 "$BINARY_SHA256" \
+            '{schemaVersion:4,consumer:"hello-yunshu/luci-app-cloudflare-ip",package:{repository:"hello-yunshu/rill-openwrt-packages",commit:$packageCommit,qualificationRunId:($qualificationRun|tonumber),qualificationManifestSha256:$qualificationManifestSha256},stablePackageQualification:"PASS",stableRuntimeIntegration:"PASS",runtime:{version:$version,channel:"stable",tag:$upstreamTag,commit:$rillCommit,sourceType:$sourceType,binarySha256:$binarySha256},integration:{test:"tests/rill-feedback-integration.sh",status:"pass",sameRelease:true,sourcePackage:"rill-runtime",packageBinary:"/usr/bin/rill-runtime"}}' \
             > rill-runtime-integration.json
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
@@ -999,7 +1015,7 @@ jobs:
             python3 scripts/download-qualification-artifact.py --repo "$GITHUB_REPOSITORY" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --commit "${{ github.event.pull_request.head.sha || github.sha }}" --name "$artifact" --dir "$asset_dir/$artifact"
           done < <(python3 scripts/package_identity.py --public-artifacts)
           python3 scripts/download-qualification-artifact.py --repo "$GITHUB_REPOSITORY" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --commit "${{ github.event.pull_request.head.sha || github.sha }}" --name package-migration-ipk-v24.10.8 --dir "$asset_dir/package-migration-ipk"
-          python3 scripts/download-qualification-artifact.py --repo "$GITHUB_REPOSITORY" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --commit "${{ github.event.pull_request.head.sha || github.sha }}" --name package-migration-apk-v25.12.5 --dir "$asset_dir/package-migration-apk"
+          python3 scripts/download-qualification-artifact.py --repo "$GITHUB_REPOSITORY" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --commit "${{ github.event.pull_request.head.sha || github.sha }}" --name package-migration-apk-v25.12.6 --dir "$asset_dir/package-migration-apk"
           python3 scripts/download-qualification-artifact.py --repo "$GITHUB_REPOSITORY" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --commit "${{ github.event.pull_request.head.sha || github.sha }}" --name rill-runtime-integration-evidence --dir "$asset_dir/rill-runtime-integration"
           asset_files='[]'
           while IFS= read -r -d '' file; do
@@ -1045,7 +1061,11 @@ jobs:
           python3 scripts/release-preflight.py qualification.json "$public_dir" --commit "$GITHUB_SHA" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --apk-bin "$apk_bin" --output release-preflight.json
           python3 tests/release-preflight-real.py qualification.json "$public_dir" --commit "$GITHUB_SHA" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --apk-bin "$apk_bin" --output release-preflight-negatives.json
           (cd "$public_dir" && sha256sum -- * > "$GITHUB_WORKSPACE/SHA256SUMS")
-          python3 scripts/prepare-stable-review.py --manifest qualification.json --preflight release-preflight.json --negatives release-preflight-negatives.json --candidate "${{ github.event.pull_request.head.sha || github.sha }}" --repository "$GITHUB_REPOSITORY" --output stable-review.json
+          if [[ "$(jq -r '.channel' release-channel.json)" == stable ]]; then
+            python3 scripts/prepare-stable-review.py --manifest qualification.json --preflight release-preflight.json --negatives release-preflight-negatives.json --candidate "${{ github.event.pull_request.head.sha || github.sha }}" --repository "$GITHUB_REPOSITORY" --output stable-review.json
+          else
+            echo "Skipping Stable review receipt for $(jq -r '.channel' release-channel.json) channel candidate"
+          fi
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: qualification-evidence-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}

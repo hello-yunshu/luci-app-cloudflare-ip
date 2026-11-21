@@ -1,6 +1,14 @@
 # Changelog
 
-本文件只记录已闭合、可由 exact-SHA CI 复现的用户可见变更。历史版本详情以对应 GitHub Release 的 `qualification.json` 与 Release notes 为准。
+## Unreleased — shared Runtime management (package release 2.6.2-r27)
+
+### 变更
+
+- 增加统一软件源 Runtime 管理器交互，提供 Runtime 状态、安装、更新及受限的同版本修复；Runtime 仍为 CFI 可选能力，Native 模式不受影响。
+- 环境检测仅列出已检测到的代理软件；没有支持的软件时显示一次未检测到提示。
+- 包构建、签名 feed 发布、干净安装与设备升级资格仍待验证；此条目不表示已发布。
+
+已发布条目只记录可由 exact-SHA CI 复现的用户可见变更；`Unreleased` 明确表示尚未发布或资格验证的候选。历史版本详情以对应 GitHub Release 的 `qualification.json` 与 Release notes 为准。
 
 ## v2.6.2-1 — 2026-11-13
 

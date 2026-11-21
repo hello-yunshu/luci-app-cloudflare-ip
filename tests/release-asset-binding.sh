@@ -8,7 +8,10 @@ import copy, hashlib, importlib.util, json, pathlib, sys
 root, temp = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2])
 spec = importlib.util.spec_from_file_location("release_assets", root / "scripts/validate-release-assets.py")
 module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
-contract = root / "contracts/rill-runtime.json"
+contract = temp / "rill-runtime.json"
+contract_data = json.loads((root / "contracts/rill-runtime.json").read_text())
+contract_data["qualification"].update(status="PASS",runId=42,runAttempt=1,manifestSha256="c"*64)
+contract.write_text(json.dumps(contract_data),encoding="utf-8")
 commit = "0123456789abcdef0123456789abcdef01234567"
 sys.path.insert(0, str(root / "tests"))
 from package_contract_fixtures import manifest as fixture_manifest
@@ -52,9 +55,9 @@ bad=copy.deepcopy(manifest); bad["assetFiles"][0]["path"]="build/../"+pathlib.Pu
 rejected("extra package",mutate_files=lambda:(release_dir/"unexpected.ipk").write_bytes(b"x"))
 for label, field, value in (("wrong package version","version","2.6.1"),("wrong package release","release",release+1),("wrong architecture","architecture","mips_24kc")):
     bad=copy.deepcopy(manifest); bad["assetFiles"][0]["package"][field]=value; rejected(label,bad)
-bad=copy.deepcopy(manifest); bad["rill"]["stableCommit"]="0"*40; rejected("fixed Runtime commit mismatch",bad)
+bad=copy.deepcopy(manifest); bad["rill"]["runtime"]["commit"]="0"*40; rejected("fixed Runtime commit mismatch",bad)
 bad=copy.deepcopy(manifest); bad["rill"]["package"]["qualificationRunId"]=0; rejected("fixed package run mismatch",bad)
-bad=copy.deepcopy(manifest); bad["stableSourceArchiveSha256"]="0"*64; rejected("fixed source digest mismatch",bad)
+bad=copy.deepcopy(manifest); bad["rill"]["runtime"]["sourceType"]="mutable-source"; rejected("fixed Stable source type mismatch",bad)
 
 manifest_file=temp/"qualification.json"; manifest_file.write_text(json.dumps(manifest),encoding="utf-8")
 checksums="".join(f"{hashlib.sha256((release_dir/n).read_bytes()).hexdigest()}  {n}\n" for n in files)

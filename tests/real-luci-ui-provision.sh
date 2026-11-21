@@ -7,7 +7,7 @@ LANG_CODE="${CFIP_UI_LANG:-en}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PKG="$ROOT/package/luci-app-cloudflare-ip"
 
-for command in docker openssl; do
+for command in docker; do
 	command -v "$command" >/dev/null || { echo "missing host command: $command" >&2; exit 1; }
 done
 
@@ -35,8 +35,10 @@ docker cp "$PKG/root/etc/init.d/cf_ip" "$CONTAINER:/etc/init.d/cf_ip"
 docker cp "$PKG/root/usr/share/cf-ip/candidate-rill-feature-schema-v2.json" "$CONTAINER:/usr/share/cf-ip/"
 
 if [ -n "${CFIP_UI_LMO:-}" ]; then
+	LMO_LANG="${CFIP_UI_LMO_LANG:-$LANG_CODE}"
+	[ "$LMO_LANG" = "zh_cn" ] && LMO_LANG="zh-cn"
 	docker exec "$CONTAINER" mkdir -p /usr/lib/lua/luci/i18n
-	docker cp "$CFIP_UI_LMO" "$CONTAINER:/usr/lib/lua/luci/i18n/cloudflare-ip.zh-cn.lmo"
+	docker cp "$CFIP_UI_LMO" "$CONTAINER:/usr/lib/lua/luci/i18n/cloudflare-ip.$LMO_LANG.lmo"
 fi
 
 PKG_VERSION="$(sed -n 's/^PKG_VERSION:=//p' "$PKG/Makefile" | head -n1)"
@@ -60,7 +62,11 @@ docker exec "$CONTAINER" sh -c "
 	/etc/init.d/uhttpd restart >/dev/null 2>&1
 "
 
-HASH="$(openssl passwd -6 -salt cfip-gate "${CFIP_UI_PASSWORD:-cfip-gate}")"
+if command -v openssl >/dev/null && HASH="$(openssl passwd -6 -salt cfip-gate "${CFIP_UI_PASSWORD:-cfip-gate}" 2>/dev/null)"; then
+	:
+else
+	HASH="$(docker exec "$CONTAINER" openssl passwd -6 -salt cfip-gate "${CFIP_UI_PASSWORD:-cfip-gate}")"
+fi
 docker exec "$CONTAINER" sh -c "sed -i 's|^root:[^:]*:|root:$HASH:|' /etc/shadow"
 
 for attempt in 1 2 3 4 5 6 7 8 9 10; do

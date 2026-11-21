@@ -1,0 +1,5 @@
+#!/bin/sh
+# Run measurement-only network clients without inherited proxy variables.
+unset HTTP_PROXY HTTPS_PROXY ALL_PROXY http_proxy https_proxy all_proxy
+unset FTP_PROXY ftp_proxy NO_PROXY no_proxy
+exec "$@"

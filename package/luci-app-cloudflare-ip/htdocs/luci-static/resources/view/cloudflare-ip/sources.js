@@ -36,13 +36,15 @@ return view.extend({
   render:function(data){
     utils.loadSharedCSS();
     var regData=data[1]||{}, stData=data[2]||{}, reg=regData.presets||[], st=statusMap(stData.sources||[]), m=new form.Map('cf_ip',_('Candidate Sources')),s,o;
-    if (regData._rpcError)
-      return utils.renderWithFooter(E('div',{'class':'cbi-map cfi-form-map'}, E('div',{'class':'cbi-section'},[
+    if (regData._rpcError) {
+      this.handleSave = this.handleSaveApply = this.handleReset = null;
+      return utils.renderWithFooter(E('div',{'class':'cfi-form-map cfi-rpc-error'}, E('div',{'class':'cbi-section'},[
         E('h3',{},_('Unable to load source registry')),
         E('p',{},_('Retry the source registry check. If it keeps failing, open Logs & Records.')),
         utils.technicalDetails(regData.error),
         E('button',{'class':'btn cbi-button','click':function(){location.reload();}},_('Retry'))
       ])), utils.FOOTER_OPTIONS);
+    }
     s=m.section(form.TypedSection,'service',_('Candidate Budget'));
     s.anonymous=true;
     o=s.option(form.Value,'candidate_budget',_('CFST Candidate IP Count'),_('Maximum unique IPs supplied to one CFST run. Allocation is automatic: a small local-history share, a majority community share, and the remainder official-range exploration; unused quota flows to the other pools.'));
@@ -87,7 +89,7 @@ return view.extend({
     };
 
     s=m.section(form.GridSection,'source',_('Custom Sources'),_('Custom sources accept HTTPS text lists containing IP, IP:port, IPv6, bracketed IPv6:port, or CIDR. Only the IP/CIDR is retained; domains are rejected.'));
-    s.addremove=true; s.anonymous=false;
+    s.addremove=true; s.anonymous=true;
     o=s.option(form.Flag,'enabled',_('Enabled')); o.default='1'; o.rmempty=false;
     o=s.option(form.Value,'name',_('Name')); o.rmempty=false;
     o=s.option(form.ListValue,'kind',_('Kind')); o.value('url',_('HTTPS URL')); o.value('manual',_('Manual IP list')); o.default='url';
@@ -106,8 +108,8 @@ return view.extend({
     var box=E('div',{'class':'cbi-section'},[
       E('h3',{},_('Runtime Source Status')),
       E('p',{},_('Each run allocates roughly 1/8 to fresh history champions, 5/8 to community seeds, and 1/4 to Cloudflare official range exploration. Missing pools flow to other sources. All candidates are deduplicated and measured locally in one CFST run; community ports are never reused.')),
-      E('div',{'class':'cfi-table-scroll'},E('table',{'class':'table'},[
-        E('thead',{},E('tr',{},[
+      E('div',{'class':'cfi-table-scroll cfi-source-status-table-wrap'},E('table',{'class':'table cfi-source-status-table'},[
+        E('thead',{},E('tr',{'class':'cbi-section-table-titles'},[
           E('th',{},_('Source')),
           E('th',{},_('State')),
           E('th',{},_('Candidates')),
@@ -148,17 +150,37 @@ return view.extend({
       /* 主题的 GridSection 只给除首列/操作列外的单元格加 data-title，
        * 首列（来源名）与操作列在窄屏堆叠时缺标签，这里按表头补齐。 */
       node.querySelectorAll('table.cbi-section-table').forEach(function(table){
+        var isCustomSources = !!table.closest('#cbi-cf_ip-source');
+        if (isCustomSources) table.classList.add('cfi-custom-sources-table');
+        var tableWrap = table.parentNode;
         /* 8 列的来源表在 360/600 下宽约 590px，裸放会把文档撑开；
          * 套一层滚动容器，窄屏可横向滑动而不影响页面宽度。 */
-        if (!table.parentNode || !table.parentNode.classList.contains('cfi-table-scroll')) {
-          var wrap = E('div', { 'class': 'cfi-table-scroll' });
-          table.parentNode.insertBefore(wrap, table);
-          wrap.appendChild(table);
+        if (!tableWrap || !tableWrap.classList.contains('cfi-table-scroll')) {
+          tableWrap = E('div', { 'class': 'cfi-table-scroll' });
+          table.parentNode.insertBefore(tableWrap, table);
+          tableWrap.appendChild(table);
         }
         var heads = Array.prototype.map.call(table.querySelectorAll('thead th'), function(th){
           return (th.textContent || '').trim();
         });
+        if (isCustomSources) {
+          /* LuCI themes may lay table rows out as grids/flex rows, where
+           * colspan and grid-column do not span the rendered columns. Render
+           * the native section description after the table instead. */
+          var emptyRow = table.querySelector('tbody > tr.placeholder');
+          var emptyCell = emptyRow && emptyRow.querySelector(':scope > td');
+          if (emptyCell) {
+            var emptyState = E('div', {
+              'id': 'cfi-custom-sources-empty',
+              'class': 'cbi-section-descr',
+              'role': 'status'
+            }, E('em', {}, emptyCell.textContent.trim()));
+            emptyRow.remove();
+            tableWrap.parentNode.insertBefore(emptyState, tableWrap.nextSibling);
+          }
+        }
         table.querySelectorAll('tbody tr').forEach(function(tr){
+          if (isCustomSources && tr.classList.contains('placeholder')) return;
           Array.prototype.forEach.call(tr.children, function(td, i){
             if (!td.classList.contains('td') || td.getAttribute('data-title')) return;
             td.setAttribute('data-title', heads[i] || (i === heads.length - 1 ? _('Actions') : _('Value')));

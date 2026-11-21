@@ -521,10 +521,14 @@ cfip_rill_runtime_call() {
     schema="$(cfip_rill_schema_hash)" || return 4
     if [[ "${CFIP_RILL_READONLY:-false}" == true ]]; then
         # Read-only callers operate on a private copy; Runtime state must not
-        # be created or mutated by status/diagnostics.
-        [[ -f "$state_path" && ! -L "$state_path" ]] || return 10
+        # be created or mutated by status/diagnostics. Before the first real
+        # candidate run there may be no snapshot yet; use a private, absent
+        # state path so a read-only handshake can still verify the runtime.
         readonly_dir="$(mktemp -d "${TMPDIR:-/tmp}/cfip-rill-readonly.XXXXXX")" || return 4
-        cp -p "$state_path" "$readonly_dir/state" || { rm -rf "$readonly_dir"; return 10; }
+        if [[ -e "$state_path" || -L "$state_path" ]]; then
+            [[ -f "$state_path" && ! -L "$state_path" ]] || { rm -rf "$readonly_dir"; return 10; }
+            cp -p "$state_path" "$readonly_dir/state" || { rm -rf "$readonly_dir"; return 10; }
+        fi
         state_path="$readonly_dir/state"
     else
         cfip_rill_prepare_state || return 10
@@ -562,7 +566,7 @@ cfip_rill_status_json() {
         return 0
     fi
     if [[ ! -x "${CFIP_RILL_RUNTIME:-/usr/bin/rill-runtime}" ]]; then
-        jq -cn --arg mode "$CFIP_RILL_MODE" --arg partition "$partition" '{available:false,state:"not-installed",mode:$mode,channel:"preview",partitionKey:$partition,featureSchemaVersion:2,modelGeneration:2,runtimePath:"/usr/bin/rill-runtime",runtimeInstallHint:"Install rill-runtime-preview matching the OpenWrt release and CPU architecture."}'
+        jq -cn --arg mode "$CFIP_RILL_MODE" --arg partition "$partition" '{available:false,state:"not-installed",mode:$mode,channel:"preview",partitionKey:$partition,featureSchemaVersion:2,modelGeneration:2,runtimePath:"/usr/bin/rill-runtime",runtimeInstallHint:"Install the stable rill-runtime package matching the OpenWrt release and CPU architecture."}'
         return 0
     fi
     schema="$(cfip_rill_schema_hash 2>/dev/null || true)"
