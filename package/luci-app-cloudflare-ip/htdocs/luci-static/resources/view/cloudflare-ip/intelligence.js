@@ -15,6 +15,7 @@ var callRuntimeManagerStatus = rpc.declare({ object: 'rill-runtime-manager', met
 var callRuntimeManagerRefresh = rpc.declare({ object: 'rill-runtime-manager', method: 'refresh', expect: { '': {} } });
 var callRuntimeManagerInstall = rpc.declare({ object: 'rill-runtime-manager', method: 'install', params: [ 'package' ], expect: { '': {} } });
 var callRuntimeManagerUpdate = rpc.declare({ object: 'rill-runtime-manager', method: 'update', params: [ 'package' ], expect: { '': {} } });
+var callRuntimeManagerUninstall = rpc.declare({ object: 'rill-runtime-manager', method: 'uninstall', params: [ 'package' ], expect: { '': {} } });
 var callRuntimeManagerRepair = rpc.declare({ object: 'rill-runtime-manager', method: 'repair', params: [ 'package' ], expect: { '': {} } });
 var callLegacySelfUpdate = rpc.declare({ object: 'cf_ip', method: 'self-update', expect: { '': {} } });
 
@@ -25,7 +26,7 @@ function runtimePackageStateText(manager) {
 	if (manager.errorCode === 'manager-unavailable' || manager.helperAvailable === false)
 		return _('Runtime management helper is not installed. Update CFI from the unified package feed to enable one-click management.');
 	if (manager.channel === 'legacy-preview' || manager.errorCode === 'legacy-runtime-migration-required')
-		return _('Legacy Preview Runtime is installed. Remove it explicitly before installing Stable Runtime; CFI will not remove it.') +
+		return _('Legacy Preview Runtime is installed. Remove rill-runtime-preview, then install Stable rill-runtime.') +
 			' ' + (manager.version || _('version unknown')) + (manager.message ? ' / ' + manager.message : '');
 	if (manager.ok === false && manager.errorCode)
 		return (manager.message || _('Unable to query Runtime package manager.')) + ' / ' + manager.errorCode;
@@ -34,6 +35,8 @@ function runtimePackageStateText(manager) {
 	if (manager.channel === 'stable')
 		return _('Stable Runtime is installed.') + ' ' + (manager.version || _('version unknown')) +
 			(manager.updateAvailable ? ' / ' + _('Runtime update is available.') : ' / ' + _('Runtime is already up to date.'));
+	if (manager.installed !== true && (manager.channel === 'unknown' || manager.channel === 'none'))
+		return _('Rill Runtime is not installed. Click Install below to add it, or keep using CFI Native mode.');
 	if (manager.channel === 'unknown')
 		return _('Runtime source or channel is unknown; CFI will not update it.');
 	if (manager.installed === true) {
@@ -55,13 +58,16 @@ function decorateRuntimeManagement(node, manager) {
 	var helper = managerInstalled && manager.ok === true;
 	var supported = manager.supported === true;
 	var installed = manager.installed === true;
-	var installable = helper && supported && !installed && manager.channel !== 'stable' && manager.channel !== 'unknown' && manager.channel !== 'legacy-preview';
+	var installable = helper && supported && !installed && manager.channel !== 'stable' && manager.channel !== 'legacy-preview' &&
+		(manager.channel !== 'unknown' || manager.installed === false || manager.installed == null);
 	var compatibleStable = installed && manager.channel === 'stable' && manager.compatible === true;
+	var uninstallable = helper && installed && (manager.channel === 'stable' || manager.channel === 'legacy-preview');
 	[
 		[ '_package_refresh', helper ],
 		[ '_runtime_install', installable ],
 		[ '_runtime_repair', helper && manager.repairAvailable === true ],
 		[ '_runtime_update', helper && supported && compatibleStable && manager.updateAvailable === true ],
+		[ '_runtime_uninstall', uninstallable ],
 		[ '_cfi_update', helper && manager.cfiUpdateAvailable === true ],
 		[ '_legacy_cfi_update', !managerInstalled ]
 	].forEach(function(item) {
@@ -81,9 +87,11 @@ function runRuntimeManagerAction(method, packageName, button, resultMessage, fai
 
 	runtimeManagementBusy = true;
 	setRuntimeManagementBusy(true);
-	utils.setBusy(button, method === 'refresh' ? _('Checking...') : (method === 'install' ? _('Installing...') : (method === 'repair' ? _('Repairing...') : _('Updating...'))));
+	utils.setBusy(button, method === 'refresh' ? _('Checking...') : (method === 'install' ? _('Installing...') : (method === 'uninstall' ? _('Removing...') : (method === 'repair' ? _('Repairing...') : _('Updating...')))));
 	var action = method === 'refresh' ? callRuntimeManagerRefresh() :
-		(method === 'install' ? callRuntimeManagerInstall(packageName) : (method === 'repair' ? callRuntimeManagerRepair(packageName) : callRuntimeManagerUpdate(packageName)));
+		(method === 'install' ? callRuntimeManagerInstall(packageName) :
+		(method === 'uninstall' ? callRuntimeManagerUninstall(packageName) :
+		(method === 'repair' ? callRuntimeManagerRepair(packageName) : callRuntimeManagerUpdate(packageName))));
 
 	return action.then(function(result) {
 		if (!result || result.ok !== true)
@@ -507,6 +515,22 @@ return view.extend({
 		}, _('Update'));
 	};
 	o.description = _('Updates only the compatible Stable Runtime. Unknown-source, legacy Preview, and incompatible installations are not replaced.');
+
+	o = s.option(form.Button, '_runtime_uninstall', _('Uninstall Rill Runtime'));
+	o.inputtitle = _('Uninstall Rill Runtime');
+	o.inputstyle = 'reset';
+	o.rmempty = true;
+	o.cfgvalue = function() { return ''; };
+	o.write = function() {};
+	o.onclick = function(ev) {
+		var button = ev && ev.currentTarget && ev.currentTarget.tagName === 'BUTTON' ? ev.currentTarget :
+			(ev && ev.target && ev.target.tagName === 'BUTTON' ? ev.target : null);
+		if (!button && this && this.node) button = this.node.querySelector('button');
+		return utils.confirmAction(_('Uninstall Rill Runtime'), _('Remove the Rill Runtime package? CFI will fall back to Native mode. You can reinstall it at any time.'), function() {
+			return runRuntimeManagerAction('uninstall', 'rill-runtime', button, _('Rill Runtime removed. CFI will use Native mode.'), _('Unable to remove Rill Runtime.'), true);
+		}, _('Uninstall'));
+	};
+	o.description = _('Removes only the shared Stable Runtime package. CFI Native mode remains fully functional without it.');
 
 	o = s.option(form.Button, '_cfi_update', _('Update CFI'));
 	o.inputtitle = _('Update CFI');

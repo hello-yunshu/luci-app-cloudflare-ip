@@ -829,9 +829,17 @@ openclash_enable_state() {
 	case "$value" in 0|1) printf '%s' "$value" ;; *) die "openclash.config.enable is missing or invalid" ;; esac
 }
 
+openclash_core_pids() {
+	{ pidof clash 2>/dev/null; pidof mihomo 2>/dev/null; pidof clash_meta 2>/dev/null; } | tr ' ' '\n' | grep -v '^$' | sort -un | tr '\n' ' ' | sed 's/ *$//'
+}
+
+openclash_core_running() {
+	pidof clash >/dev/null 2>&1 || pidof mihomo >/dev/null 2>&1 || pidof clash_meta >/dev/null 2>&1
+}
+
 openclash_health_once() {
     local before after port secret curl_cfg body code rc=0 healthy=false limit="${1:-4}"
-	before="$(pidof clash 2>/dev/null)" || before=""
+	before="$(openclash_core_pids)"
 	[[ -n "$before" ]] || return 1
 	port="$(uci -q get openclash.config.cn_port 2>/dev/null)" || return 1
 	[[ "$port" =~ ^[1-9][0-9]{0,4}$ ]] && ((port <= 65535)) || return 1
@@ -847,7 +855,7 @@ openclash_health_once() {
 		printf 'header = "Authorization: Bearer %s"\n' "$secret" >"$curl_cfg" || { rm -f "$body" "$curl_cfg"; return 1; }
 	fi
 	code="$(curl --config "$curl_cfg" --connect-timeout 2 --max-time "$limit" --silent --show-error --output "$body" --write-out '%{http_code}' "http://127.0.0.1:${port}/group" 2>/dev/null)" || rc=$?
-	after="$(pidof clash 2>/dev/null)" || after=""
+	after="$(openclash_core_pids)"
 	if ((rc == 0)) && [[ "$code" == 200 && "$before" == "$after" ]] && jq -e 'type == "object"' "$body" >/dev/null 2>&1; then healthy=true; fi
 	rm -f "$body" "$curl_cfg"
 	[[ "$healthy" == true ]]
@@ -859,7 +867,7 @@ openclash_health_stable() {
 	while :; do
 		now="$(date +%s)"; remaining=$((started + timeout - now)); ((remaining > 0)) || return 1
 		limit=4; ((remaining >= limit)) || limit="$remaining"
-		pids="$(pidof clash 2>/dev/null)" || pids=""
+		pids="$(openclash_core_pids)"
 		if [[ -n "$pids" ]] && openclash_health_once "$limit"; then
 			if [[ "$pids" == "$previous" ]]; then healthy=$((healthy + 1)); else healthy=1; fi
 		else healthy=0; fi
@@ -902,7 +910,7 @@ openclash_init_bounded() {
 openclash_capture_state() {
 	[[ -x "${INIT_DIR}/openclash" ]] || die "OpenClash is not installed"
 	_OPENCLASH_EXPECTED_ENABLED="$(openclash_enable_state)" || return 1
-	if pidof clash >/dev/null 2>&1; then
+	if openclash_core_running; then
 		[[ "$_OPENCLASH_EXPECTED_ENABLED" == 1 ]] || die "OpenClash state is inconsistent (disabled but core is running); no changes were made"
 		openclash_health_stable 5 || die "OpenClash is enabled but its core or local controller is unhealthy; restore OpenClash before running CF"
 		[[ "$(openclash_enable_state)" == 1 ]] || die "OpenClash enable state changed during preflight"
@@ -919,7 +927,7 @@ openclash_check_before_write() {
 	current="$(openclash_enable_state)" || return 1
 	[[ "$current" == "$expected" ]] || { openclash_service_error "OpenClash enable state changed before node write"; return 1; }
 	if [[ "$expected" == 0 ]]; then
-		! pidof clash >/dev/null 2>&1 || { openclash_service_error "OpenClash core started externally before node write"; return 1; }
+		! openclash_core_running || { openclash_service_error "OpenClash core started externally before node write"; return 1; }
 	else
 		openclash_health_stable 5 || { openclash_service_error "OpenClash became unhealthy before node write"; return 1; }
 	fi
@@ -991,7 +999,7 @@ stop_service() {
 	if [[ "$service" == "openclash" ]]; then
 		local i clash_pids rc=0
 		for i in $(seq 1 15); do
-			clash_pids="$(pidof clash 2>/dev/null)" || clash_pids=""
+			clash_pids="$(openclash_core_pids)"
 			if [[ -z "$clash_pids" ]]; then
 				_STOPPED_SERVICE=openclash
 				((stop_rc == 0)) || die "OpenClash stopped but its init stop command failed (rc=$stop_rc)"
@@ -999,7 +1007,7 @@ stop_service() {
 			fi
 			sleep 1
 		done
-		clash_pids="$(pidof clash 2>/dev/null)" || clash_pids=""
+		clash_pids="$(openclash_core_pids)"
 		if [[ -n "$clash_pids" ]]; then
 			[[ "$(openclash_enable_state)" == 0 ]] && { uci -q set openclash.config.enable=1 && uci -q commit openclash || rc=1; }
 			((rc == 0)) || die "failed to restore OpenClash enable state after stop timeout"

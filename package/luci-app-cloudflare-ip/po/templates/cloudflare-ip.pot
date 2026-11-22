@@ -2502,6 +2502,24 @@ msgstr "Runtime is already up to date."
 msgid "Runtime is not installed. CFI Native mode remains available."
 msgstr "Runtime is not installed. CFI Native mode remains available."
 
+msgid "Rill Runtime is not installed. Click Install below to add it, or keep using CFI Native mode."
+msgstr ""
+
+msgid "Uninstall Rill Runtime"
+msgstr ""
+
+msgid "Remove the Rill Runtime package? CFI will fall back to Native mode. You can reinstall it at any time."
+msgstr ""
+
+msgid "Rill Runtime removed. CFI will use Native mode."
+msgstr ""
+
+msgid "Unable to remove Rill Runtime."
+msgstr ""
+
+msgid "Removes only the shared Stable Runtime package. CFI Native mode remains fully functional without it."
+msgstr ""
+
 msgid "Package manager rejected the request."
 msgstr "Package manager rejected the request."
 
@@ -2638,7 +2656,7 @@ msgid "Reinstalls the same trusted Preview package only when its executable is m
 msgstr ""
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
-msgid "Legacy Preview Runtime is installed. Remove it explicitly before installing Stable Runtime; CFI will not remove it."
+msgid "Legacy Preview Runtime is installed. Remove rill-runtime-preview, then install Stable rill-runtime."
 msgstr ""
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js

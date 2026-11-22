@@ -2515,6 +2515,24 @@ msgstr "Runtime 已是最新版本。"
 msgid "Runtime is not installed. CFI Native mode remains available."
 msgstr "尚未安装 Runtime。CFI Native 模式仍可使用。"
 
+msgid "Rill Runtime is not installed. Click Install below to add it, or keep using CFI Native mode."
+msgstr "Rill Runtime 未安装。点击下方「安装」添加，或继续使用 CFI Native 模式。"
+
+msgid "Uninstall Rill Runtime"
+msgstr "卸载 Rill Runtime"
+
+msgid "Remove the Rill Runtime package? CFI will fall back to Native mode. You can reinstall it at any time."
+msgstr "确定移除 Rill Runtime 包？CFI 将回退到 Native 模式。可随时重新安装。"
+
+msgid "Rill Runtime removed. CFI will use Native mode."
+msgstr "Rill Runtime 已移除。CFI 将使用 Native 模式。"
+
+msgid "Unable to remove Rill Runtime."
+msgstr "无法移除 Rill Runtime。"
+
+msgid "Removes only the shared Stable Runtime package. CFI Native mode remains fully functional without it."
+msgstr "仅移除共享的 Stable Runtime 包。CFI Native 模式不受影响。"
+
 msgid "Package manager rejected the request."
 msgstr "软件包管理器拒绝了该请求。"
 
@@ -2651,8 +2669,8 @@ msgid "Reinstalls the same trusted Preview package only when its executable is m
 msgstr "仅当可执行文件缺失时重新安装相同版本的可信 Preview 软件包，不会更改 Runtime 版本。"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
-msgid "Legacy Preview Runtime is installed. Remove it explicitly before installing Stable Runtime; CFI will not remove it."
-msgstr "已安装旧版 Preview Runtime。请先手动卸载，再安装 Stable Runtime；CFI 不会自动移除它。"
+msgid "Legacy Preview Runtime is installed. Remove rill-runtime-preview, then install Stable rill-runtime."
+msgstr "已安装旧版 Preview Runtime。请先卸载 rill-runtime-preview，再安装 Stable rill-runtime。"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
 msgid "Stable Runtime is installed."

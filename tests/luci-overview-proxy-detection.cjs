@@ -183,7 +183,7 @@ async function refresh(root) {
 		'Runtime update visibility must require an installed compatible Stable Runtime');
 	assert.match(runtimeManagementSource, /'_runtime_update',[\s\S]{0,120}compatibleStable && manager\.updateAvailable === true/,
 		'Runtime update visibility must use the manager stable update signal');
-	assert.match(runtimeManagementSource, /Legacy Preview Runtime is installed\. Remove it explicitly before installing Stable Runtime; CFI will not remove it\./,
+	assert.match(runtimeManagementSource, /Legacy Preview Runtime is installed\. Remove rill-runtime-preview, then install Stable rill-runtime\./,
 		'CFI must explain that legacy Preview removal is explicit');
 	assert.match(runtimeManagementSource, /runRuntimeManagerAction\('update',\s*'luci-app-cloudflare-ip'/,
 		'CFI updates must use their fixed allowlisted package ID');
@@ -193,7 +193,7 @@ async function refresh(root) {
 	assert.doesNotMatch(basePackage, /\+rill-runtime-preview/, 'CFI core must not depend on the optional Runtime executable');
 	const acl = JSON.parse(fs.readFileSync(path.join(__dirname, '../package/luci-app-cloudflare-ip/root/usr/share/rpcd/acl.d/luci-app-cloudflare-ip.json'), 'utf8'))['luci-app-cloudflare-ip'];
 	assert.deepEqual(acl.read.ubus['rill-runtime-manager'], ['status']);
-	assert.deepEqual(acl.write.ubus['rill-runtime-manager'], ['refresh', 'install', 'repair', 'update']);
+	assert.deepEqual(acl.write.ubus['rill-runtime-manager'], ['refresh', 'install', 'repair', 'update', 'uninstall']);
 
 	console.log('PASS actual Overview proxy detection hides false/unknown rows, shows one empty-state marker, and synchronizes rows after refresh');
 	console.log('PASS CFI Runtime UI uses fixed package IDs, manager RPC/ACL, and keeps the Runtime executable optional');

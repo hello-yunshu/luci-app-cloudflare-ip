@@ -13,7 +13,7 @@ CFIP_OPENCLASH_PROVIDER_RUNTIME_NAMES="[]"
 cfip_openclash_capture_runtime() {
     local pids pid arg config count start exe canonical i
     local -a all_pids=() args=()
-    pids="$(pidof clash 2>/dev/null)" || pids=""
+    pids="$(cfip_openclash_core_pids)"
     read -r -a all_pids <<<"$pids"
     ((${#all_pids[@]} == 1)) || {
         CFIP_OPENCLASH_SERVICE_ERROR="OpenClash core identity is missing or ambiguous"

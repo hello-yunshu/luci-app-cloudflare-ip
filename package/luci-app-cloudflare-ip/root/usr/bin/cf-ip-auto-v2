@@ -124,7 +124,14 @@ validate_config() {
         [[ "$CFIP_RILL_RUNTIME" == /usr/bin/rill-runtime ]] || { cfip_json_error "rill runtime path is not package-managed"; return 1; }
     fi
     if [[ "$CFIP_RILL_ENABLED" == true && ( "${1:-run}" == run || "${1:-run}" == save ) ]]; then
-        cfip_rill_runtime_allowed || { cfip_json_error "Rill requires Stable rill-runtime; legacy rill-runtime-preview must be removed explicitly before migration"; return 1; }
+        if ! cfip_rill_runtime_allowed; then
+            case "$(cfip_rill_runtime_channel)" in
+                legacy-preview) cfip_json_error "Legacy rill-runtime-preview is installed; remove it and install Stable rill-runtime" ;;
+                unknown)        cfip_json_error "Rill Runtime is not installed; install Stable rill-runtime first" ;;
+                *)              cfip_json_error "Rill requires Stable rill-runtime; current channel is not compatible" ;;
+            esac
+            return 1
+        fi
     fi
     local schedule="$CFIP_CRON_INTERVAL" custom_schedule=""
     if [[ "$schedule" == custom ]]; then

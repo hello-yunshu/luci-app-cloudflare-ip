@@ -451,6 +451,21 @@ cfip_service_status_timeout() {
     ((remaining > 0)) && printf '%s' "$remaining" || printf 0
 }
 
+# Returns sorted PIDs of any running Clash-compatible core process
+# (clash / mihomo / clash_meta — OpenClash core binary names vary by version).
+cfip_openclash_core_pids() {
+    {
+        pidof clash 2>/dev/null
+        pidof mihomo 2>/dev/null
+        pidof clash_meta 2>/dev/null
+    } | tr ' ' '\n' | grep -v '^$' | sort -un | tr '\n' ' ' | sed 's/ *$//'
+}
+
+# Boolean check: any Clash-compatible core running.
+cfip_openclash_core_running() {
+    pidof clash >/dev/null 2>&1 || pidof mihomo >/dev/null 2>&1 || pidof clash_meta >/dev/null 2>&1
+}
+
 cfip_service_running() {
     local service="$1" timeout_class="${2:-status}" timeout rc=0
     [[ -x "$CFIP_INIT_DIR/$service" ]] || return 1
@@ -465,7 +480,7 @@ cfip_service_running() {
     ((timeout > 0)) || return 124
     cfip_run_with_timeout "$timeout" "$CFIP_INIT_DIR/$service" running >/dev/null 2>&1 || rc=$?
     ((rc == 0)) && return 0
-    [[ "$service" == openclash ]] && pidof clash >/dev/null 2>&1
+    [[ "$service" == openclash ]] && cfip_openclash_core_running
 }
 
 cfip_passwall_process_running() {
@@ -536,7 +551,7 @@ cfip_openclash_secret() {
 # check_core_status() and never prints the response, URL, or authorization.
 cfip_openclash_health_once() {
     local pids_before pids_after port secret curl_cfg body code rc=0 healthy=false limit="${1:-4}"
-    pids_before="$(pidof clash 2>/dev/null)" || pids_before=""
+    pids_before="$(cfip_openclash_core_pids)"
     [[ -n "$pids_before" ]] || return 1
     port="$(uci -q get openclash.config.cn_port 2>/dev/null)" || return 1
     [[ "$port" =~ ^[1-9][0-9]{0,4}$ ]] && ((port <= 65535)) || return 1
@@ -551,7 +566,7 @@ cfip_openclash_health_once() {
         printf 'header = "Authorization: Bearer %s"\n' "$secret" >"$curl_cfg" || { rm -f "$body" "$curl_cfg"; return 1; }
     fi
     code="$(curl --config "$curl_cfg" --connect-timeout 2 --max-time "$limit" --silent --show-error --output "$body" --write-out '%{http_code}' "http://127.0.0.1:${port}/group" 2>/dev/null)" || rc=$?
-    pids_after="$(pidof clash 2>/dev/null)" || pids_after=""
+    pids_after="$(cfip_openclash_core_pids)"
     if ((rc == 0)) && [[ "$code" == 200 && "$pids_before" == "$pids_after" ]] && jq -e 'type == "object"' "$body" >/dev/null 2>&1; then
         healthy=true
     fi
@@ -567,7 +582,7 @@ cfip_openclash_health_wait() {
         now="$(cfip_monotonic_seconds)" || return 1
         remaining=$((started + timeout - now)); ((remaining > 0)) || return 1
         limit=4; ((remaining >= limit)) || limit="$remaining"
-        pids="$(pidof clash 2>/dev/null)" || pids=""
+        pids="$(cfip_openclash_core_pids)"
         if [[ -n "$pids" ]] && cfip_openclash_health_once "$limit"; then
             if [[ "$pids" == "$previous_pids" ]]; then healthy=$((healthy + 1)); else healthy=1; fi
         else
@@ -593,7 +608,7 @@ cfip_openclash_capture_state() {
     CFIP_OPENCLASH_INITIAL_RUNNING=false
     CFIP_OPENCLASH_INITIAL_HEALTHY=false
     CFIP_OPENCLASH_DEFERRED=false
-    if pidof clash >/dev/null 2>&1; then CFIP_OPENCLASH_INITIAL_RUNNING=true; fi
+    if cfip_openclash_core_running; then CFIP_OPENCLASH_INITIAL_RUNNING=true; fi
     if [[ "$enable" == 0 ]]; then
         if [[ "$CFIP_OPENCLASH_INITIAL_RUNNING" == true ]]; then
             CFIP_OPENCLASH_SERVICE_ERROR="OpenClash state is inconsistent (disabled but core is running); no changes were made"
@@ -626,7 +641,7 @@ cfip_openclash_check_before_write() {
     cfip_openclash_read_enable || return 1
     [[ "$CFIP_OPENCLASH_ENABLE_VALUE" == "$expected" ]] || { CFIP_OPENCLASH_SERVICE_ERROR="OpenClash enable state changed before node write; no changes were made"; return 1; }
     if [[ "$expected" == 0 ]]; then
-        ! pidof clash >/dev/null 2>&1 || { CFIP_OPENCLASH_SERVICE_ERROR="OpenClash core started externally before node write; no changes were made"; return 1; }
+        ! cfip_openclash_core_running || { CFIP_OPENCLASH_SERVICE_ERROR="OpenClash core started externally before node write; no changes were made"; return 1; }
     else
         cfip_openclash_health_wait 10 || { CFIP_OPENCLASH_SERVICE_ERROR="OpenClash became unhealthy before node write; restore it before running CF"; return 1; }
     fi
@@ -671,7 +686,7 @@ cfip_stop_service() {
     if [[ "$service" == openclash ]]; then
         local i pids
         for i in $(seq 1 30); do
-            pids="$(pidof clash 2>/dev/null || true)"
+            pids="$(cfip_openclash_core_pids)"
             if [[ -z "$pids" ]]; then
                 CFIP_OPENCLASH_CF_STOPPED=true
                 ((rc == 0)) && return 0
@@ -680,7 +695,7 @@ cfip_stop_service() {
             fi
             sleep 1
         done
-        pids="$(pidof clash 2>/dev/null || true)"
+        pids="$(cfip_openclash_core_pids)"
         if [[ -n "$pids" ]]; then
             enable=""
             if cfip_openclash_read_enable 2>/dev/null; then enable="$CFIP_OPENCLASH_ENABLE_VALUE"; fi

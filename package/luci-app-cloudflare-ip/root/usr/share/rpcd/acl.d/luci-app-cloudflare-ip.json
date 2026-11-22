@@ -12,7 +12,7 @@
 		"write": {
 			"ubus": {
 				"cf_ip": [ "run", "clear-log", "refresh-env", "self-update", "download-cfst", "source-refresh", "adaptive-status", "rill-self-check", "rill-diagnostics", "start", "stop", "restart", "sync", "oc-restore-backup", "oc-delete-backup", "rill-reset" ],
-				"rill-runtime-manager": [ "refresh", "install", "repair", "update" ],
+				"rill-runtime-manager": [ "refresh", "install", "repair", "update", "uninstall" ],
 				"luci": [ "setInitAction" ]
 			},
 			"uci": [ "cf_ip" ]

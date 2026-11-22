@@ -48,6 +48,9 @@ cfip_openclash_bypass_candidate_ips() {
     while IFS= read -r ip || [[ -n "$ip" ]]; do
         ip="${ip%$'\r'}"
         [[ -n "$ip" ]] || continue
+        # Strip CIDR suffix (/32, /128, etc.) — CFST input uses CIDR notation
+        # but nftables bypass sets need bare addresses.
+        ip="${ip%%/*}"
         family="$(cfip_ip_family "$ip" 2>/dev/null)" || return 1
         case "$family" in ipv4) v4+=("$ip") ;; ipv6) v6+=("$ip") ;; *) return 1 ;; esac
     done <"$file"

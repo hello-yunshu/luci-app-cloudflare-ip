@@ -53,7 +53,8 @@ cfip_adaptive_enrich_preprobe() {
     declare -F cfip_rill_prefix_history_json >/dev/null 2>&1 && prefix_history="$(cfip_rill_prefix_history_json)"
     declare -F cfip_rill_colo_history_json >/dev/null 2>&1 && colo_history="$(cfip_rill_colo_history_json)"
     now="$(date +%s)"
-    jq --argjson history "$history" --argjson prefixHistory "$prefix_history" --argjson coloHistory "$colo_history" --argjson now "$now" '
+    jq --slurpfile _h <(printf '%s' "$history") --slurpfile _ph <(printf '%s' "$prefix_history") --slurpfile _ch <(printf '%s' "$colo_history") --argjson now "$now" '
+      ($_h[0]) as $history | ($_ph[0]) as $prefixHistory | ($_ch[0]) as $coloHistory |
       map(. as $candidate |
         ($history[($candidate.ip|tostring)] // {}) as $h |
         ($prefixHistory[($candidate.prefixKey // "")] // {}) as $p |
@@ -298,8 +299,9 @@ cfip_adaptive_status_json() {
     aggregate="$(jq -cn --argjson e "$current" 'if ($e|length)==0 then {available:false,reason:"insufficient"} else {available:true,winnerRecall:([$e[].winnerRecall]|add/length),topNRecall:([$e[].topNRecall]|add/length),eligibleInsufficiencyRate:([$e[].eligibleInsufficiencyRate]|add/length),severeMissRate:([$e[].severeMiss]|add/length),estimatedProbeSavings:([$e[].probeSavings]|add/length),measurementWallClockSaving:null,sampleCount:($e|length)} end')"
     declare -F cfip_context_policy_json >/dev/null 2>&1 && context_policy="$(cfip_context_policy_json 2>/dev/null || printf '{}')"
     last_audit="$(jq -c 'sort_by(.at)|last // null' <<<"$current")"; next_due="$(jq -nr --argjson count "$(jq '.runCount//0' <<<"$state")" --argjson interval "${CFIP_ADAPTIVE_AUDIT_INTERVAL:-20}" 'if $interval>0 then (($interval-($count%$interval))%$interval) else null end')"
-    jq -cn --argjson state "$state" --argjson evidence "$evidence" --argjson aggregate "$aggregate" --argjson last "$last_audit" --argjson next "$next_due" --argjson policy "$context_policy" --arg requested "${CFIP_ADAPTIVE_MEASUREMENT_MODE:-off}" --arg effective "$(cfip_adaptive_effective_mode)" \
-      '$state+{requestedMode:$requested,effectiveMode:$effective,evidenceWindowSize:($evidence|length),evidenceFreshAt:([$evidence[]|.at]|max // null),available:true,partition:"native-adaptive-measurement",aggregate:$aggregate,contextPolicy:$policy,lastFullAudit:$last,nextAuditInRuns:$next}'
+    jq -cn --argjson last "$last_audit" --argjson next "$next_due" --argjson policy "$context_policy" --arg requested "${CFIP_ADAPTIVE_MEASUREMENT_MODE:-off}" --arg effective "$(cfip_adaptive_effective_mode)" \
+      --slurpfile _st <(printf '%s' "$state") --slurpfile _ev <(printf '%s' "$evidence") --slurpfile _agg <(printf '%s' "$aggregate") \
+      "(\$_st[0]) as \$state | (\$_ev[0]) as \$evidence | (\$_agg[0]) as \$aggregate | \$state+{requestedMode:\$requested,effectiveMode:\$effective,evidenceWindowSize:(\$evidence|length),evidenceFreshAt:([\$evidence[]|.at]|max // null),available:true,partition:\"native-adaptive-measurement\",aggregate:\$aggregate,contextPolicy:\$policy,lastFullAudit:\$last,nextAuditInRuns:\$next}"
 }
 
 cfip_adaptive_write_evidence() {
