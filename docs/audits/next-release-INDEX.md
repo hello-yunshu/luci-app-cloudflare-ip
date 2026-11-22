@@ -31,7 +31,7 @@
 | [next-release-release-notes-v2.6.0-8.md](next-release-release-notes-v2.6.0-8.md) | v2.6.0-8 线上 Release 正文（已同步） |
 | [next-release-release-notes-v2.6.0-9.md](next-release-release-notes-v2.6.0-9.md) | v2.6.0-9 Release 正文（P1-06 修复） |
 | [../ROLLBACK_AND_RECOVERY.md](../ROLLBACK_AND_RECOVERY.md) | 升级失败/ENOSPC 的 opkg status 备份与恢复流程 |
-| [../STABLE_GATE_ACTION.md](../STABLE_GATE_ACTION.md) | Stable Gate 一页执行/决策清单（NOT READY） |
+| [../STABLE_GATE_ACTION.md](../STABLE_GATE_ACTION.md) | Stable Gate 一页执行/决策清单（EXECUTED 2026-11-22） |
 | [next-release-sync-rill-adjudication.md](next-release-sync-rill-adjudication.md) | 跨仓 sync-rill 本地等价 vs 真实 PR 裁决材料（含真实演练结果） |
 | [../STABLE_GATE.md](../STABLE_GATE.md) | Stable Gate 门槛、角色与评审流程 |
 | [../RELEASE_CHANNEL_GUARD.md](../RELEASE_CHANNEL_GUARD.md) | stable guard 预期失败的解释与排查边界 |

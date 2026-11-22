@@ -240,3 +240,10 @@
 
 ### 预期行为说明
 - `release-channel.json` 变为 `stable` 后，`Build and Release` 自动链路将按设计在 `check-qualification` 红掉并打印 `stable channel requires an explicit Stable Gate; automatic promotion is disabled`（见 `RELEASE_CHANNEL_GUARD.md`）；这是预期守卫行为，不是打包失败。
+
+### 执行回执（2026-11-22）
+- 发布对象：`v2.6.2-28`（tag → `5f540aac8b56b73ab00074c8a76dd0707c0b6b76`），已由 prerelease 晋级 Stable/Latest；tag 未移动，4 个资产未替换。
+- Release：<https://github.com/hello-yunshu/luci-app-cloudflare-ip/releases/tag/v2.6.2-28>
+- 回读校验：重新下载 ipk/apk/sha256sums.txt/qualification.json；`sha256sum -c` PASS；ipk `303c4783…`、apk `14611ed3…`、qualification.json `e3b3b946…` 与 preflight 一致；`validate-release-assets.py` 使用候选 SHA 的 contract → PASS。
+- 校验边界：后续 main 的 Rill contract 同步（PR #54）推进了依赖，用当前 main 的 contract 校验这些已发布字节会按设计报 `Rill package commit does not match contract`；这不代表资产有问题，校验必须固定在 `5f540aa` 的 contract。
+- 机器可读回执：`docs/audits/stable-gate-20261122/execution.json`；`stable-review.json` 保留为执行前的 `PREPARED_FOR_REVIEW` 快照，不覆盖。
