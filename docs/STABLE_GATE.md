@@ -10,7 +10,7 @@ Status: **executed 2026-11-22 under explicit user authorization** (「已经验�
 | Previous Pre-release | `v2.6.0-8` (2026-11-04), tag → `4cbad4d2bb68315ed22b4c702effb78c1cd03ffb` |
 | Channel | `stable` in `release-channel.json`, but automatic promotion is disabled by the `release.yml` guard |
 | Post-release install | r6→r8 IPK and fresh install PASS; r8→r9 + fresh install container drills in §4A (phase I) |
-| Stable status | **NOT READY** — device/owner and decision blockers below are still open |
+| Stable status | **EXECUTED 2026-11-22** — `v2.6.2-28` promoted to Stable on candidate `5f540aac`, tag and assets unchanged; receipt: [execution.json](audits/stable-gate-20261122/execution.json) |
 
 ## 2. Entry criteria
 
@@ -188,6 +188,14 @@ No automatic promotion. `release.yml` intentionally refuses non-`prerelease` cha
 | Power cut / ENOSPC on device | user/owner | device with serial or recoverable boot; small overlay | ENOSPC write-path drill done (2026-11-07); a real power cut needs hypervisor/recovery control and would interrupt the soak | §2 B rollback drill row (only ENOSPC closed) |
 | zstd boundary / release build | user decides; maintainer executes | none for decision; build host | accept §2A.3 option 1/2/3; exact-SHA `4659503` r9 (same version as `d1e36f3`) is already built and qualified | §2 C full-workspace row |
 
-Minimum remaining: **soak completion, PassWall real network, physical touch and a real power-cut/device-rollback drill** (4 device/owner items), plus **2 user decisions** (zstd boundary, channel change). aarch64 has exact-SHA install/page evidence but not a DUT; treat it as an evidence gap or an explicit scope decision. The `4659503` r9 build and qualification are done; no new build is needed unless code changes. The Stable Gate cannot be executed before these.
+Historical pre-execution state: soak completion, PassWall real network, physical
+touch and a real power-cut/device-rollback drill were open, plus the zstd
+boundary decision; aarch64 had exact-SHA install/page evidence but not a DUT.
+On 2026-11-22 the release owner accepted these as recorded residual risks
+(issue register §9, D1–D3) and the gate was executed on the frozen candidate
+`5f540aac`. The tag and the four release assets were not moved or replaced, and
+re-download verification passed. See
+[execution.json](audits/stable-gate-20261122/execution.json).
 
-**Conclusion: remain Pre-release; do not execute the Stable Gate.**
+**Conclusion: EXECUTED on 2026-11-22. `v2.6.2-28` is the Stable release. Any
+further Stable action requires a new explicit authorization.**

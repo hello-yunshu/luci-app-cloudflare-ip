@@ -1,8 +1,10 @@
 # Stable Gate — one-page execution and decision checklist
 
-Status: **NOT READY.** This page is the compact operating list behind
-[STABLE_GATE.md](STABLE_GATE.md) and §5A. It does not authorize a channel
-change, a Stable tag, or a Stable Release.
+Status: **EXECUTED 2026-11-22.** This page is the compact operating list behind
+[STABLE_GATE.md](STABLE_GATE.md) and §5A. The release owner authorized the
+channel change and the same-byte Stable promotion of `v2.6.2-28`; the receipt
+is [execution.json](audits/stable-gate-20261122/execution.json). This page does
+not authorize any further channel change, tag, or Release.
 
 ## A. Decisions (user / release owner)
 
@@ -44,4 +46,17 @@ Each row must produce artifacts (log/screenshot/JSON), not just an assertion.
 - Build/release steps: **R1–R6**, executable by the maintainer after the above. R1–R3 already pass for `d1e36f3`; no rebuild is needed unless code changes.
 - Container evidence already green: publisher fixtures, IPK/APK r8→r9 upgrade + fresh install + rollback/ENOSPC/power-loss drills on 24.10.8 and 25.12.x, matrix, i18n, UI Gate. These are **not** device evidence.
 
-**Conclusion: NOT READY. No Stable action may be executed from this page.**
+**Conclusion: EXECUTED on 2026-11-22.** `v2.6.2-28` was promoted to Stable from
+the frozen candidate `5f540aac` with the tag and the four assets unchanged.
+Any further Stable action requires a new explicit authorization.
+
+## E. Execution record (2026-11-22)
+
+| Item | Value |
+|---|---|
+| Release | [`v2.6.2-28`](https://github.com/hello-yunshu/luci-app-cloudflare-ip/releases/tag/v2.6.2-28) — Stable, Latest |
+| Candidate SHA | `5f540aac8b56b73ab00074c8a76dd0707c0b6b76` (tag target unchanged) |
+| Qualification | run `44948136622` attempt 1; manifest SHA256 `e3b3b946…` |
+| Assets | ipk `303c4783…`, apk `14611ed3…`; `sha256sum -c` PASS |
+| Decision record | [next-release-issue-register.md](audits/next-release-issue-register.md) §9 (D1–D3) |
+| Receipt | [execution.json](audits/stable-gate-20261122/execution.json) |

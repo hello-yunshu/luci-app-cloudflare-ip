@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "status": "EXECUTED",
+  "repository": "hello-yunshu/luci-app-cloudflare-ip",
+  "release": {
+    "url": "https://github.com/hello-yunshu/luci-app-cloudflare-ip/releases/tag/v2.6.2-28",
+    "tag": "v2.6.2-28",
+    "packageVersion": "2.6.2-r28",
+    "prerelease": false,
+    "draft": false,
+    "latest": true,
+    "publishedAt": "2026-11-21T22:05:44Z",
+    "promotedAt": "2026-11-21T22:28:19Z"
+  },
+  "candidate": {
+    "commit": "5f540aac8b56b73ab00074c8a76dd0707c0b6b76",
+    "tagCommit": "5f540aac8b56b73ab00074c8a76dd0707c0b6b76",
+    "tagMoved": false,
+    "assetsReplaced": false
+  },
+  "qualification": {
+    "runId": 44948136622,
+    "runAttempt": 1,
+    "manifestSha256": "e3b3b9460845da8c0780c1bd1b091d0cf16856d4152c80cd690d6bb567db9346"
+  },
+  "assets": [
+    {
+      "name": "luci-app-cloudflare-ip_2.6.2-r28_all.ipk",
+      "sha256": "303c47837ae1f16aafcaf7c72360066fcb6b15bd2dee01f5b69550cb2bcdc928",
+      "size": 215992
+    },
+    {
+      "name": "luci-app-cloudflare-ip-2.6.2-r28.apk",
+      "sha256": "14611ed34cd8c6b7326203fe7d94b68e4de1f5b86a317582ac7cb7b980d8e3eb",
+      "size": 215853
+    }
+  ],
+  "verification": {
+    "date": "2026-11-22",
+    "method": "re-download all four release assets, sha256sum -c, tag identity, and asset binding against the qualification manifest",
+    "sha256sums": "PASS",
+    "assetBinding": "PASS",
+    "tagIdentity": "PASS",
+    "manifestMatch": "PASS",
+    "contractAtCandidateSha": true,
+    "note": "The asset binding must be validated with contracts/rill-runtime.json as of 5f540aac. Later main commits (for example the Rill contract sync in PR #54) advance the dependency, so the current main contract intentionally rejects these already-published bytes; that is a contract drift signal, not a release-asset defect."
+  },
+  "decisionRecord": "docs/audits/next-release-issue-register.md §9 (D1–D3, user authorization 2026-11-22)",
+  "reviewSnapshot": "docs/audits/stable-gate-20261122/stable-review.json records the pre-execution PREPARED_FOR_REVIEW state and is intentionally left unchanged"
+}
