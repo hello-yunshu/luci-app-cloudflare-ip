@@ -12,7 +12,7 @@
   },
   "openwrtPackage": {
     "repository": "hello-yunshu/rill-openwrt-packages",
-    "commit": "15031fa08fe029e9792ff55d6ecdd308b9240dd5",
+    "commit": "1e326574f43226a603533670a741d62ef1cd1c21",
     "package": "rill-runtime",
     "packageVersion": "1.5.6",
     "packageRelease": 8,
@@ -24,9 +24,9 @@
     "workflow": "qualify.yml",
     "manifestSchemaVersion": 4,
     "status": "PASS",
-    "runId": 44881757222,
+    "runId": 44948128500,
     "runAttempt": 1,
-    "manifestSha256": "70eb33b322f1bd9df21f5236dfc5a4d22c4377eb454d6d70e8a61bdf47470961"
+    "manifestSha256": "8ccbad02490cb24d04882bf2505be2ec778e83bcc5f9a485dae26aeb3cf8aca5"
   },
   "packageMigration": {
     "legacyVersion": "2.6.0-r2",
