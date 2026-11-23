@@ -31,7 +31,8 @@
       "kind": "branch",
       "branch": "master",
       "observedRef": "fadaa676104f59ff6ace480a780a258d846d0aec",
-      "qualification": "UCI persistence/transaction contract only; tested package 26.300.08316~d72e293 is not an apply-hot claim."
+      "blocking": false,
+      "qualification": "UCI persistence/transaction contract only; tested package 26.300.08316~d72e293 is not an apply-hot claim. Drift is reported only, never blocking: homeproxy-transaction.sh never invokes init or reloads the proxy, post-apply probing is skipped for this mode, and CFIP_HOMEPROXY_SUPPORTED_VERSIONS is an exact package allowlist, so an unqualified build fails closed instead of silently misbehaving."
     },
     {
       "name": "Mihomo",
@@ -45,7 +46,8 @@
       "repo": "SagerNet/sing-box",
       "kind": "release",
       "observedRef": "v1.14.4",
-      "qualification": "HomeProxy runtime evidence used sing-box 1.12.25-r1; newer engine tags require a fresh runtime check."
+      "blocking": false,
+      "qualification": "HomeProxy runtime evidence used sing-box 1.12.25-r1; newer engine tags still require a fresh runtime check before any new engine support is claimed. Drift is reported only, never blocking: CFI never drives this engine directly, and its only consumer path (HomeProxy) is persistence-only and gated by an exact package allowlist."
     }
   ]
 }
