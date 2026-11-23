@@ -42,15 +42,11 @@ function readRuntimeCheck() {
 	}
 }
 
-function rememberRuntimeCheck(result) {
+function rememberRuntimeCheck() {
 	try {
 		if (typeof window === 'undefined' || !window.sessionStorage)
 			return;
-		window.sessionStorage.setItem(RUNTIME_CHECK_KEY, JSON.stringify({
-			at: Date.now(),
-			hasUpdate: !!(result && (result.updateAvailable === true || result.runtimeUpdateAvailable === true ||
-				result.pmUpdateAvailable === true || result.cfiUpdateAvailable === true || result.clientUpdateAvailable === true))
-		}));
+		window.sessionStorage.setItem(RUNTIME_CHECK_KEY, JSON.stringify({ at: Date.now() }));
 	}
 	catch (e) {
 		/* Private mode or a full quota: the page still reloads, it just cannot
@@ -58,13 +54,15 @@ function rememberRuntimeCheck(result) {
 	}
 }
 
+/* Only the time: whether an update exists is already stated by the package
+ * status row, which reads it from the manager. This row answers the other
+ * question - when did we last ask the feed? - so it must not repeat it. */
 function runtimeCheckText() {
 	var record = readRuntimeCheck();
 	if (!record)
 		return _('Not checked in this session.');
 	var when = new Date(record.at);
-	var clock = (when.getHours() < 10 ? '0' : '') + when.getHours() + ':' + (when.getMinutes() < 10 ? '0' : '') + when.getMinutes();
-	return (record.hasUpdate === true ? _('Update available') : _('Up to date')) + ' / ' + _('checked at %s').format(clock);
+	return (when.getHours() < 10 ? '0' : '') + when.getHours() + ':' + (when.getMinutes() < 10 ? '0' : '') + when.getMinutes();
 }
 
 function runtimePackageStateText(manager) {
@@ -143,7 +141,7 @@ function runRuntimeManagerAction(method, packageName, button, resultMessage, fai
 		if (!result || result.ok !== true)
 			throw new Error((result && (result.message || result.errorCode)) || _('Package manager rejected the request.'));
 		if (method === 'refresh')
-			rememberRuntimeCheck(result);
+			rememberRuntimeCheck();
 		return callRuntimeManagerStatus().then(function(state) { return Object.assign({ helperAvailable: true }, state || {}); }).catch(function() { return null; });
 	}).then(function(state) {
 		if (state)
