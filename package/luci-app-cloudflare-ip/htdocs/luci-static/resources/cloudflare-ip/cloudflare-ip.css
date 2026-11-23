@@ -80,6 +80,14 @@
 
 /* ===== 原生表格滚动容器（例外 E21） ===== */
 .cfi-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+/* 主题可能把 section 内的表格拉出容器（Vantage 用负侧边距把表格加宽，并带
+ * !important），滚动容器会把这截裁掉：首列内边距被吃掉，单元格贴着卡片左缘，
+ * 还多出一段横向滚动。容器内的表格把宽度和负边距交回容器。 */
+#maincontent .cfi-table-scroll > table.table {
+	width: 100% !important;
+	margin-left: 0 !important;
+	margin-right: 0 !important;
+}
 .cfi-table-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5em; }
 .cfi-source-status-table-wrap { margin-top: calc(var(--spacing, .25rem) * 3); }
 .cfi-inline-link { margin-block: calc(var(--spacing, .25rem) * 3) 0; }
