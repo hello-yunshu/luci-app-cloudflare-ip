@@ -501,7 +501,9 @@ return view.extend({
 		} else if (lastResult === '-' || lastResult === 'unknown' || lastResult === 'scheduled') {
 			lastResultBadge = E('span', { 'class': 'label' }, _('Not run yet'));
 		} else {
-			lastResultBadge = E('span', { 'class': 'label important' }, '\u2718 ' + translateStatus(lastResult));
+			var rolledBack = data.transaction && data.transaction.rolledBack === true;
+			lastResultBadge = E('span', { 'class': 'label important' },
+				'\u2718 ' + translateStatus(lastResult) + (rolledBack ? ' \u00b7 ' + _('Rolled back') : ''));
 		}
 		infoTable.appendChild(E('tr', { 'class': 'tr' }, [
 			E('th', { 'class': 'th cfi-overview-label', 'scope': 'row' }, _('Last Result')),
@@ -512,10 +514,25 @@ return view.extend({
 			if (data.service.deferredUntilServiceStart) {
 				serviceMessage = _('Nodes updated; OpenClash is disabled and the changes will take effect after it is started');
 			} else if (data.service.error || error) {
-				serviceMessage = E('div', {}, [
-					E('p', {}, _('OpenClash apply failed.')),
-					utils.technicalDetails(data.service.error || error)
-				]);
+				/* A post-apply failure already rolled back, so saying "apply
+				 * failed" alone leaves the user unsure whether the proxy is
+				 * still working. Explain the outcome, the likely cause and the
+				 * next action, and keep the raw reason under Technical details. */
+				var validationFailed = (data.transaction && data.transaction.reason === 'post_apply_probe_failed')
+					|| /post-apply validation failed/.test(String(error || ''));
+				if (validationFailed) {
+					serviceMessage = E('div', {}, [
+						E('p', {}, _('New nodes did not pass the live check; the previous configuration was restored automatically.')),
+						E('p', {}, _('OpenClash is still running the last working nodes, so traffic is unaffected. This usually means a candidate IP could not finish its TLS handshake within the probe timeout.')),
+						E('p', {}, _('If the same IP fails again next run, raise Probe Timeout in Advanced settings or check the target domain.')),
+						utils.technicalDetails(data.service.error || error)
+					]);
+				} else {
+					serviceMessage = E('div', {}, [
+						E('p', {}, _('OpenClash apply failed.')),
+						utils.technicalDetails(data.service.error || error)
+					]);
+				}
 			} else {
 				serviceMessage = data.service.serviceApplied ? _('OpenClash service applied and health verified.') :
 					(data.service.recoveryVerified ? _('OpenClash service restored and health verified; new nodes were not applied.') : '');

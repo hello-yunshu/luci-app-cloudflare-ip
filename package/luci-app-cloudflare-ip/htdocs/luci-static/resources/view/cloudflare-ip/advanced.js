@@ -104,7 +104,7 @@ return view.extend({
 		o = s.option(form.Value, 'probe_timeout', _('Probe Timeout (seconds)'),
 			_('Per-domain probe timeout; the global hard limit still wins.'));
 		o.datatype = 'range(1,30)';
-		o.default = '5';
+		o.default = '8';
 		o.rmempty = false;
 
 		utils.createHandleSave(m, this);

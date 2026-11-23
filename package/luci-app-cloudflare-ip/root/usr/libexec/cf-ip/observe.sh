@@ -176,8 +176,23 @@ cfip_post_apply_probe() {
         return $?
     fi
     local output="$4" started now original_deadline="${CFIP_MEASUREMENT_DEADLINE:-0}" attempt rc=1 delay remaining rounds='[]' tmp
+    local timeout_s="${3:-5}" ip_count domain_count probe_count settle_budget
+    # Settling is only useful when a retry can finish: a fixed window (was 30s)
+    # shrank to less than one worst-case round once every applied IP is probed
+    # against every target domain, so cfip_probe_one clamped the remaining
+    # probes and reported a timeout the node never had. Fund two worst-case
+    # rounds plus the backoff sleeps (2+4+8) instead.
+    [[ "$timeout_s" =~ ^[1-9][0-9]*$ ]] || timeout_s=5
+    ip_count="$(jq 'length' "$1" 2>/dev/null || printf 0)"
+    [[ "$ip_count" =~ ^[1-9][0-9]*$ ]] || ip_count=1
+    domain_count="$(awk -F',' '{ n=0; for (i=1;i<=NF;i++) if ($i!="") n++ } END { print (n>0?n:1) }' <<<"$2" 2>/dev/null)"
+    [[ "$domain_count" =~ ^[1-9][0-9]*$ ]] || domain_count=1
+    probe_count=$((ip_count*domain_count))
+    settle_budget=$((probe_count*timeout_s*2+14))
+    ((settle_budget>=30)) || settle_budget=30
+    ((settle_budget<=120)) || settle_budget=120
     started="$(cfip_monotonic_seconds)" || return 1
-    local CFIP_MEASUREMENT_DEADLINE=$((started+30))
+    local CFIP_MEASUREMENT_DEADLINE=$((started+settle_budget))
     if ((original_deadline>0 && original_deadline<CFIP_MEASUREMENT_DEADLINE)); then
         CFIP_MEASUREMENT_DEADLINE="$original_deadline"
     fi
@@ -195,11 +210,13 @@ cfip_post_apply_probe() {
         jq -e '(.probes|length)>0 and any(.probes[]; .success!=true) and all(.probes[] | select(.success!=true); (.curlExit==35 and .tlsMs==0) or .curlExit==7 or .curlExit==28 or .curlExit==56)' "$output" >/dev/null 2>&1 || break
         remaining="$(cfip_deadline_remaining)" || return 1
         delay=$((1<<attempt))
-        ((remaining>delay)) || break
+        # Starting a round the remaining budget cannot cover would let
+        # cfip_probe_one truncate the last probes into fake timeouts.
+        ((remaining >= probe_count*timeout_s + delay)) || break
         sleep "$delay"
     done
     tmp="$(mktemp "${TMPDIR:-/tmp}/cfip-post-apply-settling.XXXXXX")" || return 1
-    if ! jq --argjson rounds "$rounds" '. + {serviceSettling:{scope:"fresh_openclash_apply",maxSeconds:30,rounds:$rounds}}' "$output" >"$tmp"; then rm -f "$tmp"; return 1; fi
+    if ! jq --argjson rounds "$rounds" --argjson budget "$settle_budget" --argjson probes "$probe_count" --argjson timeout "$timeout_s" '. + {serviceSettling:{scope:"fresh_openclash_apply",maxSeconds:$budget,roundBudgetSeconds:($probes*$timeout),rounds:$rounds}}' "$output" >"$tmp"; then rm -f "$tmp"; return 1; fi
     if ! cfip_atomic_write "$output" <"$tmp"; then rm -f "$tmp"; return 1; fi
     rm -f "$tmp"
     return "$rc"
@@ -239,4 +256,22 @@ cfip_post_apply_probe_once() {
         jq --argjson reward "$reward_json" '. + {reward:$reward.reward,rewardVersion:$reward.rewardVersion,rewardComponents:$reward.components,worstDomain:$reward.worstDomain,rillShadowReward:$reward.reward,nativeCounterfactualReward:$reward.reward,rewardDelta:0,disagreement:false}' "$tmp" >"$tmp.next" && mv "$tmp.next" "$tmp"
     fi
     cat "$tmp" | cfip_atomic_write "$output"; local rc=$?; rm -f "$tmp"; [[ "$ok" == true ]] && return "$rc"; return 1
+}
+
+# Explain a failed post-apply validation in one line: how many probes failed,
+# which target refused first, and the timeout that applied. The machine reason
+# stays in the transaction record; this string only feeds the run error so the
+# UI and the log do not reduce everything to "validation failed".
+cfip_post_apply_failure_summary() {
+    local outcome="$1" limit="${2:-}" total failed detail summary
+    [[ -s "$outcome" && -f "$outcome" && ! -L "$outcome" ]] || return 0
+    total="$(jq -r 'if (.probes|type)=="array" then (.probes|length) else 0 end' "$outcome" 2>/dev/null)" || return 0
+    failed="$(jq -r '[.probes[]?|select(.success!=true)]|length' "$outcome" 2>/dev/null)" || return 0
+    [[ "$total" =~ ^[0-9]+$ && "$failed" =~ ^[0-9]+$ ]] || return 0
+    ((total>0 && failed>0)) || return 0
+    detail="$(jq -r '[.probes[]|select(.success!=true)][0:2]|map(.ip+" -> "+.domain+" ("+(.errorClass//"probe_failed")+")")|join("; ")' "$outcome" 2>/dev/null)" || detail=''
+    summary="$failed/$total probes failed"
+    [[ -z "$detail" ]] || summary="$summary: $detail"
+    [[ "$limit" =~ ^[1-9][0-9]*$ ]] && summary="$summary (limit ${limit}s)"
+    printf '%s' "$summary"
 }

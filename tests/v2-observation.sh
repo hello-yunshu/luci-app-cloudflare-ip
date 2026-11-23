@@ -55,17 +55,52 @@ echo 'v2 observation/eligibility tests passed'
    [[ "$scenario" != reuse ]] || CFIP_OPENCLASH_SERVICE_APPLIED=false
    if cfip_post_apply_probe "$TMP/post-selected.json" one.example,two.example 3 "$TMP/settling-$scenario.json"; then rc=0; else rc=$?; fi
    # Dynamic local deadline must never replace the caller's measurement bound.
-   [[ "$CFIP_MEASUREMENT_DEADLINE" == 180 || "$scenario" == short_budget && "$CFIP_MEASUREMENT_DEADLINE" == 3 ]]
+   # Every check here must fail loudly: a bare [[ ]] inside a case branch does
+   # not stop the script under set -e, so the old assertions could never fail.
+   [[ "$CFIP_MEASUREMENT_DEADLINE" == 180 || ( "$scenario" == short_budget && "$CFIP_MEASUREMENT_DEADLINE" == 3 ) ]] \
+     || { echo "FAIL $scenario: the local settle deadline replaced the caller's measurement bound" >&2; exit 1; }
    case "$scenario" in
      delayed|mixed|mixed_receive)
-       [[ "$rc" == 0 && "$(cat "$TMP/clock")" == 14 && "$(cat "$TMP/probe-count")" == 16 ]]
-       jq -e '.validated==true and (.probes|length)==4 and (.serviceSettling.rounds|length)==4 and .serviceSettling.rounds[0].validated==false' "$TMP/settling-$scenario.json" >/dev/null ;;
+       [[ "$rc" == 0 && "$(cat "$TMP/clock")" == 14 && "$(cat "$TMP/probe-count")" == 16 ]] \
+         || { echo "FAIL $scenario: expected success after four rounds (rc=$rc clock=$(cat "$TMP/clock") probes=$(cat "$TMP/probe-count"))" >&2; exit 1; }
+       jq -e '.validated==true and (.probes|length)==4 and (.serviceSettling.rounds|length)==4 and .serviceSettling.rounds[0].validated==false' "$TMP/settling-$scenario.json" >/dev/null \
+         || { echo "FAIL $scenario: settled outcome must validate every probe after an initial miss" >&2; exit 1; } ;;
      persistent|timeout|connect|receive)
-       [[ "$rc" != 0 && "$(cat "$TMP/clock")" == 14 && "$(cat "$TMP/probe-count")" == 16 ]]
-       jq -e '.validated==false and (.serviceSettling.rounds|length)==4' "$TMP/settling-$scenario.json" >/dev/null ;;
-     short_budget) [[ "$rc" != 0 && "$(cat "$TMP/clock")" == 2 && "$(cat "$TMP/probe-count")" == 8 ]] ;;
-     *) [[ "$rc" != 0 && "$(cat "$TMP/clock")" == 0 && "$(cat "$TMP/probe-count")" == 4 ]] ;;
+       [[ "$rc" != 0 && "$(cat "$TMP/clock")" == 14 && "$(cat "$TMP/probe-count")" == 16 ]] \
+         || { echo "FAIL $scenario: expected four retry rounds before giving up (rc=$rc clock=$(cat "$TMP/clock") probes=$(cat "$TMP/probe-count"))" >&2; exit 1; }
+       jq -e '.validated==false and (.serviceSettling.rounds|length)==4' "$TMP/settling-$scenario.json" >/dev/null \
+         || { echo "FAIL $scenario: a persistent failure must record all four rounds and stay unvalidated" >&2; exit 1; } ;;
+     # The settle budget funds two worst-case rounds; with a 3s caller bound it
+     # cannot fund a full round, so no retry may start (a truncated probe would
+     # report a timeout the node never had).
+     short_budget)
+       [[ "$rc" != 0 && "$(cat "$TMP/clock")" == 0 && "$(cat "$TMP/probe-count")" == 4 ]] \
+         || { echo "FAIL short_budget: a round the remaining budget cannot fund must not start (clock=$(cat "$TMP/clock") probes=$(cat "$TMP/probe-count"))" >&2; exit 1; } ;;
+     *)
+       [[ "$rc" != 0 && "$(cat "$TMP/clock")" == 0 && "$(cat "$TMP/probe-count")" == 4 ]] \
+         || { echo "FAIL $scenario: no retry is allowed for this failure class (rc=$rc clock=$(cat "$TMP/clock") probes=$(cat "$TMP/probe-count"))" >&2; exit 1; } ;;
    esac
    echo "PASS post-apply settling $scenario"
  done
 )
+
+# A failed post-apply run must say which probe failed instead of a bare
+# "validation failed": the UI and the log both consume this one-line summary.
+cat >"$TMP/outcome-failed.json" <<'JSON'
+{"schemaVersion":2,"validated":false,"probes":[
+ {"ip":"103.31.4.56","domain":"assets.hey.run","success":false,"errorClass":"timeout","curlExit":28,"totalMs":5001.84},
+ {"ip":"103.31.4.56","domain":"static.hey.run","success":true,"curlExit":0,"totalMs":3359.7},
+ {"ip":"104.17.52.125","domain":"assets.hey.run","success":true,"curlExit":0,"totalMs":866.9},
+ {"ip":"104.17.52.125","domain":"static.hey.run","success":true,"curlExit":0,"totalMs":3294.4}]}
+JSON
+test "$(cfip_post_apply_failure_summary "$TMP/outcome-failed.json" 8)" = "1/4 probes failed: 103.31.4.56 -> assets.hey.run (timeout) (limit 8s)"
+test "$(cfip_post_apply_failure_summary "$TMP/outcome-failed.json")" = "1/4 probes failed: 103.31.4.56 -> assets.hey.run (timeout)"
+printf '%s\n' '{"schemaVersion":2,"validated":true,"probes":[{"ip":"1.1.1.1","domain":"one.example","success":true}]}' >"$TMP/outcome-ok.json"
+test -z "$(cfip_post_apply_failure_summary "$TMP/outcome-ok.json" 8)"
+test -z "$(cfip_post_apply_failure_summary "$TMP/missing.json" 8)"
+printf '%s\n' '{"schemaVersion":2,"validated":false}' >"$TMP/outcome-empty.json"
+test -z "$(cfip_post_apply_failure_summary "$TMP/outcome-empty.json" 8)"
+V2="$ROOT/package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto-v2"
+grep -Fq 'fail_run "post-apply validation failed${validation_summary:+: $validation_summary}"' "$V2"
+grep -Fq 'cfip_post_apply_failure_summary' "$V2"
+echo 'PASS post-apply failure summary names the failing probe and stays empty when nothing failed'
