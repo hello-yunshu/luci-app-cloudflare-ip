@@ -5,7 +5,10 @@ on:
     paths:
       - '.github/workflows/proxy-compatibility.yml'
       - 'proxy-upstream-baseline.json'
+      - 'upstream-schema-sources.json'
       - 'scripts/check-proxy-upstreams.py'
+      - 'scripts/fetch-upstream-config.py'
+      - 'tests/upstream-schema-contract.sh'
       - 'package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/**'
       - 'package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto-v2'
       - 'tests/openclash-*.sh'
@@ -15,7 +18,10 @@ on:
     paths:
       - '.github/workflows/proxy-compatibility.yml'
       - 'proxy-upstream-baseline.json'
+      - 'upstream-schema-sources.json'
       - 'scripts/check-proxy-upstreams.py'
+      - 'scripts/fetch-upstream-config.py'
+      - 'tests/upstream-schema-contract.sh'
       - 'package/luci-app-cloudflare-ip/root/usr/libexec/cf-ip/**'
       - 'package/luci-app-cloudflare-ip/root/usr/bin/cf-ip-auto-v2'
       - 'tests/openclash-*.sh'
@@ -50,6 +56,28 @@ jobs:
           bash tests/passwall-measurement-policy.sh
           UCI_REAL_BIN="$RUNNER_TEMP/real-uci/uci-build/uci" bash tests/passwall2-persistence-contract.sh
           bash tests/homeproxy-persistence-contract.sh
+
+  upstream-schema:
+    # The adapter contracts above run against fixtures this repository authors,
+    # so they cannot notice an upstream rename. This job fetches the default
+    # configuration the upstream package actually ships and asserts CFI's
+    # coordinates against it, which is the one signal here that describes real
+    # breakage rather than a version number.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Install schema-contract tools
+        run: sudo apt-get update && sudo apt-get install -y jq cmake pkg-config libjson-c-dev
+      - name: Build isolated real UCI CLI
+        run: bash tests/build-real-uci.sh "$RUNNER_TEMP/real-uci"
+      - name: Fetch the upstream packages' shipped default configuration
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 scripts/fetch-upstream-config.py --sources upstream-schema-sources.json --baseline proxy-upstream-baseline.json --dir "$RUNNER_TEMP/upstream-config"
+      - name: Assert CFI coordinates against the real upstream configuration
+        env:
+          UCI_REAL_BIN: ${{ runner.temp }}/real-uci/uci-build/uci
+        run: bash tests/upstream-schema-contract.sh --config-dir "$RUNNER_TEMP/upstream-config"
 
   upstream-drift:
     runs-on: ubuntu-latest

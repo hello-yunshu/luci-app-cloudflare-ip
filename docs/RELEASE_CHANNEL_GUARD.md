@@ -9,7 +9,9 @@
 
 Automatic promotion replaced the manual Stable Gate on **2026-11-23** by owner decision. Only the manual promotion step was removed — the exact-SHA qualification manifest and the immutable tag guard remain mandatory for both channels, so nothing is published that failed verification.
 
-Proxy upstream drift is **reported, never enforced**. `scripts/check-proxy-upstreams.py` runs on every release and writes a table into the job summary, but exits 0 when a ref changed: a new upstream version is not evidence that functionality fails, and the canary's adapter contracts do not install upstream packages, so no automated signal could prove incompatibility anyway. It exits 1 only for a defect in this repository's own baseline — a missing field or an unsupported upstream kind.
+Proxy upstream drift is **reported, never enforced**. `scripts/check-proxy-upstreams.py` runs on every release and writes a table into the job summary, but exits 0 when a ref changed: a new upstream version is not evidence that functionality fails. It exits 1 only for a defect in this repository's own baseline — a missing field or an unsupported upstream kind.
+
+The evidence lives in a separate job. `upstream-schema` in `.github/workflows/proxy-compatibility.yml` downloads the package each upstream actually releases, extracts its shipped default configuration, and asserts every UCI coordinate CFI reads or writes still exists there (`tests/upstream-schema-contract.sh`, sources in `upstream-schema-sources.json`). A renamed or dropped option reds that job. That is why the drift job does not need blocking authority: the signal that can prove breakage already has it, and a version number still cannot.
 
 ## What a red `Build and Release` run means now
 

@@ -129,7 +129,7 @@ def main():
     summary = [
         "## Proxy upstream compatibility canary",
         "",
-        "This job detects upstream ref changes and runs local adapter contract tests. It does not install or claim runtime compatibility for a newly released plugin/core.",
+        "This job only compares refs. Real compatibility is asserted by the `upstream-schema` job, which checks the UCI coordinates CFI depends on against the default configuration the upstream package actually ships.",
         "",
         "Drift is reported only. A version change is not evidence that functionality fails, so it never blocks a release; blocking comes from failing adapter contracts, an invalid qualification manifest or an immutable tag collision.",
         "",

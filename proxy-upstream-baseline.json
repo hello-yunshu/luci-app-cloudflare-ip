@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "policy": "Upstream ref changes are reported, never enforced. A version change is not evidence that functionality fails, so it does not stop a release; releases are blocked by signals that do describe failure - a failing adapter contract, an invalid or ineligible qualification manifest, or an immutable tag collision. This file records what was actually qualified so that a human can see when requalification is due.",
+  "policy": "Upstream ref changes are reported, never enforced. A version change is not evidence that functionality fails, so it does not stop a release; releases are blocked by signals that do describe failure - a failing adapter contract, a failing upstream-schema assertion against the package's real shipped configuration, an invalid or ineligible qualification manifest, or an immutable tag collision. This file records what was actually qualified so that a human can see when requalification is due.",
   "upstreams": [
     {
       "name": "OpenClash",

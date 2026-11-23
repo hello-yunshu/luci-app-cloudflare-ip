@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "policy": "Each entry names where the upstream package's real shipped default configuration can be fetched, and which coordinates CFI depends on inside it. The canary asserts those coordinates still exist in the real file. A missing coordinate means the upstream renamed or dropped something CFI reads or writes, which is a functional failure - unlike a version number, it is evidence. Coordinates that only exist after a package creates them at runtime (openclash.config.config_path, homeproxy node sections, ...) are deliberately not listed; CFI reads those through guarded fallbacks instead. A [*] index means at least one section of that type must still carry the option.",
+  "notApplicable": [
+    {
+      "name": "Mihomo",
+      "reason": "Proxy core with a YAML config, not a UCI package. CFI reaches it only through the OpenClash provider controller, which the OpenClash entry covers."
+    },
+    {
+      "name": "sing-box",
+      "reason": "Proxy core with a JSON config, not a UCI package. Its only consumer path is HomeProxy, which the HomeProxy entry covers."
+    }
+  ],
+  "upstreams": [
+    {
+      "name": "OpenClash",
+      "dest": "openclash",
+      "source": {
+        "kind": "release-ipk",
+        "repo": "vernesong/OpenClash",
+        "asset": "luci-app-openclash_[^/]*_all\\.ipk$",
+        "member": "etc/config/openclash"
+      },
+      "shipped": [
+        "openclash.config.enable",
+        "openclash.config.cn_port"
+      ]
+    },
+    {
+      "name": "PassWall1",
+      "dest": "passwall",
+      "source": {
+        "kind": "release-ipk",
+        "repo": "Openwrt-Passwall/openwrt-passwall",
+        "asset": "luci-app-passwall_[^/]*_all\\.ipk$",
+        "member": "usr/share/passwall/0_default_config"
+      },
+      "shipped": [
+        "passwall.@global[0]",
+        "passwall.@nodes[*].protocol",
+        "passwall.@nodes[*].remarks"
+      ]
+    },
+    {
+      "name": "PassWall2",
+      "dest": "passwall2",
+      "source": {
+        "kind": "source-file",
+        "repo": "Openwrt-Passwall/openwrt-passwall2",
+        "path": "luci-app-passwall2/root/usr/share/passwall2/0_default_config"
+      },
+      "shipped": [
+        "passwall2.@global[0].enabled",
+        "passwall2.@global[0].node",
+        "passwall2.@global[0].acl_enable",
+        "passwall2.@global[0].socks_enabled",
+        "passwall2.@nodes[*].protocol",
+        "passwall2.@nodes[*].default_node",
+        "passwall2.@shunt_rules[*].group",
+        "passwall2.@shunt_rules[*].remarks"
+      ]
+    },
+    {
+      "name": "HomeProxy",
+      "dest": "homeproxy",
+      "source": {
+        "kind": "source-file",
+        "repo": "immortalwrt/homeproxy",
+        "path": "root/etc/config/homeproxy"
+      },
+      "shipped": [
+        "homeproxy.config.main_node",
+        "homeproxy.config.main_udp_node",
+        "homeproxy.config.routing_mode"
+      ]
+    }
+  ]
+}
