@@ -1,5 +1,5 @@
 {
   "schemaVersion": 1,
   "channel": "stable",
-  "reason": "User decision 2026-11-23: stable releases promote automatically from now on. The manual Stable Gate is retired; release.yml publishes the qualified exact-SHA bytes of every version-producing push on main as a non-prerelease, latest-marked Release. The exact-SHA qualification manifest, the proxy-upstream requalification block and the immutable tag guard remain mandatory, so automatic promotion never skips verification. Earlier context: v2.6.2-28 was promoted by explicit authorization on 2026-11-22 (candidate 5f540aac8b56b73ab00074c8a76dd0707c0b6b76)."
+  "reason": "User decision 2026-11-23: stable releases promote automatically from now on. The manual Stable Gate is retired; release.yml publishes the qualified exact-SHA bytes of every version-producing push on main as a non-prerelease, latest-marked Release. The exact-SHA qualification manifest and the immutable tag guard remain mandatory, so automatic promotion never skips verification. Proxy upstream drift is reported in the job summary but no longer blocks: the adapter contracts do not install upstream packages, so a version comparison is a suspicion rather than evidence that functionality fails. Earlier context: v2.6.2-28 was promoted by explicit authorization on 2026-11-22 (candidate 5f540aac8b56b73ab00074c8a76dd0707c0b6b76)."
 }

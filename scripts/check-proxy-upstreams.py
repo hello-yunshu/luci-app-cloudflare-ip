@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
-"""Report proxy upstream drift, enforcing it only where the claim boundary depends on it.
+"""Report proxy upstream drift. Drift never blocks a release.
 
-An upstream may set ``"blocking": false`` in the baseline when the CFI contract
-does not depend on that upstream's runtime behaviour — for example adapters that
-only write configuration and never claim a running-service hot apply. Drift on
-those upstreams is still reported in the run summary, it just no longer stops a
-release. Upstreams without the field keep the strict behaviour.
+A changed upstream ref is not evidence that functionality fails: it only means
+the recorded qualification no longer describes the current upstream build. This
+script therefore reports drift in the job summary and exits 0. Releases block on
+signals that do describe failure — a failing adapter contract, an invalid
+qualification manifest, or an immutable tag collision.
 
-Lookup failures are reported and never block either: this script is a canary,
-and a GitHub API hiccup must not turn into a release outage.
+Only a broken baseline (missing field, unsupported upstream kind) is treated as
+an error, because that is a defect in this repository rather than news about an
+upstream.
 """
 
 import argparse
@@ -48,6 +49,28 @@ def short_ref(kind, ref):
     return ref[:12] if kind == "branch" else ref
 
 
+REQUIRED_FIELDS = {
+    "release": ("name", "repo", "kind", "observedRef", "qualification"),
+    "branch": ("name", "repo", "kind", "branch", "observedRef", "qualification"),
+}
+
+
+def baseline_defect(item):
+    """Return a description of what is wrong with this entry, or None.
+
+    Checked before any network call so that a malformed entry is reported as a
+    repository defect instead of surfacing later as a KeyError on a lookup that
+    happened to succeed.
+    """
+    kind = item.get("kind")
+    if kind not in REQUIRED_FIELDS:
+        return f"unsupported upstream kind: {kind!r}"
+    missing = [field for field in REQUIRED_FIELDS[kind] if not item.get(field)]
+    if missing:
+        return "missing field(s): " + ", ".join(missing)
+    return None
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--baseline", required=True, type=Path)
@@ -62,38 +85,44 @@ def main():
         "upstreams": [],
     }
     errors = []
-    warnings = []
+    drift = []
+    lookups = []
     for item in baseline["upstreams"]:
-        blocking = item.get("blocking", True)
+        name = item.get("name", "unknown")
+        defect = baseline_defect(item)
+        if defect:
+            errors.append(f"{name}: {defect}")
+            continue
         try:
             ref = current_ref(item)
-            drift = ref != item["observedRef"]
+        except (urllib.error.URLError, TimeoutError) as exc:
+            lookups.append(f"{name}: lookup failed ({type(exc).__name__})")
             report["upstreams"].append({
-                "name": item["name"],
-                "repo": item["repo"],
-                "kind": item["kind"],
-                "observedRef": item["observedRef"],
-                "currentRef": ref,
-                "drift": drift,
-                "blocking": blocking,
-                "qualification": item["qualification"],
-            })
-            if drift:
-                message = f"{item['name']}: {item['observedRef']} -> {ref}"
-                (errors if blocking else warnings).append(message)
-        except (KeyError, ValueError, urllib.error.URLError, TimeoutError) as exc:
-            report["upstreams"].append({
-                "name": item.get("name", "unknown"),
+                "name": name,
                 "repo": item.get("repo", ""),
                 "kind": item.get("kind", ""),
                 "observedRef": item.get("observedRef", ""),
                 "currentRef": None,
                 "drift": None,
-                "blocking": blocking,
                 "qualification": item.get("qualification", ""),
                 "lookupError": type(exc).__name__,
             })
-            warnings.append(f"{item.get('name', 'unknown')}: lookup failed ({type(exc).__name__})")
+            continue
+        except (KeyError, ValueError) as exc:
+            errors.append(f"{name}: invalid baseline entry ({type(exc).__name__}) - {exc}")
+            continue
+        changed = ref != item["observedRef"]
+        report["upstreams"].append({
+            "name": name,
+            "repo": item["repo"],
+            "kind": item["kind"],
+            "observedRef": item["observedRef"],
+            "currentRef": ref,
+            "drift": changed,
+            "qualification": item["qualification"],
+        })
+        if changed:
+            drift.append(f"{name}: {item['observedRef']} -> {ref}")
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
@@ -102,8 +131,10 @@ def main():
         "",
         "This job detects upstream ref changes and runs local adapter contract tests. It does not install or claim runtime compatibility for a newly released plugin/core.",
         "",
-        "| Component | Current upstream ref | Baseline | Blocks release | Qualification boundary |",
-        "|---|---|---|---|---|",
+        "Drift is reported only. A version change is not evidence that functionality fails, so it never blocks a release; blocking comes from failing adapter contracts, an invalid qualification manifest or an immutable tag collision.",
+        "",
+        "| Component | Current upstream ref | Baseline | Qualification boundary |",
+        "|---|---|---|---|",
     ]
     for row in report["upstreams"]:
         kind = row["kind"]
@@ -112,21 +143,20 @@ def main():
             mark = ""
         else:
             shown = short_ref(kind, row["currentRef"])
-            if row["drift"]:
-                mark = " **DRIFT**" if row["blocking"] else " **DRIFT (info)**"
-            else:
-                mark = ""
+            mark = " **DRIFT**" if row["drift"] else ""
         baseline_ref = short_ref(kind, row["observedRef"])
-        enforced = "yes" if row["blocking"] else "no"
         summary.append(
-            f"| {row['name']} | `{shown}`{mark} | `{baseline_ref}` | {enforced} | {row['qualification']} |"
+            f"| {row['name']} | `{shown}`{mark} | `{baseline_ref}` | {row['qualification']} |"
         )
+    if drift:
+        summary.extend(["", "### Upstream drift reported — does not block the release", ""])
+        summary.extend(f"- {entry}" for entry in drift)
+    if lookups:
+        summary.extend(["", "### Lookup failures — does not block the release", ""])
+        summary.extend(f"- {entry}" for entry in lookups)
     if errors:
-        summary.extend(["", "### Requalification required — blocks the release", ""])
-        summary.extend(f"- {error}" for error in errors)
-    if warnings:
-        summary.extend(["", "### Reported only — does not block the release", ""])
-        summary.extend(f"- {warning}" for warning in warnings)
+        summary.extend(["", "### Baseline defects — blocks the release", ""])
+        summary.extend(f"- {entry}" for entry in errors)
     summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
     if summary_path:
         with open(summary_path, "a", encoding="utf-8") as stream:

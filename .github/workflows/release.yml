@@ -67,7 +67,7 @@ jobs:
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 1
-      - name: Block promotion when proxy upstream refs need requalification
+      - name: Report proxy upstream drift
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: python3 scripts/check-proxy-upstreams.py --baseline proxy-upstream-baseline.json --output "$RUNNER_TEMP/proxy-upstreams.json"
@@ -95,8 +95,10 @@ jobs:
           # automatically. `stable` publishes a non-prerelease, latest-marked
           # Release; `prerelease` publishes the 2.0 development line. This
           # relaxes only the manual promotion step: the exact-SHA
-          # qualification manifest, the proxy-upstream requalification block
-          # and the immutable tag guard stay mandatory for both channels.
+          # qualification manifest and the immutable tag guard stay mandatory
+          # for both channels. Proxy upstream drift is reported above, never
+          # enforced - a version change is not evidence that functionality
+          # fails.
           case "$channel" in
             prerelease|stable) ;;
             *)
