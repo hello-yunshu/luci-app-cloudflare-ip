@@ -143,6 +143,11 @@
 }
 
 .cfi-env-table .label { white-space: nowrap; }
+/* The environment table owns the gap to the "Refresh Environment" bar that
+ * follows it. Themes disagree on a native table's bottom margin (Bootstrap
+ * keeps 1rem, Vantage drops it to 0), so the bar ended up flush with the last
+ * row. Pin the gap to the shared spacing unit instead of the theme default. */
+#maincontent .cfi-env-table { margin-bottom: calc(var(--spacing, .25rem) * 4); }
 @media screen and (max-width: 600px) {
 	.cfi-dashboard th.cfi-overview-label::after {
 		content: ':';
