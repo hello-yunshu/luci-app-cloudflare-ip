@@ -21,6 +21,52 @@ var callLegacySelfUpdate = rpc.declare({ object: 'cf_ip', method: 'self-update',
 
 var runtimeManagementBusy = false;
 
+/* "Check for updates" reloads the page, and a reload wipes the notification,
+ * so the verdict is kept in same-tab storage and rendered as its own row.
+ * Performance Manager does the same, which is why both pages answer "did that
+ * check anything?" in the same words. The record is dropped when the tab
+ * closes: a feed verdict goes stale quickly. */
+var RUNTIME_CHECK_KEY = 'cfi.runtime.last-check';
+
+function readRuntimeCheck() {
+	try {
+		var raw = (typeof window !== 'undefined' && window.sessionStorage)
+			? window.sessionStorage.getItem(RUNTIME_CHECK_KEY) : null;
+		if (!raw)
+			return null;
+		var record = JSON.parse(raw);
+		return (record && typeof record.at === 'number' && !isNaN(record.at)) ? record : null;
+	}
+	catch (e) {
+		return null;
+	}
+}
+
+function rememberRuntimeCheck(result) {
+	try {
+		if (typeof window === 'undefined' || !window.sessionStorage)
+			return;
+		window.sessionStorage.setItem(RUNTIME_CHECK_KEY, JSON.stringify({
+			at: Date.now(),
+			hasUpdate: !!(result && (result.updateAvailable === true || result.runtimeUpdateAvailable === true ||
+				result.pmUpdateAvailable === true || result.cfiUpdateAvailable === true || result.clientUpdateAvailable === true))
+		}));
+	}
+	catch (e) {
+		/* Private mode or a full quota: the page still reloads, it just cannot
+		 * carry the verdict over. */
+	}
+}
+
+function runtimeCheckText() {
+	var record = readRuntimeCheck();
+	if (!record)
+		return _('Not checked in this session.');
+	var when = new Date(record.at);
+	var clock = (when.getHours() < 10 ? '0' : '') + when.getHours() + ':' + (when.getMinutes() < 10 ? '0' : '') + when.getMinutes();
+	return (record.hasUpdate === true ? _('Update available') : _('Up to date')) + ' / ' + _('checked at %s').format(clock);
+}
+
 function runtimePackageStateText(manager) {
 	manager = manager || {};
 	if (manager.errorCode === 'manager-unavailable' || manager.helperAvailable === false)
@@ -96,6 +142,8 @@ function runRuntimeManagerAction(method, packageName, button, resultMessage, fai
 	return action.then(function(result) {
 		if (!result || result.ok !== true)
 			throw new Error((result && (result.message || result.errorCode)) || _('Package manager rejected the request.'));
+		if (method === 'refresh')
+			rememberRuntimeCheck(result);
 		return callRuntimeManagerStatus().then(function(state) { return Object.assign({ helperAvailable: true }, state || {}); }).catch(function() { return null; });
 	}).then(function(state) {
 		if (state)
@@ -413,60 +461,20 @@ return view.extend({
 			]);
 		};
 
-		s = m.section(form.TypedSection, 'rill', _('Rill Runtime Consumer'));
-		s.anonymous = true;
-
-		o = s.option(form.Flag, 'enabled', _('Enable Rill Intelligence'),
-			_('Enable the optional Rill consumer. Native ranking remains authoritative when Rill is disabled or unavailable.'));
-		o.default = '0';
-		o.rmempty = false;
-
-		o = s.option(form.ListValue, 'mode', _('Mode'));
-		o.value('off', _('Off'));
-		o.value('shadow', _('Shadow'));
-		o.value('assisted', _('Assisted (qualification-gated)'));
-		o.description = _('Assisted is qualification-gated and uses only the Native safe envelope; any Runtime problem falls back to Native.');
-		o.default = 'shadow';
-
-		o = s.option(form.Value, 'timeout_ms', _('Runtime Timeout (ms)'));
-		o.datatype = 'range(100,10000)';
-		o.default = '2000';
-
-		o = s.option(form.DummyValue, '_runtime_path', _('Runtime Path'));
-		o.cfgvalue = function() { return '/usr/bin/rill-runtime'; };
-		o.description = _('Fixed package-managed Preview Runtime path; custom executable paths are rejected.');
-
-		o = s.option(form.Value, 'state_file', _('State File'));
-		o.default = '/etc/cf_ip/rill-state.json';
-		o.description = _('Must stay under /etc/cf_ip. Paths outside the package state directory are rejected.');
-
-		o = s.option(form.Value, 'safe_top_k', _('Safe Envelope Size'));
-		o.datatype = 'range(1,8)';
-		o.default = '3';
-		o.description = _('How many leading Native candidates Assisted mode may reorder. Larger values widen the search space and the possible regret.');
-
-		o = s.option(form.Value, 'min_feedback_samples', _('Minimum Feedback Samples'));
-		o.datatype = 'range(5,200)';
-		o.default = '30';
-		o.description = _('Attributed feedback required before Assisted mode may take over. At one run every six hours, 30 samples is roughly ten days; lowering it shortens the wait and weakens the evidence.');
-
-		o = s.option(form.Value, 'evaluation_max_age_seconds', _('Evaluation Freshness (seconds)'));
-		o.datatype = 'range(3600,604800)';
-		o.default = '86400';
-		o.description = _('Age at which the last comparable evaluation stops counting as full-confidence evidence.');
-
-		o = s.option(form.Value, 'evaluation_stale_seconds', _('Evidence Expiry (seconds)'));
-		o.datatype = 'range(3600,2592000)';
-		o.default = '604800';
-		o.description = _('Age at which stale evidence expires and the run falls back to Native selection. Must be at least the freshness window.');
-
-		s = m.section(form.TypedSection, 'rill', _('Live State'));
+		/* Package management belongs above the tuning knobs: refreshing the
+		 * trusted feed or repairing the Runtime is the first thing an operator
+		 * looks for, and these actions used to sit under the live-state rows. */
+		s = m.section(form.TypedSection, 'rill', _('Rill Runtime'));
 		s.anonymous = true;
 	o = s.option(form.DummyValue, '_state', _('Runtime'));
 	o.cfgvalue = function() { return runtimeSummary(status); };
 	decorateAvailableRuntime(o, status);
 	o = s.option(form.DummyValue, '_package_manager', _('Runtime Package Status'));
 	o.cfgvalue = function() { return runtimePackageStateText(runtimeManager); };
+	/* Sits between the package status and the buttons that change it: the
+	 * verdict belongs to the check, not to the installed package. */
+	o = s.option(form.DummyValue, '_package_check', _('Last update check'));
+	o.cfgvalue = function() { return runtimeCheckText(); };
 	o = s.option(form.DummyValue, '_package_target', _('Runtime Package Target'));
 	o.cfgvalue = function() {
 		return [ runtimeManager.release || _('Unknown release'), runtimeManager.architecture || _('Unknown architecture'), runtimeManager.pkgtype || _('Unknown package format') ].join(' / ');
@@ -589,6 +597,56 @@ return view.extend({
 	};
 	o.description = _('Legacy GitHub updater is available because the unified package helper is missing.');
 
+
+		s = m.section(form.TypedSection, 'rill', _('Rill Runtime Consumer'));
+		s.anonymous = true;
+
+		o = s.option(form.Flag, 'enabled', _('Enable Rill Intelligence'),
+			_('Enable the optional Rill consumer. Native ranking remains authoritative when Rill is disabled or unavailable.'));
+		o.default = '0';
+		o.rmempty = false;
+
+		o = s.option(form.ListValue, 'mode', _('Mode'));
+		o.value('off', _('Off'));
+		o.value('shadow', _('Shadow'));
+		o.value('assisted', _('Assisted (qualification-gated)'));
+		o.description = _('Assisted is qualification-gated and uses only the Native safe envelope; any Runtime problem falls back to Native.');
+		o.default = 'shadow';
+
+		o = s.option(form.Value, 'timeout_ms', _('Runtime Timeout (ms)'));
+		o.datatype = 'range(100,10000)';
+		o.default = '2000';
+
+		o = s.option(form.DummyValue, '_runtime_path', _('Runtime Path'));
+		o.cfgvalue = function() { return '/usr/bin/rill-runtime'; };
+		o.description = _('Fixed package-managed Preview Runtime path; custom executable paths are rejected.');
+
+		o = s.option(form.Value, 'state_file', _('State File'));
+		o.default = '/etc/cf_ip/rill-state.json';
+		o.description = _('Must stay under /etc/cf_ip. Paths outside the package state directory are rejected.');
+
+		o = s.option(form.Value, 'safe_top_k', _('Safe Envelope Size'));
+		o.datatype = 'range(1,8)';
+		o.default = '3';
+		o.description = _('How many leading Native candidates Assisted mode may reorder. Larger values widen the search space and the possible regret.');
+
+		o = s.option(form.Value, 'min_feedback_samples', _('Minimum Feedback Samples'));
+		o.datatype = 'range(5,200)';
+		o.default = '30';
+		o.description = _('Attributed feedback required before Assisted mode may take over. At one run every six hours, 30 samples is roughly ten days; lowering it shortens the wait and weakens the evidence.');
+
+		o = s.option(form.Value, 'evaluation_max_age_seconds', _('Evaluation Freshness (seconds)'));
+		o.datatype = 'range(3600,604800)';
+		o.default = '86400';
+		o.description = _('Age at which the last comparable evaluation stops counting as full-confidence evidence.');
+
+		o = s.option(form.Value, 'evaluation_stale_seconds', _('Evidence Expiry (seconds)'));
+		o.datatype = 'range(3600,2592000)';
+		o.default = '604800';
+		o.description = _('Age at which stale evidence expires and the run falls back to Native selection. Must be at least the freshness window.');
+
+		s = m.section(form.TypedSection, 'rill', _('Live State'));
+		s.anonymous = true;
 	o = s.option(form.DummyValue, '_channel', _('Runtime Channel'));
 	o.cfgvalue = function() {
 		var i = status.intelligence || {};

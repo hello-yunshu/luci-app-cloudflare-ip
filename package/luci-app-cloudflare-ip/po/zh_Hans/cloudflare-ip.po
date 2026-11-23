@@ -376,6 +376,9 @@ msgid "Deterministic Early Stop"
 msgstr "确定性提前停止"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js:73
+msgid "Rill Runtime"
+msgstr "Rill Runtime"
+
 msgid "Rill Runtime Consumer"
 msgstr "Rill Runtime 接入"
 
@@ -2353,6 +2356,18 @@ msgstr "未知状态码"
 msgid "OpenClash apply failed."
 msgstr "OpenClash 应用失败。"
 
+msgid "Rolled back"
+msgstr "已回滚"
+
+msgid "New nodes did not pass the live check; the previous configuration was restored automatically."
+msgstr "新节点未通过实际访问校验，已自动回滚到上一次可用的配置。"
+
+msgid "OpenClash is still running the last working nodes, so traffic is unaffected. This usually means a candidate IP could not finish its TLS handshake within the probe timeout."
+msgstr "OpenClash 仍在运行上一次可用的节点，上网不受影响。通常是某个候选 IP 在探测超时时间内没能完成 TLS 握手。"
+
+msgid "If the same IP fails again next run, raise Probe Timeout in Advanced settings or check the target domain."
+msgstr "若下一轮同一个 IP 仍然失败，可在「高级设置」中调大探测超时，或检查目标域名。"
+
 msgid "All"
 msgstr "全部"
 
@@ -2793,3 +2808,23 @@ msgstr "需要重置"
 msgid "Fresh evidence keeps full confidence, stale evidence lowers it, expired "
 "evidence falls back to Native selection."
 msgstr "新鲜的证据保持完整置信度，陈旧证据降低置信度，过期证据回退到 Native 选择。"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Last update check"
+msgstr "上次检查"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Up to date"
+msgstr "已是最新版本"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Update available"
+msgstr "发现可用更新"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "checked at %s"
+msgstr "检查于 %s"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Not checked in this session."
+msgstr "本次会话尚未检查。"

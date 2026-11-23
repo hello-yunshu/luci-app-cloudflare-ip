@@ -355,6 +355,9 @@ msgid "Deterministic Early Stop"
 msgstr "Deterministic Early Stop"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js:73
+msgid "Rill Runtime"
+msgstr "Rill Runtime"
+
 msgid "Rill Runtime Consumer"
 msgstr "Rill Runtime Consumer"
 
@@ -2252,6 +2255,18 @@ msgstr "Unknown state codes"
 msgid "OpenClash apply failed."
 msgstr "OpenClash apply failed."
 
+msgid "Rolled back"
+msgstr "Rolled back"
+
+msgid "New nodes did not pass the live check; the previous configuration was restored automatically."
+msgstr "New nodes did not pass the live check; the previous configuration was restored automatically."
+
+msgid "OpenClash is still running the last working nodes, so traffic is unaffected. This usually means a candidate IP could not finish its TLS handshake within the probe timeout."
+msgstr "OpenClash is still running the last working nodes, so traffic is unaffected. This usually means a candidate IP could not finish its TLS handshake within the probe timeout."
+
+msgid "If the same IP fails again next run, raise Probe Timeout in Advanced settings or check the target domain."
+msgstr "If the same IP fails again next run, raise Probe Timeout in Advanced settings or check the target domain."
+
 msgid "All"
 msgstr "All"
 
@@ -2701,3 +2716,23 @@ msgid "Fresh evidence keeps full confidence, stale evidence lowers it, expired "
 "evidence falls back to Native selection."
 msgstr "Fresh evidence keeps full confidence, stale evidence lowers it, expired "
 "evidence falls back to Native selection."
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Last update check"
+msgstr "Last update check"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Up to date"
+msgstr "Up to date"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Update available"
+msgstr "Update available"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "checked at %s"
+msgstr "checked at %s"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Not checked in this session."
+msgstr "Not checked in this session."

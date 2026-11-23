@@ -373,6 +373,9 @@ msgid "Deterministic Early Stop"
 msgstr ""
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js:73
+msgid "Rill Runtime"
+msgstr ""
+
 msgid "Rill Runtime Consumer"
 msgstr ""
 
@@ -2331,6 +2334,18 @@ msgstr ""
 msgid "OpenClash apply failed."
 msgstr ""
 
+msgid "Rolled back"
+msgstr ""
+
+msgid "New nodes did not pass the live check; the previous configuration was restored automatically."
+msgstr ""
+
+msgid "OpenClash is still running the last working nodes, so traffic is unaffected. This usually means a candidate IP could not finish its TLS handshake within the probe timeout."
+msgstr ""
+
+msgid "If the same IP fails again next run, raise Probe Timeout in Advanced settings or check the target domain."
+msgstr ""
+
 msgid "All"
 msgstr ""
 
@@ -2779,4 +2794,24 @@ msgstr ""
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
 msgid "Fresh evidence keeps full confidence, stale evidence lowers it, expired "
 "evidence falls back to Native selection."
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Last update check"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Up to date"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Update available"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "checked at %s"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Not checked in this session."
 msgstr ""

@@ -20,4 +20,16 @@ grep -Eq 'i\.contextChanged' "$file"
 utils="$ROOT/package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js"
 grep -Eq "freshness: \{" "$utils"
 grep -Eq "evaluation: \{" "$utils"
+# Runtime package actions must stay above the tuning knobs: the feed refresh
+# and Runtime repair are maintenance actions, not part of the live-state rows.
+pkg_line=$(grep -n "_package_refresh', _('Runtime Package Management')" "$file" | head -1 | cut -d: -f1)
+section_line=$(grep -n "_('Rill Runtime')" "$file" | head -1 | cut -d: -f1)
+consumer_line=$(grep -n "Rill Runtime Consumer" "$file" | head -1 | cut -d: -f1)
+live_line=$(grep -n "'Live State'" "$file" | head -1 | cut -d: -f1)
+[ -n "$pkg_line" ] && [ -n "$section_line" ] && [ -n "$consumer_line" ] && [ -n "$live_line" ] \
+  || { echo 'FAIL: Runtime package section or anchors missing from Intelligence view' >&2; exit 1; }
+(( section_line < pkg_line )) || { echo 'FAIL: Runtime package actions must be inside the Rill Runtime section' >&2; exit 1; }
+(( pkg_line < consumer_line )) || { echo 'FAIL: Runtime package actions must precede the Runtime consumer settings' >&2; exit 1; }
+(( pkg_line < live_line )) || { echo 'FAIL: Runtime package actions must not be buried in Live State' >&2; exit 1; }
+
 echo 'Intelligence LuCI fail-safe evidence contract passed'
