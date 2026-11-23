@@ -54,7 +54,11 @@ out="$(run_validate "$TMP/channel-unknown")"
 rc=$?
 set -e
 [[ "$rc" -ne 0 ]]
-grep -q 'rill-runtime-preview' <<<"$out"
+# An unreadable marker is not a Preview installation: the engine now reports
+# "not installed" and asks for the Stable package instead of naming the legacy
+# preview package, so this branch asserts that split rather than the old text.
+grep -q 'Rill Runtime is not installed' <<<"$out"
+grep -q 'Stable rill-runtime' <<<"$out"
 echo 'PASS Unknown Runtime channel rejected for Preview consumer'
 
 set +e

@@ -147,6 +147,10 @@ jobs:
           bash tests/rill-assisted-resource-pressure-selection.sh
           bash tests/rill-outcome-attribution.sh
           bash tests/rill-reward-v2.sh
+          bash tests/rill-reward-graded-failure.sh
+          bash tests/rill-evaluation-robust-health.sh
+          bash tests/rill-training-health-signals.sh
+          bash tests/rill-quarantine-uniqueness.sh
           bash tests/rill-qualification-rolling.sh
           bash tests/probe-batching.sh
           bash tests/source-policy.sh
@@ -185,6 +189,7 @@ jobs:
           bash tests/disabled-cron-contract.sh
           bash tests/init-cron-preservation.sh
           bash tests/sysupgrade-config-atomic.sh
+          bash tests/sysupgrade-keep-contract.sh
           bash tests/evidence-manifest-default.sh
           bash tests/qualification-evidence-validator.sh
           bash tests/openwrt-package-metadata.sh

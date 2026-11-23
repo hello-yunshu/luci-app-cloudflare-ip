@@ -53,6 +53,9 @@ case "${1:-}" in
             cf_ip.rill.safe_top_k) printf '3' ;;
             cf_ip.rill.min_feedback_samples) printf '30' ;;
             cf_ip.rill.delayed_feedback_minutes) printf '10' ;;
+            cf_ip.rill.evaluation_max_age_seconds) printf '86400' ;;
+            cf_ip.rill.evaluation_stale_seconds) printf '604800' ;;
+            cf_ip.rill.training_max_age_seconds) printf '604800' ;;
             cf_ip.rill.timeout_ms) printf '2000' ;;
             cf_ip.rill.state_file) printf '/etc/cf_ip/rill-state.json' ;;
             cf_ip.lan.enabled) printf '0' ;;

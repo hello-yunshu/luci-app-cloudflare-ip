@@ -64,6 +64,8 @@ config rill 'rill'
 	option min_feedback_samples '30'
 	option delayed_feedback_minutes '10'
 	option evaluation_max_age_seconds '86400'
+	option evaluation_stale_seconds '604800'
+	option training_max_age_seconds '604800'
 
 config lan 'lan'
 	option enabled '0'

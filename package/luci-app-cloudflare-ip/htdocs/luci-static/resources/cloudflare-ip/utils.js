@@ -35,9 +35,29 @@ var STATUS_LABELS = {
 	},
 	qualification: {
 		cold: _('Cold start'),
+		learning: _('Learning'),
+		'shadow-qualified': _('Qualified'),
+		'guarded-assisted': _('Guarded assisted'),
 		insufficient: _('Insufficient'),
+		negative: _('Regression'),
 		qualified: _('Qualified'),
+		'reset-required': _('Reset required'),
 		pending: _('Pending'),
+		unknown: _('Unknown')
+	},
+	freshness: {
+		fresh: _('Fresh'),
+		stale: _('Stale'),
+		expired: _('Expired'),
+		none: _('No evidence'),
+		unknown: _('Unknown')
+	},
+	evaluation: {
+		healthy: _('Healthy'),
+		insufficient: _('Insufficient'),
+		negative: _('Regression'),
+		stale: _('Stale'),
+		cold: _('Cold start'),
 		unknown: _('Unknown')
 	},
 	health: {
@@ -122,6 +142,29 @@ function statusKnown(kind, value) {
 	return !!((STATUS_LABELS[kind] || {})[code]);
 }
 
+/*
+ * The v2 engine stores run timestamps as UTC ISO-8601 (`2026-11-22T23:32:12Z`)
+ * while the legacy engine wrote local `YYYY-MM-DD HH:MM:SS`. Rendering the raw
+ * string showed a router at UTC+8 yesterday's date after a morning run, so every
+ * timestamp is normalised to the browser's local time here. Unparsable values
+ * are returned untouched instead of being replaced by 'Invalid Date'.
+ */
+function formatTimestamp(value) {
+	if (value === undefined || value === null || value === '')
+		return '-';
+
+	var text = String(value);
+	var parsed = new Date(text);
+
+	if (isNaN(parsed.getTime()))
+		return text;
+
+	var pad = function(number) { return (number < 10 ? '0' : '') + number; };
+
+	return parsed.getFullYear() + '-' + pad(parsed.getMonth() + 1) + '-' + pad(parsed.getDate()) +
+		' ' + pad(parsed.getHours()) + ':' + pad(parsed.getMinutes()) + ':' + pad(parsed.getSeconds());
+}
+
 function statusReasons(values) {
 	if (!values || !values.length)
 		return _('None');
@@ -150,6 +193,8 @@ function collectUnknownStatusCodes(status) {
 	add('confidence', 'confidenceLevel', decision.confidenceLevel || intelligence.confidenceLevel);
 	add('runtime', 'intelligence.state', intelligence.state);
 	add('qualification', 'qualificationState', intelligence.qualificationState || adaptive.qualificationState);
+	add('freshness', 'qualificationFreshness', intelligence.qualificationFreshness);
+	add('evaluation', 'evaluationHealth', intelligence.evaluationHealth);
 	add('mode', 'adaptive.requestedMode', adaptive.requestedMode);
 	add('mode', 'adaptive.effectiveMode', adaptive.effectiveMode);
 	add('reason', 'adaptive.lastFallbackReason', adaptive.lastFallbackReason);
@@ -424,7 +469,8 @@ function buildStagedCandidate() {
 			'reuse_validation_timeout', 'reuse_loss_limit', 'reuse_ttfb_limit', 'reuse_total_limit',
 			'github_mirror', 'verbose' ],
 			rill: [ 'enabled', 'mode', 'runtime', 'state_file', 'timeout_ms', 'safe_top_k',
-				'min_feedback_samples', 'delayed_feedback_minutes' ],
+				'min_feedback_samples', 'delayed_feedback_minutes', 'evaluation_max_age_seconds',
+				'evaluation_stale_seconds', 'training_max_age_seconds' ],
 		lan: [ 'enabled', 'bind_address', 'port' ],
 		passwall: [ 'target_domain', 'name_suffix' ],
 		passwall2: [ 'target_domain' ],
@@ -697,6 +743,7 @@ return baseclass.extend({
 	confirmAction: confirmAction,
 	statusLabel: statusLabel,
 	statusKnown: statusKnown,
+	formatTimestamp: formatTimestamp,
 	statusReasons: statusReasons,
 	collectUnknownStatusCodes: collectUnknownStatusCodes,
 	sourceStateLabel: sourceStateLabel,

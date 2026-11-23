@@ -17,7 +17,67 @@ cp -p /etc/config/cf_ip "/root/cf_ip.$stamp"
 
 Keep the SHA256 beside the backup. Do not store it only in `/tmp`.
 
-## 2. After a failed upgrade or ENOSPC
+## 2. State that survives a rebuild (and what does not)
+
+`/etc/cf_ip` is the only stateful directory (about 1 MiB on a device with
+weeks of history). It holds `status.json`, `run-history.ndjson`,
+`candidate-history.json`, and the Rill learner: `rill-state.json`,
+`rill-qualification.json`, `rill-evidence.json`, `rill-state-meta.json`
+(lineage + context fingerprint) and `rill-pending-feedback.json`. Losing it
+restarts Rill collection from zero.
+
+Two independent mechanisms keep it:
+
+| Path | Mechanism | Covers |
+| --- | --- | --- |
+| `conffiles` in the Makefile | opkg/apk never rewrites it | package upgrade/rollback |
+| `/lib/upgrade/keep.d/luci-app-cloudflare-ip` | sysupgrade copies it back | `sysupgrade` with "keep settings" |
+
+The keep.d rule ships from
+`package/luci-app-cloudflare-ip/root/lib/upgrade/keep.d/luci-app-cloudflare-ip`
+and is pinned by `tests/sysupgrade-keep-contract.sh`. Earlier releases carried
+the file on the device without it existing in the tree, so a clean rebuild would
+have dropped it and silently stopped keeping the state.
+
+What still loses data:
+
+- `sysupgrade -n`, "do not keep settings", `firstboot`, or wiping the overlay
+  (`/overlay`) — the keep list is not consulted, the directory is gone.
+- Flashing a full image over the existing overlay instead of `sysupgrade`.
+
+Back up before any of those, outside `/tmp`:
+
+```sh
+stamp=$(date +%Y%m%d-%H%M%S)
+cp -a /etc/cf_ip "/root/cf_ip-state.$stamp"
+tar -C /etc -czf "/root/cf_ip-state.$stamp.tar.gz" cf_ip
+sha256sum "/root/cf_ip-state.$stamp.tar.gz" > "/root/cf_ip-state.$stamp.sha256"
+```
+
+Restore after the flash, before the first run:
+
+```sh
+[ -d /etc/cf_ip ] || mkdir -p /etc/cf_ip
+tar -C /etc -xzf "/root/cf_ip-state.$stamp.tar.gz"
+/etc/init.d/cf_ip restart
+```
+
+Keeping the bytes is necessary but not sufficient: Rill also rotates lineage
+when the **learning context** changes, because a model trained for one context
+is not valid for another. The fingerprint covers `ip_type`, the target domain
+list, the speedtest protocol, and any `cfCOLO` restriction. Changing any of them
+(even during an upgrade that preserved the files) starts the model over;
+superseded files are renamed `*.quarantine.context.<timestamp>`, never deleted,
+and `learningContext` / `lastResetReason` / `contextChangeScope` in the RPC
+payload report it. How much is superseded depends on the dimension that moved:
+an `ip_type` change drops every candidate-dependent file, a protocol change
+additionally drops the per-IP latency priors, and a domain or colo change keeps
+the per-IP, prefix and colo histories because they still describe the same
+endpoints. A state file whose feature width no longer matches the runtime is
+likewise quarantined as `feature_width_mismatch` or
+`invalid_or_legacy_snapshot`.
+
+## 3. After a failed upgrade or ENOSPC
 
 1. Free space first (`df -k /usr`); restoring into a full filesystem fails the
    same way. Remove caches/downloads, not package files you still need.
@@ -52,7 +112,7 @@ For a rollback to an older version, opkg refuses a plain downgrade
 opkg install --force-downgrade /tmp/luci-app-cloudflare-ip_<older>_all.ipk
 ```
 
-## 3. If the package files were partially replaced
+## 4. If the package files were partially replaced
 
 The status backup describes the old package set, while `/usr` may contain new
 files. After restoring the status and freeing space, `--force-reinstall` the
@@ -67,7 +127,7 @@ uci show cf_ip | head
 The UCI config is preserved across upgrade/rollback; the new defaults appear as
 `/etc/config/cf_ip-opkg`.
 
-## 4. APK / OpenWrt 25.12+
+## 5. APK / OpenWrt 25.12+
 
 Back up the installed database and config:
 
@@ -87,7 +147,7 @@ APK rollback, ENOSPC and power-loss drills passed in the 25.12.5 container
 (`/audit-p1-p2-20261106/p1-1-apk-summary.txt`, 7/7 PASS); real-device flash
 behaviour and a real power cut remain device-level work.
 
-## 5. Evidence
+## 6. Evidence
 
 `tests/opkg-status-recovery.sh` truncates the database, asserts it is rejected,
 restores the pre-upgrade backup, and asserts opkg lists the same package count.

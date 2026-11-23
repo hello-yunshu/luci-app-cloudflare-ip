@@ -12,8 +12,7 @@ cfip_reuse_state_json() {
         return 0
     fi
     if [[ -s "$CFIP_REUSE_STATE_FILE" ]]; then
-        local stamp="$(date +%Y%m%d%H%M%S)" quarantine="${CFIP_REUSE_STATE_FILE}.quarantine.${stamp}"
-        [[ -e "$quarantine" ]] && quarantine="$quarantine.$$"
+        local stamp="$(date +%Y%m%d%H%M%S)" quarantine="$(cfip_unique_path "${CFIP_REUSE_STATE_FILE}.quarantine.${stamp}")"
         mv "$CFIP_REUSE_STATE_FILE" "$quarantine" 2>/dev/null || true
         cfip_log "reuse state quarantined: $quarantine"
     fi

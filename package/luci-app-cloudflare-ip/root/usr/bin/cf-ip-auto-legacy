@@ -829,8 +829,14 @@ openclash_enable_state() {
 	case "$value" in 0|1) printf '%s' "$value" ;; *) die "openclash.config.enable is missing or invalid" ;; esac
 }
 
+# Same pipefail caveat as the v2 engine: pidof fails for every core that is
+# not running, so each probe is neutralised and the pipeline stays successful.
 openclash_core_pids() {
-	{ pidof clash 2>/dev/null; pidof mihomo 2>/dev/null; pidof clash_meta 2>/dev/null; } | tr ' ' '\n' | grep -v '^$' | sort -un | tr '\n' ' ' | sed 's/ *$//'
+	local core
+	for core in clash mihomo clash_meta; do
+		pidof "$core" 2>/dev/null || true
+		printf '\n'
+	done | tr ' ' '\n' | grep -v '^$' | sort -un | tr '\n' ' ' | sed 's/ *$//' || true
 }
 
 openclash_core_running() {

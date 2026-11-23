@@ -30,10 +30,13 @@ summary="$(cfip_stderr_summary "$TMP/err1")"
 [ "$summary" = "boom: runtime unreachable (+3 more line(s))" ] \
 	|| fail "stderr summary was '$summary'"
 
-# 2. Summary is clamped so one bad line cannot bloat the log entry.
+# 2. Summary is clamped so one bad line cannot bloat the log entry. The bound
+#    must hold in a C locale too: that is what OpenWrt actually runs, and there
+#    a multi-byte ellipsis counted as three bytes.
 printf '%s\n' "$(printf 'x%.0s' $(seq 1 600))" >"$TMP/err2"
 summary="$(cfip_stderr_summary "$TMP/err2" 40)"
-[ "${#summary}" -le 41 ] || fail "summary not clamped: ${#summary} chars"
+[ "${#summary}" -eq 40 ] || fail "summary not clamped to 40 chars: ${#summary}"
+[ "${summary%...}" != "$summary" ] || fail "clamped summary lost its ellipsis"
 
 # 3. A failing runtime call logs ONE line, and the raw stderr stays out.
 set +e

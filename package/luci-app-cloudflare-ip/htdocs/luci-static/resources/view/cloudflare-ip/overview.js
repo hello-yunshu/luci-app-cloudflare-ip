@@ -283,7 +283,7 @@ return view.extend({
 			]);
 
 		var running = data.running || false;
-		var lastRun = data.last_run || '-';
+		var lastRun = data.last_run ? utils.formatTimestamp(data.last_run) : '-';
 		var lastResult = data.last_result || '-';
 		var mode = data.mode || uci.get('cf_ip', 'main', 'mode') || '-';
 		var ipType = data.ip_type || uci.get('cf_ip', 'main', 'ip_type') || '-';

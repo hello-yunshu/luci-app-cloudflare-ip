@@ -3,3 +3,5 @@ cf-openwrt-auto.conf
 rill-adapter/target/
 .trae/
 /preview/
+.workbuddy/
+__pycache__/

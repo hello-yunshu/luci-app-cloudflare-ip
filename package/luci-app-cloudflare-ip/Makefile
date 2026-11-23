@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-cloudflare-ip
 PKG_VERSION:=2.6.2
-PKG_RELEASE:=28
+PKG_RELEASE:=29
 
 PKG_MAINTAINER:=yunshu
 PKG_LICENSE:=GPL-3.0
@@ -67,6 +67,8 @@ define Package/luci-app-cloudflare-ip/install
 	$(INSTALL_CONF) $(PKG_BUILD_DIR)/root/etc/config/cf_ip $(1)/etc/config/
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/root/etc/init.d/cf_ip $(1)/etc/init.d/
+	$(INSTALL_DIR) $(1)/lib/upgrade/keep.d
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/root/lib/upgrade/keep.d/luci-app-cloudflare-ip $(1)/lib/upgrade/keep.d/
 	$(INSTALL_DIR) $(1)/usr/libexec/rpcd
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/root/usr/libexec/rpcd/cf_ip $(1)/usr/libexec/rpcd/
 	$(INSTALL_DIR) $(1)/usr/libexec/cf-ip

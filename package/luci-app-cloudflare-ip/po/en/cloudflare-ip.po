@@ -413,6 +413,22 @@ msgstr "Runtime"
 msgid "Runtime Channel"
 msgstr "Runtime Channel"
 
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Installed Runtime package channel. Only Stable is accepted."
+msgstr "Installed Runtime package channel. Only Stable is accepted."
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Runtime Protocol"
+msgstr "Runtime Protocol"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Not running"
+msgstr "Not running"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Protocol surface reported by the Runtime process; the Stable package still speaks the legacy \"preview\" protocol."
+msgstr "Protocol surface reported by the Runtime process; the Stable package still speaks the legacy \"preview\" protocol."
+
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js:104
 msgid "Runtime API"
 msgstr "Runtime API"
@@ -2601,3 +2617,87 @@ msgstr "Update the shared Stable Rill Runtime? Other installed consumers will be
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
 msgid "Updates only the compatible Stable Runtime. Unknown-source, legacy Preview, and incompatible installations are not replaced."
 msgstr "Updates only the compatible Stable Runtime. Unknown-source, legacy Preview, and incompatible installations are not replaced."
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Removing..."
+msgstr "Removing..."
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Uninstall"
+msgstr "Uninstall"
+
+#: #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Evaluation Freshness (seconds)"
+msgstr "Evaluation Freshness (seconds)"
+
+#: #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Evidence Expiry (seconds)"
+msgstr "Evidence Expiry (seconds)"
+
+#: #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Minimum Feedback Samples"
+msgstr "Minimum Feedback Samples"
+
+#: #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Safe Envelope Size"
+msgstr "Safe Envelope Size"
+
+#: #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Age at which the last comparable evaluation stops counting as "
+"full-confidence evidence."
+msgstr "Age at which the last comparable evaluation stops counting as "
+"full-confidence evidence."
+
+#: #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Age at which stale evidence expires and the run falls back to Native "
+"selection. Must be at least the freshness window."
+msgstr "Age at which stale evidence expires and the run falls back to Native "
+"selection. Must be at least the freshness window."
+
+#: #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Attributed feedback required before Assisted mode may take over. At one "
+"run every six hours, 30 samples is roughly ten days; lowering it "
+"shortens the wait and weakens the evidence."
+msgstr "Attributed feedback required before Assisted mode may take over. At one "
+"run every six hours, 30 samples is roughly ten days; lowering it "
+"shortens the wait and weakens the evidence."
+
+#: #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "How many leading Native candidates Assisted mode may reorder. Larger "
+"values widen the search space and the possible regret."
+msgstr "How many leading Native candidates Assisted mode may reorder. Larger "
+"values widen the search space and the possible regret."
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Evidence Freshness"
+msgstr "Evidence Freshness"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Expired"
+msgstr "Expired"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Stale"
+msgstr "Stale"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "No evidence"
+msgstr "No evidence"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Guarded assisted"
+msgstr "Guarded assisted"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Regression"
+msgstr "Regression"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Reset required"
+msgstr "Reset required"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Fresh evidence keeps full confidence, stale evidence lowers it, expired "
+"evidence falls back to Native selection."
+msgstr "Fresh evidence keeps full confidence, stale evidence lowers it, expired "
+"evidence falls back to Native selection."

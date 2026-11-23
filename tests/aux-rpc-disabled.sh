@@ -38,7 +38,7 @@ run_cli() {
 
 run_cli --publisher-status | jq -e 'has("state")' >/dev/null
 run_cli --adaptive-status | jq -e '.success==true' >/dev/null
-run_cli --rill-diagnostics | jq -e '.success==true and .runtime.state=="disabled"' >/dev/null
-run_cli --rill-self-check | jq -e '.success==false and .status.state=="disabled"' >/dev/null
+run_cli --rill-diagnostics | jq -e '.success==true and .runtime.state=="disabled" and .runtime.protocolChannel==null and (.runtime.packageChannel|type=="string")' >/dev/null
+run_cli --rill-self-check | jq -e '.success==false and .status.state=="disabled" and .status.protocolChannel==null and (.status.packageChannel|type=="string")' >/dev/null
 run_cli --oc-list-backups | jq -e '.success==true' >/dev/null
 echo 'PASS auxiliary RPCs work with disabled/unconfigured proxy'

@@ -17,8 +17,7 @@ cfip_operational_history_json() {
         return 0
     fi
     if [[ -s "$history_file" ]]; then
-        stamp="$(date +%Y%m%d%H%M%S)"; quarantine="${history_file}.quarantine.${stamp}"
-        [[ -e "$quarantine" ]] && quarantine="$quarantine.$$"
+        stamp="$(date +%Y%m%d%H%M%S)"; quarantine="$(cfip_unique_path "${history_file}.quarantine.${stamp}")"
         mv "$history_file" "$quarantine" 2>/dev/null || true
         cfip_log "operational history quarantined: $quarantine" 2>/dev/null || true
     fi

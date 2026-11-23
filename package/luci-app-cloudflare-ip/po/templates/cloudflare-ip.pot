@@ -435,6 +435,22 @@ msgstr ""
 msgid "Runtime Channel"
 msgstr ""
 
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Installed Runtime package channel. Only Stable is accepted."
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Runtime Protocol"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Not running"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Protocol surface reported by the Runtime process; the Stable package still speaks the legacy \"preview\" protocol."
+msgstr ""
+
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js:104
 msgid "Runtime API"
 msgstr ""
@@ -2685,4 +2701,82 @@ msgstr ""
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
 msgid "Updates only the compatible Stable Runtime. Unknown-source, legacy Preview, and incompatible installations are not replaced."
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Removing..."
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Uninstall"
+msgstr ""
+
+#: #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Evaluation Freshness (seconds)"
+msgstr ""
+
+#: #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Evidence Expiry (seconds)"
+msgstr ""
+
+#: #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Minimum Feedback Samples"
+msgstr ""
+
+#: #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Safe Envelope Size"
+msgstr ""
+
+#: #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Age at which the last comparable evaluation stops counting as "
+"full-confidence evidence."
+msgstr ""
+
+#: #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Age at which stale evidence expires and the run falls back to Native "
+"selection. Must be at least the freshness window."
+msgstr ""
+
+#: #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Attributed feedback required before Assisted mode may take over. At one "
+"run every six hours, 30 samples is roughly ten days; lowering it "
+"shortens the wait and weakens the evidence."
+msgstr ""
+
+#: #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "How many leading Native candidates Assisted mode may reorder. Larger "
+"values widen the search space and the possible regret."
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Evidence Freshness"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Expired"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Stale"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "No evidence"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Guarded assisted"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Regression"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Reset required"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Fresh evidence keeps full confidence, stale evidence lowers it, expired "
+"evidence falls back to Native selection."
 msgstr ""

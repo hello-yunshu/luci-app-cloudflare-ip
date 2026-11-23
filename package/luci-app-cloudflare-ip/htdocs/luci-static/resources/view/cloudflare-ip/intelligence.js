@@ -440,6 +440,26 @@ return view.extend({
 		o.default = '/etc/cf_ip/rill-state.json';
 		o.description = _('Must stay under /etc/cf_ip. Paths outside the package state directory are rejected.');
 
+		o = s.option(form.Value, 'safe_top_k', _('Safe Envelope Size'));
+		o.datatype = 'range(1,8)';
+		o.default = '3';
+		o.description = _('How many leading Native candidates Assisted mode may reorder. Larger values widen the search space and the possible regret.');
+
+		o = s.option(form.Value, 'min_feedback_samples', _('Minimum Feedback Samples'));
+		o.datatype = 'range(5,200)';
+		o.default = '30';
+		o.description = _('Attributed feedback required before Assisted mode may take over. At one run every six hours, 30 samples is roughly ten days; lowering it shortens the wait and weakens the evidence.');
+
+		o = s.option(form.Value, 'evaluation_max_age_seconds', _('Evaluation Freshness (seconds)'));
+		o.datatype = 'range(3600,604800)';
+		o.default = '86400';
+		o.description = _('Age at which the last comparable evaluation stops counting as full-confidence evidence.');
+
+		o = s.option(form.Value, 'evaluation_stale_seconds', _('Evidence Expiry (seconds)'));
+		o.datatype = 'range(3600,2592000)';
+		o.default = '604800';
+		o.description = _('Age at which stale evidence expires and the run falls back to Native selection. Must be at least the freshness window.');
+
 		s = m.section(form.TypedSection, 'rill', _('Live State'));
 		s.anonymous = true;
 	o = s.option(form.DummyValue, '_state', _('Runtime'));
@@ -570,7 +590,20 @@ return view.extend({
 	o.description = _('Legacy GitHub updater is available because the unified package helper is missing.');
 
 	o = s.option(form.DummyValue, '_channel', _('Runtime Channel'));
-	o.cfgvalue = function() { return (status.intelligence || {}).channel || _('Unknown'); };
+	o.cfgvalue = function() {
+		var i = status.intelligence || {};
+		/*
+		 * packageChannel is the installed Runtime package (stable /
+		 * legacy-preview / unknown) and is the value that gates Rill. Payloads
+		 * written before the split only carried the protocol channel, so keep a
+		 * fallback instead of showing Unknown for older status files.
+		 */
+		return i.packageChannel || i.channel || _('Unknown');
+	};
+	o.description = _('Installed Runtime package channel. Only Stable is accepted.');
+	o = s.option(form.DummyValue, '_protocol', _('Runtime Protocol'));
+	o.cfgvalue = function() { return (status.intelligence || {}).protocolChannel || _('Not running'); };
+	o.description = _('Protocol surface reported by the Runtime process; the Stable package still speaks the legacy "preview" protocol.');
 	o = s.option(form.DummyValue, '_api', _('Runtime API'));
 	o.cfgvalue = function() { return (status.intelligence || {}).runtimeApiVersion || _('Unknown'); };
 	o = s.option(form.DummyValue, '_schema', _('Feature Schema'));
@@ -603,11 +636,21 @@ return view.extend({
 	};
 	o = s.option(form.DummyValue, '_qualification', _('Qualification'));
 	o.cfgvalue = function() { return utils.statusLabel('qualification', (status.intelligence || {}).qualificationState); };
+	o = s.option(form.DummyValue, '_evidence_freshness', _('Evidence Freshness'));
+	o.cfgvalue = function() {
+		var i = status.intelligence || {};
+		var freshness = utils.statusLabel('freshness', i.qualificationFreshness || 'none');
+		var health = utils.statusLabel('evaluation', i.evaluationHealth || 'insufficient');
+		return freshness + ' / ' + health;
+	};
+	o.description = _('Fresh evidence keeps full confidence, stale evidence lowers it, expired evidence falls back to Native selection.');
 	o = s.option(form.DummyValue, '_context', _('Learning Context'));
 	o.cfgvalue = function() {
-		var c = status.learningContext || (status.intelligence || {}).learningContext || {};
-		var changedAt = status.contextChangedAt || (status.intelligence || {}).contextChangedAt || null;
-		return (c.contextFingerprint || _('Unknown')) + (status.contextChanged ? ' / ' + _('changed') : '') + (changedAt ? ' / ' + _('last changed') + ': ' + changedAt : '');
+		var i = status.intelligence || {};
+		var c = status.learningContext || i.learningContext || {};
+		var changed = status.contextChanged !== undefined ? status.contextChanged : i.contextChanged;
+		var changedAt = status.contextChangedAt || i.contextChangedAt || null;
+		return (c.contextFingerprint || _('Unknown')) + (changed ? ' / ' + _('changed') : '') + (changedAt ? ' / ' + _('last changed') + ': ' + changedAt : '');
 	};
 	o = s.option(form.DummyValue, '_confidence', _('Decision Confidence'));
 	o.cfgvalue = function() {
