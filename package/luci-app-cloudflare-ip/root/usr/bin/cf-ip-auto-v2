@@ -962,7 +962,7 @@ cmd_check_env(){
     jq -cn --argjson legacy "$legacy" --argjson homeproxy "$homeproxy_env" --argjson passwall2 "$passwall2_env" '$legacy+$homeproxy+$passwall2'
 }
 cmd_version(){ jq -cn --arg script "$SCRIPT_VERSION" --arg release "$PACKAGE_RELEASE" '{success:true,version:$script,script_version:$script,package_release:$release,package_version:($script+"-r"+$release),engine_schema:2,runtime_api_version:3}'; }
-cmd_clear_log(){ mkdir -p "${CFIP_LOG_FILE%/*}"; : >"$CFIP_LOG_FILE"; jq -cn '{success:true,cleared:true}'; }
+cmd_clear_log(){ mkdir -p "${CFIP_LOG_FILE%/*}"; : >"$CFIP_LOG_FILE"; rm -rf "${CFIP_RUNTIME_DIR}/log_state" 2>/dev/null || true; jq -cn '{success:true,cleared:true}'; }
 cmd_ip_history(){ local runs='[]' legacy='{}'; [[ -f "$CFIP_RUN_HISTORY" ]] && runs="$(tail -n 100 "$CFIP_RUN_HISTORY" | jq -s '.' 2>/dev/null || printf '[]')"; [[ -x "$CFIP_LEGACY_BIN" ]] && legacy="$("$CFIP_LEGACY_BIN" --ip-history 2>/dev/null || printf '{}')"; jq -n --argjson runs "$runs" --argjson legacy "$legacy" '{success:true,runs:$runs,ips:($legacy.ips//[])}'; }
 cmd_download_cfst(){
     load_config aux >/dev/null || { cfip_json_error "configuration rejected"; return 1; }
