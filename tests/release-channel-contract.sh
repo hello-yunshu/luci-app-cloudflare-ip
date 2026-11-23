@@ -16,11 +16,19 @@ assert isinstance(doc.get("reason"), str) and doc["reason"].strip(), "reason mus
 print("channel file: %s (%s)" % (doc["channel"], doc["reason"]))
 PY
 
-# The workflow must consume the same file, and a non-prerelease channel must
-# stop automatic promotion rather than silently publishing.
+# The workflow must consume the same file, and both channels must promote
+# automatically: `stable` publishes a non-prerelease latest Release while
+# `prerelease` publishes the development line. The exact-SHA qualification
+# manifest and the immutable tag guard stay mandatory either way.
 grep -Fq 'release-channel.json' "$workflow"
-grep -Fq "if [[ \"\$channel\" != prerelease ]]" "$workflow"
-grep -Fq 'automatic promotion is disabled' "$workflow"
-grep -Fq 'prerelease: true' "$workflow"
-grep -Fq 'make_latest: false' "$workflow"
-echo 'Validated channel file and explicit Stable promotion boundary'
+grep -Fq 'case "$channel" in' "$workflow"
+grep -Fq 'prerelease|stable) ;;' "$workflow"
+grep -Fq "prerelease: \${{ needs.check-qualification.outputs.channel != 'stable' }}" "$workflow"
+grep -Fq "make_latest: \${{ needs.check-qualification.outputs.channel == 'stable' }}" "$workflow"
+
+# The retired manual Stable Gate must not creep back in unnoticed.
+if grep -Fq 'automatic promotion is disabled' "$workflow"; then
+  echo 'release.yml still carries the retired manual Stable Gate' >&2
+  exit 1
+fi
+echo 'Validated channel file and automatic promotion policy'

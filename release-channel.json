@@ -1,5 +1,5 @@
 {
   "schemaVersion": 1,
   "channel": "stable",
-  "reason": "User decision 2026-11-22: exact-SHA qualification verified, release owner accepted the recorded device/soak/security boundaries and explicitly authorized the stable promotion of the v2.6.2-28 bytes (candidate 5f540aac8b56b73ab00074c8a76dd0707c0b6b76). Automatic promotion remains disabled; the stable release is executed only through the explicit Stable Gate with same-run assets and an immutable tag."
+  "reason": "User decision 2026-11-23: stable releases promote automatically from now on. The manual Stable Gate is retired; release.yml publishes the qualified exact-SHA bytes of every version-producing push on main as a non-prerelease, latest-marked Release. The exact-SHA qualification manifest, the proxy-upstream requalification block and the immutable tag guard remain mandatory, so automatic promotion never skips verification. Earlier context: v2.6.2-28 was promoted by explicit authorization on 2026-11-22 (candidate 5f540aac8b56b73ab00074c8a76dd0707c0b6b76)."
 }

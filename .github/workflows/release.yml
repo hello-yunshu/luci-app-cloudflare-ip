@@ -91,15 +91,19 @@ jobs:
           python3 scripts/package_identity.py >/dev/null
           channel=$(jq -er 'select(.schemaVersion == 1) | .channel' release-channel.json)
           reason=$(jq -er 'select((.reason // "") != "") | .reason' release-channel.json)
-          # Expected guard, not a packaging failure: a red "Build and Release"
-          # run on main means release-channel.json is `stable`. Automatic
-          # promotion is intentionally disabled; a stable release needs a
-          # separate explicit Stable Gate and user authorization. Do not
-          # bypass this branch, and do not treat it as a failed build.
-          if [[ "$channel" != prerelease ]]; then
-            echo "stable channel requires an explicit Stable Gate; automatic promotion is disabled" >&2
-            exit 1
-          fi
+          # Policy (owner decision 2026-11-23): both channels promote
+          # automatically. `stable` publishes a non-prerelease, latest-marked
+          # Release; `prerelease` publishes the 2.0 development line. This
+          # relaxes only the manual promotion step: the exact-SHA
+          # qualification manifest, the proxy-upstream requalification block
+          # and the immutable tag guard stay mandatory for both channels.
+          case "$channel" in
+            prerelease|stable) ;;
+            *)
+              echo "unsupported release channel: $channel" >&2
+              exit 1
+              ;;
+          esac
           echo "release channel: $channel ($reason)"
           [[ "$version" != *-dev ]]
           for format in ipk apk; do
@@ -203,11 +207,11 @@ jobs:
         with:
           tag_name: ${{ needs.check-qualification.outputs.tag }}
           name: ${{ needs.check-qualification.outputs.tag }}
-          prerelease: true
-          make_latest: false
+          prerelease: ${{ needs.check-qualification.outputs.channel != 'stable' }}
+          make_latest: ${{ needs.check-qualification.outputs.channel == 'stable' }}
           body: |
             Cloudflare IP ${{ needs.check-qualification.outputs.version }} (package release ${{ needs.check-qualification.outputs.release }})
-            2.0 prerelease development line
+            ${{ needs.check-qualification.outputs.channel == 'stable' && 'Stable release line' || '2.0 prerelease development line' }}
 
             # 下载说明
 
@@ -235,7 +239,7 @@ jobs:
             Public assets contain only the base Cloudflare IP IPK/APK packages, relative SHA256 checksums, and `qualification.json`. The compatibility package remains build-tested but is not a recommended public download. Generic Rill source/runtime contracts are owned by `hello-yunshu/rill-ml`; OpenWrt package distribution is owned by `hello-yunshu/rill-openwrt-packages`.
 
             Real OpenWrt device runtime, hardware coverage, PassWall/OpenClash version matrix, and 24-hour soak remain separate evidence boundaries unless explicitly recorded in the qualification manifest.
-            This 2.x release is part of the 2.0 prerelease development line and is not a stable/latest release.
+            ${{ needs.check-qualification.outputs.channel == 'stable' && 'This is a stable release, promoted automatically from the exact SHA and successful automated qualification run recorded in `qualification.json`.' || 'This 2.x release is part of the 2.0 prerelease development line and is not a stable/latest release.' }}
           files: |
             release/*.ipk
             release/*.apk

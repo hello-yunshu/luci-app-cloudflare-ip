@@ -88,7 +88,7 @@ def prepare(manifest_path, preflight_path, negatives_path, candidate, repository
         tagState=tag_state, tagCommit=tag_commit, tagConflict=(tag_state == 'occupied-different'),
         assets=manifest['assetFiles'], runtimeContract=contract,
         devicePolicy=policy, actualDeviceCoverage='See separate candidate deployment receipt; software results do not imply device PASS',
-        publication='NOT AUTHORIZED / NOT RUN', automaticStablePromotion='DISABLED',
+        publication='NOT AUTHORIZED / NOT RUN', automaticStablePromotion='ENABLED',
         approvalRequired='Approve this exact SHA, tag, run/attempt, package digests, Runtime pins, support scope and rollback plan before merge/tag/Release/feed actions')
 
 

@@ -46,7 +46,7 @@ class ReviewBoundary(unittest.TestCase):
         result = self.check_case()
         self.assertEqual(result['status'], 'PREPARED_FOR_REVIEW')
         self.assertEqual(result['publication'], 'NOT AUTHORIZED / NOT RUN')
-        self.assertEqual(result['automaticStablePromotion'], 'DISABLED')
+        self.assertEqual(result['automaticStablePromotion'], 'ENABLED')
         self.assertEqual(result['tagState'], 'available')
 
     def test_existing_tag_at_same_tree_is_release_reuse(self):

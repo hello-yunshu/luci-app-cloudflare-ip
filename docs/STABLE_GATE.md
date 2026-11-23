@@ -8,7 +8,7 @@ Status: **executed 2026-11-22 under explicit user authorization** (「已经验�
 |---|---|
 | Source baseline | `2.6.0-r9`; release tag `v2.6.0-9` → `1bbb3d7a380157e8175f44f42c5f39d9159f09df` |
 | Previous Pre-release | `v2.6.0-8` (2026-11-04), tag → `4cbad4d2bb68315ed22b4c702effb78c1cd03ffb` |
-| Channel | `stable` in `release-channel.json`, but automatic promotion is disabled by the `release.yml` guard |
+| Channel | `stable` in `release-channel.json`; automatic promotion is **ENABLED** since the 2026-11-23 owner decision (manual Stable Gate retired, exact-SHA qualification and immutable tag guard still mandatory) |
 | Post-release install | r6→r8 IPK and fresh install PASS; r8→r9 + fresh install container drills in §4A (phase I) |
 | Stable status | **EXECUTED 2026-11-22** — `v2.6.2-28` promoted to Stable on candidate `5f540aac`, tag and assets unchanged; receipt: [execution.json](audits/stable-gate-20261122/execution.json) |
 
