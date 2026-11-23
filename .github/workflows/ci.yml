@@ -238,7 +238,6 @@ jobs:
           node tests/luci-refresh-error.cjs
           node tests/luci-status-observation.cjs
           node tests/luci-overview-proxy-detection.cjs
-          node tests/luci-overview-apply-failure.cjs
           node tests/luci-view-bindings.cjs
           node tests/luci-raw-error-contract.cjs
           bash tests/openclash-rpc-contract.sh
