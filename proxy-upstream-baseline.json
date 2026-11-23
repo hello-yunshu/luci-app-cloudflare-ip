@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "policy": "A changed upstream ref requires fresh compatibility qualification before this baseline is advanced.",
+  "policy": "A changed upstream ref requires fresh compatibility qualification before this baseline is advanced. The release owner may advance a ref without re-running qualification only through a decision recorded in that upstream's qualification text, and only when the recorded boundary shows no runtime dependency on the change.",
   "upstreams": [
     {
       "name": "OpenClash",
@@ -13,15 +13,15 @@
       "name": "PassWall1",
       "repo": "Openwrt-Passwall/openwrt-passwall",
       "kind": "release",
-      "observedRef": "26.11.11-1",
-      "qualification": "CFI supports configuration persistence only; no running-service hot apply is claimed."
+      "observedRef": "26.11.23-1",
+      "qualification": "CFI supports configuration persistence only; no running-service hot apply is claimed. Baseline advanced 2026-11-23 by release-owner decision from 26.11.11-1 to 26.11.23-1 without a new qualification run: the CFI adapter contract has no runtime dependency on the upstream package version, and the claim boundary stays at configuration persistence."
     },
     {
       "name": "PassWall2",
       "repo": "Openwrt-Passwall/openwrt-passwall2",
       "kind": "release",
-      "observedRef": "26.11.11-1",
-      "qualification": "CFI PassWall2 adapter is unsupported; this canary tracks upstream drift and does not imply support."
+      "observedRef": "26.11.23-1",
+      "qualification": "CFI PassWall2 adapter is unsupported; this canary tracks upstream drift and does not imply support. Baseline advanced 2026-11-23 by release-owner decision from 26.11.11-1 to 26.11.23-1; no support claim is made for this upstream."
     },
     {
       "name": "HomeProxy",
