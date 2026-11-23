@@ -22,7 +22,7 @@ grep -Eq "freshness: \{" "$utils"
 grep -Eq "evaluation: \{" "$utils"
 # Runtime package actions must stay above the tuning knobs: the feed refresh
 # and Runtime repair are maintenance actions, not part of the live-state rows.
-pkg_line=$(grep -n "_package_refresh', _('Runtime Package Management')" "$file" | head -1 | cut -d: -f1)
+pkg_line=$(grep -n "_package_refresh', _('Package index')" "$file" | head -1 | cut -d: -f1)
 section_line=$(grep -n "_('Rill Runtime')" "$file" | head -1 | cut -d: -f1)
 consumer_line=$(grep -n "Rill Runtime Consumer" "$file" | head -1 | cut -d: -f1)
 live_line=$(grep -n "'Live State'" "$file" | head -1 | cut -d: -f1)

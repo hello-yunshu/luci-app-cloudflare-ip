@@ -2588,8 +2588,8 @@ msgstr "未知架构"
 msgid "Unknown package format"
 msgstr "未知软件包格式"
 
-msgid "Runtime Package Management"
-msgstr "Runtime 软件包管理"
+msgid "Package index"
+msgstr "软件源索引"
 
 msgid "Check for updates"
 msgstr "检查更新"

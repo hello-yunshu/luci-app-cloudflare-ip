@@ -2575,8 +2575,8 @@ msgstr "Unknown architecture"
 msgid "Unknown package format"
 msgstr "Unknown package format"
 
-msgid "Runtime Package Management"
-msgstr "Runtime Package Management"
+msgid "Package index"
+msgstr "Package index"
 
 msgid "Check for updates"
 msgstr "Check for updates"

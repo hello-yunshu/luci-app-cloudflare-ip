@@ -478,7 +478,11 @@ return view.extend({
 		return [ runtimeManager.release || _('Unknown release'), runtimeManager.architecture || _('Unknown architecture'), runtimeManager.pkgtype || _('Unknown package format') ].join(' / ');
 	};
 
-	o = s.option(form.Button, '_package_refresh', _('Runtime Package Management'));
+	/* The row title names what the button touches. "Runtime Package
+	 * Management" over a "Check for updates" button left the operator guessing
+	 * whether it refreshes the feed index or upgrades something; the
+	 * Performance Manager Runtime card titles the same row the same way. */
+	o = s.option(form.Button, '_package_refresh', _('Package index'));
 	o.inputtitle = _('Check for updates');
 	o.inputstyle = 'reload';
 	o.rmempty = true;
