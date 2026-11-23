@@ -139,6 +139,7 @@ jobs:
           bash tests/watchdog-timer-cleanup.sh
           bash tests/cron-semantic-validation.sh
           bash tests/rill-feedback-negative.sh
+          bash tests/log-stderr-bounded.sh
           bash tests/rill-state-and-delayed.sh
           bash tests/rill-health-contract.sh
           bash tests/rill-guarded-assisted.sh

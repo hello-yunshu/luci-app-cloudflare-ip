@@ -8,6 +8,10 @@
 - 环境检测仅列出已检测到的代理软件；没有支持的软件时显示一次未检测到提示。
 - 包构建、签名 feed 发布、干净安装与设备升级资格仍待验证；此条目不表示已发布。
 
+### 修复
+
+- Rill Runtime 调用的 stderr 不再原样追加进 `cf-ip-auto.log`：三处 `2>>"$CFIP_LOG_FILE"` 改为有界捕获 + 单行摘要（`cfip_stderr_summary`，跳过 `bash -x` 的 `+` 追踪行并截断）。设备上的日志曾出现单次 1164 行追踪输出，占全文件 1185 行中的 98%，真实历史被埋掉；现在一次失败只留一行带时间戳的记录，且同类失败用 `cfip_log_once` 去重，成功后自动解除。
+
 已发布条目只记录可由 exact-SHA CI 复现的用户可见变更；`Unreleased` 明确表示尚未发布或资格验证的候选。历史版本详情以对应 GitHub Release 的 `qualification.json` 与 Release notes 为准。
 
 ## v2.6.2-1 — 2026-11-13
