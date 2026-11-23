@@ -10,7 +10,7 @@
 
 | 项 | 本仓取值 |
 |---|---|
-| 路由根 | `admin/services/cf_ip` — overview / settings / advanced / sources / intelligence / diagnostics(logs) / openclash / passwall |
+| 路由根 | `admin/services/cf_ip` — overview / settings / advanced / sources / intelligence / logs（视图是 `diagnostics.js`，路由名与视图名在此不一致）/ openclash / passwall / passwall2 / homeproxy |
 | 视图 | `package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/*.js` |
 | 共享 CSS | `package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/cloudflare-ip.css` |
 | 注入与缓存键 | `cloudflare-ip/utils.js`：`L.resource('cloudflare-ip/cloudflare-ip.css') + '?v=@PKG_FULL_VERSION@&ui=proxy-action-layout-2'` —— 改 CSS 需递增 `ui=` 后缀 |
