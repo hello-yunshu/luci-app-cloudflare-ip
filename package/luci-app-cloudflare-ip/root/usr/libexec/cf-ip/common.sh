@@ -963,11 +963,21 @@ cfip_watchdog_tick_init() {
     local dir before after
     [[ -n "${CFIP_WATCHDOG_TICK:-}" ]] && return 0
     CFIP_WATCHDOG_TICK=second
-    if [[ "${CFIP_SLEEP_FRACTIONAL:-}" == 1 ]] ||
-       { [[ "${CFIP_SLEEP_FRACTIONAL:-}" != 0 ]] && sleep 0.1 2>/dev/null; }; then
+    if [[ "${CFIP_SLEEP_FRACTIONAL:-}" == 1 ]]; then
         CFIP_WATCHDOG_TICK=sleep
         return 0
     fi
+    if [[ "${CFIP_SLEEP_FRACTIONAL:-}" != 0 ]] && sleep 0.02 2>/dev/null; then
+        # Publish the probe result: a Rill runtime call runs inside $(...), so
+        # a subshell-local cache would repeat this 100 ms capability test on
+        # every single call.
+        CFIP_SLEEP_FRACTIONAL=1
+        export CFIP_SLEEP_FRACTIONAL
+        CFIP_WATCHDOG_TICK=sleep
+        return 0
+    fi
+    CFIP_SLEEP_FRACTIONAL=0
+    export CFIP_SLEEP_FRACTIONAL
     dir="$(mktemp -d "${TMPDIR:-/tmp}/cfip-tick.XXXXXX" 2>/dev/null)" || return 0
     if mkfifo "$dir/p" 2>/dev/null; then
         if { exec 19<>"$dir/p"; } 2>/dev/null; then
