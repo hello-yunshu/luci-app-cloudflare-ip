@@ -21,6 +21,10 @@ CFIP_OPENCLASH_MEASUREMENT_BYPASS_DISABLED=false
 CFIP_VERBOSE=false
 CFIP_RUN_ID=""; CFIP_PHASE="idle"; CFIP_LAST_RESULT="unknown"; CFIP_ERROR=""; CFIP_STOPPED_MODE=""; CFIP_CLEANUP_DONE=false
 CFIP_SKIP_STARTUP_DELAY=false
+# Snapshot of `uci show cf_ip` used by load_config; see uci_get.
+declare -A CFIP_UCI_CACHE=()
+CFIP_UCI_CACHE_ACTIVE=false
+CFIP_UCI_VALUE=""
 
 CFIP_ENABLED=false; CFIP_MODE=passwall; CFIP_IP_COUNT=4; CFIP_IP_TYPE=ipv4
 CFIP_SPEEDTEST_PROTOCOL=tcp; CFIP_SPEEDTEST_CFCOLO=""; CFIP_SPEEDTEST_DN=8; CFIP_SPEEDTEST_DT=6; CFIP_SPEEDTEST_TLL=40; CFIP_SPEEDTEST_TL=""; CFIP_SPEEDTEST_THREADS=200; CFIP_SPEEDTEST_PING_COUNT=3
@@ -45,32 +49,95 @@ for lib in writer-lock.sh common.sh config.sh status.sh source.sh scheduler.sh c
 done
 if [[ -r "$CFIP_LIB_DIR/candidate-rill.sh" ]]; then source "$CFIP_LIB_DIR/candidate-rill.sh"; fi
 
-uci_get() {
-    local key="$1" default="${2:-}" value
+# Resolve one option into CFIP_UCI_VALUE: candidate JSON first, then the
+# `uci show` snapshot, then uci itself.
+uci_lookup() {
+    local key="$1"
+    CFIP_UCI_VALUE=""
     if [[ -n "${CFIP_VALIDATE_CANDIDATE_JSON:-}" ]] && jq -e --arg key "$key" 'type == "object" and has($key)' <<<"$CFIP_VALIDATE_CANDIDATE_JSON" >/dev/null 2>&1; then
-        value="$(jq -r --arg key "$key" 'if .[$key]|type == "array" then .[$key]|join(" ") else .[$key]|tostring end' <<<"$CFIP_VALIDATE_CANDIDATE_JSON")"
-        printf '%s' "$value"
-        return 0
+        CFIP_UCI_VALUE="$(jq -r --arg key "$key" 'if .[$key]|type == "array" then .[$key]|join(" ") else .[$key]|tostring end' <<<"$CFIP_VALIDATE_CANDIDATE_JSON")"
+    elif [[ "$CFIP_UCI_CACHE_ACTIVE" == true ]]; then
+        CFIP_UCI_VALUE="${CFIP_UCI_CACHE[$key]-}"
+    else
+        CFIP_UCI_VALUE="$(uci -q get "$key" 2>/dev/null || true)"
     fi
-    value="$(uci -q get "$key" 2>/dev/null || true)"
-    [[ -n "$value" ]] && printf '%s' "$value" || printf '%s' "$default"
+}
+
+uci_get() {
+    local default="${2:-}"
+    uci_lookup "$1"
+    [[ -n "$CFIP_UCI_VALUE" ]] && printf '%s' "$CFIP_UCI_VALUE" || printf '%s' "$default"
+}
+
+# Same lookup rules as uci_get, assigned straight into a variable. load_config
+# makes ~75 reads, and `$(uci_get ...)` still forks a subshell even when the
+# value comes from the cache; on a router that is the difference between one
+# `uci show` and one `uci show` plus 75 forks.
+uci_assign() {
+    local __var="$1" default="${3:-}"
+    uci_lookup "$2"
+    [[ -n "$CFIP_UCI_VALUE" ]] || CFIP_UCI_VALUE="$default"
+    printf -v "$__var" '%s' "$CFIP_UCI_VALUE"
+}
+
+uci_assign_bool() {
+    uci_assign "$1" "$2" "$3"
+    printf -v "$1" '%s' "$(cfip_bool "${!1}")"
 }
 
 load_config() {
     command -v uci >/dev/null 2>&1 || { cfip_json_error "uci command not found"; return 1; }
-    CFIP_ENABLED="$(cfip_bool "$(uci_get cf_ip.main.enabled 0)")"; CFIP_MODE="$(uci_get cf_ip.main.mode passwall)"; CFIP_IP_COUNT="$(uci_get cf_ip.main.ip_count 4)"; CFIP_IP_TYPE="$(uci_get cf_ip.main.ip_type ipv4)"
-    CFIP_SPEEDTEST_PROTOCOL="$(uci_get cf_ip.main.speedtest_protocol tcp)"; CFIP_SPEEDTEST_CFCOLO="$(uci_get cf_ip.main.speedtest_cfcolo '')"; CFIP_SPEEDTEST_DN="$(uci_get cf_ip.main.speedtest_dn 8)"; CFIP_SPEEDTEST_DT="$(uci_get cf_ip.main.speedtest_dt 6)"; CFIP_SPEEDTEST_TLL="$(uci_get cf_ip.main.speedtest_tll 40)"; CFIP_SPEEDTEST_TL="$(uci_get cf_ip.main.speedtest_tl '')"; CFIP_SPEEDTEST_THREADS="$(uci_get cf_ip.main.speedtest_threads 200)"; CFIP_SPEEDTEST_PING_COUNT="$(uci_get cf_ip.main.speedtest_ping_count 3)"
-    CFIP_STOP_SERVICE="$(cfip_bool "$(uci_get cf_ip.main.stop_service 0)")"; CFIP_STARTUP_DELAY="$(uci_get cf_ip.main.startup_delay '')"; CFIP_WORK_DIR="$(uci_get cf_ip.main.work_dir /usr/bin)"; [[ -n "$CFIP_WORK_DIR" ]] || CFIP_WORK_DIR=/usr/bin
-    CFIP_CRON_INTERVAL="$(uci_get cf_ip.main.cron_interval 6h)"; CFIP_CANDIDATE_BUDGET="$(uci_get cf_ip.main.candidate_budget 128)"; CFIP_PROBE_TOP_COUNT="$(uci_get cf_ip.main.probe_top_count "$(uci_get cf_ip.main.candidate_limit 8)")"; CFIP_PROBE_CONCURRENCY="$(uci_get cf_ip.main.probe_concurrency 4)"; CFIP_PROBE_TIMEOUT="$(uci_get cf_ip.main.probe_timeout 8)"; CFIP_MEASUREMENT_TIMEOUT="$(uci_get cf_ip.main.measurement_timeout 180)"; CFIP_RECOVERY_TIMEOUT="$(uci_get cf_ip.main.recovery_timeout 30)"; CFIP_PROBE_BATCH_SIZE="$(uci_get cf_ip.main.probe_batch_size 4)"; CFIP_MAX_PROBE_COUNT="$(uci_get cf_ip.main.max_probe_count "$CFIP_PROBE_TOP_COUNT")"; CFIP_EARLY_STOP_ENABLED="$(cfip_bool "$(uci_get cf_ip.main.early_stop_enabled 1)")"; CFIP_ADAPTIVE_MEASUREMENT_ENABLED="$(cfip_bool "$(uci_get cf_ip.main.adaptive_measurement_enabled 1)")"; CFIP_ADAPTIVE_MEASUREMENT_MODE="$(uci_get cf_ip.main.adaptive_measurement_mode shadow)"; CFIP_ADAPTIVE_TARGET_RATIO_PERCENT="$(uci_get cf_ip.main.adaptive_target_ratio_percent 25)"; CFIP_ADAPTIVE_MIN_PROBE_COUNT="$(uci_get cf_ip.main.adaptive_min_probe_count 8)"; CFIP_ADAPTIVE_EXPLORATION_RATIO_PERCENT="$(uci_get cf_ip.main.adaptive_exploration_ratio_percent 10)"; CFIP_ADAPTIVE_MIN_EVIDENCE="$(uci_get cf_ip.main.adaptive_min_evidence 50)"; CFIP_ADAPTIVE_EVIDENCE_WINDOW="$(uci_get cf_ip.main.adaptive_evidence_window 100)"; CFIP_ADAPTIVE_EVALUATION_MAX_AGE_SECONDS="$(uci_get cf_ip.main.adaptive_evaluation_max_age_seconds 604800)"; CFIP_ADAPTIVE_AUDIT_INTERVAL="$(uci_get cf_ip.main.adaptive_audit_interval 20)"; CFIP_ADAPTIVE_MAX_PROBE_COUNT="$(uci_get cf_ip.main.adaptive_max_probe_count 60)"; CFIP_ADAPTIVE_EXPANSION_BATCH_SIZE="$(uci_get cf_ip.main.adaptive_expansion_batch_size 8)"; CFIP_BUILTIN_SOURCES="$(cfip_configured_builtin_sources)"; CFIP_SOURCE_POLICY="$(uci_get cf_ip.main.source_policy balanced)"; CFIP_GITHUB_MIRROR="$(uci_get cf_ip.main.github_mirror '')"; CFIP_VERBOSE="$(cfip_bool "$(uci_get cf_ip.main.verbose 0)")"
-    CFIP_PASSWALL_TARGET_DOMAIN="$(uci_get cf_ip.passwall.target_domain '')"; CFIP_PASSWALL_NAME_SUFFIX="$(uci_get cf_ip.passwall.name_suffix ' [CF-{n}]')"; CFIP_HOMEPROXY_TARGET_DOMAIN="$(uci_get cf_ip.homeproxy.target_domain '')"; CFIP_PASSWALL2_TARGET_DOMAIN="$(uci_get cf_ip.passwall2.target_domain '')"
-    CFIP_OPENCLASH_CONFIG="$(uci_get cf_ip.openclash.config /etc/openclash/config/config.yaml)"; CFIP_OPENCLASH_TARGET_DOMAIN="$(uci_get cf_ip.openclash.target_domain '')"; CFIP_OPENCLASH_NAME_SUFFIX="$(uci_get cf_ip.openclash.name_suffix ' [CF-{n}]')"; CFIP_OPENCLASH_TRANSPORT_FILTER="$(uci_get cf_ip.openclash.transport_filter '')"; CFIP_OPENCLASH_BACKUP_COUNT="$(uci_get cf_ip.openclash.backup_count 3)"
-    CFIP_PUBLISH_ENABLED="$(cfip_bool "$(uci_get cf_ip.lan.enabled 0)")"; CFIP_PUBLISH_BIND="$(uci_get cf_ip.lan.bind_address '')"; CFIP_PUBLISH_PORT="$(uci_get cf_ip.lan.port 12345)"
-    CFIP_RILL_ENABLED="$(cfip_bool "$(uci_get cf_ip.rill.enabled 0)")"; CFIP_RILL_MODE="$(uci_get cf_ip.rill.mode shadow)"; CFIP_RILL_RUNTIME="${CFIP_RILL_RUNTIME_BIN:-/usr/bin/rill-runtime}"; CFIP_RILL_STATE="$(uci_get cf_ip.rill.state_file "$CFIP_STATUS_DIR/rill-state.json")"; CFIP_RILL_SAFE_TOP_K="$(uci_get cf_ip.rill.safe_top_k 3)"; CFIP_RILL_MIN_FEEDBACK_SAMPLES="$(uci_get cf_ip.rill.min_feedback_samples 30)"; CFIP_RILL_EVALUATION_MAX_AGE_SECONDS="$(uci_get cf_ip.rill.evaluation_max_age_seconds 86400)"; CFIP_RILL_EVALUATION_STALE_SECONDS="$(uci_get cf_ip.rill.evaluation_stale_seconds 604800)"; CFIP_RILL_TRAINING_MAX_AGE_SECONDS="$(uci_get cf_ip.rill.training_max_age_seconds 604800)"; local delayed_minutes; delayed_minutes="$(uci_get cf_ip.rill.delayed_feedback_minutes 10)"; [[ "$delayed_minutes" =~ ^[1-9][0-9]*$ ]] || delayed_minutes=10; CFIP_RILL_DELAYED_FEEDBACK_SECONDS="$((delayed_minutes*60))"
-    CFIP_REUSE_ENABLED="$(cfip_bool "$(uci_get cf_ip.main.reuse_enabled 1)")"; CFIP_REUSE_MAX_FULL_OPTIMIZE_INTERVAL="$(uci_get cf_ip.main.max_full_optimize_interval 86400)"; CFIP_REUSE_VALIDATION_TIMEOUT="$(uci_get cf_ip.main.reuse_validation_timeout 5)"; CFIP_REUSE_LOSS_LIMIT="$(uci_get cf_ip.main.reuse_loss_limit 0.25)"; CFIP_REUSE_TTFB_LIMIT="$(uci_get cf_ip.main.reuse_ttfb_limit 3000)"; CFIP_REUSE_TOTAL_LIMIT="$(uci_get cf_ip.main.reuse_total_limit 5000)"; CFIP_REUSE_STATE_FILE="$CFIP_STATUS_DIR/reuse-policy.json"
+    local rc=0
+    local _cfg_tmp
+    # load_config reads almost every option below cf_ip, and each `uci get` is a
+    # separate process (≈7 ms on a router, ≈500 ms for the whole function). One
+    # `uci show` snapshot serves all of them. Quotes are undone the way
+    # `uci get` would: a scalar loses its quoting, list items are joined with a
+    # space. The cache only lives for this function, so uci_get calls made
+    # after a `uci set` elsewhere still read live values.
+    CFIP_UCI_CACHE=()
+    local _snapshot _snap_line _snap_key _snap_val _snap_sections=0
+    _snapshot="$(uci -q show cf_ip 2>/dev/null || true)"
+    while IFS= read -r _snap_line; do
+        [[ -n "$_snap_line" ]] || continue
+        _snap_key="${_snap_line%%=*}"
+        _snap_val="${_snap_line#*=}"
+        _snap_val="${_snap_val#\'}"
+        _snap_val="${_snap_val%\'}"
+        _snap_val="${_snap_val//\'\\\'\'/\'}"
+        _snap_val="${_snap_val//\' \'/ }"
+        CFIP_UCI_CACHE["$_snap_key"]="$_snap_val"
+        # `uci show` emits `cf_ip.<section>=<type>` for every section. Options
+        # carry a second dot; a snapshot without any section line did not really
+        # describe this config, so it must not be used to answer option reads.
+        case "${_snap_key#cf_ip.}" in
+            *.*) ;;
+            *) _snap_sections=$((_snap_sections + 1)) ;;
+        esac
+    done <<<"$_snapshot"
+    # A `uci` that cannot show the config (test doubles, a broken install) must
+    # not silently turn every option into its default; fall back to per-key
+    # reads so behaviour stays identical to before the snapshot existed.
+    if ((_snap_sections == 0)); then
+        CFIP_UCI_CACHE_ACTIVE=false
+    else
+        CFIP_UCI_CACHE_ACTIVE=true
+    fi
+    uci_assign_bool CFIP_ENABLED cf_ip.main.enabled 0; uci_assign CFIP_MODE cf_ip.main.mode passwall; uci_assign CFIP_IP_COUNT cf_ip.main.ip_count 4; uci_assign CFIP_IP_TYPE cf_ip.main.ip_type ipv4
+    uci_assign CFIP_SPEEDTEST_PROTOCOL cf_ip.main.speedtest_protocol tcp; uci_assign CFIP_SPEEDTEST_CFCOLO cf_ip.main.speedtest_cfcolo ''; uci_assign CFIP_SPEEDTEST_DN cf_ip.main.speedtest_dn 8; uci_assign CFIP_SPEEDTEST_DT cf_ip.main.speedtest_dt 6; uci_assign CFIP_SPEEDTEST_TLL cf_ip.main.speedtest_tll 40; uci_assign CFIP_SPEEDTEST_TL cf_ip.main.speedtest_tl ''; uci_assign CFIP_SPEEDTEST_THREADS cf_ip.main.speedtest_threads 200; uci_assign CFIP_SPEEDTEST_PING_COUNT cf_ip.main.speedtest_ping_count 3
+    uci_assign_bool CFIP_STOP_SERVICE cf_ip.main.stop_service 0; uci_assign CFIP_STARTUP_DELAY cf_ip.main.startup_delay ''; uci_assign CFIP_WORK_DIR cf_ip.main.work_dir /usr/bin
+    uci_assign CFIP_CRON_INTERVAL cf_ip.main.cron_interval 6h; uci_assign CFIP_CANDIDATE_BUDGET cf_ip.main.candidate_budget 128; uci_assign _cfg_tmp cf_ip.main.candidate_limit 8; uci_assign CFIP_PROBE_TOP_COUNT cf_ip.main.probe_top_count "$_cfg_tmp"; uci_assign CFIP_PROBE_CONCURRENCY cf_ip.main.probe_concurrency 4; uci_assign CFIP_PROBE_TIMEOUT cf_ip.main.probe_timeout 8; uci_assign CFIP_MEASUREMENT_TIMEOUT cf_ip.main.measurement_timeout 180; uci_assign CFIP_RECOVERY_TIMEOUT cf_ip.main.recovery_timeout 30; uci_assign CFIP_PROBE_BATCH_SIZE cf_ip.main.probe_batch_size 4; uci_assign CFIP_MAX_PROBE_COUNT cf_ip.main.max_probe_count "$CFIP_PROBE_TOP_COUNT"; uci_assign_bool CFIP_EARLY_STOP_ENABLED cf_ip.main.early_stop_enabled 1; uci_assign_bool CFIP_ADAPTIVE_MEASUREMENT_ENABLED cf_ip.main.adaptive_measurement_enabled 1; uci_assign CFIP_ADAPTIVE_MEASUREMENT_MODE cf_ip.main.adaptive_measurement_mode shadow; uci_assign CFIP_ADAPTIVE_TARGET_RATIO_PERCENT cf_ip.main.adaptive_target_ratio_percent 25; uci_assign CFIP_ADAPTIVE_MIN_PROBE_COUNT cf_ip.main.adaptive_min_probe_count 8; uci_assign CFIP_ADAPTIVE_EXPLORATION_RATIO_PERCENT cf_ip.main.adaptive_exploration_ratio_percent 10; uci_assign CFIP_ADAPTIVE_MIN_EVIDENCE cf_ip.main.adaptive_min_evidence 50; uci_assign CFIP_ADAPTIVE_EVIDENCE_WINDOW cf_ip.main.adaptive_evidence_window 100; uci_assign CFIP_ADAPTIVE_EVALUATION_MAX_AGE_SECONDS cf_ip.main.adaptive_evaluation_max_age_seconds 604800; uci_assign CFIP_ADAPTIVE_AUDIT_INTERVAL cf_ip.main.adaptive_audit_interval 20; uci_assign CFIP_ADAPTIVE_MAX_PROBE_COUNT cf_ip.main.adaptive_max_probe_count 60; uci_assign CFIP_ADAPTIVE_EXPANSION_BATCH_SIZE cf_ip.main.adaptive_expansion_batch_size 8; CFIP_BUILTIN_SOURCES="$(cfip_configured_builtin_sources)"; uci_assign CFIP_SOURCE_POLICY cf_ip.main.source_policy balanced; uci_assign CFIP_GITHUB_MIRROR cf_ip.main.github_mirror ''; uci_assign_bool CFIP_VERBOSE cf_ip.main.verbose 0
+    uci_assign CFIP_PASSWALL_TARGET_DOMAIN cf_ip.passwall.target_domain ''; uci_assign CFIP_PASSWALL_NAME_SUFFIX cf_ip.passwall.name_suffix ' [CF-{n}]'; uci_assign CFIP_HOMEPROXY_TARGET_DOMAIN cf_ip.homeproxy.target_domain ''; uci_assign CFIP_PASSWALL2_TARGET_DOMAIN cf_ip.passwall2.target_domain ''
+    uci_assign CFIP_OPENCLASH_CONFIG cf_ip.openclash.config /etc/openclash/config/config.yaml; uci_assign CFIP_OPENCLASH_TARGET_DOMAIN cf_ip.openclash.target_domain ''; uci_assign CFIP_OPENCLASH_NAME_SUFFIX cf_ip.openclash.name_suffix ' [CF-{n}]'; uci_assign CFIP_OPENCLASH_TRANSPORT_FILTER cf_ip.openclash.transport_filter ''; uci_assign CFIP_OPENCLASH_BACKUP_COUNT cf_ip.openclash.backup_count 3
+    uci_assign_bool CFIP_PUBLISH_ENABLED cf_ip.lan.enabled 0; uci_assign CFIP_PUBLISH_BIND cf_ip.lan.bind_address ''; uci_assign CFIP_PUBLISH_PORT cf_ip.lan.port 12345
+    uci_assign_bool CFIP_RILL_ENABLED cf_ip.rill.enabled 0; uci_assign CFIP_RILL_MODE cf_ip.rill.mode shadow; CFIP_RILL_RUNTIME="${CFIP_RILL_RUNTIME_BIN:-/usr/bin/rill-runtime}"; uci_assign CFIP_RILL_STATE cf_ip.rill.state_file "$CFIP_STATUS_DIR/rill-state.json"; uci_assign CFIP_RILL_SAFE_TOP_K cf_ip.rill.safe_top_k 3; uci_assign CFIP_RILL_MIN_FEEDBACK_SAMPLES cf_ip.rill.min_feedback_samples 30; uci_assign CFIP_RILL_EVALUATION_MAX_AGE_SECONDS cf_ip.rill.evaluation_max_age_seconds 86400; uci_assign CFIP_RILL_EVALUATION_STALE_SECONDS cf_ip.rill.evaluation_stale_seconds 604800; uci_assign CFIP_RILL_TRAINING_MAX_AGE_SECONDS cf_ip.rill.training_max_age_seconds 604800; local delayed_minutes; uci_assign delayed_minutes cf_ip.rill.delayed_feedback_minutes 10; [[ "$delayed_minutes" =~ ^[1-9][0-9]*$ ]] || delayed_minutes=10; CFIP_RILL_DELAYED_FEEDBACK_SECONDS="$((delayed_minutes*60))"
+    uci_assign_bool CFIP_REUSE_ENABLED cf_ip.main.reuse_enabled 1; uci_assign CFIP_REUSE_MAX_FULL_OPTIMIZE_INTERVAL cf_ip.main.max_full_optimize_interval 86400; uci_assign CFIP_REUSE_VALIDATION_TIMEOUT cf_ip.main.reuse_validation_timeout 5; uci_assign CFIP_REUSE_LOSS_LIMIT cf_ip.main.reuse_loss_limit 0.25; uci_assign CFIP_REUSE_TTFB_LIMIT cf_ip.main.reuse_ttfb_limit 3000; uci_assign CFIP_REUSE_TOTAL_LIMIT cf_ip.main.reuse_total_limit 5000; CFIP_REUSE_STATE_FILE="$CFIP_STATUS_DIR/reuse-policy.json"
     cfip_operational_apply_guardrails || true
-    local timeout_ms; timeout_ms="$(uci_get cf_ip.rill.timeout_ms 2000)"; [[ "$timeout_ms" =~ ^[0-9]+$ ]] && ((timeout_ms>0)) && CFIP_RILL_TIMEOUT_S=$(((timeout_ms+999)/1000)) || CFIP_RILL_TIMEOUT_S=2
+    local timeout_ms; uci_assign timeout_ms cf_ip.rill.timeout_ms 2000; [[ "$timeout_ms" =~ ^[0-9]+$ ]] && ((timeout_ms>0)) && CFIP_RILL_TIMEOUT_S=$(((timeout_ms+999)/1000)) || CFIP_RILL_TIMEOUT_S=2
     if [[ "$CFIP_IP_COUNT" =~ ^[1-9][0-9]*$ && "$CFIP_PROBE_TOP_COUNT" =~ ^[1-9][0-9]*$ ]] && ((CFIP_PROBE_TOP_COUNT < CFIP_IP_COUNT)); then CFIP_PROBE_TOP_COUNT="$CFIP_IP_COUNT"; fi
-    validate_config "${1:-run}" || return $?
+    validate_config "${1:-run}" || rc=$?
+    CFIP_UCI_CACHE=(); CFIP_UCI_CACHE_ACTIVE=false; CFIP_UCI_VALUE=""
+    return "$rc"
 }
 
 reconcile_committed_context() {
@@ -997,7 +1064,9 @@ cmd_rill_self_check(){
     status="$(cfip_rill_status_json 2>/dev/null || printf '{"available":false,"state":"error"}')"
     inspect='{}'
     if [[ "$(jq -r '.available // false' <<<"$status")" == true ]]; then
-        inspect="$(cfip_rill_inspect_json 2>/dev/null || printf '{}')"
+        # Status already carries the inspect summary; do not pay for a second
+        # runtime round-trip just to read the same object.
+        inspect="$(jq -c '.inspect // {}' <<<"$status")"
     fi
     jq -cn --argjson status "$status" --argjson inspect "$inspect" \
         '{success:($status.available==true),status:$status,inspect:$inspect}'
@@ -1005,7 +1074,7 @@ cmd_rill_self_check(){
 cmd_rill_diagnostics(){
     load_config aux >/dev/null || return 1
     CFIP_RILL_READONLY=true
-    local status qualification pending meta source_policy reuse recent prefix_history colo_history prefix_summary colo_summary context evidence aggregate operational_history operational
+    local status qualification pending meta source_policy reuse recent prefix_history colo_history prefix_summary colo_summary context evidence aggregate operational_history operational status_fields
     status="$(cfip_rill_status_json 2>/dev/null || printf '{"available":false,"state":"error"}')"
     qualification="$(cfip_rill_qualification_json 2>/dev/null || printf '{}')"
     pending='[]'; [[ -s "$CFIP_RILL_PENDING_FILE" ]] && pending="$(cat "$CFIP_RILL_PENDING_FILE")"
@@ -1013,9 +1082,15 @@ cmd_rill_diagnostics(){
     source_policy="$(cfip_source_policy_json 2>/dev/null || printf '{}')"
     reuse='{}'; [[ -s "$CFIP_REUSE_STATE_FILE" ]] && reuse="$(cat "$CFIP_REUSE_STATE_FILE")"
     prefix_history="$(cfip_rill_prefix_history_json 2>/dev/null || printf '{}')"; colo_history="$(cfip_rill_colo_history_json 2>/dev/null || printf '{"entries":{},"unknownCount":0}')"
-    prefix_summary="$(jq -cn --argjson h "$prefix_history" --argjson now "$(date +%s)" '{trackedPrefixes:($h|length),recentHighQuality:([$h|to_entries[]|select((.value.successRate//0)<=1)|{prefix:.key,samples:(.value.samples//0),successRate:(.value.successRate//0)}]|sort_by(-.successRate,-.samples)|.[0:5]),recentLowQuality:([$h|to_entries[]|select((.value.successRate//0)<=1)|{prefix:.key,samples:(.value.samples//0),successRate:(.value.successRate//0),lastSeen:(.value.lastSeen//0)}]|sort_by(.successRate,.lastSeen)|.[0:5])}')"
+    prefix_summary="$(jq -cn --argjson h "$prefix_history" '{trackedPrefixes:($h|length),recentHighQuality:([$h|to_entries[]|select((.value.successRate//0)<=1)|{prefix:.key,samples:(.value.samples//0),successRate:(.value.successRate//0)}]|sort_by(-.successRate,-.samples)|.[0:5]),recentLowQuality:([$h|to_entries[]|select((.value.successRate//0)<=1)|{prefix:.key,samples:(.value.samples//0),successRate:(.value.successRate//0),lastSeen:(.value.lastSeen//0)}]|sort_by(.successRate,.lastSeen)|.[0:5])}')"
     colo_summary="$(jq -cn --argjson h "$colo_history" '{observedColoCount:($h.entries|length),latestObservedColo:($h.lastObserved//null),unknownCount:($h.unknownCount//0),history:($h.entries//{})}')"
-    context="$(cfip_rill_context_json 2>/dev/null || printf '{}')"; evidence="$(cfip_rill_evidence_json 2>/dev/null || printf '[]')"; aggregate="$(cfip_rill_evidence_aggregate_json 2>/dev/null || printf '{}')"
+    # status already carries both fields; pull them out with one jq startup and
+    # split on US (0x1f), which cannot occur raw inside JSON text.
+    status_fields="$(jq -r '[(.learningContext // null), (.evidenceAggregate // null)] | map(tojson) | join("\u001f")' <<<"$status" 2>/dev/null)"
+    IFS=$'\x1f' read -r context aggregate <<<"$status_fields"
+    [[ -n "$context" && "$context" != null ]] || context="$(cfip_rill_context_json 2>/dev/null || printf '{}')"
+    evidence="$(cfip_rill_evidence_json 2>/dev/null || printf '[]')"
+    [[ -n "$aggregate" && "$aggregate" != null ]] || aggregate="$(cfip_rill_evidence_aggregate_json 2>/dev/null || printf '{}')"
     recent='[]'; [[ -f "$CFIP_RUN_HISTORY" ]] && recent="$(tail -n 20 "$CFIP_RUN_HISTORY" | jq -sc '.' 2>/dev/null || printf '[]')"
     operational_history="$(cfip_operational_history_json 2>/dev/null || printf '{"schemaVersion":1,"records":[]}')"; operational="$(cfip_operational_state_json 2>/dev/null || printf '{}')"
     jq -cn --argjson status "$status" --argjson qualification "$qualification" --argjson pending "$pending" --argjson meta "$meta" --argjson sourcePolicy "$source_policy" --argjson reuse "$reuse" --argjson recent "$recent" --argjson prefix "$prefix_summary" --argjson colo "$colo_summary" --argjson context "$context" --argjson evidence "$evidence" --argjson aggregate "$aggregate" --argjson operationalHistory "$operational_history" --argjson operationalHealth "$operational" \

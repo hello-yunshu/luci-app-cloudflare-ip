@@ -688,6 +688,13 @@ cfip_rill_status_json() {
     fi
     schema="$(cfip_rill_schema_hash 2>/dev/null || true)"
     [[ -n "$schema" ]] || { jq -cn --arg mode "$CFIP_RILL_MODE" --arg partition "$partition" --arg package "$package_channel" '{available:false,state:"schema-unavailable",mode:$mode,protocolChannel:null,packageChannel:$package,partitionKey:$partition}'; return 0; }
+    # handshake, health and inspect each call cfip_run_with_timeout inside their
+    # own $(...), so a capability decision made down there dies with the
+    # subshell: every call would re-probe fractional sleep (100 ms per probe on
+    # devices that support it). Decide once here, in the common parent, and
+    # export it so all three calls inherit the answer.
+    cfip_watchdog_tick_init
+    export CFIP_WATCHDOG_TICK CFIP_SLEEP_FRACTIONAL
     request="$(jq -cn --arg id "status-${CFIP_RUN_ID:-status}" --arg schema "$schema" --arg partition "$CFIP_RILL_PARTITION_KEY" \
       '{requestId:$id,apiVersion:3,clientIdentity:{name:"cloudflare-ip",version:"2.0.0"},partitionKey:$partition,featureSchemaHash:$schema,modelGeneration:2,stateGeneration:0,payloadLimit:1048576,request:{method:"handshake"}}')"
     response="$(cfip_rill_runtime_call "$request" "$schema" 2>/dev/null || true)"
@@ -996,7 +1003,7 @@ cfip_rill_evidence_aggregate_json() {
     fingerprint="$(printf '%s' "$context" | sha256sum | awk '{print $1}')"
     cfip_rill_evidence_json | jq --arg fp "$fingerprint" --argjson meta "$meta" --argjson context "$context" '
       def comparable: select(.comparisonResult=="win" or .comparisonResult=="tie" or .comparisonResult=="loss");
-      (($meta.lineageId // "") as $raw | if (($raw|type)=="string" and ($raw|test("^[0-9a-f]{64}$"))) then $raw else "" end) as $lineage |
+      (($meta.lineageId // "") as $raw | if (($raw|type)=="string" and ($raw|length)==64 and all($raw|explode[]; (.>=48 and .<=57) or (.>=97 and .<=102))) then $raw else "" end) as $lineage |
       ($meta.contextChangedAt // null) as $changedAt |
       . as $all | [$all[]|select(.contextFingerprint==$fp and (.stateLineage==$lineage or .stateLineage==null))] as $current | [$current[]|comparable] as $c |
       {comparableDecisions:($c|length),wins:([$c[]|select(.comparisonResult=="win")]|length),ties:([$c[]|select(.comparisonResult=="tie")]|length),losses:([$c[]|select(.comparisonResult=="loss")]|length),winRate:(if ($c|length)>0 then ([$c[]|select(.comparisonResult=="win")]|length)/($c|length) else null end),meanRewardDelta:([$c[]|select(.rewardDelta|type=="number")|.rewardDelta]|if length>0 then add/length else null end),medianRewardDelta:([$c[]|select(.rewardDelta|type=="number")|.rewardDelta]|if length>0 then sort|.[(length-1)/2|floor] else null end),severeRegressionCount:([$c[]|select((.rewardDelta|type=="number") and .rewardDelta < -0.25)]|length),assistedSelections:([$current[]|select(.effectiveMode=="assisted")]|length),holdoutCount:([$current[]|select(.holdoutPerformed==true)]|length),holdoutFailures:([$current[]|select(.holdoutFailure==true)]|length),currentContextFingerprint:(if $fp!="" then $fp else ($current[-1].contextFingerprint // null) end),currentLineageId:(if $lineage!="" then $lineage else null end),contextSummary:$context,contextChangedAt:$changedAt}'
