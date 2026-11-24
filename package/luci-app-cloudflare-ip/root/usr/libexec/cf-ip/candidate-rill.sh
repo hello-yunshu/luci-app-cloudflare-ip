@@ -218,6 +218,13 @@ cfip_rill_history_json() {
     [[ -s "$CFIP_RILL_HISTORY_FILE" ]] && jq -e 'type == "object"' "$CFIP_RILL_HISTORY_FILE" >/dev/null 2>&1 && cat "$CFIP_RILL_HISTORY_FILE" || printf '{}'
 }
 
+# Status only reports the number of learned candidates. Loading and re-emitting
+# the whole map is wasted work, so keep a count-only path for that caller.
+cfip_rill_history_count() {
+    [[ -s "$CFIP_RILL_HISTORY_FILE" ]] || { printf 0; return 0; }
+    jq -r 'if type == "object" then length else 0 end' "$CFIP_RILL_HISTORY_FILE" 2>/dev/null || printf 0
+}
+
 cfip_rill_evidence_json() {
     local max_bytes="${CFIP_RILL_EVIDENCE_MAX_BYTES:-262144}" bytes=0
     [[ "$max_bytes" =~ ^[1-9][0-9]*$ ]] || max_bytes=262144
@@ -463,8 +470,12 @@ cfip_rill_mark_selected() {
 }
 
 cfip_rill_qualification_json() {
-    if [[ -s "$CFIP_RILL_QUALIFICATION_FILE" ]] && jq -e 'type == "object"' "$CFIP_RILL_QUALIFICATION_FILE" >/dev/null 2>&1; then
-        cat "$CFIP_RILL_QUALIFICATION_FILE"
+    local current=""
+    if [[ -s "$CFIP_RILL_QUALIFICATION_FILE" ]]; then
+        current="$(jq -c 'if type == "object" then . else empty end' "$CFIP_RILL_QUALIFICATION_FILE" 2>/dev/null || true)"
+    fi
+    if [[ -n "$current" ]]; then
+        printf '%s' "$current"
     else
         jq -cn --argjson minimum "${CFIP_RILL_MIN_FEEDBACK_SAMPLES:-30}" \
           '{state:"cold",validFeedback:0,attributedFeedback:0,delayedCompleted:0,delayedExpired:0,delayedRejected:0,disagreements:0,disagreementWin:0,disagreementLoss:0,disagreementTie:0,disagreementWinRate:null,errors:0,candidateFailures:0,recentRewards:[],window:[],trainingWindow:[],evaluationWindow:[],legacyEvaluationCompatibility:true,lastReward:null,rollingReward:null,nativeReward:null,rillReward:null,rewardDelta:null,shadowRegret:0,minFeedbackSamples:$minimum,minDisagreementSamples:10,trainingHealth:"cold",evaluationHealth:"insufficient",evaluationFreshAt:null,lastDecisionConfidenceLevel:null,lastDecisionConfidenceReasons:[],updatedAt:null}'
@@ -608,10 +619,10 @@ cfip_rill_quarantine_pending_queue() {
 }
 
 cfip_rill_runtime_call() {
-    local request="$1" response schema request_file response_file stderr_file rc=0 response_bytes
+    local request="$1" schema="${2:-}" response request_file response_file stderr_file rc=0 response_bytes call_dir
     local state_path="$CFIP_RILL_STATE" readonly_dir=""
     [[ -x "$CFIP_RILL_RUNTIME" ]] || return 3
-    schema="$(cfip_rill_schema_hash)" || return 4
+    [[ -n "$schema" ]] || { schema="$(cfip_rill_schema_hash)" || return 4; }
     if [[ "${CFIP_RILL_READONLY:-false}" == true ]]; then
         # Read-only callers operate on a private copy; Runtime state must not
         # be created or mutated by status/diagnostics. Before the first real
@@ -627,35 +638,36 @@ cfip_rill_runtime_call() {
         cfip_rill_prepare_state || return 10
         mkdir -p "${CFIP_RILL_STATE%/*}"
     fi
-    request_file="$(mktemp "${TMPDIR:-/tmp}/cfip-rill-call.XXXXXX")" || { rm -rf "$readonly_dir"; return 4; }
-    response_file="$(mktemp "${TMPDIR:-/tmp}/cfip-rill-response.XXXXXX")" || { rm -f "$request_file"; rm -rf "$readonly_dir"; return 4; }
-    stderr_file="$(mktemp "${TMPDIR:-/tmp}/cfip-rill-stderr.XXXXXX")" || { rm -f "$request_file" "$response_file"; rm -rf "$readonly_dir"; return 4; }
+    # One temp directory per call beats three mktemp invocations; the three
+    # paths are then created by shell redirection.
+    call_dir="$(mktemp -d "${TMPDIR:-/tmp}/cfip-rill-call.XXXXXX")" || { rm -rf "$readonly_dir"; return 4; }
+    request_file="$call_dir/request"; response_file="$call_dir/response"; stderr_file="$call_dir/stderr"
     printf '%s\n' "$request" >"$request_file"
     cfip_rill_run_captured "$response_file" "$stderr_file" preview-serve \
       cfip_run_with_timeout "${CFIP_RILL_TIMEOUT_S:-2}" sh -c 'cat "$1" | "$2" preview-serve --state "$3" --feature-schema-hash "$4" --model-generation "$5"' \
       sh "$request_file" "$CFIP_RILL_RUNTIME" "$state_path" "$schema" "$CFIP_RILL_MODEL_GENERATION" || rc=$?
     response_bytes="$(wc -c <"$response_file" 2>/dev/null || printf 0)"
     rm -rf "$readonly_dir"
-    rm -f "$stderr_file"
-    if ((rc != 0)); then rm -f "$request_file" "$response_file"; return "$rc"; fi
-    if ((response_bytes > 262144)); then rm -f "$request_file" "$response_file"; return 8; fi
-    response="$(cat "$response_file")"; rm -f "$request_file" "$response_file"
+    if ((rc != 0)); then rm -rf "$call_dir"; return "$rc"; fi
+    if ((response_bytes > 262144)); then rm -rf "$call_dir"; return 8; fi
+    response="$(<"$response_file")"; rm -rf "$call_dir"
     [[ -n "$response" ]] || return 6
     printf '%s' "$response"
 }
 
 cfip_rill_health_json() {
-    local schema request response
-    schema="$(cfip_rill_schema_hash 2>/dev/null || true)"; [[ -n "$schema" ]] || return 1
+    local schema="${1:-}" request response
+    [[ -n "$schema" ]] || { schema="$(cfip_rill_schema_hash 2>/dev/null || true)"; }
+    [[ -n "$schema" ]] || return 1
     request="$(jq -cn --arg id "health-${CFIP_RUN_ID:-status}" --arg schema "$schema" --arg partition "$CFIP_RILL_PARTITION_KEY" \
       '{requestId:$id,apiVersion:3,clientIdentity:{name:"cloudflare-ip",version:"2.0.0"},partitionKey:$partition,featureSchemaHash:$schema,modelGeneration:2,stateGeneration:0,payloadLimit:1048576,request:{method:"health"}}')"
-    response="$(cfip_rill_runtime_call "$request" 2>/dev/null || true)"
+    response="$(cfip_rill_runtime_call "$request" "$schema" 2>/dev/null || true)"
     jq -e '.response.kind=="health" and (.response.status|type)=="string"' <<<"$response" >/dev/null 2>&1 || return 1
     printf '%s' "$response"
 }
 
 cfip_rill_status_json() {
-    local request response health inspect schema qualification meta history pending health_status health_ok resource_pressure resource_reason_codes partition context aggregate package_channel qualification_freshness
+    local request response health inspect schema qualification meta history_count pending partition context aggregate package_channel now max_age stale_age tmpdir rc=0
     partition="$CFIP_RILL_CANDIDATE_PARTITION_KEY"
     # Two unrelated channels meet in this payload and must never be conflated:
     #   packageChannel  which Runtime *package* is installed (stable /
@@ -678,41 +690,63 @@ cfip_rill_status_json() {
     [[ -n "$schema" ]] || { jq -cn --arg mode "$CFIP_RILL_MODE" --arg partition "$partition" --arg package "$package_channel" '{available:false,state:"schema-unavailable",mode:$mode,protocolChannel:null,packageChannel:$package,partitionKey:$partition}'; return 0; }
     request="$(jq -cn --arg id "status-${CFIP_RUN_ID:-status}" --arg schema "$schema" --arg partition "$CFIP_RILL_PARTITION_KEY" \
       '{requestId:$id,apiVersion:3,clientIdentity:{name:"cloudflare-ip",version:"2.0.0"},partitionKey:$partition,featureSchemaHash:$schema,modelGeneration:2,stateGeneration:0,payloadLimit:1048576,request:{method:"handshake"}}')"
-    response="$(cfip_rill_runtime_call "$request" 2>/dev/null || true)"
-    qualification="$(cfip_rill_qualification_json)"; meta='{}'; [[ -s "$CFIP_RILL_STATE_META_FILE" ]] && meta="$(cat "$CFIP_RILL_STATE_META_FILE")"; context="$(cfip_rill_context_json 2>/dev/null || printf '{}')"; aggregate="$(cfip_rill_evidence_aggregate_json 2>/dev/null || printf '{}')"
-    history="$(cfip_rill_history_json)"; pending="$(cfip_rill_pending_count)"
-    qualification_freshness="$(cfip_rill_qualification_freshness 2>/dev/null || printf none)"
+    response="$(cfip_rill_runtime_call "$request" "$schema" 2>/dev/null || true)"
+    qualification="$(cfip_rill_qualification_json)"; meta='{}'; [[ -s "$CFIP_RILL_STATE_META_FILE" ]] && meta="$(<"$CFIP_RILL_STATE_META_FILE")"
+    context="$(cfip_rill_context_json 2>/dev/null || printf '{}')"
+    aggregate="$(cfip_rill_evidence_aggregate_json "$context" "$meta" 2>/dev/null || printf '{}')"
+    history_count="$(cfip_rill_history_count)"; pending="$(cfip_rill_pending_count)"
+    now="$(cfip_rill_now_seconds)"
+    max_age="${CFIP_RILL_EVALUATION_MAX_AGE_SECONDS:-86400}"; [[ "$max_age" =~ ^[1-9][0-9]*$ ]] || max_age=86400
+    stale_age="${CFIP_RILL_EVALUATION_STALE_SECONDS:-604800}"; [[ "$stale_age" =~ ^[1-9][0-9]*$ ]] || stale_age=604800
+    ((stale_age >= max_age)) || stale_age="$max_age"
+    # Hand all inputs to a single jq process. Passing them through temp files
+    # (created by shell redirection) avoids the five process substitutions and
+    # keeps large payloads off the argv limit.
+    tmpdir="$(mktemp -d "${TMPDIR:-/tmp}/cfip-rill-status.XXXXXX")" || return 4
+    printf '%s' "$qualification" >"$tmpdir/q"
+    printf '%s' "$meta" >"$tmpdir/m"
+    printf '%s' "$context" >"$tmpdir/ctx"
+    printf '%s' "$aggregate" >"$tmpdir/agg"
     if jq -e --arg id "status-${CFIP_RUN_ID:-status}" --arg schema "$schema" \
       '.requestId==$id and .response.kind=="handshake" and .apiVersion==3 and (.response.capabilities|type=="array") and .response.featureSchemaHash==$schema and (.response.capabilities|index("org.rill.preview.decide")) and (.response.capabilities|index("org.rill.preview.feedback")) and .response.handlerApiVersion==2' <<<"$response" >/dev/null 2>&1; then
-        health="$(cfip_rill_health_json 2>/dev/null || printf '{}')"
-        inspect="$(cfip_rill_inspect_json 2>/dev/null || printf '{}')"
-        health_status="$(jq -r '.response.status // "unknown"' <<<"$health")"
-        health_ok="$(jq -r '.response.healthy // false' <<<"$health")"
-        # The Preview health response is intentionally small. Inspect is the
-        # authoritative resource contract: pressure is true at 90% of any
-        # bounded state/pending/completed counter, or when health says so.
-        resource_pressure="$(jq -r '
+        health="$(cfip_rill_health_json "$schema" 2>/dev/null || true)"
+        health="$(jq -c 'if .response.kind == "health" and (.response.status|type) == "string" then {status:.response.status,healthy:(.response.healthy // false),reasonCodes:(.response.reasonCodes // [])} else {status:"unknown",healthy:false,reasonCodes:[]} end' <<<"$health" 2>/dev/null || printf '{"status":"unknown","healthy":false,"reasonCodes":[]}')"
+        inspect="$(cfip_rill_inspect_json "$schema" 2>/dev/null || printf '{}')"
+        printf '%s' "$health" >"$tmpdir/h"
+        printf '%s' "$inspect" >"$tmpdir/i"
+        printf '%s' "$response" >"$tmpdir/s"
+        # One jq pass derives health, resource pressure, freshness and the
+        # status payload; the five former q/extraction calls are folded in.
+        jq -cn --arg mode "$CFIP_RILL_MODE" --arg partition "$partition" --arg schema "$schema" --arg package "$package_channel" \
+          --argjson pending "$pending" --argjson historyCount "$history_count" --argjson now "$now" --argjson maxAge "$max_age" --argjson staleAge "$stale_age" \
+          --slurpfile _s "$tmpdir/s" --slurpfile _h "$tmpdir/h" --slurpfile _i "$tmpdir/i" \
+          --slurpfile _q "$tmpdir/q" --slurpfile _m "$tmpdir/m" --slurpfile _ctx "$tmpdir/ctx" --slurpfile _agg "$tmpdir/agg" '
           def near($used;$limit): (($limit|type)=="number" and $limit>0 and ($used|type)=="number" and ($used*10 >= $limit*9));
-          ((.response.status=="resource_pressure") or any(.response.reasonCodes[]?; .=="resource_pressure"))' <<<"$health")"
-        if [[ "$resource_pressure" != true ]]; then
-            resource_pressure="$(jq -r '
-              def near($used;$limit): (($limit|type)=="number" and $limit>0 and ($used|type)=="number" and ($used*10 >= $limit*9));
-              (near(.resourceUtilization.stateBytes;.resourceProfile.maxModelStateBytes)
-               or near(.resourceUtilization.pendingDecisions;.resourceProfile.maxPendingDecisions)
-               or near(.resourceUtilization.completedDecisions;.resourceProfile.maxCompletedDecisions))' <<<"$inspect")"
-        fi
-        [[ "$resource_pressure" == true ]] && health_status=resource_pressure
-        resource_reason_codes="$(jq -c --argjson pressure "$resource_pressure" '(.response.reasonCodes // []) + (if $pressure then ["resource_pressure"] else [] end) | unique' <<<"$health")"
-        jq -cn --arg mode "$CFIP_RILL_MODE" --arg partition "$partition" --arg schema "$schema" --arg package "$package_channel" --arg freshness "$qualification_freshness" \
-          --argjson s "$response" --argjson health "$health" --argjson inspect "$inspect" \
-          --argjson pending "$pending" --argjson resourcePressure "$resource_pressure" --argjson resourceReasonCodes "$resource_reason_codes" --arg healthStatus "$health_status" --argjson healthOk "$health_ok" \
-          --slurpfile _q <(printf '%s' "$qualification") --slurpfile _m <(printf '%s' "$meta") --slurpfile _h <(printf '%s' "$history") --slurpfile _ctx <(printf '%s' "$context") --slurpfile _agg <(printf '%s' "$aggregate") \
-          "(\$_q[0]) as \$q | (\$_m[0]) as \$m | (\$_h[0]) as \$h | (\$_ctx[0]) as \$context | (\$_agg[0]) as \$aggregate | {available:true,state:(if \$resourcePressure or (\$healthOk|not) then \"degraded\" else \"healthy\" end),protocolChannel:(\$s.response.channel//null),packageChannel:\$package,partitionKey:\$partition,mode:\$mode,runtimeVersion:\$s.runtimeIdentity.version,runtimeApiVersion:\$s.apiVersion,capabilities:\$s.response.capabilities,featureSchemaVersion:2,featureSchemaHash:\$schema,modelGeneration:\$s.modelGeneration,stateGeneration:\$s.stateGeneration,handlerApiVersion:\$s.response.handlerApiVersion,health:\$healthStatus,healthHealthy:(\$healthOk and (\$resourcePressure|not)),healthReasonCodes:\$resourceReasonCodes,qualificationState:(if \$m.resetRequired==true then \"reset-required\" else (\$q.state//\"cold\") end),validFeedback:(\$q.validFeedback//0),attributedFeedback:(\$q.attributedFeedback//0),delayedCompleted:(\$q.delayedCompleted//0),delayedExpired:(\$q.delayedExpired//0),delayedRejected:(\$q.delayedRejected//0),candidateFailures:(\$q.candidateFailures//0),trainingHealth:(\$q.trainingHealth//\"unknown\"),evaluationHealth:(\$q.evaluationHealth//\"insufficient\"),qualificationFreshness:\$freshness,trainingWindowSize:(\$q.trainingWindowSize//(\$q.window|length)),evaluationWindowSize:(\$q.evaluationWindowSize//(\$q.evaluationWindow|length)),evaluationCount:(\$q.evaluationCount//0),lastReward:(\$q.lastReward//null),rollingReward:(\$q.rollingReward//null),nativeReward:(\$q.nativeReward//null),rillReward:(\$q.rillReward//null),rewardDelta:(\$q.rewardDelta//null),shadowRegret:(\$q.shadowRegret//0),disagreements:(\$q.disagreements//0),disagreementWinRate:(\$q.disagreementWinRate//null),pendingDelayedFeedback:\$pending,candidateHistoryCount:(\$h|length),lastResetReason:(\$m.resetReason//null),resetRequired:(\$m.resetRequired//false),resourcePressure:\$resourcePressure,inspect:\$inspect,learningContext:\$context,evidenceAggregate:\$aggregate,contextChangedAt:(\$m.contextChangedAt//null),contextChanged:(\$m.contextChanged//false),contextTransitionPending:(\$m.contextTransitionPending//false),contextLineageId:(\$m.lineageId//null),confidenceLevel:(\$q.lastDecisionConfidenceLevel//null),confidenceReasons:(\$q.lastDecisionConfidenceReasons//[])}"
+          ($_s[0]) as $s | ($_h[0]) as $health | ($_i[0]) as $inspect |
+          ($_q[0]) as $q | ($_m[0]) as $m | ($_ctx[0]) as $context | ($_agg[0]) as $aggregate |
+          (if ($health.status=="resource_pressure") or any($health.reasonCodes[]?; .=="resource_pressure") then true
+           else (near($inspect.resourceUtilization.stateBytes;$inspect.resourceProfile.maxModelStateBytes)
+             or near($inspect.resourceUtilization.pendingDecisions;$inspect.resourceProfile.maxPendingDecisions)
+             or near($inspect.resourceUtilization.completedDecisions;$inspect.resourceProfile.maxCompletedDecisions)) end) as $resourcePressure |
+          (($health.reasonCodes // []) + (if $resourcePressure then ["resource_pressure"] else [] end) | unique) as $reasonCodes |
+          (if $resourcePressure then "resource_pressure" else $health.status end) as $healthStatus |
+          (($q.evaluationWindow // []) as $w | ([$w[]? | select(.comparisonResult=="win" or .comparisonResult=="tie" or .comparisonResult=="loss") | .at] | max // 0)) as $windowLatest |
+          (($q.evaluationFreshAt // $windowLatest) // 0) as $latest |
+          (if (($latest|type)!="number") or ($latest|floor)!=$latest or $latest<=0 then "none"
+           elif ([($now-$latest),0]|max)<=$maxAge then "fresh"
+           elif ([($now-$latest),0]|max)<=$staleAge then "stale"
+           else "expired" end) as $freshness |
+          {available:true,state:(if $resourcePressure or ($health.healthy|not) then "degraded" else "healthy" end),protocolChannel:($s.response.channel//null),packageChannel:$package,partitionKey:$partition,mode:$mode,runtimeVersion:$s.runtimeIdentity.version,runtimeApiVersion:$s.apiVersion,capabilities:$s.response.capabilities,featureSchemaVersion:2,featureSchemaHash:$schema,modelGeneration:$s.modelGeneration,stateGeneration:$s.stateGeneration,handlerApiVersion:$s.response.handlerApiVersion,health:$healthStatus,healthHealthy:($health.healthy and ($resourcePressure|not)),healthReasonCodes:$reasonCodes,qualificationState:(if $m.resetRequired==true then "reset-required" else ($q.state//"cold") end),validFeedback:($q.validFeedback//0),attributedFeedback:($q.attributedFeedback//0),delayedCompleted:($q.delayedCompleted//0),delayedExpired:($q.delayedExpired//0),delayedRejected:($q.delayedRejected//0),candidateFailures:($q.candidateFailures//0),trainingHealth:($q.trainingHealth//"unknown"),evaluationHealth:($q.evaluationHealth//"insufficient"),qualificationFreshness:$freshness,trainingWindowSize:($q.trainingWindowSize//($q.window|length)),evaluationWindowSize:($q.evaluationWindowSize//($q.evaluationWindow|length)),evaluationCount:($q.evaluationCount//0),lastReward:($q.lastReward//null),rollingReward:($q.rollingReward//null),nativeReward:($q.nativeReward//null),rillReward:($q.rillReward//null),rewardDelta:($q.rewardDelta//null),shadowRegret:($q.shadowRegret//0),disagreements:($q.disagreements//0),disagreementWinRate:($q.disagreementWinRate//null),pendingDelayedFeedback:$pending,candidateHistoryCount:$historyCount,lastResetReason:($m.resetReason//null),resetRequired:($m.resetRequired//false),resourcePressure:$resourcePressure,inspect:$inspect,learningContext:$context,evidenceAggregate:$aggregate,contextChangedAt:($m.contextChangedAt//null),contextChanged:($m.contextChanged//false),contextTransitionPending:($m.contextTransitionPending//false),contextLineageId:($m.lineageId//null),confidenceLevel:($q.lastDecisionConfidenceLevel//null),confidenceReasons:($q.lastDecisionConfidenceReasons//[])}
+        ' || rc=$?
     else
         jq -cn --arg mode "$CFIP_RILL_MODE" --arg partition "$partition" --arg package "$package_channel" --argjson pending "$pending" \
-          --slurpfile _q <(printf '%s' "$qualification") --slurpfile _m <(printf '%s' "$meta") --slurpfile _ctx <(printf '%s' "$context") --slurpfile _agg <(printf '%s' "$aggregate") \
-          "(\$_q[0]) as \$q | (\$_m[0]) as \$m | (\$_ctx[0]) as \$context | (\$_agg[0]) as \$aggregate | {available:false,state:\"incompatible\",protocolChannel:null,packageChannel:\$package,partitionKey:\$partition,mode:\$mode,runtimeApiVersion:3,featureSchemaVersion:2,modelGeneration:2,qualificationState:(if \$m.resetRequired==true then \"reset-required\" else \$q.state end),qualificationFreshness:null,pendingDelayedFeedback:\$pending,lastResetReason:(\$m.resetReason//null),resetRequired:(\$m.resetRequired//false),learningContext:\$context,evidenceAggregate:\$aggregate,contextChangedAt:(\$m.contextChangedAt//null),contextChanged:(\$m.contextChanged//false),contextTransitionPending:(\$m.contextTransitionPending//false),contextLineageId:(\$m.lineageId//null),confidenceLevel:(\$q.lastDecisionConfidenceLevel//null),confidenceReasons:(\$q.lastDecisionConfidenceReasons//[])}"
+          --slurpfile _q "$tmpdir/q" --slurpfile _m "$tmpdir/m" --slurpfile _ctx "$tmpdir/ctx" --slurpfile _agg "$tmpdir/agg" '
+          ($_q[0]) as $q | ($_m[0]) as $m | ($_ctx[0]) as $context | ($_agg[0]) as $aggregate |
+          {available:false,state:"incompatible",protocolChannel:null,packageChannel:$package,partitionKey:$partition,mode:$mode,runtimeApiVersion:3,featureSchemaVersion:2,modelGeneration:2,qualificationState:(if $m.resetRequired==true then "reset-required" else $q.state end),qualificationFreshness:null,pendingDelayedFeedback:$pending,lastResetReason:($m.resetReason//null),resetRequired:($m.resetRequired//false),learningContext:$context,evidenceAggregate:$aggregate,contextChangedAt:($m.contextChangedAt//null),contextChanged:($m.contextChanged//false),contextTransitionPending:($m.contextTransitionPending//false),contextLineageId:($m.lineageId//null),confidenceLevel:($q.lastDecisionConfidenceLevel//null),confidenceReasons:($q.lastDecisionConfidenceReasons//[])}
+        ' || rc=$?
     fi
+    rm -rf "$tmpdir"
+    return "$rc"
 }
 
 cfip_rill_actions_json() {
@@ -953,16 +987,17 @@ cfip_rill_record_evidence() {
 }
 
 cfip_rill_evidence_aggregate_json() {
-    local context fingerprint context_changed_at lineage
-    context="$(cfip_rill_context_json 2>/dev/null || printf '{}')"
-    fingerprint="$(cfip_rill_context_fingerprint 2>/dev/null || printf '')"
-    lineage="$(cfip_rill_existing_lineage_id 2>/dev/null || printf '')"
-    context_changed_at=null
-    if [[ -s "$CFIP_RILL_STATE_META_FILE" ]]; then
-        context_changed_at="$(jq -c '.contextChangedAt // null' "$CFIP_RILL_STATE_META_FILE" 2>/dev/null || printf null)"
+    local context="${1:-}" meta="${2:-}" fingerprint
+    [[ -n "$context" ]] || context="$(cfip_rill_context_json 2>/dev/null || printf '{}')"
+    if [[ -z "$meta" ]]; then
+        meta='{}'
+        [[ -s "$CFIP_RILL_STATE_META_FILE" ]] && meta="$(<"$CFIP_RILL_STATE_META_FILE")"
     fi
-    cfip_rill_evidence_json | jq --arg fp "$fingerprint" --arg lineage "$lineage" --argjson context "$context" --argjson changedAt "$context_changed_at" '
+    fingerprint="$(printf '%s' "$context" | sha256sum | awk '{print $1}')"
+    cfip_rill_evidence_json | jq --arg fp "$fingerprint" --argjson meta "$meta" --argjson context "$context" '
       def comparable: select(.comparisonResult=="win" or .comparisonResult=="tie" or .comparisonResult=="loss");
+      (($meta.lineageId // "") as $raw | if (($raw|type)=="string" and ($raw|test("^[0-9a-f]{64}$"))) then $raw else "" end) as $lineage |
+      ($meta.contextChangedAt // null) as $changedAt |
       . as $all | [$all[]|select(.contextFingerprint==$fp and (.stateLineage==$lineage or .stateLineage==null))] as $current | [$current[]|comparable] as $c |
       {comparableDecisions:($c|length),wins:([$c[]|select(.comparisonResult=="win")]|length),ties:([$c[]|select(.comparisonResult=="tie")]|length),losses:([$c[]|select(.comparisonResult=="loss")]|length),winRate:(if ($c|length)>0 then ([$c[]|select(.comparisonResult=="win")]|length)/($c|length) else null end),meanRewardDelta:([$c[]|select(.rewardDelta|type=="number")|.rewardDelta]|if length>0 then add/length else null end),medianRewardDelta:([$c[]|select(.rewardDelta|type=="number")|.rewardDelta]|if length>0 then sort|.[(length-1)/2|floor] else null end),severeRegressionCount:([$c[]|select((.rewardDelta|type=="number") and .rewardDelta < -0.25)]|length),assistedSelections:([$current[]|select(.effectiveMode=="assisted")]|length),holdoutCount:([$current[]|select(.holdoutPerformed==true)]|length),holdoutFailures:([$current[]|select(.holdoutFailure==true)]|length),currentContextFingerprint:(if $fp!="" then $fp else ($current[-1].contextFingerprint // null) end),currentLineageId:(if $lineage!="" then $lineage else null end),contextSummary:$context,contextChangedAt:$changedAt}'
 }
@@ -1107,10 +1142,12 @@ cfip_rill_process_pending_feedback() {
 }
 
 cfip_rill_inspect_json() {
-    local schema request response
-    schema="$(cfip_rill_schema_hash 2>/dev/null || true)"; [[ -n "$schema" ]] || return 1
+    local schema="${1:-}" request response
+    [[ -n "$schema" ]] || { schema="$(cfip_rill_schema_hash 2>/dev/null || true)"; }
+    [[ -n "$schema" ]] || return 1
     request="$(jq -cn --arg id "inspect-${CFIP_RUN_ID:-status}" --arg schema "$schema" --arg partition "$CFIP_RILL_PARTITION_KEY" --argjson generation "$(cfip_rill_state_generation)" \
       '{requestId:$id,apiVersion:3,clientIdentity:{name:"cloudflare-ip",version:"2.0.0"},partitionKey:$partition,capability:"org.rill.preview.inspect",featureSchemaHash:$schema,modelGeneration:2,stateGeneration:$generation,payloadLimit:1048576,request:{method:"inspect"}}')"
-    response="$(cfip_rill_runtime_call "$request" 2>/dev/null || true)"
-    if jq -e '.response.kind=="inspection" and (.response.summary|type)=="object"' <<<"$response" >/dev/null 2>&1; then jq -c '.response.summary' <<<"$response"; else printf '{}'; fi
+    response="$(cfip_rill_runtime_call "$request" "$schema" 2>/dev/null || true)"
+    # Validate and extract in one pass; callers only need the summary object.
+    jq -c 'if .response.kind == "inspection" and (.response.summary|type) == "object" then .response.summary else {} end' <<<"$response" 2>/dev/null || printf '{}'
 }
