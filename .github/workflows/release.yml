@@ -39,7 +39,7 @@ jobs:
           while IFS= read -r path; do
             [[ -n "$path" ]] || continue
             case "$path" in
-              docs/*|README|README.*|LICENSE|.gitignore) ;;
+              docs/*|README|README.*|LICENSE|.gitignore|.github/*) ;;
               *) release_needed=true; break ;;
             esac
           done <<< "$changed"
@@ -259,3 +259,19 @@ jobs:
           git fetch --force --tags origin
           tag=$(python3 scripts/package_identity.py --field tag)
           test "$(git rev-parse "refs/tags/${tag}^{commit}")" = "$EXPECTED_SHA"
+      - name: Trigger unified feed refresh
+        env:
+          GH_TOKEN: ${{ secrets.FEED_DISPATCH_TOKEN }}
+          SOURCE: ${{ github.repository }}
+          TAG: ${{ needs.check-qualification.outputs.tag }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${GH_TOKEN}" ]; then
+            echo "::notice::未配置 FEED_DISPATCH_TOKEN，跳过 yun-openwrt-packages 刷新"
+            exit 0
+          fi
+          payload="$(jq -nc --arg source "${SOURCE}" --arg tag "${TAG}" \
+            '{event_type: "upstream-release", client_payload: {source: $source, tag: $tag}}')"
+          printf '%s' "${payload}" | gh api -X POST repos/hello-yunshu/yun-openwrt-packages/dispatches --input -
+          echo "已通知 yun-openwrt-packages 刷新（${TAG}）"
