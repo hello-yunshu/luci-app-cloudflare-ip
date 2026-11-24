@@ -478,10 +478,13 @@ return view.extend({
 		return [ runtimeManager.release || _('Unknown release'), runtimeManager.architecture || _('Unknown architecture'), runtimeManager.pkgtype || _('Unknown package format') ].join(' / ');
 	};
 
-	/* The row title names what the button touches. "Runtime Package
-	 * Management" over a "Check for updates" button left the operator guessing
-	 * whether it refreshes the feed index or upgrades something; the
-	 * Performance Manager Runtime card titles the same row the same way. */
+	/* The row title names the object the button touches, never the button label
+	 * itself. "Runtime Package Management" over a "Check for updates" button left
+	 * the operator guessing whether it refreshes the feed index or upgrades
+	 * something. The Runtime action rows used to repeat their button verbatim
+	 * ("Install Rill Runtime" over an "Install Rill Runtime" button), which named
+	 * no object; they now name the package, because the section is already
+	 * called "Rill Runtime" and repeating that in every row would say nothing. */
 	o = s.option(form.Button, '_package_refresh', _('Package index'));
 	o.inputtitle = _('Check for updates');
 	o.inputstyle = 'reload';
@@ -498,7 +501,7 @@ return view.extend({
 	};
 	o.description = _('Refreshes the trusted unified feed package index. Runtime is optional; CFI Native mode remains available without it.');
 
-	o = s.option(form.Button, '_runtime_install', _('Install Rill Runtime'));
+	o = s.option(form.Button, '_runtime_install', _('Runtime package'));
 	o.inputtitle = _('Install Rill Runtime');
 	o.inputstyle = 'apply';
 	o.rmempty = true;
@@ -514,7 +517,7 @@ return view.extend({
 	};
 	o.description = _('Installs the package-managed Stable Runtime for this router release and architecture. A legacy Preview Runtime must be removed explicitly first.');
 
-	o = s.option(form.Button, '_runtime_repair', _('Repair Rill Runtime'));
+	o = s.option(form.Button, '_runtime_repair', _('Runtime package'));
 	o.inputtitle = _('Repair Rill Runtime');
 	o.inputstyle = 'apply';
 	o.rmempty = true;
@@ -530,7 +533,7 @@ return view.extend({
 	};
 	o.description = _('Reinstalls the same trusted Stable package only when its executable is missing. It does not change Runtime versions.');
 
-	o = s.option(form.Button, '_runtime_update', _('Update Rill Runtime'));
+	o = s.option(form.Button, '_runtime_update', _('Runtime package'));
 	o.inputtitle = _('Update Rill Runtime');
 	o.inputstyle = 'apply';
 	o.rmempty = true;
@@ -546,7 +549,7 @@ return view.extend({
 	};
 	o.description = _('Updates only the compatible Stable Runtime. Unknown-source, legacy Preview, and incompatible installations are not replaced.');
 
-	o = s.option(form.Button, '_runtime_uninstall', _('Uninstall Rill Runtime'));
+	o = s.option(form.Button, '_runtime_uninstall', _('Runtime package'));
 	o.inputtitle = _('Uninstall Rill Runtime');
 	o.inputstyle = 'reset';
 	o.rmempty = true;
@@ -562,7 +565,7 @@ return view.extend({
 	};
 	o.description = _('Removes only the shared Stable Runtime package. CFI Native mode remains fully functional without it.');
 
-	o = s.option(form.Button, '_cfi_update', _('Update CFI'));
+	o = s.option(form.Button, '_cfi_update', _('CFI package'));
 	o.inputtitle = _('Update CFI');
 	o.inputstyle = 'apply';
 	o.rmempty = true;

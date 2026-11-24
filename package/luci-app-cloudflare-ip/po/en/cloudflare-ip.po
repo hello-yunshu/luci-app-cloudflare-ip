@@ -2493,6 +2493,9 @@ msgstr "Unknown package format"
 msgid "Package index"
 msgstr "Package index"
 
+msgid "Runtime package"
+msgstr "Runtime package"
+
 msgid "Check for updates"
 msgstr "Check for updates"
 
@@ -2543,6 +2546,9 @@ msgstr "Updates only a compatible Preview Runtime. Stable, unknown-source, and i
 
 msgid "Update CFI"
 msgstr "Update CFI"
+
+msgid "CFI package"
+msgstr "CFI package"
 
 msgid "Update CFI from the unified feed? The page will reload after the package update."
 msgstr "Update CFI from the unified feed? The page will reload after the package update."

@@ -332,7 +332,7 @@ msgid ""
 "The generic Rill Runtime is supplied by OpenWrt packaging. Cloudflare IP "
 "owns candidate validation, ranking policy, reward and proxy transactions."
 msgstr ""
-"通用 Rill Runtime 由 OpenWrt 软件包提供。Cloudflare IP 负责候选验证、排名策"
+"通用 Rill 运行环境由 OpenWrt 软件包提供。Cloudflare IP 负责候选验证、排名策"
 "略、反馈奖励和代理配置事务。"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js:55
@@ -377,10 +377,10 @@ msgstr "确定性提前停止"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js:73
 msgid "Rill Runtime"
-msgstr "Rill Runtime"
+msgstr "Rill 运行环境"
 
 msgid "Rill Runtime Consumer"
-msgstr "Rill Runtime 接入"
+msgstr "Rill 运行环境接入"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js:76
 msgid "Enable Rill Intelligence"
@@ -416,16 +416,16 @@ msgid ""
 "Assisted is qualification-gated and uses only the Native safe envelope; any "
 "Runtime problem falls back to Native."
 msgstr ""
-"Assisted 受资格校验限制，只能在 Native 安全范围内选择；Runtime 出现任何问题都"
+"Assisted 受资格校验限制，只能在 Native 安全范围内选择；运行环境出现任何问题都"
 "会回退到 Native。"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js:88
 msgid "Runtime Timeout (ms)"
-msgstr "Runtime 超时（毫秒）"
+msgstr "运行环境超时（毫秒）"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js:92
 msgid "Runtime Path"
-msgstr "Runtime 路径"
+msgstr "运行环境路径"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js:95
 msgid "State File"
@@ -437,19 +437,19 @@ msgstr "实时状态"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js:100
 msgid "Runtime"
-msgstr "运行时"
+msgstr "运行环境"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js:102
 msgid "Runtime Channel"
-msgstr "Runtime 通道"
+msgstr "运行环境通道"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
 msgid "Installed Runtime package channel. Only Stable is accepted."
-msgstr "已安装的 Runtime 包通道，仅接受 Stable。"
+msgstr "已安装的运行环境包通道，仅接受 Stable。"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
 msgid "Runtime Protocol"
-msgstr "Runtime 协议"
+msgstr "运行环境协议"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
 msgid "Not running"
@@ -457,11 +457,11 @@ msgstr "未运行"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
 msgid "Protocol surface reported by the Runtime process; the Stable package still speaks the legacy \"preview\" protocol."
-msgstr "Runtime 进程上报的协议面；Stable 包使用的仍是旧版 “preview” 协议。"
+msgstr "运行环境进程上报的协议面；Stable 包使用的仍是旧版 “preview” 协议。"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js:104
 msgid "Runtime API"
-msgstr "Runtime API"
+msgstr "运行环境 API"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js:106
 msgid "Feature Schema"
@@ -490,7 +490,7 @@ msgstr "待处理延迟反馈"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js:121
 msgid "Runtime Health"
-msgstr "运行时健康状态"
+msgstr "运行环境健康状态"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js:122
 msgid "Resource pressure"
@@ -529,7 +529,7 @@ msgstr "是"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js:128
 msgid "Runtime Inspect"
-msgstr "运行时检查"
+msgstr "运行环境检查"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js:129
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js:168
@@ -1476,7 +1476,7 @@ msgstr "允许测速维护停服"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/settings.js:131
 msgid "Allow a temporary proxy outage during measurement when no verified firewall bypass is available. Without this option, CFI fails closed instead of measuring through a running proxy. OpenClash uses its narrowly scoped runtime bypass when available."
-msgstr "没有经过验证的防火墙绕行方式时，允许测速期间暂时中断代理。关闭此项后，若代理正在运行且没有可用绕行，CFI 会失败关闭，不会经代理测速。OpenClash 在条件满足时使用范围受限的运行时绕行。"
+msgstr "没有经过验证的防火墙绕行方式时，允许测速期间暂时中断代理。关闭此项后，若代理正在运行且没有可用绕行，CFI 会失败关闭，不会经代理测速。OpenClash 在条件满足时会启用范围受限的临时绕行。"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/settings.js:135
 msgid "Keep CFST Across Upgrades"
@@ -1625,7 +1625,7 @@ msgstr "发布路径"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/sources.js:50
 msgid "Runtime Source Status"
-msgstr "运行时来源状态"
+msgstr "运行环境来源状态"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/sources.js:51
 msgid ""
@@ -1780,7 +1780,7 @@ msgstr "启用自适应测量"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
 msgid "Fixed package-managed Preview Runtime path; custom executable paths are rejected."
-msgstr "固定为包管理的 Preview Runtime 路径；拒绝自定义可执行文件路径。"
+msgstr "固定为包管理的 Preview 运行环境路径；拒绝自定义可执行文件路径。"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/advanced.js
 msgid "Fixed to /usr/bin or /usr/share/cf-ip. CFST is downloaded and executed as root only from these directories."
@@ -1864,7 +1864,7 @@ msgstr "重试"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
 msgid "Rill Runtime: Not installed"
-msgstr "Rill 运行时：未安装"
+msgstr "Rill 运行环境：未安装"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
 msgid "Rill learning state was reset. Reloading status."
@@ -1872,11 +1872,11 @@ msgstr "Rill 学习状态已重置，正在重新加载状态。"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
 msgid "Runtime installation"
-msgstr "运行时安装"
+msgstr "运行环境安装"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
 msgid "Runtime is optional; Native mode remains available without it."
-msgstr "运行时为可选；未安装时仍可使用原生模式。"
+msgstr "运行环境为可选；未安装时仍可使用原生模式。"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
 msgid "Scheduler Contract"
@@ -2101,11 +2101,11 @@ msgstr "就绪"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
 msgid "Runtime not installed"
-msgstr "运行时未安装"
+msgstr "运行环境未安装"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
 msgid "Runtime unavailable"
-msgstr "运行时不可用"
+msgstr "运行环境不可用"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js
 msgid "Stale evidence"
@@ -2453,7 +2453,7 @@ msgid "HomeProxy version is not qualified for CFI updates: %s"
 msgstr "此 HomeProxy 版本未通过 CFI 更新验证：%s"
 
 msgid "CFI only accepts the exact HomeProxy package version qualified by its isolated runtime test. No node configuration was changed."
-msgstr "CFI 仅接受已通过隔离运行时测试的精确 HomeProxy 软件包版本。未更改任何节点配置。"
+msgstr "CFI 仅接受已通过隔离环境测试的精确 HomeProxy 软件包版本。未更改任何节点配置。"
 
 msgid "not installed"
 msgstr "未安装"
@@ -2468,7 +2468,7 @@ msgid "HomeProxy was restored after the configured maintenance stop and loaded t
 msgstr "维护停服后已恢复 HomeProxy，并加载写入活动 main_node 的排名第一候选；目标域名出站仍未经验证。"
 
 msgid "Only the top candidate was persisted to one active HomeProxy main_node. The running service was not changed; runtime egress is unverified and application is pending."
-msgstr "排名第一的候选仅已持久化到一个活动 HomeProxy main_node。运行中的服务未更改；运行时出站未经验证，更新仍待应用。"
+msgstr "排名第一的候选仅已持久化到一个活动 HomeProxy main_node。运行中的服务未更改；实际出站未经验证，更新仍待应用。"
 
 msgid "No supported proxy service is available. Install PassWall, OpenClash, or a qualified HomeProxy version before using this service."
 msgstr "当前没有可用的受支持代理。请先安装 PassWall、OpenClash 或通过验证的 HomeProxy 版本。"
@@ -2517,52 +2517,52 @@ msgstr "已安装的 PassWall2 版本未经 CFI 仅持久化更新资格验证�
 
 
 msgid "Runtime management helper is not installed. Update CFI from the unified package feed to enable one-click management."
-msgstr "尚未安装 Runtime 管理组件。请从统一软件源更新 CFI 以启用一键管理。"
+msgstr "尚未安装运行环境管理组件。请从统一软件源更新 CFI 以启用一键管理。"
 
 msgid "Unable to query Runtime package manager."
-msgstr "无法查询 Runtime 软件包管理器。"
+msgstr "无法查询运行环境软件包管理器。"
 
 msgid "Runtime is not supported for this OpenWrt release or architecture."
-msgstr "此 OpenWrt 版本或架构不支持 Runtime。"
+msgstr "此 OpenWrt 版本或架构不支持运行环境。"
 
 msgid "Runtime is installed from the Stable channel; CFI will not replace it."
-msgstr "当前安装的是 Stable 渠道 Runtime；CFI 不会替换它。"
+msgstr "当前安装的是 Stable 渠道运行环境；CFI 不会替换它。"
 
 msgid "Runtime source or channel is unknown; CFI will not update it."
-msgstr "Runtime 来源或渠道未知；CFI 不会更新它。"
+msgstr "运行环境来源或渠道未知；CFI 不会更新它。"
 
 msgid "The installed Preview Runtime is incompatible or its compatibility is unknown; CFI will not update it."
-msgstr "已安装的 Preview Runtime 不兼容或兼容性未知；CFI 不会更新它。"
+msgstr "已安装的 Preview 运行环境不兼容或兼容性未知；CFI 不会更新它。"
 
 msgid "Preview Runtime is installed and compatible."
-msgstr "已安装兼容的 Preview Runtime。"
+msgstr "已安装兼容的 Preview 运行环境。"
 
 msgid "Runtime update is available."
-msgstr "有可用的 Runtime 更新。"
+msgstr "有可用的运行环境更新。"
 
 msgid "Runtime is already up to date."
-msgstr "Runtime 已是最新版本。"
+msgstr "运行环境已是最新版本。"
 
 msgid "Runtime is not installed. CFI Native mode remains available."
-msgstr "尚未安装 Runtime。CFI Native 模式仍可使用。"
+msgstr "尚未安装运行环境。CFI Native 模式仍可使用。"
 
 msgid "Rill Runtime is not installed. Click Install below to add it, or keep using CFI Native mode."
-msgstr "Rill Runtime 未安装。点击下方「安装」添加，或继续使用 CFI Native 模式。"
+msgstr "Rill 运行环境未安装。点击下方「安装」添加，或继续使用 CFI Native 模式。"
 
 msgid "Uninstall Rill Runtime"
-msgstr "卸载 Rill Runtime"
+msgstr "卸载 Rill 运行环境"
 
 msgid "Remove the Rill Runtime package? CFI will fall back to Native mode. You can reinstall it at any time."
-msgstr "确定移除 Rill Runtime 包？CFI 将回退到 Native 模式。可随时重新安装。"
+msgstr "确定移除 Rill 运行环境包？CFI 将回退到 Native 模式。可随时重新安装。"
 
 msgid "Rill Runtime removed. CFI will use Native mode."
-msgstr "Rill Runtime 已移除。CFI 将使用 Native 模式。"
+msgstr "Rill 运行环境已移除。CFI 将使用 Native 模式。"
 
 msgid "Unable to remove Rill Runtime."
-msgstr "无法移除 Rill Runtime。"
+msgstr "无法移除 Rill 运行环境。"
 
 msgid "Removes only the shared Stable Runtime package. CFI Native mode remains fully functional without it."
-msgstr "仅移除共享的 Stable Runtime 包。CFI Native 模式不受影响。"
+msgstr "仅移除共享的 Stable 运行环境包。CFI Native 模式不受影响。"
 
 msgid "Package manager rejected the request."
 msgstr "软件包管理器拒绝了该请求。"
@@ -2574,10 +2574,10 @@ msgid "Installing..."
 msgstr "正在安装..."
 
 msgid "Runtime Package Status"
-msgstr "Runtime 软件包状态"
+msgstr "运行环境软件包状态"
 
 msgid "Runtime Package Target"
-msgstr "Runtime 软件包目标"
+msgstr "运行环境软件包目标"
 
 msgid "Unknown release"
 msgstr "未知版本"
@@ -2591,56 +2591,62 @@ msgstr "未知软件包格式"
 msgid "Package index"
 msgstr "软件源索引"
 
+msgid "Runtime package"
+msgstr "运行环境软件包"
+
 msgid "Check for updates"
 msgstr "检查更新"
 
 msgid "Runtime management helper is not installed."
-msgstr "尚未安装 Runtime 管理组件。"
+msgstr "尚未安装运行环境管理组件。"
 
 msgid "Runtime package index refreshed."
-msgstr "Runtime 软件包索引已刷新。"
+msgstr "运行环境软件包索引已刷新。"
 
 msgid "Unable to refresh package index."
 msgstr "无法刷新软件包索引。"
 
 msgid "Refreshes the trusted unified feed package index. Runtime is optional; CFI Native mode remains available without it."
-msgstr "刷新可信统一软件源的软件包索引。Runtime 为可选项；未安装时 CFI Native 模式仍可使用。"
+msgstr "刷新可信统一软件源的软件包索引。运行环境为可选项；未安装时 CFI Native 模式仍可使用。"
 
 msgid "Install Rill Runtime"
-msgstr "安装 Rill Runtime"
+msgstr "安装 Rill 运行环境"
 
 msgid "Install the optional Rill Preview Runtime? CFI Native mode will remain available."
-msgstr "要安装可选的 Rill Preview Runtime 吗？CFI Native 模式仍可使用。"
+msgstr "要安装可选的 Rill Preview 运行环境吗？CFI Native 模式仍可使用。"
 
 msgid "Runtime package action completed. Reloading status."
-msgstr "Runtime 软件包操作已完成，正在刷新状态。"
+msgstr "运行环境软件包操作已完成，正在刷新状态。"
 
 msgid "Unable to install Rill Runtime."
-msgstr "无法安装 Rill Runtime。"
+msgstr "无法安装 Rill 运行环境。"
 
 msgid "Install"
 msgstr "安装"
 
 msgid "Installs only the package-managed Preview Runtime for this router release and architecture. Stable or unknown Runtime installations are preserved."
-msgstr "仅为此路由器版本和架构安装由软件包管理的 Preview Runtime。现有 Stable 或来源未知的 Runtime 会保留。"
+msgstr "仅为此路由器版本和架构安装由软件包管理的 Preview 运行环境。现有 Stable 或来源未知的运行环境会保留。"
 
 msgid "Update Rill Runtime"
-msgstr "更新 Rill Runtime"
+msgstr "更新 Rill 运行环境"
 
 msgid "Update the shared Rill Preview Runtime? Other installed consumers will be checked before changes."
-msgstr "要更新共享的 Rill Preview Runtime 吗？更改前会检查其他已安装的使用方。"
+msgstr "要更新共享的 Rill Preview 运行环境吗？更改前会检查其他已安装的使用方。"
 
 msgid "Unable to update Rill Runtime."
-msgstr "无法更新 Rill Runtime。"
+msgstr "无法更新 Rill 运行环境。"
 
 msgid "Update"
 msgstr "更新"
 
 msgid "Updates only a compatible Preview Runtime. Stable, unknown-source, and incompatible installations are not replaced."
-msgstr "仅更新兼容的 Preview Runtime。Stable、来源未知或不兼容的安装不会被替换。"
+msgstr "仅更新兼容的 Preview 运行环境。Stable、来源未知或不兼容的安装不会被替换。"
 
 msgid "Update CFI"
 msgstr "更新 CFI"
+
+msgid "CFI package"
+msgstr "CFI 软件包"
 
 msgid "Update CFI from the unified feed? The page will reload after the package update."
 msgstr "要从统一软件源更新 CFI 吗？软件包更新后页面会重新加载。"
@@ -2679,7 +2685,7 @@ msgid "Legacy GitHub updater is available because the unified package helper is 
 msgstr "由于缺少统一软件包管理组件，可使用旧版 GitHub 更新器。"
 
 msgid "Repair Rill Runtime"
-msgstr "修复 Rill Runtime"
+msgstr "修复 Rill 运行环境"
 
 msgid "Repair"
 msgstr "修复"
@@ -2688,48 +2694,48 @@ msgid "Repairing..."
 msgstr "正在修复..."
 
 msgid "Reinstall the same trusted Preview Runtime package to restore its missing executable? This will not upgrade the Runtime."
-msgstr "要重新安装同版本且可信的 Preview Runtime 软件包以恢复缺失的可执行文件吗？此操作不会升级 Runtime。"
+msgstr "要重新安装同版本且可信的 Preview 运行环境软件包以恢复缺失的可执行文件吗？此操作不会升级运行环境。"
 
 msgid "Runtime repair completed. Reloading status."
-msgstr "Runtime 修复完成，正在刷新状态。"
+msgstr "运行环境修复完成，正在刷新状态。"
 
 msgid "Unable to repair Rill Runtime."
-msgstr "无法修复 Rill Runtime。"
+msgstr "无法修复 Rill 运行环境。"
 
 msgid "Reinstalls the same trusted Preview package only when its executable is missing. It does not change Runtime versions."
-msgstr "仅当可执行文件缺失时重新安装相同版本的可信 Preview 软件包，不会更改 Runtime 版本。"
+msgstr "仅当可执行文件缺失时重新安装相同版本的可信 Preview 软件包，不会更改运行环境版本。"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
 msgid "Legacy Preview Runtime is installed. Remove rill-runtime-preview, then install Stable rill-runtime."
-msgstr "已安装旧版 Preview Runtime。请先卸载 rill-runtime-preview，再安装 Stable rill-runtime。"
+msgstr "已安装旧版 Preview 运行环境。请先卸载 rill-runtime-preview，再安装 Stable rill-runtime。"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
 msgid "Stable Runtime is installed."
-msgstr "已安装 Stable Runtime。"
+msgstr "已安装 Stable 运行环境。"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
 msgid "Install the optional Stable Rill Runtime? CFI Native mode will remain available."
-msgstr "要安装可选的 Stable Rill Runtime 吗？CFI Native 模式仍可使用。"
+msgstr "要安装可选的 Stable Rill 运行环境吗？CFI Native 模式仍可使用。"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
 msgid "Installs the package-managed Stable Runtime for this router release and architecture. A legacy Preview Runtime must be removed explicitly first."
-msgstr "仅安装与此路由器版本和架构匹配的软件包管理版 Stable Runtime。必须先手动卸载旧版 Preview Runtime。"
+msgstr "仅安装与此路由器版本和架构匹配的软件包管理版 Stable 运行环境。必须先手动卸载旧版 Preview 运行环境。"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
 msgid "Reinstall the same trusted Stable Runtime package to restore its missing executable? This will not upgrade the Runtime."
-msgstr "要重新安装相同且可信的 Stable Runtime 软件包以恢复缺失的可执行文件吗？此操作不会升级 Runtime。"
+msgstr "要重新安装相同且可信的 Stable 运行环境软件包以恢复缺失的可执行文件吗？此操作不会升级运行环境。"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
 msgid "Reinstalls the same trusted Stable package only when its executable is missing. It does not change Runtime versions."
-msgstr "仅当可执行文件缺失时重新安装相同且可信的 Stable 软件包，不会更改 Runtime 版本。"
+msgstr "仅当可执行文件缺失时重新安装相同且可信的 Stable 软件包，不会更改运行环境版本。"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
 msgid "Update the shared Stable Rill Runtime? Other installed consumers will be checked before changes."
-msgstr "要更新共享的 Stable Rill Runtime 吗？更改前会检查其他已安装的使用方。"
+msgstr "要更新共享的 Stable Rill 运行环境吗？更改前会检查其他已安装的使用方。"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
 msgid "Updates only the compatible Stable Runtime. Unknown-source, legacy Preview, and incompatible installations are not replaced."
-msgstr "仅更新兼容的 Stable Runtime。来源未知、旧版 Preview 或不兼容的安装不会被替换。"
+msgstr "仅更新兼容的 Stable 运行环境。来源未知、旧版 Preview 或不兼容的安装不会被替换。"
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
 msgid "Removing..."
