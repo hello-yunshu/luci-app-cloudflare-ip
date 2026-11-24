@@ -893,9 +893,9 @@ cfip_begin_recovery() {
 # Stop an operation process group where possible, with a Linux /proc child-tree
 # fallback for BusyBox environments without a usable setsid.
 cfip_process_children() {
-    local pid="$1" children child
+    local pid="$1" children="" child
     [[ -r "/proc/$pid/task/$pid/children" ]] || return 0
-    read -r children <"/proc/$pid/task/$pid/children" || true
+    read -r children <"/proc/$pid/task/$pid/children" 2>/dev/null || true
     for child in $children; do
         cfip_process_children "$child"
         printf '%s\n' "$child"
@@ -933,10 +933,78 @@ cfip_cancel_active_operation() {
     CFIP_ACTIVE_WATCHER_PGID=""
 }
 
+# How the operation watchdog waits between child liveness checks.  Every tick is
+# time the caller spends waiting for an operation that may already be done, so
+# the tick bounds the per-call latency floor: a Rill Runtime handshake answers in
+# 11 ms, but a coarse tick kept the LuCI page waiting a whole second for it.
+#
+#   sleep  - `sleep 0.1` works (coreutils, or BusyBox with FEATURE_FANCY_SLEEP)
+#   fifo   - BusyBox without fancy sleep rejects fractions, so wait on a FIFO
+#            opened read-write: it never reaches EOF and carries no data, so
+#            `read -t` blocks for exactly the requested slice and reads nothing
+#   second - last resort: 1 s granularity (no mkfifo, or no fractional read -t)
+#
+# Reading /dev/zero is deliberately not used.  `read -t 0.1 < /dev/zero` does
+# return after 0.1 s, but it churns NULs the whole time: 30 ticks cost 3.0 s of
+# CPU on an x86_64 host, which is untenable on a router.
+
+# Milliseconds, accurate enough to verify a 20 ms wait.  EPOCHREALTIME is a bash
+# builtin (5.0+); /proc/uptime covers older shells without forking a clock.
+cfip_watchdog_ms() {
+    if [[ -n "${EPOCHREALTIME:-}" ]]; then
+        local now="${EPOCHREALTIME//[.,]/}"
+        [[ "$now" =~ ^[0-9]+$ ]] && printf '%s' "$(( now / 1000 ))"
+    elif [[ -r /proc/uptime ]]; then
+        awk '{ printf "%d", $1 * 1000 }' /proc/uptime
+    fi
+}
+
+cfip_watchdog_tick_init() {
+    local dir before after
+    [[ -n "${CFIP_WATCHDOG_TICK:-}" ]] && return 0
+    CFIP_WATCHDOG_TICK=second
+    if [[ "${CFIP_SLEEP_FRACTIONAL:-}" == 1 ]] ||
+       { [[ "${CFIP_SLEEP_FRACTIONAL:-}" != 0 ]] && sleep 0.1 2>/dev/null; }; then
+        CFIP_WATCHDOG_TICK=sleep
+        return 0
+    fi
+    dir="$(mktemp -d "${TMPDIR:-/tmp}/cfip-tick.XXXXXX" 2>/dev/null)" || return 0
+    if mkfifo "$dir/p" 2>/dev/null; then
+        if { exec 19<>"$dir/p"; } 2>/dev/null; then
+            # Only accept the FIFO tick if this interpreter really waits on it:
+            # a bash without fractional read -t returns at once, which would
+            # turn the watchdog loop into a busy poll.
+            before="$(cfip_watchdog_ms)"
+            if [[ -n "$before" ]]; then
+                read -r -t 0.02 -u 19 _cfip_watchdog_sink 2>/dev/null || true
+                after="$(cfip_watchdog_ms)"
+                if [[ -n "$after" ]] && (( after - before >= 10 )); then
+                    CFIP_WATCHDOG_TICK=fifo
+                fi
+            fi
+        fi
+    fi
+    rm -rf "$dir"
+    return 0
+}
+
+# $1 is the slice in seconds.  The first slice of a wait is short: supervised
+# operations such as a Rill handshake finish in milliseconds, so a coarse first
+# slice is pure added latency.  Later slices stay at 0.1 s to keep the wakeup
+# count low for long-running work.
+cfip_watchdog_tick() {
+    local slice="${1:-0.1}"
+    case "${CFIP_WATCHDOG_TICK:-second}" in
+        sleep) sleep "$slice" ;;
+        fifo) read -r -t "$slice" -u 19 _cfip_watchdog_sink 2>/dev/null || true ;;
+        *) sleep 1 ;;
+    esac
+}
+
 # Portable watchdog for OpenWrt/Bash; does not require coreutils timeout.
 # Returns 124 when the watchdog expires and terminates the complete operation.
 cfip_run_with_timeout() {
-    local limit="$1" marker pid watcher pgid watcher_pgid rc timed_out=false
+    local limit="$1" marker pid watcher pgid watcher_pgid rc timed_out=false slice=0.02
     shift
     [[ "$limit" =~ ^[1-9][0-9]*$ ]] || return 2
     marker="$(mktemp "${TMPDIR:-/tmp}/cfip-timeout.XXXXXX")" || return 2
@@ -958,11 +1026,9 @@ cfip_run_with_timeout() {
     CFIP_ACTIVE_WATCHER_PID="$watcher"
     CFIP_ACTIVE_WATCHER_PGID="$watcher_pgid"
     while kill -0 "$pid" 2>/dev/null && kill -0 "$watcher" 2>/dev/null; do
-        # BusyBox sleep without FEATURE_FANCY_SLEEP rejects fractional values.
-        if [[ -z "${CFIP_SLEEP_FRACTIONAL:-}" ]]; then
-            if sleep 0.1 2>/dev/null; then CFIP_SLEEP_FRACTIONAL=1; else CFIP_SLEEP_FRACTIONAL=0; fi
-        fi
-        if [[ "$CFIP_SLEEP_FRACTIONAL" == 1 ]]; then sleep 0.1; else sleep 1; fi
+        cfip_watchdog_tick_init
+        cfip_watchdog_tick "$slice"
+        slice=0.1
     done
     if kill -0 "$pid" 2>/dev/null && ! kill -0 "$watcher" 2>/dev/null; then
         : >"$marker"

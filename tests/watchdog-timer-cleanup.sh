@@ -19,8 +19,13 @@ run_batch() {
         cfip_run_with_timeout 30 true
     done
     while IFS=$'\t' read -r pid args; do
-        [[ "$args" == 30 || "$args" == 0.1 ]] || { echo "unexpected timer invocation: $pid $args" >&2; exit 1; }
-        [[ "$args" == 0.1 ]] && continue
+        # 0.02/0.1 are watchdog ticks, not the deadline timer; every other
+        # invocation is unexpected.  The 30 s timers must not outlive the call.
+        case "$args" in
+            30) ;;
+            0.02|0.1) continue ;;
+            *) echo "unexpected timer invocation: $pid $args" >&2; exit 1 ;;
+        esac
         if kill -0 "$pid" 2>/dev/null; then
             echo "watchdog timer survived: pid=$pid" >&2
             exit 1

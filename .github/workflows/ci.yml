@@ -138,6 +138,7 @@ jobs:
           bash tests/monotonic-deadline.sh
           bash tests/external-operation-timeout-tree.sh
           bash tests/watchdog-timer-cleanup.sh
+          bash tests/watchdog-tick-granularity.sh
           bash tests/cron-semantic-validation.sh
           bash tests/rill-feedback-negative.sh
           bash tests/log-stderr-bounded.sh
