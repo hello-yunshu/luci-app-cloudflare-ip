@@ -37,7 +37,7 @@
 | [../RELEASE_CHANNEL_GUARD.md](../RELEASE_CHANNEL_GUARD.md) | stable guard 预期失败的解释与排查边界 |
 | [next-release-phase-e-report.md](next-release-phase-e-report.md) | 阶段 E：发布前 6 条 |
 | [next-release-phase-b-report.md](next-release-phase-b-report.md) … [next-release-phase-d-report.md](next-release-phase-d-report.md) | 阶段 B–D 执行报告 |
-| [../plans/next-release-remediation-plan.md](../plans/next-release-remediation-plan.md) | 阶段 A 修复计划与 GO/NO-GO 条件 |
+| [../plans/archive/next-release-remediation-plan.md](../plans/archive/next-release-remediation-plan.md) | 阶段 A 修复计划与 GO/NO-GO 条件（已完成，归档） |
 | [../2.6.0-r8-RELEASE-READY.md](../2.6.0-r8-RELEASE-READY.md) | r8 发布准备、资产与授权清单 |
 
 ## 证据
