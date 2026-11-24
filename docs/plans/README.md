@@ -46,3 +46,7 @@ CFI 的计划与契约目前分两处，原因是 CI 仍直接引用仓库根的
 - `plans/stable-cross-repo-remediation-plan.md`：2.x Stable 跨仓修复计划（历史审计结论）。
 - `plans/rill/RILL-1.5.3-INTEGRATION.md`、`plans/rill/RILL-QUALIFICATION.md`：Rill 1.5.3 / 2.1.1 时期记录；当前 Runtime 契约见仓库根 `contracts/rill-runtime.json` 与 `docs/RUNTIME_COMPATIBILITY.md`。
 - `docs/plans/archive/next-release-remediation-plan.md`：v2.6.0 前审计修复计划（阶段 A–F 已执行）。
+
+## 待随下个版本执行
+
+- 根目录 `AUDIT_2026-10-05/` 迁入 `docs/archive/audits/`，并同时把根 `plans/` 并入 `docs/plans/`。两项都是非 `docs/*` 路径变更，会触发 `release.yml` 的发布晋级；必须在版本号变更时一并完成，避免用旧版本号重发。
