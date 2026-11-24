@@ -48,8 +48,8 @@
 
 | 模式 | 命中 | 代表位置 |
 |---|---:|---|
-| `/Users/<user>/` | 134 处 / 56 文件 | `plans/stable-cross-repo-remediation-plan.md` L5、L491；`plans/g4-g5-execution.md` L341/383/391；`docs/audits/next-release-INDEX.md` L64；`docs/audits/g4-g5-evidence/*.json` 的 `rawEvidence` 与 `fileHashes` |
-| `/Users/<user>/` | 37 处 | `AUDIT_2026-10-05/evidence/cf-tests.json` |
+| `/Users/<user>/` | 134 处 / 56 文件 | `docs/plans/archive/stable-cross-repo-remediation-plan.md` L5、L491；`docs/plans/archive/g4-g5-execution.md` L341/383/391；`docs/audits/next-release-INDEX.md` L64；`docs/audits/g4-g5-evidence/*.json` 的 `rawEvidence` 与 `fileHashes` |
+| `/Users/<user>/` | 37 处 | `docs/archive/audits/AUDIT_2026-10-05/evidence/cf-tests.json` |
 | `/<user>/clash/clash-proxies.yaml` | 1 处 | `docs/audits/next-release-evidence/device-20261107/README.md` L9 |
 | DUT 内网地址 | 7 处 / 6 文件 | `device-20261107/visual-zoom/report.json`、`touch-20261107/touch-matrix.json`、`soak-20261107-12h/README.md`、`phase-c-ci/stable-review.json`、`g6-g7-evidence/device-policy-20261024.json` |
 | 页面标题 `-<user>` | 3 处 | `touch-20261107/touch-matrix.json` L77/146/212 |

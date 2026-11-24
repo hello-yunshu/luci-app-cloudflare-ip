@@ -228,7 +228,7 @@ jobs:
           bash tests/rill-intelligence-luci-contract.sh
           bash tests/rill-runtime-absence.sh
           python3 -B tests/qualified-rill-artifacts.py
-          jq empty plans/rill/drift-decision.json
+          jq empty docs/plans/rill/drift-decision.json
           bash tests/recovery-deadline.sh
           bash tests/sync-single-restart.sh
           bash tests/sync-stop-failure-cleanup.sh

@@ -31,7 +31,7 @@ Every failure is a real problem. There is no longer an "expected red run" state.
 - Do **not** hand-edit `release-channel.json` to make a failing run pass.
 - Changing channel is a policy change: update `release-channel.json` **and** `tests/release-channel-contract.sh` together, so the contract test keeps matching the workflow.
 - A tag is immutable: `scripts/guard-release-tag.sh` refuses to reuse a tag that points at a different SHA.
-- A docs-only push is a clean no-op (`changes` classifies `docs/*`, `plans/*`, `README*`, `LICENSE`, `.gitignore` as non-release).
+- A docs-only push is a clean no-op (`changes` classifies `docs/*`, `README*`, `LICENSE`, `.gitignore` as non-release).
 
 ## Retired behavior (for reading old logs)
 

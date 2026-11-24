@@ -39,7 +39,7 @@ jobs:
           while IFS= read -r path; do
             [[ -n "$path" ]] || continue
             case "$path" in
-              docs/*|plans/*|README|README.*|LICENSE|.gitignore) ;;
+              docs/*|README|README.*|LICENSE|.gitignore) ;;
               *) release_needed=true; break ;;
             esac
           done <<< "$changed"
