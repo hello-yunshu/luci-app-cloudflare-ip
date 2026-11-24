@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased — shared Runtime management (package release 2.6.2-r32)
+## Unreleased — shared Runtime management (package release 2.7.0-r1)
 
 ### 变更
 
