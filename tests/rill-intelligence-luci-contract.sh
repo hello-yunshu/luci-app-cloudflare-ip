@@ -20,16 +20,17 @@ grep -Eq 'i\.contextChanged' "$file"
 utils="$ROOT/package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/utils.js"
 grep -Eq "freshness: \{" "$utils"
 grep -Eq "evaluation: \{" "$utils"
-# Runtime package actions must stay above the tuning knobs: the feed refresh
-# and Runtime repair are maintenance actions, not part of the live-state rows.
-pkg_line=$(grep -n "_package_refresh', _('Package index')" "$file" | head -1 | cut -d: -f1)
-section_line=$(grep -n "_('Rill Runtime')" "$file" | head -1 | cut -d: -f1)
-consumer_line=$(grep -n "Rill Runtime Consumer" "$file" | head -1 | cut -d: -f1)
-live_line=$(grep -n "'Live State'" "$file" | head -1 | cut -d: -f1)
-[ -n "$pkg_line" ] && [ -n "$section_line" ] && [ -n "$consumer_line" ] && [ -n "$live_line" ] \
-  || { echo 'FAIL: Runtime package section or anchors missing from Intelligence view' >&2; exit 1; }
-(( section_line < pkg_line )) || { echo 'FAIL: Runtime package actions must be inside the Rill Runtime section' >&2; exit 1; }
-(( pkg_line < consumer_line )) || { echo 'FAIL: Runtime package actions must precede the Runtime consumer settings' >&2; exit 1; }
-(( pkg_line < live_line )) || { echo 'FAIL: Runtime package actions must not be buried in Live State' >&2; exit 1; }
+# Information architecture and the advanced disclosure are asserted from a
+# real view render, not from source line numbers or literal anchor strings.
+# The render-level test captures the section/option model LuCI actually builds
+# and the DOM anchors the page really queries when folding details.
+node "$ROOT/tests/rill-intelligence-information-architecture.cjs"
 
-echo 'Intelligence LuCI fail-safe evidence contract passed'
+# Refresh-outcome persistence, timeout verification, deadline restoration and
+# stale-verdict retirement are exercised as real behaviour in
+# tests/rill-runtime-update-timeout.cjs (mock RPC + state assertions). Those
+# behaviours are deliberately NOT asserted by grepping source text here: a
+# source-string check passes on a renamed variable while the behaviour breaks,
+# and it cannot see the rendered verdict at all.
+
+echo 'Intelligence LuCI information-architecture contract passed'

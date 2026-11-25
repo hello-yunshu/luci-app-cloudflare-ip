@@ -98,13 +98,16 @@ load_config() {
     CFIP_UCI_CACHE=()
     local _snapshot _snap_line _snap_key _snap_val _snap_sections=0
     _snapshot="$(uci -q show cf_ip 2>/dev/null || true)"
+    # `uci show` escapes an embedded quote as '\''. Undo it on the whole
+    # snapshot before splitting lines: the per-value ${//} form cannot express
+    # that replacement (bash would keep the backslash).
+    _snapshot="$(printf '%s\n' "${_snapshot}" | sed "s/'\\\\''/'/g")"
     while IFS= read -r _snap_line; do
         [[ -n "$_snap_line" ]] || continue
         _snap_key="${_snap_line%%=*}"
         _snap_val="${_snap_line#*=}"
         _snap_val="${_snap_val#\'}"
         _snap_val="${_snap_val%\'}"
-        _snap_val="${_snap_val//\'\\\'\'/\'}"
         _snap_val="${_snap_val//\' \'/ }"
         CFIP_UCI_CACHE["$_snap_key"]="$_snap_val"
         # `uci show` emits `cf_ip.<section>=<type>` for every section. Options
@@ -390,7 +393,8 @@ run_cfst() {
     cfip_parse_cfst "$CFIP_CANDIDATES_FILE" "$CFIP_SPEEDTEST_PROTOCOL" "$CFIP_PROBE_TOP_COUNT" "$out:auto"
     local parse_rc=$?
     if [[ -n "$workdir" ]]; then rm -rf "$workdir"; else rm -f "$out"; fi
-    return "$parse_rc"
+    ((parse_rc==0)) || return 3
+    return 0
 }
 
 cfip_dns_maintenance_begin(){
@@ -819,7 +823,7 @@ run_v2() {
     local cfstrc=0
     run_cfst || cfstrc=$?
     if ((cfstrc!=0)); then
-        if [[ "$cfstrc" == 124 ]]; then fail_run "measurement timeout during CloudflareSpeedTest"; else fail_run "no valid CloudflareSpeedTest candidates"; fi
+        fail_run "$(cfip_cfst_failure_message "$cfstrc")"
         return 1
     fi
     CFIP_SPEEDTEST_COMPLETED=true

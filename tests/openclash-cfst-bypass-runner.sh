@@ -100,3 +100,20 @@ done
 
 [[ "$(cat "$TMP/invocations")" == $'false\ntrue' ]]
 echo 'PASS: full CFST runs through a bounded external probe command in TCPing and HTTPing modes'
+
+# Parse failures must be reported as their own code, not as "no candidates".
+CFIP_SPEEDTEST_PROTOCOL=tcp
+cfip_parse_cfst() { return 7; }
+rc=0; run_cfst || rc=$?
+[[ "$rc" == 3 ]] || { echo "FAIL: parse failure surfaced as rc=$rc instead of 3" >&2; exit 1; }
+
+# The failure text must carry the specific cause instead of the catch-all.
+[[ "$(cfip_cfst_failure_message 124)" == 'measurement timeout during CloudflareSpeedTest' ]] || { echo 'FAIL: rc=124 message' >&2; exit 1; }
+[[ "$(cfip_cfst_failure_message 125)" == *'bypass was invalidated'* ]] || { echo 'FAIL: rc=125 fallback message' >&2; exit 1; }
+CFIP_OPENCLASH_SERVICE_ERROR='OpenClash bypass changed during CloudflareSpeedTest; measurements discarded'
+[[ "$(cfip_cfst_failure_message 125)" == "$CFIP_OPENCLASH_SERVICE_ERROR" ]] || { echo 'FAIL: rc=125 did not surface the bypass error' >&2; exit 1; }
+CFIP_OPENCLASH_SERVICE_ERROR=''
+[[ "$(cfip_cfst_failure_message 2)" == 'no valid CloudflareSpeedTest candidates'* ]] || { echo 'FAIL: rc=2 message' >&2; exit 1; }
+[[ "$(cfip_cfst_failure_message 1)" == *'not runnable'* ]] || { echo 'FAIL: rc=1 message' >&2; exit 1; }
+[[ "$(cfip_cfst_failure_message 3)" == *'could not be parsed'* ]] || { echo 'FAIL: rc=3 message' >&2; exit 1; }
+echo 'PASS: CFST failure codes map to specific operator-facing reasons'

@@ -67,4 +67,50 @@ if [[ "$rc" -ne 124 ]]; then
     exit 1
 fi
 
+# BusyBox `date` ignores the nanoseconds field, so `%s%3N` degrades to plain
+# seconds. Epoch milliseconds must stay milliseconds instead of shrinking 1000x.
+if [[ -n "${EPOCHREALTIME:-}" ]]; then
+    live_ms="$(cfip_now_millis)"; wall_ms=$(( ${EPOCHREALTIME//[.,]/} / 1000 ))
+    if (( live_ms > wall_ms + 5 || wall_ms > live_ms + 5 )); then
+        echo "EPOCHREALTIME path is not milliseconds: $live_ms vs $wall_ms" >&2
+        exit 1
+    fi
+fi
+unset EPOCHREALTIME
+date() {
+    case "${1:-}" in
+        +%s%3N|+%s) printf '%s\n' 1795625857 ;;
+        *) command date "$@" ;;
+    esac
+}
+if [[ "$(cfip_now_millis)" != 1795625857000 ]]; then
+    echo "second-resolution clock was not scaled to milliseconds: $(cfip_now_millis)" >&2
+    exit 1
+fi
+# GNU date still passes real millisecond values through untouched.
+date() {
+    case "${1:-}" in
+        +%s%3N) printf '%s\n' 1795625857123 ;;
+        +%s) printf '%s\n' 1795625857 ;;
+        *) command date "$@" ;;
+    esac
+}
+if [[ "$(cfip_now_millis)" != 1795625857123 ]]; then
+    echo "millisecond clock value was rewritten: $(cfip_now_millis)" >&2
+    exit 1
+fi
+# A format the clock does not understand must still yield a millisecond epoch.
+date() {
+    case "${1:-}" in
+        +%s%3N) printf '%s\n' 'unknown format' ;;
+        +%s) printf '%s\n' 1795625857 ;;
+        *) command date "$@" ;;
+    esac
+}
+if [[ "$(cfip_now_millis)" != 1795625857000 ]]; then
+    echo "unparseable clock fell back to a non-millisecond value: $(cfip_now_millis)" >&2
+    exit 1
+fi
+unset -f date
+
 echo 'watchdog tick granularity contract passed'

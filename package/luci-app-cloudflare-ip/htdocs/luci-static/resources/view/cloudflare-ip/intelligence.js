@@ -21,12 +21,85 @@ var callLegacySelfUpdate = rpc.declare({ object: 'cf_ip', method: 'self-update',
 
 var runtimeManagementBusy = false;
 
+/* LuCI bounds every ubus RPC by L.env.rpctimeout (seconds, default 20). An
+ * opkg refresh/install that is still downloading can exceed that, and the
+ * browser then reports "XHR request timed out" while the router keeps working.
+ * Package actions get a longer client deadline; the server-side manager still
+ * decides the real outcome. */
+var RUNTIME_ACTION_RPC_TIMEOUT_SECONDS = 120;
+var RUNTIME_ACTION_STATUS_INTERVAL_MS = 2000;
+var RUNTIME_ACTION_STATUS_ATTEMPTS = 15;
+
+function runtimeRequestTimedOut(error) {
+	return /timed out|timeout/i.test(utils.errorText(error) || '');
+}
+
+function withRuntimeActionTimeout(action) {
+	var env = (typeof L !== 'undefined' && L && L.env) ? L.env : null;
+	var previous = env ? env.rpctimeout : undefined;
+	if (!env || previous === RUNTIME_ACTION_RPC_TIMEOUT_SECONDS)
+		return Promise.resolve().then(action);
+	env.rpctimeout = RUNTIME_ACTION_RPC_TIMEOUT_SECONDS;
+	return Promise.resolve().then(action).finally(function() {
+		env.rpctimeout = previous;
+	});
+}
+
+function callRuntimeManagerAction(method, packageName) {
+	return withRuntimeActionTimeout(function() {
+		if (method === 'refresh')
+			return callRuntimeManagerRefresh();
+		if (method === 'install')
+			return callRuntimeManagerInstall(packageName);
+		if (method === 'uninstall')
+			return callRuntimeManagerUninstall(packageName);
+		if (method === 'repair')
+			return callRuntimeManagerRepair(packageName);
+		return callRuntimeManagerUpdate(packageName);
+	});
+}
+
+/* A client timeout does not cancel the ubus call. Before telling the operator
+ * to retry, ask the manager whether it is still working; a yes means the
+ * button must stay disabled so a second click cannot queue a duplicate opkg
+ * transaction. */
+function waitForRuntimeManagerIdle() {
+	var attempts = 0;
+	function poll() {
+		attempts += 1;
+		return callRuntimeManagerStatus().then(function(state) {
+			var result = Object.assign({ helperAvailable: true }, state || {});
+			if (result.busy === true)
+				throw new Error(_('The package manager is still busy.'));
+			return result;
+		}).catch(function(error) {
+			if (attempts < RUNTIME_ACTION_STATUS_ATTEMPTS) {
+				return new Promise(function(resolve) {
+					window.setTimeout(resolve, RUNTIME_ACTION_STATUS_INTERVAL_MS);
+				}).then(poll);
+			}
+			throw error;
+		});
+	}
+	return poll();
+}
+
 /* "Check for updates" reloads the page, and a reload wipes the notification,
- * so the verdict is kept in same-tab storage and rendered as its own row.
- * Performance Manager does the same, which is why both pages answer "did that
- * check anything?" in the same words. The record is dropped when the tab
- * closes: a feed verdict goes stale quickly. */
+ * so the verdict is kept in same-tab storage and rendered in a labeled facts
+ * row - never as a badge riding on the button. Performance Manager's Runtime
+ * card uses the same split: facts in one block, buttons in another. The record
+ * is dropped when the tab closes because a feed verdict goes stale quickly. */
 var RUNTIME_CHECK_KEY = 'cfi.runtime.last-check';
+var MANAGER_UPDATE_FLAGS = [
+	'updateAvailable', 'runtimeUpdateAvailable', 'pmUpdateAvailable',
+	'cfiUpdateAvailable', 'clientUpdateAvailable'
+];
+
+function managerUpdatePending(result) {
+	return MANAGER_UPDATE_FLAGS.some(function(flag) {
+		return !!result && result[flag] === true;
+	});
+}
 
 function readRuntimeCheck() {
 	try {
@@ -42,11 +115,16 @@ function readRuntimeCheck() {
 	}
 }
 
-function rememberRuntimeCheck() {
+function rememberRuntimeCheck(result, at) {
 	try {
 		if (typeof window === 'undefined' || !window.sessionStorage)
 			return;
-		window.sessionStorage.setItem(RUNTIME_CHECK_KEY, JSON.stringify({ at: Date.now() }));
+		window.sessionStorage.setItem(RUNTIME_CHECK_KEY, JSON.stringify({
+			/* Retiring a stale verdict on page load is not a new check; keep the
+			 * timestamp of the observation the verdict came from. */
+			at: (typeof at === 'number' && !isNaN(at)) ? at : Date.now(),
+			hasUpdate: managerUpdatePending(result)
+		}));
 	}
 	catch (e) {
 		/* Private mode or a full quota: the page still reloads, it just cannot
@@ -54,15 +132,70 @@ function rememberRuntimeCheck() {
 	}
 }
 
-/* Only the time: whether an update exists is already stated by the package
- * status row, which reads it from the manager. This row answers the other
- * question - when did we last ask the feed? - so it must not repeat it. */
+/* A package action can invalidate the earlier feed verdict. If the manager
+ * cannot supply a fresh observation, forget it instead of showing an update
+ * that has just been installed. */
+function forgetRuntimeCheck() {
+	try {
+		if (typeof window !== 'undefined' && window.sessionStorage)
+			window.sessionStorage.removeItem(RUNTIME_CHECK_KEY);
+	}
+	catch (e) {
+		/* Storage may be unavailable; the page still renders its empty state. */
+	}
+}
+
+/* The verdict is stored in the tab, so a record written before a package
+ * action can survive the reload that follows it. The manager status read on
+ * page load is a fresh observation: retire a stale "update available" record
+ * when that status says no update is pending. */
+function reconcileRuntimeCheck(manager) {
+	var record = readRuntimeCheck();
+	if (!record || record.hasUpdate !== true || !manager || manager.ok !== true)
+		return;
+	if (manager.updateAvailable === false)
+		rememberRuntimeCheck({ updateAvailable: false }, record.at);
+}
+
+function runtimeCheckClock(record) {
+	var when = new Date(record.at);
+	return (when.getHours() < 10 ? '0' : '') + when.getHours() + ':' +
+		(when.getMinutes() < 10 ? '0' : '') + when.getMinutes();
+}
+
+function runtimeCheckVerdict(record) {
+	return record.hasUpdate === true ? _('Update available') : _('Up to date');
+}
+
+/* Text form is kept for the form value and DOM-less tests; the real widget
+ * renders the verdict as a themed label beside the clock. */
 function runtimeCheckText() {
 	var record = readRuntimeCheck();
 	if (!record)
 		return _('Not checked in this session.');
-	var when = new Date(record.at);
-	return (when.getHours() < 10 ? '0' : '') + when.getHours() + ':' + (when.getMinutes() < 10 ? '0' : '') + when.getMinutes();
+	return runtimeCheckVerdict(record) + ' · ' + _('checked at %s').format(runtimeCheckClock(record));
+}
+
+function decorateRuntimeCheck(option) {
+	var renderWidget = option.renderWidget;
+	option.renderWidget = function(section_id, option_index, cfgvalue) {
+		var widget = renderWidget.call(this, section_id, option_index, cfgvalue);
+		var output = widget && widget.querySelector && widget.querySelector('output');
+		if (!output)
+			return widget;
+		var record = readRuntimeCheck();
+		output.textContent = '';
+		if (!record) {
+			output.textContent = _('Not checked in this session.');
+			return widget;
+		}
+		output.appendChild(E('span', {
+			'class': 'label ' + (record.hasUpdate === true ? 'warning' : 'success')
+		}, runtimeCheckVerdict(record)));
+		output.appendChild(E('span', { 'class': 'cfi-check-time' },
+			' · ' + _('checked at %s').format(runtimeCheckClock(record))));
+		return widget;
+	};
 }
 
 function runtimePackageStateText(manager) {
@@ -78,7 +211,7 @@ function runtimePackageStateText(manager) {
 		return _('Runtime is not supported for this OpenWrt release or architecture.') + ' ' + (manager.message || '');
 	if (manager.channel === 'stable')
 		return _('Stable Runtime is installed.') + ' ' + (manager.version || _('version unknown')) +
-			(manager.updateAvailable ? ' / ' + _('Runtime update is available.') : ' / ' + _('Runtime is already up to date.'));
+			(manager.updateAvailable ? ' / ' + _('Runtime update is available.') : '');
 	if (manager.installed !== true && (manager.channel === 'unknown' || manager.channel === 'none'))
 		return _('Rill Runtime is not installed. Click Install below to add it, or keep using CFI Native mode.');
 	if (manager.channel === 'unknown')
@@ -89,7 +222,7 @@ function runtimePackageStateText(manager) {
 		if (manager.compatible !== true)
 			return _('The installed Preview Runtime is incompatible or its compatibility is unknown; CFI will not update it.') + ' ' + (manager.message || '');
 		return _('Preview Runtime is installed and compatible.') + ' ' + (manager.version || _('version unknown')) +
-			(manager.updateAvailable ? ' / ' + _('Runtime update is available.') : ' / ' + _('Runtime is already up to date.'));
+			(manager.updateAvailable ? ' / ' + _('Runtime update is available.') : '');
 	}
 	return _('Runtime is not installed. CFI Native mode remains available.');
 }
@@ -132,29 +265,61 @@ function runRuntimeManagerAction(method, packageName, button, resultMessage, fai
 	runtimeManagementBusy = true;
 	setRuntimeManagementBusy(true);
 	utils.setBusy(button, method === 'refresh' ? _('Checking...') : (method === 'install' ? _('Installing...') : (method === 'uninstall' ? _('Removing...') : (method === 'repair' ? _('Repairing...') : _('Updating...')))));
-	var action = method === 'refresh' ? callRuntimeManagerRefresh() :
-		(method === 'install' ? callRuntimeManagerInstall(packageName) :
-		(method === 'uninstall' ? callRuntimeManagerUninstall(packageName) :
-		(method === 'repair' ? callRuntimeManagerRepair(packageName) : callRuntimeManagerUpdate(packageName))));
 
-	return action.then(function(result) {
+	return callRuntimeManagerAction(method, packageName).then(function(result) {
 		if (!result || result.ok !== true)
 			throw new Error((result && (result.message || result.errorCode)) || _('Package manager rejected the request.'));
 		if (method === 'refresh')
-			rememberRuntimeCheck();
+			rememberRuntimeCheck(result);
 		return callRuntimeManagerStatus().then(function(state) { return Object.assign({ helperAvailable: true }, state || {}); }).catch(function() { return null; });
 	}).then(function(state) {
-		if (state)
+		if (state) {
 			runtimeManagementState = Object.assign({ helperAvailable: true }, state);
+			/* Refresh stores its own result above; other actions must replace
+			 * the "update available" verdict with the post-action status. */
+			if (method !== 'refresh')
+				rememberRuntimeCheck(runtimeManagementState);
+		}
+		else if (method !== 'refresh')
+			forgetRuntimeCheck();
 		ui.addNotification(null, E('p', resultMessage), 'info');
 		if (reloadPage)
 			window.setTimeout(function() { location.reload(); }, 1800);
 	}).catch(function(error) {
-		utils.noticeError(failureTitle, _('CFI remains usable in Native mode. Check package manager status before retrying.'), error);
+		if (!runtimeRequestTimedOut(error)) {
+			utils.noticeError(failureTitle, _('CFI remains usable in Native mode. Check package manager status before retrying.'), error);
+			return;
+		}
+		/* The router may still be installing the package. Do not call this a
+		 * failure, and do not unlock the button, until status confirms idle. */
+		utils.setBusy(button, _('Verifying...'));
+		return waitForRuntimeManagerIdle().then(function(state) {
+			if (state)
+				runtimeManagementState = state;
+			/* This status reply is the only observation we have after a
+			 * timed-out action, whatever the action was. */
+			if (state)
+				rememberRuntimeCheck(state);
+			ui.addNotification(null, E('p', _('The package manager request timed out, but the manager is now idle. The page will reload; check the runtime status above before retrying.')), 'warning');
+			if (reloadPage)
+				window.setTimeout(function() { location.reload(); }, 1800);
+		}).catch(function(verifyError) {
+			/* Unknown state is not permission to queue another opkg job, nor
+			 * to keep claiming that an update is still pending. */
+			runtimeManagementState = Object.assign({ helperAvailable: true }, runtimeManagementState, { busy: true });
+			forgetRuntimeCheck();
+			utils.noticeError(_('The package manager is still busy.'), _('CFI remains usable in Native mode. Do not retry until the package manager is idle.'), verifyError);
+		});
 	}).finally(function() {
 		runtimeManagementBusy = false;
 		setRuntimeManagementBusy(false);
 		utils.resetBusy(button);
+		/* resetBusy unconditionally re-enables the clicked button. When the
+		 * post-timeout status still reports the manager as busy, that would
+		 * undo the lock set above and let a second click queue another opkg
+		 * transaction, which is exactly what the timeout branch forbids. */
+		if (runtimeManagementState.busy === true)
+			button.setAttribute('disabled', 'disabled');
 	});
 }
 
@@ -251,7 +416,7 @@ function decorateIntelligence(node, status, diagnostics) {
 			return [value(row.time || row.at), value(row.result), value((row.bestIps || []).join(',') || row.finalIp), value(row.adaptiveMode), value(row.candidateMode), value(row.actualUniqueProbeCount), value(row.fallbackUsed), value(row.measurementDurationMs) + ' ms'].join(' / ');
 		}).join(' | ');
 	}
-	var summaryRow = node.querySelector('.cbi-value[id$="-_runtime_summary"]');
+	var summaryRow = node.querySelector('.cbi-value[id$="-_state"]');
 	if (summaryRow && summaryRow.classList)
 		summaryRow.classList.add('cfi-intel-summary');
 	var copyTargets = ['-_endpoint', '-_run_history', '-_runtime_path', '-_context_policy', '-_resource'];
@@ -269,8 +434,21 @@ function decorateIntelligence(node, status, diagnostics) {
 		runRow.querySelector('.cbi-value-field').appendChild(E('p', { 'class': 'cfi-inline-link' },
 			E('a', { 'class': 'cbi-button cfi-link-button', 'href': L.url('admin/services/cf_ip/logs') }, _('Open Logs & Records'))));
 	}
-	var technicalAnchors = ['cbi-cf_ip-main-_adaptive_state', 'cbi-cf_ip-main-_endpoint', 'cbi-cf_ip-main-_health_state', 'cbi-cf_ip-rill-_state'];
-	var technicalSections = technicalAnchors.map(function(id) {
+	/* Only tuning thresholds and raw telemetry belong behind the disclosure.
+	 * The first four sections (on/off + version + package actions + decisions)
+	 * stay visible: "Check for updates" used to be swallowed by this collapse
+	 * because _state was misused as a technical anchor. Anchors name the first
+	 * row of each advanced section in DOM order, so the folded body keeps the
+	 * same reading order as the source. */
+	var advancedAnchors = [
+		'cbi-cf_ip-main-source_policy',
+		'cbi-cf_ip-main-adaptive_measurement_enabled',
+		'cbi-cf_ip-main-_adaptive_state',
+		'cbi-cf_ip-main-_health_state',
+		'cbi-cf_ip-rill-timeout_ms',
+		'cbi-cf_ip-rill-_channel'
+	];
+	var technicalSections = advancedAnchors.map(function(id) {
 		var row = node.querySelector('.cbi-value[id="' + id + '"]');
 		return row ? row.closest('.cbi-section') : null;
 	}).filter(function(section) { return section != null; });
@@ -333,6 +511,7 @@ return view.extend({
 		var adaptiveResponse = data[3] || {};
 		var runtimeManager = data[4] || { ok: false, helperAvailable: false, errorCode: 'manager-unavailable' };
 		runtimeManagementState = runtimeManager;
+		reconcileRuntimeCheck(runtimeManager);
 		var adaptive = adaptiveResponse.adaptiveMeasurement || status.adaptiveMeasurement || {};
 		var adaptiveAggregate = adaptive.aggregate || {};
 		function adaptiveNumber(value, digits) {
@@ -342,12 +521,230 @@ return view.extend({
 			_('The generic Rill Runtime is supplied by OpenWrt packaging. Cloudflare IP owns candidate validation, ranking policy, reward and proxy transactions.'));
 		var s, o;
 
-		s = m.section(form.NamedSection, 'main', 'service');
+		/* Reading order follows the UI design spec (L-4): what this is, whether
+		 * it is on, and what the operator can do here come first. Thresholds and
+		 * raw telemetry follow inside the advanced disclosure, never above it. */
+		/* enabled/mode are UCI cf_ip.rill.* keys, so this section must be the
+		 * rill section, not main, or Save would write the wrong config. */
+		s = m.section(form.TypedSection, 'rill', _('Rill at a glance'));
 		s.anonymous = true;
-		o = s.option(form.DummyValue, '_runtime_summary', _('Runtime'));
+		o = s.option(form.Flag, 'enabled', _('Enable Rill Intelligence'),
+			_('Enable the optional Rill consumer. Native ranking remains authoritative when Rill is disabled or unavailable.'));
+		o.default = '0';
+		o.rmempty = false;
+
+		o = s.option(form.ListValue, 'mode', _('Mode'));
+		o.value('off', _('Off'));
+		o.value('shadow', _('Shadow'));
+		o.value('assisted', _('Assisted (qualification-gated)'));
+		o.description = _('Assisted is qualification-gated and uses only the Native safe envelope; any Runtime problem falls back to Native.');
+		o.default = 'shadow';
+
+		o = s.option(form.DummyValue, '_state', _('Runtime'));
 		o.cfgvalue = function() { return runtimeSummary(status); };
 		decorateAvailableRuntime(o, status);
 
+		o = s.option(form.DummyValue, '_package_manager', _('Runtime Package Status'));
+		o.cfgvalue = function() { return runtimePackageStateText(runtimeManager); };
+
+		o = s.option(form.DummyValue, '_authority', _('Current Authority'));
+		o.cfgvalue = function() {
+			return status.effectiveMode === 'assisted' ? _('Guarded Assisted') : (status.effectiveMode === 'shadow' ? _('Shadow') : _('Native'));
+		};
+
+		/* Package feed check and the mutating operations all live here. The
+		 * verdict of the last check is a fact row; the refresh action follows
+		 * it as its own titled row. One row per object, each titled by what it
+		 * acts on and described by what it does and will not touch. */
+		s = m.section(form.TypedSection, 'rill', _('Rill Runtime'));
+		s.anonymous = true;
+		o = s.option(form.DummyValue, '_package_check', _('Last update check'));
+		o.cfgvalue = function() { return runtimeCheckText(); };
+		decorateRuntimeCheck(o);
+
+		/* The row title names the object the button touches, never the button
+		 * label itself. "Runtime Package Management" over a "Check for updates"
+		 * button left the operator guessing whether it refreshes the feed index
+		 * or upgrades something. */
+		o = s.option(form.Button, '_package_refresh', _('Package index'));
+		o.inputtitle = _('Check for updates');
+		o.inputstyle = 'reload';
+		o.rmempty = true;
+		o.cfgvalue = function() { return ''; };
+		o.write = function() {};
+		o.onclick = function(ev) {
+			var button = ev && ev.currentTarget && ev.currentTarget.tagName === 'BUTTON' ? ev.currentTarget :
+				(ev && ev.target && ev.target.tagName === 'BUTTON' ? ev.target : null);
+			if (!button && this && this.node) button = this.node.querySelector('button');
+			if (!runtimeManager.helperAvailable)
+				return Promise.reject(new Error(_('Runtime management helper is not installed.')));
+			return runRuntimeManagerAction('refresh', '', button, _('Runtime package index refreshed.'), _('Unable to refresh package index.'), true);
+		};
+		o.description = _('Refreshes the trusted unified feed package index. Runtime is optional; CFI Native mode remains available without it.');
+
+		o = s.option(form.DummyValue, '_package_target', _('Runtime Package Target'));
+		o.cfgvalue = function() {
+			return [ runtimeManager.release || _('Unknown release'), runtimeManager.architecture || _('Unknown architecture'), runtimeManager.pkgtype || _('Unknown package format') ].join(' / ');
+		};
+
+		o = s.option(form.Button, '_runtime_install', _('Runtime package'));
+		o.inputtitle = _('Install Rill Runtime');
+		o.inputstyle = 'apply';
+		o.rmempty = true;
+		o.cfgvalue = function() { return ''; };
+		o.write = function() {};
+		o.onclick = function(ev) {
+			var button = ev && ev.currentTarget && ev.currentTarget.tagName === 'BUTTON' ? ev.currentTarget :
+				(ev && ev.target && ev.target.tagName === 'BUTTON' ? ev.target : null);
+			if (!button && this && this.node) button = this.node.querySelector('button');
+			return utils.confirmAction(_('Install Rill Runtime'), _('Install the optional Stable Rill Runtime? CFI Native mode will remain available.'), function() {
+				return runRuntimeManagerAction('install', 'rill-runtime', button, _('Runtime package action completed. Reloading status.'), _('Unable to install Rill Runtime.'), true);
+			}, _('Install'));
+		};
+		o.description = _('Installs the package-managed Stable Runtime for this router release and architecture. A legacy Preview Runtime must be removed explicitly first.');
+
+		o = s.option(form.Button, '_runtime_repair', _('Runtime package'));
+		o.inputtitle = _('Repair Rill Runtime');
+		o.inputstyle = 'apply';
+		o.rmempty = true;
+		o.cfgvalue = function() { return ''; };
+		o.write = function() {};
+		o.onclick = function(ev) {
+			var button = ev && ev.currentTarget && ev.currentTarget.tagName === 'BUTTON' ? ev.currentTarget :
+				(ev && ev.target && ev.target.tagName === 'BUTTON' ? ev.target : null);
+			if (!button && this && this.node) button = this.node.querySelector('button');
+			return utils.confirmAction(_('Repair Rill Runtime'), _('Reinstall the same trusted Stable Runtime package to restore its missing executable? This will not upgrade the Runtime.'), function() {
+				return runRuntimeManagerAction('repair', 'rill-runtime', button, _('Runtime repair completed. Reloading status.'), _('Unable to repair Rill Runtime.'), true);
+			}, _('Repair'));
+		};
+		o.description = _('Reinstalls the same trusted Stable package only when its executable is missing. It does not change Runtime versions.');
+
+		o = s.option(form.Button, '_runtime_update', _('Runtime package'));
+		o.inputtitle = _('Update Rill Runtime');
+		o.inputstyle = 'apply';
+		o.rmempty = true;
+		o.cfgvalue = function() { return ''; };
+		o.write = function() {};
+		o.onclick = function(ev) {
+			var button = ev && ev.currentTarget && ev.currentTarget.tagName === 'BUTTON' ? ev.currentTarget :
+				(ev && ev.target && ev.target.tagName === 'BUTTON' ? ev.target : null);
+			if (!button && this && this.node) button = this.node.querySelector('button');
+			return utils.confirmAction(_('Update Rill Runtime'), _('Update the shared Stable Rill Runtime? Other installed consumers will be checked before changes.'), function() {
+				return runRuntimeManagerAction('update', 'rill-runtime', button, _('Runtime package action completed. Reloading status.'), _('Unable to update Rill Runtime.'), true);
+			}, _('Update'));
+		};
+		o.description = _('Updates only the compatible Stable Runtime. Unknown-source, legacy Preview, and incompatible installations are not replaced.');
+
+		o = s.option(form.Button, '_runtime_uninstall', _('Runtime package'));
+		o.inputtitle = _('Uninstall Rill Runtime');
+		o.inputstyle = 'reset';
+		o.rmempty = true;
+		o.cfgvalue = function() { return ''; };
+		o.write = function() {};
+		o.onclick = function(ev) {
+			var button = ev && ev.currentTarget && ev.currentTarget.tagName === 'BUTTON' ? ev.currentTarget :
+				(ev && ev.target && ev.target.tagName === 'BUTTON' ? ev.target : null);
+			if (!button && this && this.node) button = this.node.querySelector('button');
+			return utils.confirmAction(_('Uninstall Rill Runtime'), _('Remove the Rill Runtime package? CFI will fall back to Native mode. You can reinstall it at any time.'), function() {
+				return runRuntimeManagerAction('uninstall', 'rill-runtime', button, _('Rill Runtime removed. CFI will use Native mode.'), _('Unable to remove Rill Runtime.'), true);
+			}, _('Uninstall'));
+		};
+		o.description = _('Removes only the shared Stable Runtime package. CFI Native mode remains fully functional without it.');
+
+		o = s.option(form.Button, '_cfi_update', _('CFI package'));
+		o.inputtitle = _('Update CFI');
+		o.inputstyle = 'apply';
+		o.rmempty = true;
+		o.cfgvalue = function() { return ''; };
+		o.write = function() {};
+		o.onclick = function(ev) {
+			var button = ev && ev.currentTarget && ev.currentTarget.tagName === 'BUTTON' ? ev.currentTarget :
+				(ev && ev.target && ev.target.tagName === 'BUTTON' ? ev.target : null);
+			if (!button && this && this.node) button = this.node.querySelector('button');
+			return utils.confirmAction(_('Update CFI'), _('Update CFI from the unified feed? The page will reload after the package update.'), function() {
+				return runRuntimeManagerAction('update', 'luci-app-cloudflare-ip', button, _('CFI package update completed. Reloading.'), _('Unable to update CFI from the unified feed.'), true);
+			}, _('Update'));
+		};
+		o.description = _('Uses the trusted unified package feed.');
+
+		o = s.option(form.Button, '_legacy_cfi_update', _('Legacy CFI Update'));
+		o.inputtitle = _('Update CFI via legacy GitHub release');
+		o.inputstyle = 'reload';
+		o.rmempty = true;
+		o.cfgvalue = function() { return ''; };
+		o.write = function() {};
+		o.onclick = function(ev) {
+			var button = ev && ev.currentTarget && ev.currentTarget.tagName === 'BUTTON' ? ev.currentTarget :
+				(ev && ev.target && ev.target.tagName === 'BUTTON' ? ev.target : null);
+			if (!button && this && this.node) button = this.node.querySelector('button');
+			utils.setBusy(button, _('Updating CFI...'));
+			return callLegacySelfUpdate().then(function(result) {
+				if (!result || result.success !== true)
+					throw new Error((result && result.error) || _('Legacy updater rejected the request.'));
+				ui.addNotification(null, E('p', _('Legacy CFI update started. Follow the package installer output on the router.')), 'info');
+			}).catch(function(error) {
+				utils.noticeError(_('Unable to update CFI.'), _('The legacy GitHub updater is used only because the unified package helper is missing.'), error);
+			}).finally(function() { utils.resetBusy(button); });
+		};
+		o.description = _('Legacy GitHub updater is available because the unified package helper is missing.');
+
+		/* What Rill is deciding for the operator, before any tuning threshold. */
+		s = m.section(form.NamedSection, 'main', 'service', _('Product Intelligence Summary'));
+		s.anonymous = true;
+		o = s.option(form.DummyValue, '_endpoint', _('Current Endpoint'));
+		o.cfgvalue = function() { return (status.best_ips || []).join(', ') || _('Unavailable'); };
+		o = s.option(form.DummyValue, '_health_summary', _('System Health'));
+		o.cfgvalue = function() { var h = status.operationalHealth || {}; return utils.statusLabel('health', h.state); };
+		o = s.option(form.DummyValue, '_adaptive_summary', _('Adaptive Measurement'));
+		o.cfgvalue = function() { return utils.statusLabel('mode', adaptive.requestedMode || 'off') + ' → ' + utils.statusLabel('mode', adaptive.effectiveMode || 'off') + ' / ' + utils.statusLabel('qualification', adaptive.qualificationState || 'insufficient'); };
+		o = s.option(form.DummyValue, '_candidate_summary', _('Candidate Intelligence'));
+		o.cfgvalue = function() { var d = status.decision || {}; return (d.effectiveMode === 'assisted' ? _('Candidate Assisted') : (d.effectiveMode === 'shadow' ? _('Candidate Shadow') : _('Native only'))) + ' / ' + utils.statusLabel('confidence', d.confidenceLevel || 'unavailable'); };
+		o = s.option(form.DummyValue, '_next_audit_summary', _('Next Full Audit / Optimize'));
+		o.cfgvalue = function() { var reason = (status.reusePolicy || {}).reason; return (adaptive.nextAuditInRuns == null ? _('unavailable') : adaptive.nextAuditInRuns + ' ' + _('runs')) + ' / ' + (reason ? utils.statusLabel('reason', reason) : _('policy current')); };
+
+		s = m.section(form.TypedSection, 'rill', _('Rill decisions'));
+		s.anonymous = true;
+		o = s.option(form.DummyValue, '_confidence', _('Decision Confidence'));
+		o.cfgvalue = function() {
+			var d = status.decision || {}, i = status.intelligence || {};
+			return utils.statusLabel('confidence', d.confidenceLevel || i.confidenceLevel || 'unavailable');
+		};
+		o = s.option(form.DummyValue, '_selection', _('Decision Selection'));
+		o.cfgvalue = function() {
+			var d = status.decision || {}, native = (d.nativeOrder || [])[0] || '?', rill = (d.rillOrder || [])[0] || '?', final = d.authorityActionId || d.selectedActionId || '?';
+			return _('Native top1') + ': ' + native + ', ' + _('Rill top1') + ': ' + rill + ', ' + _('final') + ': ' + final + ', ' + _('agreement') + ': ' + (d.nativeRillTop1Agreement ? _('yes') : _('no'));
+		};
+		o = s.option(form.DummyValue, '_learning', _('Learning'));
+		o.cfgvalue = function() {
+			var i = status.intelligence || {};
+			return _('Valid feedback') + ': ' + (i.validFeedback || 0) + ', ' + _('delayed pending') + ': ' + (i.pendingDelayedFeedback || 0) + ', ' + _('completed') + ': ' + (i.delayedCompleted || 0) + ', Δ ' + (i.rewardDelta == null ? '?' : i.rewardDelta.toFixed(3));
+		};
+		o = s.option(form.DummyValue, '_qualification', _('Qualification'));
+		o.cfgvalue = function() { return utils.statusLabel('qualification', (status.intelligence || {}).qualificationState); };
+		o = s.option(form.Button, '_self_check', _('Shadow Self-check'));
+		o.inputtitle = _('Run self-check');
+		o.inputstyle = 'apply';
+		o.onclick = function(ev) {
+			var button = ev && ev.currentTarget && ev.currentTarget.tagName === 'BUTTON' ? ev.currentTarget :
+				(ev && ev.target && ev.target.tagName === 'BUTTON' ? ev.target : null);
+			if (!button && this && this.node) button = this.node.querySelector('button');
+			utils.setBusy(button, _('Checking...'));
+			return callSelfCheck().then(function(result) {
+				if (result && result.success)
+					ui.addNotification(null, E('p', _('Rill self-check passed.')));
+				else
+					ui.addNotification(null, utils.errorNotice(
+						_('Rill self-check fell back to Native.'),
+						_('Native ranking remains authoritative; inspect the technical details before enabling Assisted mode.'),
+						result && result.error
+					), 'warning');
+			}).catch(function(error) {
+				utils.noticeError(_('Unable to complete self-check.'), _('Native ranking remains available.'), error);
+			}).finally(function() { utils.resetBusy(button); });
+		};
+
+		/* Everything below is tuning thresholds or raw telemetry. It stays in
+		 * the DOM (nothing is discarded, L-5) but opens behind one disclosure. */
 		s = m.section(form.NamedSection, 'main', 'service', _('Measurement Policy'));
 		s.anonymous = true;
 		o = s.option(form.ListValue, 'source_policy', _('Source Strategy'));
@@ -376,6 +773,7 @@ return view.extend({
 		o.value('guarded', _('Guarded (qualified only)'));
 		o.default = 'shadow';
 		o.description = _('Shadow records counterfactual evidence without changing production probe order. Guarded is enabled only after fresh, complete, real audit evidence.');
+
 		s = m.section(form.NamedSection, 'main', 'service', _('Adaptive Readouts'));
 		s.anonymous = true;
 		o = s.option(form.DummyValue, '_adaptive_state', _('Current State'));
@@ -388,27 +786,14 @@ return view.extend({
 		o.cfgvalue = function() { return adaptiveNumber(adaptiveAggregate.winnerRecall, 3) + ' / ' + adaptiveNumber(adaptiveAggregate.topNRecall, 3); };
 		o = s.option(form.DummyValue, '_adaptive_eligibility', _('Eligible Insufficiency Rate'));
 		o.cfgvalue = function() { return adaptiveNumber(adaptiveAggregate.eligibleInsufficiencyRate, 3); };
-        o = s.option(form.DummyValue, '_adaptive_savings', _('Replay Probe Savings'));
-        o.cfgvalue = function() { return adaptiveAggregate.estimatedProbeSavings == null ? _('unavailable') : adaptiveNumber(adaptiveAggregate.estimatedProbeSavings * 100, 1) + '% / replay'; };
+		o = s.option(form.DummyValue, '_adaptive_savings', _('Replay Probe Savings'));
+		o.cfgvalue = function() { return adaptiveAggregate.estimatedProbeSavings == null ? _('unavailable') : adaptiveNumber(adaptiveAggregate.estimatedProbeSavings * 100, 1) + '% / replay'; };
 		o = s.option(form.DummyValue, '_adaptive_audit', _('Full Audit'));
 		o.cfgvalue = function() { var last = adaptive.lastFullAudit || {}; return (last.at || _('never')) + ' / ' + _('next in runs') + ': ' + (adaptive.nextAuditInRuns == null ? _('unavailable') : adaptive.nextAuditInRuns); };
 		o = s.option(form.DummyValue, '_adaptive_scheduler', _('Scheduler Contract'));
 		o.cfgvalue = function() { return 'v' + (adaptive.schedulerVersion || '?') + ' / ' + _('feature contract') + ' v' + (adaptive.featureContractVersion || '?'); };
 		o = s.option(form.DummyValue, '_adaptive_selection', _('Selection'));
 		o.cfgvalue = function() { return _('K') + ': ' + (adaptive.selectedK || 0) + ', ' + _('expansions') + ': ' + (adaptive.lastExpansionCount || 0) + ', ' + _('last fallback') + ': ' + (adaptive.lastFallbackReason ? utils.statusLabel('reason', adaptive.lastFallbackReason) : _('none')); };
-
-		s = m.section(form.NamedSection, 'main', 'service', _('Product Intelligence Summary'));
-		s.anonymous = true;
-		o = s.option(form.DummyValue, '_endpoint', _('Current Endpoint'));
-		o.cfgvalue = function() { return (status.best_ips || []).join(', ') || _('Unavailable'); };
-		o = s.option(form.DummyValue, '_health_summary', _('System Health'));
-		o.cfgvalue = function() { var h = status.operationalHealth || {}; return utils.statusLabel('health', h.state); };
-		o = s.option(form.DummyValue, '_adaptive_summary', _('Adaptive Measurement'));
-		o.cfgvalue = function() { return utils.statusLabel('mode', adaptive.requestedMode || 'off') + ' → ' + utils.statusLabel('mode', adaptive.effectiveMode || 'off') + ' / ' + utils.statusLabel('qualification', adaptive.qualificationState || 'insufficient'); };
-		o = s.option(form.DummyValue, '_candidate_summary', _('Candidate Intelligence'));
-		o.cfgvalue = function() { var d = status.decision || {}; return (d.effectiveMode === 'assisted' ? _('Candidate Assisted') : (d.effectiveMode === 'shadow' ? _('Candidate Shadow') : _('Native only'))) + ' / ' + utils.statusLabel('confidence', d.confidenceLevel || 'unavailable'); };
-		o = s.option(form.DummyValue, '_next_audit_summary', _('Next Full Audit / Optimize'));
-		o.cfgvalue = function() { var reason = (status.reusePolicy || {}).reason; return (adaptive.nextAuditInRuns == null ? _('unavailable') : adaptive.nextAuditInRuns + ' ' + _('runs')) + ' / ' + (reason ? utils.statusLabel('reason', reason) : _('policy current')); };
 
 		s = m.section(form.NamedSection, 'main', 'service', _('Operational Health'));
 		s.anonymous = true;
@@ -459,349 +844,143 @@ return view.extend({
 			]);
 		};
 
-		/* Package management belongs above the tuning knobs: refreshing the
-		 * trusted feed or repairing the Runtime is the first thing an operator
-		 * looks for, and these actions used to sit under the live-state rows. */
-		s = m.section(form.TypedSection, 'rill', _('Rill Runtime'));
+		s = m.section(form.TypedSection, 'rill', _('Runtime tuning'));
 		s.anonymous = true;
-	o = s.option(form.DummyValue, '_state', _('Runtime'));
-	o.cfgvalue = function() { return runtimeSummary(status); };
-	decorateAvailableRuntime(o, status);
-	o = s.option(form.DummyValue, '_package_manager', _('Runtime Package Status'));
-	o.cfgvalue = function() { return runtimePackageStateText(runtimeManager); };
-	/* Sits between the package status and the buttons that change it: the
-	 * verdict belongs to the check, not to the installed package. */
-	o = s.option(form.DummyValue, '_package_check', _('Last update check'));
-	o.cfgvalue = function() { return runtimeCheckText(); };
-	o = s.option(form.DummyValue, '_package_target', _('Runtime Package Target'));
-	o.cfgvalue = function() {
-		return [ runtimeManager.release || _('Unknown release'), runtimeManager.architecture || _('Unknown architecture'), runtimeManager.pkgtype || _('Unknown package format') ].join(' / ');
-	};
-
-	/* The row title names the object the button touches, never the button label
-	 * itself. "Runtime Package Management" over a "Check for updates" button left
-	 * the operator guessing whether it refreshes the feed index or upgrades
-	 * something. The Runtime action rows used to repeat their button verbatim
-	 * ("Install Rill Runtime" over an "Install Rill Runtime" button), which named
-	 * no object; they now name the package, because the section is already
-	 * called "Rill Runtime" and repeating that in every row would say nothing. */
-	o = s.option(form.Button, '_package_refresh', _('Package index'));
-	o.inputtitle = _('Check for updates');
-	o.inputstyle = 'reload';
-	o.rmempty = true;
-	o.cfgvalue = function() { return ''; };
-	o.write = function() {};
-	o.onclick = function(ev) {
-		var button = ev && ev.currentTarget && ev.currentTarget.tagName === 'BUTTON' ? ev.currentTarget :
-			(ev && ev.target && ev.target.tagName === 'BUTTON' ? ev.target : null);
-		if (!button && this && this.node) button = this.node.querySelector('button');
-		if (!runtimeManager.helperAvailable)
-			return Promise.reject(new Error(_('Runtime management helper is not installed.')));
-		return runRuntimeManagerAction('refresh', '', button, _('Runtime package index refreshed.'), _('Unable to refresh package index.'), true);
-	};
-	o.description = _('Refreshes the trusted unified feed package index. Runtime is optional; CFI Native mode remains available without it.');
-
-	o = s.option(form.Button, '_runtime_install', _('Runtime package'));
-	o.inputtitle = _('Install Rill Runtime');
-	o.inputstyle = 'apply';
-	o.rmempty = true;
-	o.cfgvalue = function() { return ''; };
-	o.write = function() {};
-	o.onclick = function(ev) {
-		var button = ev && ev.currentTarget && ev.currentTarget.tagName === 'BUTTON' ? ev.currentTarget :
-			(ev && ev.target && ev.target.tagName === 'BUTTON' ? ev.target : null);
-		if (!button && this && this.node) button = this.node.querySelector('button');
-		return utils.confirmAction(_('Install Rill Runtime'), _('Install the optional Stable Rill Runtime? CFI Native mode will remain available.'), function() {
-			return runRuntimeManagerAction('install', 'rill-runtime', button, _('Runtime package action completed. Reloading status.'), _('Unable to install Rill Runtime.'), true);
-		}, _('Install'));
-	};
-	o.description = _('Installs the package-managed Stable Runtime for this router release and architecture. A legacy Preview Runtime must be removed explicitly first.');
-
-	o = s.option(form.Button, '_runtime_repair', _('Runtime package'));
-	o.inputtitle = _('Repair Rill Runtime');
-	o.inputstyle = 'apply';
-	o.rmempty = true;
-	o.cfgvalue = function() { return ''; };
-	o.write = function() {};
-	o.onclick = function(ev) {
-		var button = ev && ev.currentTarget && ev.currentTarget.tagName === 'BUTTON' ? ev.currentTarget :
-			(ev && ev.target && ev.target.tagName === 'BUTTON' ? ev.target : null);
-		if (!button && this && this.node) button = this.node.querySelector('button');
-		return utils.confirmAction(_('Repair Rill Runtime'), _('Reinstall the same trusted Stable Runtime package to restore its missing executable? This will not upgrade the Runtime.'), function() {
-			return runRuntimeManagerAction('repair', 'rill-runtime', button, _('Runtime repair completed. Reloading status.'), _('Unable to repair Rill Runtime.'), true);
-		}, _('Repair'));
-	};
-	o.description = _('Reinstalls the same trusted Stable package only when its executable is missing. It does not change Runtime versions.');
-
-	o = s.option(form.Button, '_runtime_update', _('Runtime package'));
-	o.inputtitle = _('Update Rill Runtime');
-	o.inputstyle = 'apply';
-	o.rmempty = true;
-	o.cfgvalue = function() { return ''; };
-	o.write = function() {};
-	o.onclick = function(ev) {
-		var button = ev && ev.currentTarget && ev.currentTarget.tagName === 'BUTTON' ? ev.currentTarget :
-			(ev && ev.target && ev.target.tagName === 'BUTTON' ? ev.target : null);
-		if (!button && this && this.node) button = this.node.querySelector('button');
-		return utils.confirmAction(_('Update Rill Runtime'), _('Update the shared Stable Rill Runtime? Other installed consumers will be checked before changes.'), function() {
-			return runRuntimeManagerAction('update', 'rill-runtime', button, _('Runtime package action completed. Reloading status.'), _('Unable to update Rill Runtime.'), true);
-		}, _('Update'));
-	};
-	o.description = _('Updates only the compatible Stable Runtime. Unknown-source, legacy Preview, and incompatible installations are not replaced.');
-
-	o = s.option(form.Button, '_runtime_uninstall', _('Runtime package'));
-	o.inputtitle = _('Uninstall Rill Runtime');
-	o.inputstyle = 'reset';
-	o.rmempty = true;
-	o.cfgvalue = function() { return ''; };
-	o.write = function() {};
-	o.onclick = function(ev) {
-		var button = ev && ev.currentTarget && ev.currentTarget.tagName === 'BUTTON' ? ev.currentTarget :
-			(ev && ev.target && ev.target.tagName === 'BUTTON' ? ev.target : null);
-		if (!button && this && this.node) button = this.node.querySelector('button');
-		return utils.confirmAction(_('Uninstall Rill Runtime'), _('Remove the Rill Runtime package? CFI will fall back to Native mode. You can reinstall it at any time.'), function() {
-			return runRuntimeManagerAction('uninstall', 'rill-runtime', button, _('Rill Runtime removed. CFI will use Native mode.'), _('Unable to remove Rill Runtime.'), true);
-		}, _('Uninstall'));
-	};
-	o.description = _('Removes only the shared Stable Runtime package. CFI Native mode remains fully functional without it.');
-
-	o = s.option(form.Button, '_cfi_update', _('CFI package'));
-	o.inputtitle = _('Update CFI');
-	o.inputstyle = 'apply';
-	o.rmempty = true;
-	o.cfgvalue = function() { return ''; };
-	o.write = function() {};
-	o.onclick = function(ev) {
-		var button = ev && ev.currentTarget && ev.currentTarget.tagName === 'BUTTON' ? ev.currentTarget :
-			(ev && ev.target && ev.target.tagName === 'BUTTON' ? ev.target : null);
-		if (!button && this && this.node) button = this.node.querySelector('button');
-		return utils.confirmAction(_('Update CFI'), _('Update CFI from the unified feed? The page will reload after the package update.'), function() {
-			return runRuntimeManagerAction('update', 'luci-app-cloudflare-ip', button, _('CFI package update completed. Reloading.'), _('Unable to update CFI from the unified feed.'), true);
-		}, _('Update'));
-	};
-	o.description = _('Uses the trusted unified package feed.');
-
-	o = s.option(form.Button, '_legacy_cfi_update', _('Legacy CFI Update'));
-	o.inputtitle = _('Update CFI via legacy GitHub release');
-	o.inputstyle = 'reload';
-	o.rmempty = true;
-	o.cfgvalue = function() { return ''; };
-	o.write = function() {};
-	o.onclick = function(ev) {
-		var button = ev && ev.currentTarget && ev.currentTarget.tagName === 'BUTTON' ? ev.currentTarget :
-			(ev && ev.target && ev.target.tagName === 'BUTTON' ? ev.target : null);
-		if (!button && this && this.node) button = this.node.querySelector('button');
-		utils.setBusy(button, _('Updating CFI...'));
-		return callLegacySelfUpdate().then(function(result) {
-			if (!result || result.success !== true)
-				throw new Error((result && result.error) || _('Legacy updater rejected the request.'));
-			ui.addNotification(null, E('p', _('Legacy CFI update started. Follow the package installer output on the router.')), 'info');
-		}).catch(function(error) {
-			utils.noticeError(_('Unable to update CFI.'), _('The legacy GitHub updater is used only because the unified package helper is missing.'), error);
-		}).finally(function() { utils.resetBusy(button); });
-	};
-	o.description = _('Legacy GitHub updater is available because the unified package helper is missing.');
-
-
-		s = m.section(form.TypedSection, 'rill', _('Rill Runtime Consumer'));
-		s.anonymous = true;
-
-		o = s.option(form.Flag, 'enabled', _('Enable Rill Intelligence'),
-			_('Enable the optional Rill consumer. Native ranking remains authoritative when Rill is disabled or unavailable.'));
-		o.default = '0';
-		o.rmempty = false;
-
-		o = s.option(form.ListValue, 'mode', _('Mode'));
-		o.value('off', _('Off'));
-		o.value('shadow', _('Shadow'));
-		o.value('assisted', _('Assisted (qualification-gated)'));
-		o.description = _('Assisted is qualification-gated and uses only the Native safe envelope; any Runtime problem falls back to Native.');
-		o.default = 'shadow';
-
 		o = s.option(form.Value, 'timeout_ms', _('Runtime Timeout (ms)'));
 		o.datatype = 'range(100,10000)';
 		o.default = '2000';
-
 		o = s.option(form.DummyValue, '_runtime_path', _('Runtime Path'));
 		o.cfgvalue = function() { return '/usr/bin/rill-runtime'; };
 		o.description = _('Fixed package-managed Preview Runtime path; custom executable paths are rejected.');
-
 		o = s.option(form.Value, 'state_file', _('State File'));
 		o.default = '/etc/cf_ip/rill-state.json';
 		o.description = _('Must stay under /etc/cf_ip. Paths outside the package state directory are rejected.');
-
 		o = s.option(form.Value, 'safe_top_k', _('Safe Envelope Size'));
 		o.datatype = 'range(1,8)';
 		o.default = '3';
 		o.description = _('How many leading Native candidates Assisted mode may reorder. Larger values widen the search space and the possible regret.');
-
 		o = s.option(form.Value, 'min_feedback_samples', _('Minimum Feedback Samples'));
 		o.datatype = 'range(5,200)';
 		o.default = '30';
 		o.description = _('Attributed feedback required before Assisted mode may take over. At one run every six hours, 30 samples is roughly ten days; lowering it shortens the wait and weakens the evidence.');
-
 		o = s.option(form.Value, 'evaluation_max_age_seconds', _('Evaluation Freshness (seconds)'));
 		o.datatype = 'range(3600,604800)';
 		o.default = '86400';
 		o.description = _('Age at which the last comparable evaluation stops counting as full-confidence evidence.');
-
 		o = s.option(form.Value, 'evaluation_stale_seconds', _('Evidence Expiry (seconds)'));
 		o.datatype = 'range(3600,2592000)';
 		o.default = '604800';
 		o.description = _('Age at which stale evidence expires and the run falls back to Native selection. Must be at least the freshness window.');
+		o = s.option(form.Button, '_reset', _('Reset Learning State'));
+		o.inputtitle = _('Reset learning state');
+		o.inputstyle = 'reset';
+		o.onclick = function(ev) {
+			var button = ev && ev.currentTarget && ev.currentTarget.tagName === 'BUTTON' ? ev.currentTarget :
+				(ev && ev.target && ev.target.tagName === 'BUTTON' ? ev.target : null);
+			if (!button && this && this.node) button = this.node.querySelector('button');
+			var generation = (status.intelligence || {}).stateGeneration || 0;
+			return utils.confirmAction(_('Reset Learning State'), _('Reset Rill learning state? Native configuration will not be changed.'), function() {
+				utils.setBusy(button, _('Resetting...'));
+				return callReset(generation).then(function(result) {
+					if (!result || result.success !== true)
+						throw new Error((result && result.error) || _('Reset rejected'));
+					ui.addNotification(null, E('p', _('Rill learning state was reset. Reloading status.')), 'info');
+					setTimeout(function() { location.reload(); }, 500);
+				}).catch(function(error) {
+					utils.noticeError(_('Unable to reset learning state.'), _('The previous learning state was preserved.'), error);
+				}).finally(function() { utils.resetBusy(button); });
+			}, _('Reset'));
+		};
 
 		s = m.section(form.TypedSection, 'rill', _('Live State'));
 		s.anonymous = true;
-	o = s.option(form.DummyValue, '_channel', _('Runtime Channel'));
-	o.cfgvalue = function() {
-		var i = status.intelligence || {};
-		/*
-		 * packageChannel is the installed Runtime package (stable /
-		 * legacy-preview / unknown) and is the value that gates Rill. Payloads
-		 * written before the split only carried the protocol channel, so keep a
-		 * fallback instead of showing Unknown for older status files.
-		 */
-		return i.packageChannel || i.channel || _('Unknown');
-	};
-	o.description = _('Installed Runtime package channel. Only Stable is accepted.');
-	o = s.option(form.DummyValue, '_protocol', _('Runtime Protocol'));
-	o.cfgvalue = function() { return (status.intelligence || {}).protocolChannel || _('Not running'); };
-	o.description = _('Protocol surface reported by the Runtime process; the Stable package still speaks the legacy "preview" protocol.');
-	o = s.option(form.DummyValue, '_api', _('Runtime API'));
-	o.cfgvalue = function() { return (status.intelligence || {}).runtimeApiVersion || _('Unknown'); };
-	o = s.option(form.DummyValue, '_schema', _('Feature Schema'));
-	o.cfgvalue = function() {
-		var i = status.intelligence || {};
-		return (i.featureSchemaVersion || '?') + (i.featureSchemaHash ? ' / ' + i.featureSchemaHash : '');
-	};
-	o = s.option(form.DummyValue, '_generation', _('State / Model Generation'));
-	o.cfgvalue = function() {
-		var i = status.intelligence || {};
-		return (i.stateGeneration || 0) + ' / ' + (i.modelGeneration || 0);
-	};
-	o = s.option(form.DummyValue, '_learning', _('Learning'));
+		o = s.option(form.DummyValue, '_channel', _('Runtime Channel'));
 		o.cfgvalue = function() {
 			var i = status.intelligence || {};
-			return _('Valid feedback') + ': ' + (i.validFeedback || 0) + ', ' + _('delayed pending') + ': ' + (i.pendingDelayedFeedback || 0) + ', ' + _('completed') + ': ' + (i.delayedCompleted || 0) + ', Δ ' + (i.rewardDelta == null ? '?' : i.rewardDelta.toFixed(3));
+			/*
+			 * packageChannel is the installed Runtime package (stable /
+			 * legacy-preview / unknown) and is the value that gates Rill. Payloads
+			 * written before the split only carried the protocol channel, so keep a
+			 * fallback instead of showing Unknown for older status files.
+			 */
+			return i.packageChannel || i.channel || _('Unknown');
 		};
-	o = s.option(form.DummyValue, '_health', _('Runtime Health'));
-	o.cfgvalue = function() { var i = status.intelligence || {}; return utils.statusLabel('health', i.health) + (i.resourcePressure ? ' / ' + _('Resource pressure') : ''); };
-	o = s.option(form.DummyValue, '_resource', _('Resource Guard'));
-	o.cfgvalue = function() {
-		var i = status.intelligence || {}, x = i.inspect || {}, u = x.resourceUtilization || {}, p = x.resourceProfile || {};
-		return _('pressure') + ': ' + (i.resourcePressure ? _('yes') : _('no')) + ', ' + _('state bytes') + ': ' + (u.stateBytes || 0) + ' / ' + (p.maxModelStateBytes || '?') + ', ' + _('pending') + ': ' + (u.pendingDecisions || 0) + ' / ' + (p.maxPendingDecisions || '?');
-	};
+		o.description = _('Installed Runtime package channel. Only Stable is accepted.');
+		o = s.option(form.DummyValue, '_protocol', _('Runtime Protocol'));
+		o.cfgvalue = function() { return (status.intelligence || {}).protocolChannel || _('Not running'); };
+		o.description = _('Protocol surface reported by the Runtime process; the Stable package still speaks the legacy "preview" protocol.');
+		o = s.option(form.DummyValue, '_api', _('Runtime API'));
+		o.cfgvalue = function() { return (status.intelligence || {}).runtimeApiVersion || _('Unknown'); };
+		o = s.option(form.DummyValue, '_schema', _('Feature Schema'));
+		o.cfgvalue = function() {
+			var i = status.intelligence || {};
+			return (i.featureSchemaVersion || '?') + (i.featureSchemaHash ? ' / ' + i.featureSchemaHash : '');
+		};
+		o = s.option(form.DummyValue, '_generation', _('State / Model Generation'));
+		o.cfgvalue = function() {
+			var i = status.intelligence || {};
+			return (i.stateGeneration || 0) + ' / ' + (i.modelGeneration || 0);
+		};
+		o = s.option(form.DummyValue, '_health', _('Runtime Health'));
+		o.cfgvalue = function() { var i = status.intelligence || {}; return utils.statusLabel('health', i.health) + (i.resourcePressure ? ' / ' + _('Resource pressure') : ''); };
+		o = s.option(form.DummyValue, '_resource', _('Resource Guard'));
+		o.cfgvalue = function() {
+			var i = status.intelligence || {}, x = i.inspect || {}, u = x.resourceUtilization || {}, p = x.resourceProfile || {};
+			return _('pressure') + ': ' + (i.resourcePressure ? _('yes') : _('no')) + ', ' + _('state bytes') + ': ' + (u.stateBytes || 0) + ' / ' + (p.maxModelStateBytes || '?') + ', ' + _('pending') + ': ' + (u.pendingDecisions || 0) + ' / ' + (p.maxPendingDecisions || '?');
+		};
 		o = s.option(form.DummyValue, '_inspect', _('Runtime Inspect'));
 		o.cfgvalue = function() { var i = status.intelligence || {}, x = i.inspect || {}; return _('pending') + ': ' + (x.pendingDecisions || i.pendingDelayedFeedback || 0) + ', ' + _('completed') + ': ' + (x.completedDecisions || i.delayedCompleted || 0) + ', ' + _('last error') + ': ' + utils.statusLabel('error', x.lastError || 'none'); };
-	o = s.option(form.DummyValue, '_authority', _('Current Authority'));
-	o.cfgvalue = function() {
-		return status.effectiveMode === 'assisted' ? _('Guarded Assisted') : (status.effectiveMode === 'shadow' ? _('Shadow') : _('Native'));
-	};
-	o = s.option(form.DummyValue, '_qualification', _('Qualification'));
-	o.cfgvalue = function() { return utils.statusLabel('qualification', (status.intelligence || {}).qualificationState); };
-	o = s.option(form.DummyValue, '_evidence_freshness', _('Evidence Freshness'));
-	o.cfgvalue = function() {
-		var i = status.intelligence || {};
-		var freshness = utils.statusLabel('freshness', i.qualificationFreshness || 'none');
-		var health = utils.statusLabel('evaluation', i.evaluationHealth || 'insufficient');
-		return freshness + ' / ' + health;
-	};
-	o.description = _('Fresh evidence keeps full confidence, stale evidence lowers it, expired evidence falls back to Native selection.');
-	o = s.option(form.DummyValue, '_context', _('Learning Context'));
-	o.cfgvalue = function() {
-		var i = status.intelligence || {};
-		var c = status.learningContext || i.learningContext || {};
-		var changed = status.contextChanged !== undefined ? status.contextChanged : i.contextChanged;
-		var changedAt = status.contextChangedAt || i.contextChangedAt || null;
-		return (c.contextFingerprint || _('Unknown')) + (changed ? ' / ' + _('changed') : '') + (changedAt ? ' / ' + _('last changed') + ': ' + changedAt : '');
-	};
-	o = s.option(form.DummyValue, '_confidence', _('Decision Confidence'));
-	o.cfgvalue = function() {
-		var d = status.decision || {}, i = status.intelligence || {};
-		return utils.statusLabel('confidence', d.confidenceLevel || i.confidenceLevel || 'unavailable');
-	};
-	o = s.option(form.DummyValue, '_confidence_reasons', _('Confidence Reasons'));
-	o.cfgvalue = function() {
-		var d = status.decision || {}, reasons = d.confidenceReasons || status.confidenceReasons || [];
-		return reasons.length ? utils.statusReasons(reasons) : _('Unavailable / Native fallback');
-	};
-	o = s.option(form.DummyValue, '_selection', _('Decision Selection'));
-	o.cfgvalue = function() {
-		var d = status.decision || {}, native = (d.nativeOrder || [])[0] || '?', rill = (d.rillOrder || [])[0] || '?', final = d.authorityActionId || d.selectedActionId || '?';
-		return _('Native top1') + ': ' + native + ', ' + _('Rill top1') + ': ' + rill + ', ' + _('final') + ': ' + final + ', ' + _('agreement') + ': ' + (d.nativeRillTop1Agreement ? _('yes') : _('no'));
-	};
-	o = s.option(form.DummyValue, '_evidence', _('Decision Evidence'));
-	o.cfgvalue = function() {
-		var e = status.evidenceAggregate || (status.intelligence || {}).evidenceAggregate || {};
-		return _('comparable') + ': ' + (e.comparableDecisions || 0) + ', ' + _('wins') + ': ' + (e.wins || 0) + ', ' + _('ties') + ': ' + (e.ties || 0) + ', ' + _('losses') + ': ' + (e.losses || 0) + ', Δ ' + (e.meanRewardDelta == null ? '?' : Number(e.meanRewardDelta).toFixed(3));
-	};
-	o = s.option(form.DummyValue, '_holdout', _('Native Holdout'));
-	o.cfgvalue = function() {
-		var e = status.evidenceAggregate || (status.intelligence || {}).evidenceAggregate || {};
-		return _('performed') + ': ' + (e.holdoutCount || 0) + ', ' + _('failures') + ': ' + (e.holdoutFailures || 0) + ' / ' + _('non-blocking');
-	};
-	o = s.option(form.DummyValue, '_fallback', _('Fallback Reason'));
-	o.cfgvalue = function() { var reason = status.fallbackReason || (status.intelligence || {}).lastResetReason; return reason ? utils.statusLabel('reason', reason) : _('None'); };
-	o = s.option(form.DummyValue, '_source_policy', _('Source Strategy Loop'));
-	o.cfgvalue = function() {
-		var p = status.sourcePolicy || diagnostics.sourcePolicy || {};
-		return _('deterministic') + ': ' + (p.deterministic ? _('yes') : _('no')) + ', ' + _('requested') + ': ' + utils.statusLabel('mode', p.requested || '?') + ', ' + _('effective') + ': ' + utils.statusLabel('mode', p.effective || '?');
-	};
-	o = s.option(form.DummyValue, '_reuse_policy', _('Reuse / Full Optimize'));
-	o.cfgvalue = function() {
-		var r = status.reusePolicy || {};
-		return _('Native hard gate') + ': ' + (r.actualPolicy || _('Unknown')) + ', ' + _('reason') + ': ' + (r.reason || _('none'));
-	};
-	o = s.option(form.DummyValue, '_efficiency', _('Probe Efficiency'));
-	o.cfgvalue = function() { var e = status.efficiency || status.probeMetrics || {}; return _('probed') + ': ' + (e.candidatesProbed || 0) + ' / ' + (e.candidatesConsidered || 0) + ', ' + _('avoided') + ': ' + (e.avoidedProbes || 0) + ', ' + _('early stop') + ': ' + (e.earlyStopHit ? _('yes') : _('no')); };
-	o = s.option(form.DummyValue, '_comparison', _('Native vs Rill'));
-	o.cfgvalue = function() { var i = status.intelligence || {}; return _('native') + ': ' + (i.nativeReward == null ? '?' : i.nativeReward.toFixed(3)) + ', ' + _('Rill') + ': ' + (i.rillReward == null ? '?' : i.rillReward.toFixed(3)) + ', ' + _('regret') + ': ' + (i.shadowRegret == null ? 0 : i.shadowRegret.toFixed(3)); };
-	o = s.option(form.DummyValue, '_prefix', _('Prefix Intelligence'));
-	o.cfgvalue = function() { var p = diagnostics.prefixIntelligence || {}; return _('tracked') + ': ' + (p.trackedPrefixes || 0) + ', ' + _('high quality') + ': ' + ((p.recentHighQuality || []).length) + ', ' + _('low quality') + ': ' + ((p.recentLowQuality || []).length); };
-	o = s.option(form.DummyValue, '_colo', _('Colo Intelligence'));
-	o.cfgvalue = function() { var c = diagnostics.coloIntelligence || {}; return _('observed') + ': ' + (c.observedColoCount || 0) + ', ' + _('latest') + ': ' + (c.latestObservedColo || _('Unknown')) + ', ' + _('Unknown') + ': ' + (c.unknownCount || 0); };
-
-	o = s.option(form.Button, '_self_check', _('Shadow Self-check'));
-	o.inputtitle = _('Run self-check');
-	o.inputstyle = 'apply';
-	o.onclick = function(ev) {
-		var button = ev && ev.currentTarget && ev.currentTarget.tagName === 'BUTTON' ? ev.currentTarget :
-			(ev && ev.target && ev.target.tagName === 'BUTTON' ? ev.target : null);
-		if (!button && this && this.node) button = this.node.querySelector('button');
-		utils.setBusy(button, _('Checking...'));
-		return callSelfCheck().then(function(result) {
-			if (result && result.success)
-				ui.addNotification(null, E('p', _('Rill self-check passed.')));
-			else
-				ui.addNotification(null, utils.errorNotice(
-					_('Rill self-check fell back to Native.'),
-					_('Native ranking remains authoritative; inspect the technical details before enabling Assisted mode.'),
-					result && result.error
-				), 'warning');
-		}).catch(function(error) {
-			utils.noticeError(_('Unable to complete self-check.'), _('Native ranking remains available.'), error);
-		}).finally(function() { utils.resetBusy(button); });
-	};
-	o = s.option(form.Button, '_reset', _('Reset Learning State'));
-	o.inputtitle = _('Reset learning state');
-	o.inputstyle = 'reset';
-	o.onclick = function(ev) {
-		var button = ev && ev.currentTarget && ev.currentTarget.tagName === 'BUTTON' ? ev.currentTarget :
-			(ev && ev.target && ev.target.tagName === 'BUTTON' ? ev.target : null);
-		if (!button && this && this.node) button = this.node.querySelector('button');
-		var generation = (status.intelligence || {}).stateGeneration || 0;
-		return utils.confirmAction(_('Reset Learning State'), _('Reset Rill learning state? Native configuration will not be changed.'), function() {
-			utils.setBusy(button, _('Resetting...'));
-			return callReset(generation).then(function(result) {
-				if (!result || result.success !== true)
-					throw new Error((result && result.error) || _('Reset rejected'));
-				ui.addNotification(null, E('p', _('Rill learning state was reset. Reloading status.')), 'info');
-				setTimeout(function() { location.reload(); }, 500);
-			}).catch(function(error) {
-				utils.noticeError(_('Unable to reset learning state.'), _('The previous learning state was preserved.'), error);
-			}).finally(function() { utils.resetBusy(button); });
-		}, _('Reset'));
-	};
+		o = s.option(form.DummyValue, '_evidence_freshness', _('Evidence Freshness'));
+		o.cfgvalue = function() {
+			var i = status.intelligence || {};
+			var freshness = utils.statusLabel('freshness', i.qualificationFreshness || 'none');
+			var health = utils.statusLabel('evaluation', i.evaluationHealth || 'insufficient');
+			return freshness + ' / ' + health;
+		};
+		o.description = _('Fresh evidence keeps full confidence, stale evidence lowers it, expired evidence falls back to Native selection.');
+		o = s.option(form.DummyValue, '_context', _('Learning Context'));
+		o.cfgvalue = function() {
+			var i = status.intelligence || {};
+			var c = status.learningContext || i.learningContext || {};
+			var changed = status.contextChanged !== undefined ? status.contextChanged : i.contextChanged;
+			var changedAt = status.contextChangedAt || i.contextChangedAt || null;
+			return (c.contextFingerprint || _('Unknown')) + (changed ? ' / ' + _('changed') : '') + (changedAt ? ' / ' + _('last changed') + ': ' + changedAt : '');
+		};
+		o = s.option(form.DummyValue, '_confidence_reasons', _('Confidence Reasons'));
+		o.cfgvalue = function() {
+			var d = status.decision || {}, reasons = d.confidenceReasons || status.confidenceReasons || [];
+			return reasons.length ? utils.statusReasons(reasons) : _('Unavailable / Native fallback');
+		};
+		o = s.option(form.DummyValue, '_evidence', _('Decision Evidence'));
+		o.cfgvalue = function() {
+			var e = status.evidenceAggregate || (status.intelligence || {}).evidenceAggregate || {};
+			return _('comparable') + ': ' + (e.comparableDecisions || 0) + ', ' + _('wins') + ': ' + (e.wins || 0) + ', ' + _('ties') + ': ' + (e.ties || 0) + ', ' + _('losses') + ': ' + (e.losses || 0) + ', Δ ' + (e.meanRewardDelta == null ? '?' : Number(e.meanRewardDelta).toFixed(3));
+		};
+		o = s.option(form.DummyValue, '_holdout', _('Native Holdout'));
+		o.cfgvalue = function() {
+			var e = status.evidenceAggregate || (status.intelligence || {}).evidenceAggregate || {};
+			return _('performed') + ': ' + (e.holdoutCount || 0) + ', ' + _('failures') + ': ' + (e.holdoutFailures || 0) + ' / ' + _('non-blocking');
+		};
+		o = s.option(form.DummyValue, '_fallback', _('Fallback Reason'));
+		o.cfgvalue = function() { var reason = status.fallbackReason || (status.intelligence || {}).lastResetReason; return reason ? utils.statusLabel('reason', reason) : _('None'); };
+		o = s.option(form.DummyValue, '_source_policy', _('Source Strategy Loop'));
+		o.cfgvalue = function() {
+			var p = status.sourcePolicy || diagnostics.sourcePolicy || {};
+			return _('deterministic') + ': ' + (p.deterministic ? _('yes') : _('no')) + ', ' + _('requested') + ': ' + utils.statusLabel('mode', p.requested || '?') + ', ' + _('effective') + ': ' + utils.statusLabel('mode', p.effective || '?');
+		};
+		o = s.option(form.DummyValue, '_reuse_policy', _('Reuse / Full Optimize'));
+		o.cfgvalue = function() {
+			var r = status.reusePolicy || {};
+			return _('Native hard gate') + ': ' + (r.actualPolicy || _('Unknown')) + ', ' + _('reason') + ': ' + (r.reason || _('none'));
+		};
+		o = s.option(form.DummyValue, '_efficiency', _('Probe Efficiency'));
+		o.cfgvalue = function() { var e = status.efficiency || status.probeMetrics || {}; return _('probed') + ': ' + (e.candidatesProbed || 0) + ' / ' + (e.candidatesConsidered || 0) + ', ' + _('avoided') + ': ' + (e.avoidedProbes || 0) + ', ' + _('early stop') + ': ' + (e.earlyStopHit ? _('yes') : _('no')); };
+		o = s.option(form.DummyValue, '_comparison', _('Native vs Rill'));
+		o.cfgvalue = function() { var i = status.intelligence || {}; return _('native') + ': ' + (i.nativeReward == null ? '?' : i.nativeReward.toFixed(3)) + ', ' + _('Rill') + ': ' + (i.rillReward == null ? '?' : i.rillReward.toFixed(3)) + ', ' + _('regret') + ': ' + (i.shadowRegret == null ? 0 : i.shadowRegret.toFixed(3)); };
+		o = s.option(form.DummyValue, '_prefix', _('Prefix Intelligence'));
+		o.cfgvalue = function() { var p = diagnostics.prefixIntelligence || {}; return _('tracked') + ': ' + (p.trackedPrefixes || 0) + ', ' + _('high quality') + ': ' + ((p.recentHighQuality || []).length) + ', ' + _('low quality') + ': ' + ((p.recentLowQuality || []).length); };
+		o = s.option(form.DummyValue, '_colo', _('Colo Intelligence'));
+		o.cfgvalue = function() { var c = diagnostics.coloIntelligence || {}; return _('observed') + ': ' + (c.observedColoCount || 0) + ', ' + _('latest') + ': ' + (c.latestObservedColo || _('Unknown')) + ', ' + _('Unknown') + ': ' + (c.unknownCount || 0); };
 
 	utils.createHandleSave(m, this);
 	utils.createHandleSaveApply(m, this);

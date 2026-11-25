@@ -2570,6 +2570,18 @@ msgstr "软件包管理器拒绝了该请求。"
 msgid "CFI remains usable in Native mode. Check package manager status before retrying."
 msgstr "CFI Native 模式仍可使用。重试前请先检查软件包管理器状态。"
 
+msgid "Verifying..."
+msgstr "正在确认..."
+
+msgid "The package manager is still busy."
+msgstr "软件包管理器仍在处理中。"
+
+msgid "The package manager request timed out, but the manager is now idle. The page will reload; check the runtime status above before retrying."
+msgstr "软件包管理器请求超时，但管理器现已空闲。页面即将刷新；重试前请先查看上方运行环境状态。"
+
+msgid "CFI remains usable in Native mode. Do not retry until the package manager is idle."
+msgstr "CFI Native 模式仍可使用。软件包管理器空闲前请勿重试。"
+
 msgid "Installing..."
 msgstr "正在安装..."
 
@@ -2834,3 +2846,15 @@ msgstr "检查于 %s"
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
 msgid "Not checked in this session."
 msgstr "本次会话尚未检查。"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Rill at a glance"
+msgstr "Rill 概览"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Rill decisions"
+msgstr "Rill 决策"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Runtime tuning"
+msgstr "运行参数"

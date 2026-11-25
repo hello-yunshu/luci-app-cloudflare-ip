@@ -300,11 +300,25 @@ cfip_generate_run_id() {
     printf '%s-%s-%s' "$now" "$$" "$rand"
 }
 
+# Epoch milliseconds. EPOCHREALTIME (bash 5 builtin) avoids forking and keeps
+# sub-second precision. BusyBox `date` ignores the nanosecond field, so `%s%3N`
+# silently degrades to plain seconds; only a millisecond-width value is trusted
+# as-is, otherwise the seconds are scaled so durations never come out 1000x small.
 cfip_now_millis() {
-    local value
+    local value now
+    now="${EPOCHREALTIME:-}"
+    if [[ -n "$now" ]]; then
+        now="${now//[.,]/}"
+        if [[ "$now" =~ ^[0-9]+$ ]]; then
+            printf '%s' "$(( now / 1000 ))"
+            return 0
+        fi
+    fi
     value="$(date +%s%3N 2>/dev/null || true)"
-    if [[ "$value" =~ ^[0-9]+$ ]]; then
+    if [[ "$value" =~ ^[0-9]{13,}$ ]]; then
         printf '%s' "$value"
+    elif [[ "$value" =~ ^[0-9]+$ ]]; then
+        printf '%s000' "$value"
     else
         printf '%s000' "$(date +%s)"
     fi
@@ -543,9 +557,17 @@ cfip_passwall_process_running() {
 # OpenClash's own start path waits up to 300 seconds for its local /group
 # controller endpoint (see check_core_status() in /etc/init.d/openclash).
 CFIP_OPENCLASH_START_TIMEOUT_SECONDS=312
+# A CF scheduled run can collide with OpenClash reloading its subscription or
+# rebuilding rules. During that window the core PID changes and the local
+# controller (/group) is briefly unavailable, which otherwise looks exactly
+# like an unhealthy core. Bound how long we wait for such a reload to settle.
+CFIP_OPENCLASH_RELOAD_SETTLE_SECONDS="${CFIP_OPENCLASH_RELOAD_SETTLE_SECONDS:-30}"
 CFIP_OPENCLASH_EXPECTED_ENABLED=""
 CFIP_OPENCLASH_INITIAL_RUNNING=false
 CFIP_OPENCLASH_INITIAL_HEALTHY=false
+# Set by cfip_openclash_health_wait when the core PID changes inside a probe
+# window; the reload settle path consumes it after the probe has failed.
+CFIP_OPENCLASH_HEALTH_PID_CHANGED=false
 CFIP_OPENCLASH_DEFERRED=false
 CFIP_OPENCLASH_CF_STOPPED=false
 CFIP_OPENCLASH_RECOVERY_ATTEMPTED=false
@@ -627,12 +649,18 @@ cfip_openclash_health_once() {
 cfip_openclash_health_wait() {
     local timeout="${1:-10}" spacing="${2:-${CFIP_OPENCLASH_HEALTH_WAIT_INTERVAL_SECONDS:-2}}" started now remaining limit delay healthy=0 pids="" previous_pids=""
     [[ "$timeout" =~ ^[1-9][0-9]*$ && "$spacing" =~ ^[1-9][0-9]*$ ]] || return 2
+    CFIP_OPENCLASH_HEALTH_PID_CHANGED=false
     started="$(cfip_monotonic_seconds)" || return 1
     while :; do
         now="$(cfip_monotonic_seconds)" || return 1
         remaining=$((started + timeout - now)); ((remaining > 0)) || return 1
         limit=4; ((remaining >= limit)) || limit="$remaining"
         pids="$(cfip_openclash_core_pids)"
+        # Record the restart here: once the loop ends the last sample looks
+        # stable again, so callers cannot infer the change from the final PID.
+        if [[ -n "$previous_pids" && -n "$pids" && "$pids" != "$previous_pids" ]]; then
+            CFIP_OPENCLASH_HEALTH_PID_CHANGED=true
+        fi
         if [[ -n "$pids" ]] && cfip_openclash_health_once "$limit"; then
             if [[ "$pids" == "$previous_pids" ]]; then healthy=$((healthy + 1)); else healthy=1; fi
         else
@@ -646,6 +674,59 @@ cfip_openclash_health_wait() {
         sleep "$delay"
     done
     return 1
+}
+
+# Return 0 when OpenClash currently holds a reload lock. openclash.sh holds
+# /tmp/lock/openclash_subs.lock (via flock) for the whole subscription refresh
+# and rule rebuild; openclash_ps.sh uses openclash_jobs.lock for job counting.
+# The check is best-effort: when flock is unavailable, the PID stability check
+# in cfip_openclash_health_wait_after_reload still protects us.
+cfip_openclash_jobs_busy() {
+    local lock
+    local lockdir="${CFIP_OPENCLASH_LOCK_DIR:-/tmp/lock}"
+    command -v flock >/dev/null 2>&1 || return 1
+    for lock in "$lockdir/openclash_subs.lock" "$lockdir/openclash_jobs.lock"; do
+        [[ -e "$lock" ]] || continue
+        # BusyBox and util-linux both support: flock -n <file> <command>
+        flock -n "$lock" true >/dev/null 2>&1 || return 0
+    done
+    return 1
+}
+
+# Wait for an in-progress OpenClash reload to settle, then re-run the health
+# check. Only called after an initial health_wait failure. We wait only while
+# there is positive evidence of a reload (jobs lock held, or the core PID
+# changed inside the failed probe window); a genuinely unhealthy but stable
+# core returns immediately so normal fast-fail semantics are preserved.
+# Usage: cfip_openclash_health_wait_after_reload <timeout> [spacing]
+cfip_openclash_health_wait_after_reload() {
+    local timeout="${1:-10}" spacing="${2:-${CFIP_OPENCLASH_HEALTH_WAIT_INTERVAL_SECONDS:-2}}"
+    local settle="${CFIP_OPENCLASH_RELOAD_SETTLE_SECONDS:-30}"
+    local before after waited=0 stable=0 interval=1 reloading=false
+
+    before="$(cfip_openclash_core_pids)"
+    # Positive reload signal: the core restarted during the failed probe window
+    # (remembered by health_wait), or OpenClash still holds its reload lock.
+    if cfip_openclash_jobs_busy || [[ "${CFIP_OPENCLASH_HEALTH_PID_CHANGED:-false}" == true ]]; then
+        reloading=true
+    fi
+    [[ "$reloading" == true ]] || return 1
+
+    while (( waited < settle )); do
+        sleep "$interval"; waited=$((waited + interval))
+        if cfip_openclash_jobs_busy; then stable=0; continue; fi
+        after="$(cfip_openclash_core_pids)"
+        if [[ -n "$after" && "$after" == "$before" ]]; then
+            stable=$((stable + 1))
+            (( stable >= 2 )) && break
+        else
+            stable=0
+            before="$after"
+        fi
+    done
+
+    cfip_log "OpenClash reload detected; waited ${waited}s for it to settle before re-checking health" 2>/dev/null || true
+    cfip_openclash_health_wait "$timeout" "$spacing"
 }
 
 cfip_openclash_capture_state() {
@@ -674,8 +755,15 @@ cfip_openclash_capture_state() {
     # Three observations need two spacing intervals plus authenticated probe
     # time; five seconds leaves only one second for all three probes.
     if ! cfip_openclash_health_wait 10; then
-        CFIP_OPENCLASH_SERVICE_ERROR="OpenClash is enabled but its core or local controller is unhealthy; restore OpenClash before running CF"
-        return 1
+        # A scheduled CF run may coincide with OpenClash refreshing its
+        # subscription/rebuilding rules. If that is the case, wait for the
+        # reload to settle and re-check once before declaring failure.
+        if cfip_openclash_health_wait_after_reload 10; then
+            : # recovered after the reload settled
+        else
+            CFIP_OPENCLASH_SERVICE_ERROR="OpenClash is enabled but its core or local controller is unhealthy; restore OpenClash before running CF"
+            return 1
+        fi
     fi
     cfip_openclash_read_enable || return 1
     [[ "$CFIP_OPENCLASH_ENABLE_VALUE" == 1 ]] || { CFIP_OPENCLASH_SERVICE_ERROR="OpenClash enable state changed during preflight"; return 1; }

@@ -30,6 +30,10 @@ EXCLUDED = {
     "tests/helpers/flock-kernel.py": "helper imported by shell tests",
     "tests/legacy/_helpers.sh": "helper sourced by legacy tests",
     "tests/openclash-rpc-render.cjs": "invoked by tests/openclash-rpc-contract.sh",
+    "tests/rill-intelligence-information-architecture.cjs": (
+        "invoked by tests/rill-intelligence-luci-contract.sh inside the CI "
+        "host-contract job"
+    ),
     "tests/startup-race.sh": (
         "invoked by tests/startup-race-container.sh inside the startup-race "
         "CI container"

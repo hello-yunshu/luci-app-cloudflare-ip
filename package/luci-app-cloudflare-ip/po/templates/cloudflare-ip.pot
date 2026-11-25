@@ -2504,34 +2504,34 @@ msgstr ""
 
 
 msgid "Runtime management helper is not installed. Update CFI from the unified package feed to enable one-click management."
-msgstr "Runtime management helper is not installed. Update CFI from the unified package feed to enable one-click management."
+msgstr ""
 
 msgid "Unable to query Runtime package manager."
-msgstr "Unable to query Runtime package manager."
+msgstr ""
 
 msgid "Runtime is not supported for this OpenWrt release or architecture."
-msgstr "Runtime is not supported for this OpenWrt release or architecture."
+msgstr ""
 
 msgid "Runtime is installed from the Stable channel; CFI will not replace it."
-msgstr "Runtime is installed from the Stable channel; CFI will not replace it."
+msgstr ""
 
 msgid "Runtime source or channel is unknown; CFI will not update it."
-msgstr "Runtime source or channel is unknown; CFI will not update it."
+msgstr ""
 
 msgid "The installed Preview Runtime is incompatible or its compatibility is unknown; CFI will not update it."
-msgstr "The installed Preview Runtime is incompatible or its compatibility is unknown; CFI will not update it."
+msgstr ""
 
 msgid "Preview Runtime is installed and compatible."
-msgstr "Preview Runtime is installed and compatible."
+msgstr ""
 
 msgid "Runtime update is available."
-msgstr "Runtime update is available."
+msgstr ""
 
 msgid "Runtime is already up to date."
-msgstr "Runtime is already up to date."
+msgstr ""
 
 msgid "Runtime is not installed. CFI Native mode remains available."
-msgstr "Runtime is not installed. CFI Native mode remains available."
+msgstr ""
 
 msgid "Rill Runtime is not installed. Click Install below to add it, or keep using CFI Native mode."
 msgstr ""
@@ -2552,121 +2552,133 @@ msgid "Removes only the shared Stable Runtime package. CFI Native mode remains f
 msgstr ""
 
 msgid "Package manager rejected the request."
-msgstr "Package manager rejected the request."
+msgstr ""
 
 msgid "CFI remains usable in Native mode. Check package manager status before retrying."
-msgstr "CFI remains usable in Native mode. Check package manager status before retrying."
+msgstr ""
+
+msgid "Verifying..."
+msgstr ""
+
+msgid "The package manager is still busy."
+msgstr ""
+
+msgid "The package manager request timed out, but the manager is now idle. The page will reload; check the runtime status above before retrying."
+msgstr ""
+
+msgid "CFI remains usable in Native mode. Do not retry until the package manager is idle."
+msgstr ""
 
 msgid "Installing..."
-msgstr "Installing..."
+msgstr ""
 
 msgid "Runtime Package Status"
-msgstr "Runtime Package Status"
+msgstr ""
 
 msgid "Runtime Package Target"
-msgstr "Runtime Package Target"
+msgstr ""
 
 msgid "Unknown release"
-msgstr "Unknown release"
+msgstr ""
 
 msgid "Unknown architecture"
-msgstr "Unknown architecture"
+msgstr ""
 
 msgid "Unknown package format"
-msgstr "Unknown package format"
+msgstr ""
 
 msgid "Package index"
-msgstr "Package index"
+msgstr ""
 
 msgid "Runtime package"
-msgstr "Runtime package"
+msgstr ""
 
 msgid "Check for updates"
-msgstr "Check for updates"
+msgstr ""
 
 msgid "Runtime management helper is not installed."
-msgstr "Runtime management helper is not installed."
+msgstr ""
 
 msgid "Runtime package index refreshed."
-msgstr "Runtime package index refreshed."
+msgstr ""
 
 msgid "Unable to refresh package index."
-msgstr "Unable to refresh package index."
+msgstr ""
 
 msgid "Refreshes the trusted unified feed package index. Runtime is optional; CFI Native mode remains available without it."
-msgstr "Refreshes the trusted unified feed package index. Runtime is optional; CFI Native mode remains available without it."
+msgstr ""
 
 msgid "Install Rill Runtime"
-msgstr "Install Rill Runtime"
+msgstr ""
 
 msgid "Install the optional Rill Preview Runtime? CFI Native mode will remain available."
-msgstr "Install the optional Rill Preview Runtime? CFI Native mode will remain available."
+msgstr ""
 
 msgid "Runtime package action completed. Reloading status."
-msgstr "Runtime package action completed. Reloading status."
+msgstr ""
 
 msgid "Unable to install Rill Runtime."
-msgstr "Unable to install Rill Runtime."
+msgstr ""
 
 msgid "Install"
-msgstr "Install"
+msgstr ""
 
 msgid "Installs only the package-managed Preview Runtime for this router release and architecture. Stable or unknown Runtime installations are preserved."
-msgstr "Installs only the package-managed Preview Runtime for this router release and architecture. Stable or unknown Runtime installations are preserved."
+msgstr ""
 
 msgid "Update Rill Runtime"
-msgstr "Update Rill Runtime"
+msgstr ""
 
 msgid "Update the shared Rill Preview Runtime? Other installed consumers will be checked before changes."
-msgstr "Update the shared Rill Preview Runtime? Other installed consumers will be checked before changes."
+msgstr ""
 
 msgid "Unable to update Rill Runtime."
-msgstr "Unable to update Rill Runtime."
+msgstr ""
 
 msgid "Update"
-msgstr "Update"
+msgstr ""
 
 msgid "Updates only a compatible Preview Runtime. Stable, unknown-source, and incompatible installations are not replaced."
-msgstr "Updates only a compatible Preview Runtime. Stable, unknown-source, and incompatible installations are not replaced."
+msgstr ""
 
 msgid "Update CFI"
-msgstr "Update CFI"
+msgstr ""
 
 msgid "CFI package"
-msgstr "CFI package"
+msgstr ""
 
 msgid "Update CFI from the unified feed? The page will reload after the package update."
-msgstr "Update CFI from the unified feed? The page will reload after the package update."
+msgstr ""
 
 msgid "CFI package update completed. Reloading."
-msgstr "CFI package update completed. Reloading."
+msgstr ""
 
 msgid "Unable to update CFI from the unified feed."
-msgstr "Unable to update CFI from the unified feed."
+msgstr ""
 
 msgid "Uses the trusted unified package feed."
-msgstr "Uses the trusted unified package feed."
+msgstr ""
 
 msgid "Legacy CFI Update"
-msgstr "Legacy CFI Update"
+msgstr ""
 
 msgid "Update CFI via legacy GitHub release"
-msgstr "Update CFI via legacy GitHub release"
+msgstr ""
 
 msgid "Updating CFI..."
-msgstr "Updating CFI..."
+msgstr ""
 
 msgid "Legacy updater rejected the request."
-msgstr "Legacy updater rejected the request."
+msgstr ""
 
 msgid "Legacy CFI update started. Follow the package installer output on the router."
-msgstr "Legacy CFI update started. Follow the package installer output on the router."
+msgstr ""
 
 msgid "Unable to update CFI."
-msgstr "Unable to update CFI."
+msgstr ""
 
 msgid "The legacy GitHub updater is used only because the unified package helper is missing."
-msgstr "The legacy GitHub updater is used only because the unified package helper is missing."
+msgstr ""
 
 msgid "Legacy GitHub updater is available because the unified package helper is missing."
 msgstr ""
@@ -2820,4 +2832,16 @@ msgstr ""
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
 msgid "Not checked in this session."
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Rill at a glance"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Rill decisions"
+msgstr ""
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Runtime tuning"
 msgstr ""

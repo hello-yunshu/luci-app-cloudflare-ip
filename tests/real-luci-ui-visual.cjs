@@ -187,7 +187,7 @@ async function measure(page, theme) {
     const footerMark = footer && footer.querySelector('.ys-tool-footer-mark');
     const footerSocial = footer && footer.querySelector('.ys-tool-footer-link.github');
     const footerLabel = footerSocial && footerSocial.querySelector('.ys-tool-footer-link-label');
-    const footerCssFresh = links.some(el => (el.href || '').includes('cloudflare-ip.css') && (el.href || '').includes('ui=proxy-action-layout-2'));
+    const footerCssFresh = links.some(el => (el.href || '').includes('cloudflare-ip.css') && (el.href || '').includes('ui=check-time-gap-3'));
     const openclashBackupHeaderVisible = location.pathname.endsWith('/openclash') &&
       !!document.querySelector('.cfi-openclash-backup-table > thead') &&
       getComputedStyle(document.querySelector('.cfi-openclash-backup-table > thead')).display !== 'none';

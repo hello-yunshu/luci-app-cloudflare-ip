@@ -13,7 +13,7 @@
 | 路由根 | `admin/services/cf_ip` — overview / settings / advanced / sources / intelligence / logs（视图是 `diagnostics.js`，路由名与视图名在此不一致）/ openclash / passwall / passwall2 / homeproxy |
 | 视图 | `package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/*.js` |
 | 共享 CSS | `package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/cloudflare-ip.css` |
-| 注入与缓存键 | `cloudflare-ip/utils.js`：`L.resource('cloudflare-ip/cloudflare-ip.css') + '?v=@PKG_FULL_VERSION@&ui=proxy-action-layout-2'` —— 改 CSS 需递增 `ui=` 后缀 |
+| 注入与缓存键 | `cloudflare-ip/utils.js`：`L.resource('cloudflare-ip/cloudflare-ip.css') + '?v=@PKG_FULL_VERSION@&ui=check-time-gap-3'` —— 改 CSS 需递增 `ui=` 后缀 |
 | i18n | `package/luci-app-cloudflare-ip/po/{zh_Hans,en,templates}`；`tests/i18n-contract.py` 要求 JS 与菜单键全覆盖 |
 | UI 门禁 | `tests/real-luci-ui-visual.cjs`；`.github/workflows/real-luci-ui.yml`；契约 `tests/i18n-contract.py`、`tests/i18n-dynamic-contract.py`、`tests/rill-intelligence-luci-contract.sh` |
 | 构建 | `.github/workflows/build-luci-ui.yml`（UI 包）/ `ci.yml`（含 SDK 构建与 qualification） |

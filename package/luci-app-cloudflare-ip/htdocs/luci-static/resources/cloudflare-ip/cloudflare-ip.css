@@ -341,3 +341,10 @@
 .cfi-source-picker[data-cfi-fold] > .cfi-sel-summary {
 	display: flex;
 }
+
+/* The update verdict label and its "checked at" time are two adjacent inline
+ * spans. Give the time a little native-scaled breathing room so the label chip
+ * never touches the timestamp on narrow screens. */
+.cfi-check-time {
+	margin-left: calc(var(--spacing, .25rem) * 2);
+}

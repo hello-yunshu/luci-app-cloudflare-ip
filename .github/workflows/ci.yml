@@ -81,6 +81,7 @@ jobs:
           bash tests/v2-rill-shadow.sh
           bash tests/v2-source-engine.sh
           bash tests/builtin-sources-list.sh
+          bash tests/uci-snapshot-parity.sh
           bash tests/source-size-cap.sh
           bash tests/source-cache-trust.sh
           bash tests/source-cache-publication.sh
@@ -241,9 +242,12 @@ jobs:
           node tests/luci-overview-proxy-detection.cjs
           node tests/luci-overview-apply-failure.cjs
           node tests/luci-view-bindings.cjs
+          node tests/luci-runtime-action-busy.cjs
+          node tests/rill-runtime-update-timeout.cjs
           node tests/luci-raw-error-contract.cjs
           bash tests/openclash-rpc-contract.sh
           bash tests/openclash-legacy-service-guard.sh
+          bash tests/openclash-reload-settle.sh
           bash tests/openclash-external-selected-bridge.sh
           bash tests/standalone-openclash-apply-guard.sh
           bash tests/openclash-url-migration.sh

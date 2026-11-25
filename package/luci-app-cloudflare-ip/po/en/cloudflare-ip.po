@@ -2472,6 +2472,18 @@ msgstr "Package manager rejected the request."
 msgid "CFI remains usable in Native mode. Check package manager status before retrying."
 msgstr "CFI remains usable in Native mode. Check package manager status before retrying."
 
+msgid "Verifying..."
+msgstr "Verifying..."
+
+msgid "The package manager is still busy."
+msgstr "The package manager is still busy."
+
+msgid "The package manager request timed out, but the manager is now idle. The page will reload; check the runtime status above before retrying."
+msgstr "The package manager request timed out, but the manager is now idle. The page will reload; check the runtime status above before retrying."
+
+msgid "CFI remains usable in Native mode. Do not retry until the package manager is idle."
+msgstr "CFI remains usable in Native mode. Do not retry until the package manager is idle."
+
 msgid "Installing..."
 msgstr "Installing..."
 
@@ -2742,3 +2754,15 @@ msgstr "checked at %s"
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
 msgid "Not checked in this session."
 msgstr "Not checked in this session."
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Rill at a glance"
+msgstr "Rill at a glance"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Rill decisions"
+msgstr "Rill decisions"
+
+#: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/intelligence.js
+msgid "Runtime tuning"
+msgstr "Runtime tuning"
