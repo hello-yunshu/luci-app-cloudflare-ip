@@ -19,6 +19,7 @@ if (!String.prototype.format) {
 
 const observedAnchors = [];
 const rowEffects = {};
+const lazyObservers = [];
 
 const sectionStubs = new Map();
 function sectionStub(id) {
@@ -158,6 +159,14 @@ const window = {
 	localStorage: { getItem: () => null, setItem() {} },
 	sessionStorage: { getItem: () => null, setItem() {}, removeItem() {} },
 	setTimeout: fn => { fn(); return 0; },
+	addEventListener() {},
+	removeEventListener() {},
+	innerHeight: 800,
+	IntersectionObserver: class {
+		constructor(callback) { this.callback = callback; lazyObservers.push(this); }
+		observe(target) { this.target = target; }
+		disconnect() { this.disconnected = true; }
+	},
 	location: { reload() {} }
 };
 
@@ -194,6 +203,9 @@ function sectionByKey(key) {
 		{}, {}, {}, {},
 		{ ok: true, helperAvailable: true, supported: true, installed: true, channel: 'stable', compatible: true }
 	]);
+	assert(lazyObservers.some(observer => observer.target &&
+		String(observer.target.attrs && observer.target.attrs.class).includes('cfi-rill-diagnostics-loading')),
+		'advanced diagnostics must wait for their loading placeholder to enter the viewport');
 
 	const coreTitles = ['Rill at a glance', 'Rill Runtime', 'Rill decisions', 'Runtime tuning', 'Live State'];
 	const order = coreTitles.map(sectionByTitle).map(section => sections.indexOf(section));

@@ -13,24 +13,20 @@
 | 路由根 | `admin/services/cf_ip` — overview / settings / advanced / sources / intelligence / logs（视图是 `diagnostics.js`，路由名与视图名在此不一致）/ openclash / passwall / passwall2 / homeproxy |
 | 视图 | `package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/*.js` |
 | 共享 CSS | `package/luci-app-cloudflare-ip/htdocs/luci-static/resources/cloudflare-ip/cloudflare-ip.css` |
-| 注入与缓存键 | `cloudflare-ip/utils.js`：`L.resource('cloudflare-ip/cloudflare-ip.css') + '?v=@PKG_FULL_VERSION@&ui=check-time-gap-3'` —— 改 CSS 需递增 `ui=` 后缀 |
+| 注入与缓存键 | `cloudflare-ip/utils.js`：`L.resource('cloudflare-ip/cloudflare-ip.css') + '?v=@PKG_FULL_VERSION@&ui=rill-diagnostics-gap-1'` —— 改 CSS 需递增 `ui=` 后缀 |
 | i18n | `package/luci-app-cloudflare-ip/po/{zh_Hans,en,templates}`；`tests/i18n-contract.py` 要求 JS 与菜单键全覆盖 |
-| UI 门禁 | `tests/real-luci-ui-visual.cjs`；`.github/workflows/real-luci-ui.yml`；契约 `tests/i18n-contract.py`、`tests/i18n-dynamic-contract.py`、`tests/rill-intelligence-luci-contract.sh` |
+| UI 门禁 | `tests/real-luci-ui-visual.cjs`；`.github/workflows/real-luci-ui.yml`；矩阵参数与复现步骤见 `docs/UI_MATRIX_RUNBOOK.md`；契约 `tests/i18n-contract.py`、`tests/i18n-dynamic-contract.py`、`tests/rill-intelligence-luci-contract.sh` |
 | 构建 | `.github/workflows/build-luci-ui.yml`（UI 包）/ `ci.yml`（含 SDK 构建与 qualification） |
 
 ## 本仓最容易返工的三条
 
-1. **A-1 / A-4 归因** —— Aurora 固定浮动工具条压住原生保存栏、设置页底部叠放，都判主题层，不加 CFI 补丁；只有插件自有控件被压时才做条件化避让。
-2. **T-4 行内按钮间距** —— 备份表格「恢复／删除」曾边界重叠约 1px；行操作必须自建弹性容器（`.5em` 量级 + 允许换行），按钮外观仍交给主题。
-3. **O-3 行标题即对象** —— Intelligence 的 `form.Button` 行标题曾写「Runtime Package Management」，与按钮「Check for updates」不对应；现统一为 `Package index`。
+1. **A-1 优先使用 LuCI 核心和浏览器原生控件。** 原生基线来自 LuCI 核心组件、标准标记和浏览器默认控件，独立于所选主题。按钮、表单、表格、提示、模态框和保存栏优先复用这些实现。插件只为自身布局补充样式，避免重绘标准控件或依赖主题专属类与变量。切换主题时，若实际呈现发生变化，按 A-5 查明 CSS 来源并记录归因。
 
 ---
 
 ## 1. 归因原则：谁的问题谁修
 
-**A-1 主题层归主题，插件层归插件。**「原生 LuCI 控件和 `.cbi-page-actions` 等标准结构由当前主题
-决定外观；不按主题名覆盖颜色、按钮尺寸、警告框、下拉框、模态框或原生工具栏。主题本身的缺陷留作
-主题记录。」（goal L49）
+**A-1 原生基线不随主题定制，主题偏差归主题。**「原生 LuCI / 浏览器控件和 `.cbi-page-actions` 等标准结构以不受主题专属覆盖的原生呈现为基线；不把当前主题皮肤当作原生样式，也不按主题名覆盖颜色、按钮尺寸、警告框、下拉框、模态框或原生工具栏。主题导致的偏差留作主题记录，插件不做主题专属补偿。」（goal L49）
 
 **A-2 只有四类失败在插件内修：** 插件自有标记、自定义组件、插件 CSS、违反 LuCI 响应式标记契约。
 混合问题时只修通用的插件组件行为。（goal L49）
@@ -162,10 +158,9 @@ i18n 目录里。（goal L204）
 **P-1 不追像素零差。**「状态区上下留白不要求像素完全相等；尽量复用 LuCI 原生样式，达到视觉上
 大致均衡即可。以完整截图人工判断是否仍明显一边松、一边紧；DOM 测量只用于定位。」（goal L53）
 
-**P-2 原生间距交由主题，插件只修自身生成的布局。**「不得为消除细小差异破坏主题原生卡片、边框和
-排版。」（goal L52–L53）
+**P-2 原生间距按跨主题基线，插件只修自身生成的布局。**「原生间距和标准结构以主题无关的 LuCI 基线为准；不得为了贴合某个主题的差异，在插件里添加主题专属间距或补偿 CSS，也不得破坏原生卡片、边框和排版。」（goal L52–L53）
 
-**P-3 需要自己补间距时用主题变量刻度**（`calc(var(--spacing) * n)` 或 `em`），不用裸 px 魔数。
+**P-3 插件自有间距使用稳定基准刻度**（例如 `calc(0.25rem * n)` 或 `em`），不依赖当前主题的 `--spacing` 变量，也不用裸 px 魔数。
 
 **P-4 零间距即缺陷。** 按钮贴着相邻字段 / 表格、卡片间 4px、控件视觉粘连，都按缺陷处理并给出
 可测量的最小间距（历史修复取 7–24px 区间）。（goal L52、L188、L194、L299）
@@ -190,7 +185,7 @@ i18n 目录里。（goal L204）
 
 ## 9. 主题与深色
 
-**H-1 颜色只用主题变量 / LuCI 原生类**，变量缺失时才回退语义色；不写死浅色文本。（goal L49、L228）
+**H-1 原生控件不重绘。** 原生控件保留 LuCI / 浏览器原生呈现；插件自有样式优先采用 LuCI 语义类，必要自定义时使用语义化颜色并保证明暗背景下可读，不写 `body.theme-*` 分支或仅适用于浅色的文本色。（goal L49、L228）
 
 **H-2 不覆写通用 section 表面**：无阴影、无 >8px 圆角；不覆写表头、输入框、按钮外观。（SPEC §4）
 
@@ -226,7 +221,7 @@ i18n 目录里。（goal L204）
 **E-1 门禁口径**：必测矩阵 = 主题模式 × 两语言 × 生效宽度及断点邻值 × 可见布局状态
 （子页签、向导步骤、弹窗、展开行、依赖分支、加载 / 禁用、错误、空 / 有数据、长内容）。（goal L51）
 
-**E-2 一条 PASS 需要同时具备**：exact SHA 的 Actions 运行成功 + 产物 SHA-256 + 截图可打开 +
+**E-2 正式 UI 验收通过需要同时具备**：exact SHA 的 Actions 运行成功 + 产物 SHA-256 + 截图可打开 +
 人工逐行审阅记录（PASS/FAIL/BLOCKED/N/A，N/A 附依据）+ 设备实机回看。自动门禁 PASS 不能替代
 人工视觉复核。（goal L52、L57、L262）
 
@@ -249,7 +244,7 @@ i18n 目录里。（goal L204）
 
 | ID | 判定 | 取证 |
 |---|---|---|
-| A-1 | 插件 CSS 里出现 `body.theme-*` 之类按主题名写的规则 | grep CSS |
+| A-1 | 用自制控件替代已有原生实现，或插件样式重绘标准控件、依赖特定主题 | 视图标记、CSS 来源、浏览器计算样式 |
 | A-2 | 为解决主题自身遮挡而改插件 CSS | diff + 归因说明 |
 | L-4 | 一级界面上出现 RPC 名 / 契约键 / 内部 ID | grep 视图 + 截图 |
 | O-2 | 按钮所在行看不出它作用于什么 | 截图 + DOM |

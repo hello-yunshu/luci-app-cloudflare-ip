@@ -183,6 +183,9 @@ msgstr "单个域名的探测超时时间；全局测量截止时间优先。"
 msgid "Diagnostics unavailable"
 msgstr "无法获取诊断信息"
 
+msgid "Diagnostics unavailable. Check the service status, then try again."
+msgstr "无法获取诊断信息。请检查服务状态后重试。"
+
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/diagnostics.js:59
 msgid "Logs & Records"
 msgstr "日志与记录"
@@ -858,6 +861,9 @@ msgstr "OpenClash 配置备份保留数量。"
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js:87
 msgid "Config Backups"
 msgstr "配置备份"
+
+msgid "Backup list loads when this section is reached."
+msgstr "滚动到此区域时加载备份列表。"
 
 msgid ""
 "OpenClash is installed, but restoring a backup needs Ruby and the Psych YAML "

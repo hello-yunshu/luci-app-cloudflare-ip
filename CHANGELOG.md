@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.7.0-r3
+
+- 日志诊断与 OpenClash 备份按需加载，优化智能优选布局，并修复 watchdog FIFO 描述符生命周期。
+
 ## Unreleased — shared Runtime management (package release 2.7.0-r2)
 
 ### 变更

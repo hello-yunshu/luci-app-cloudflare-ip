@@ -16,56 +16,75 @@ return view.extend({
 	handleReset: null,
 
 	load: function() {
-		return Promise.all([
-			utils.callStatus().catch(function() { return {}; }),
-			callIpHistory().catch(function() { return { success: false, ips: [] }; }),
-			callRillDiagnostics().catch(function() { return { success: false, error: _('Diagnostics unavailable') }; })
-		]).then(function(results) {
-			return {
-				status: results[0],
-				historyData: results[1],
-				diagnostics: results[2]
-			};
-		});
+		return Promise.resolve({});
 	},
 
 	render: function(data) {
 		utils.loadSharedCSS();
-		var status = data.status || {};
-		var historyData = data.historyData || {};
-		var diagnostics = data.diagnostics || {};
+		var historyData = data || {};
 
 		var container = E('div', { 'class': 'cbi-map cfi-dashboard' });
 
 		container.appendChild(E('h2', { 'name': 'content' }, _('Logs & Records')));
 
-		var intelligenceSection = E('div', { 'class': 'cbi-section' });
+		var intelligenceSection = E('div', { 'class': 'cbi-section', 'id': 'cfi-rill-diagnostics' });
 		intelligenceSection.appendChild(E('h3', {}, _('Rill Diagnostics')));
-		intelligenceSection.appendChild(E('p', {}, _('This snapshot explains fallback, qualification, delayed feedback, Prefix and Colo intelligence without exposing the internal model.')));
-		intelligenceSection.appendChild(E('p', { 'class': 'cfi-inline-link' },
-			E('a', { 'class': 'cbi-button cfi-link-button', 'href': L.url('admin/services/cf_ip/intelligence') }, _('Open Intelligence'))));
-		if (diagnostics.success !== true) {
-			intelligenceSection.appendChild(E('div', { 'class': 'alert-message danger', 'role': 'alert' }, [
-				E('p', {}, _('Diagnostics unavailable. Refresh the page or check the service status, then try again.')),
-				E('details', {}, [
-					E('summary', {}, _('Technical details')),
-					E('pre', { 'class': 'cfi-log-area cfi-log-pre' }, diagnostics.error || _('Unknown'))
-				])
-			]));
-		} else {
-			var diagnosticsPre = E('pre', { 'class': 'cfi-log-area cfi-log-pre cfi-log-pre-tall' }, JSON.stringify({
-				runtime: diagnostics.runtime || {},
-				qualification: diagnostics.qualification || {},
-				sourcePolicy: diagnostics.sourcePolicy || {},
-				reusePolicy: diagnostics.reusePolicy || {},
-				prefixIntelligence: diagnostics.prefixIntelligence || {},
-				coloIntelligence: diagnostics.coloIntelligence || {},
-				pendingFeedback: diagnostics.pendingFeedback || [],
-				stateMeta: diagnostics.stateMeta || {}
-			}, null, 2));
-			intelligenceSection.appendChild(diagnosticsPre);
+		var diagnosticsStatus = E('p', {
+			'class': 'cbi-value-description cfi-rill-diagnostics-loading',
+			'role': 'status',
+			'aria-live': 'polite',
+			'hidden': 'hidden'
+		}, _('Loading...'));
+		var diagnosticsContent = E('div', { 'class': 'cfi-rill-diagnostics-content', 'hidden': 'hidden' });
+		intelligenceSection.appendChild(diagnosticsStatus);
+		intelligenceSection.appendChild(diagnosticsContent);
+
+		function renderDiagnostics(diagnostics, error) {
+			while (diagnosticsContent.firstChild)
+				diagnosticsContent.removeChild(diagnosticsContent.firstChild);
+			diagnostics = diagnostics || {};
+			if (error || diagnostics.success !== true) {
+				var retryButton = E('button', {
+					'class': 'cbi-button cbi-button-apply',
+					'type': 'button',
+					'click': function() {
+						var button = this;
+						diagnosticsStatus.hidden = false;
+						diagnosticsStatus.textContent = _('Loading...');
+						diagnosticsContent.hidden = true;
+						utils.setBusy(button, _('Loading...'));
+						return callRillDiagnostics().then(function(result) {
+							renderDiagnostics(result);
+						}).catch(function(e) {
+							renderDiagnostics(null, e);
+						}).finally(function() {
+							utils.resetBusy(button);
+						});
+					}
+				}, _('Retry'));
+				diagnosticsContent.appendChild(E('div', { 'class': 'alert-message danger', 'role': 'alert' }, [
+					E('p', {}, _('Diagnostics unavailable. Check the service status, then try again.')),
+					E('details', {}, [
+						E('summary', {}, _('Technical details')),
+						E('pre', { 'class': 'cfi-log-area cfi-log-pre' }, error ? utils.errorText(error) : (diagnostics.error || _('Unknown')))
+					]),
+					retryButton
+				]));
+			} else {
+				diagnosticsContent.appendChild(E('pre', { 'class': 'cfi-log-area cfi-log-pre cfi-log-pre-tall' }, JSON.stringify({
+					runtime: diagnostics.runtime || {},
+					qualification: diagnostics.qualification || {},
+					sourcePolicy: diagnostics.sourcePolicy || {},
+					reusePolicy: diagnostics.reusePolicy || {},
+					prefixIntelligence: diagnostics.prefixIntelligence || {},
+					coloIntelligence: diagnostics.coloIntelligence || {},
+					pendingFeedback: diagnostics.pendingFeedback || [],
+					stateMeta: diagnostics.stateMeta || {}
+				}, null, 2)));
+			}
+			diagnosticsStatus.hidden = true;
+			diagnosticsContent.hidden = false;
 		}
-		container.appendChild(intelligenceSection);
 
 		/* Recent Logs */
 		var logSection = E('div', { 'class': 'cbi-section' });
@@ -227,15 +246,7 @@ return view.extend({
 		setLogText(_('Loading...'));
 		logSection.appendChild(logArea);
 		logSection.appendChild(logDetails);
-		window.setTimeout(refreshLogs, 0);
 
-		if (status.error && status.error !== 'Status file not found') {
-			logSection.appendChild(utils.errorPanel(
-				_('The last service run reported an error.'),
-				_('Open the log below and check the service status before retrying.'),
-				status.error
-			));
-		}
 		container.appendChild(logSection);
 
 		/* IP History */
@@ -287,8 +298,14 @@ return view.extend({
 			}
 		}, '\u21BB ' + _('Refresh')));
 		ipSection.appendChild(ipBtnBar);
-
-		renderIpHistory(historyData);
+		var ipHistoryStatus = E('p', { 'class': 'cbi-value-description cfi-rill-diagnostics-loading', 'role': 'status', 'aria-live': 'polite' }, _('Loading...'));
+		ipSection.appendChild(ipHistoryStatus);
+		function loadIpHistory() {
+			ipHistoryStatus.hidden = false;
+			callIpHistory().then(renderIpHistory).catch(function(e) {
+				renderIpHistory({ success: false, error: e.message || String(e) });
+			}).finally(function() { ipHistoryStatus.hidden = true; });
+		}
 
 		ipSection.appendChild(E('div', { 'class': 'cfi-table-scroll' }, E('table', { 'class': 'table' }, [
 			E('thead', {}, E('tr', { 'class': 'tr table-titles' }, [
@@ -298,6 +315,85 @@ return view.extend({
 			ipTableBody
 		])));
 		container.appendChild(ipSection);
+		if (typeof window.IntersectionObserver === 'function') {
+			var ipHistoryObserver = new window.IntersectionObserver(function(entries) {
+				if (entries.some(function(entry) { return entry.isIntersecting; })) {
+					ipHistoryObserver.disconnect();
+					loadIpHistory();
+				}
+			}, { threshold: 0.01 });
+			ipHistoryObserver.observe(ipSection);
+		} else {
+			window.setTimeout(loadIpHistory, 0);
+		}
+		container.appendChild(intelligenceSection);
+
+		var diagnosticsStarted = false;
+		function loadRillDiagnostics() {
+			if (diagnosticsStarted)
+				return;
+			diagnosticsStarted = true;
+			diagnosticsStatus.hidden = false;
+			diagnosticsContent.hidden = true;
+			callRillDiagnostics().then(function(diagnostics) {
+				renderDiagnostics(diagnostics);
+			}).catch(function(error) {
+				renderDiagnostics(null, error);
+			});
+		}
+
+		function observeRillDiagnostics() {
+			if (typeof window.IntersectionObserver === 'function') {
+				var diagnosticsObserver = new window.IntersectionObserver(function(entries) {
+					if (entries.some(function(entry) { return entry.isIntersecting; })) {
+						diagnosticsObserver.disconnect();
+						loadRillDiagnostics();
+					}
+				}, { rootMargin: '0px', threshold: 0.01 });
+				diagnosticsObserver.observe(intelligenceSection);
+				/* The observer may be attached after an earlier scroll already passed
+				 * the section (for example while the log textarea was settling). */
+				var rect = intelligenceSection.getBoundingClientRect();
+				if (rect.bottom > 0 && rect.top < window.innerHeight) {
+					diagnosticsObserver.disconnect();
+					loadRillDiagnostics();
+				}
+			} else {
+				/* Older browser fallback: start only when the section is in view or
+				 * enters it during a scroll. */
+				function loadWhenVisible() {
+					var rect = intelligenceSection.getBoundingClientRect();
+					if (rect.bottom > 0 && rect.top < window.innerHeight) {
+						window.removeEventListener('scroll', loadWhenVisible);
+						window.removeEventListener('resize', loadWhenVisible);
+						loadRillDiagnostics();
+					}
+				}
+				window.addEventListener('scroll', loadWhenVisible, { passive: true });
+				window.addEventListener('resize', loadWhenVisible);
+				window.setTimeout(loadWhenVisible, 0);
+			}
+		}
+		/* Wait for the log textarea to reach its final height before observing
+		 * the bottom section, so an initially short loading placeholder cannot
+		 * accidentally trigger diagnostics before it is scrolled into view. */
+		window.setTimeout(function() {
+			refreshLogs().finally(observeRillDiagnostics);
+		}, 0);
+
+		/* The run-error notice is useful only when present. Fetch the large status
+		 * payload after the log view is on screen so an optional notice cannot
+		 * delay the page or the log read. */
+		window.setTimeout(function() {
+			utils.callStatus().then(function(status) {
+				if (status && status.error && status.error !== 'Status file not found')
+					logSection.appendChild(utils.errorPanel(
+						_('The last service run reported an error.'),
+						_('Open the log below and check the service status before retrying.'),
+						status.error
+					));
+			}).catch(function() {});
+		}, 0);
 
 		return utils.appendFooter(container, utils.FOOTER_OPTIONS);
 	}

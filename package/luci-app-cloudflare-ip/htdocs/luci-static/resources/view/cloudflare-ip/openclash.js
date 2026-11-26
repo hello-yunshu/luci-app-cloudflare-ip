@@ -47,15 +47,16 @@ return view.extend({
 	load: function() {
 		return Promise.all([
 			uci.load('cf_ip'),
-			utils.callCheckEnv().catch(rpcFailure),
-			callOcListBackups().catch(rpcFailure)
+			utils.callCheckEnv().catch(rpcFailure)
 		]);
 	},
 
 	render: function(data) {
 		utils.loadSharedCSS();
+		var sharedCSS = document.getElementById('cfi-shared-css');
+		if (sharedCSS)
+			sharedCSS.href = sharedCSS.href.replace(/([?&])ui=[^&]*/, '$1ui=rill-diagnostics-gap-1');
 		var env = data[1] || {};
-		var backupData = data[2] || {};
 
 		if (env._rpcError) {
 			this.handleSave = this.handleSaveApply = this.handleReset = null;
@@ -121,129 +122,178 @@ return view.extend({
 		/* Build backup section as a separate DOM tree appended after the form */
 		var backupSection = E('div', { 'class': 'cbi-section', 'id': 'oc-backups-section' });
 		backupSection.appendChild(E('h3', {}, _('Config Backups')));
+		var backupStatus = E('p', { 'class': 'cbi-value-description', 'role': 'status', 'aria-live': 'polite' }, _('Backup list loads when this section is reached.'));
+		backupSection.appendChild(backupStatus);
+		var backupsStarted = false;
 
-		var rubyRemedyInfo = rubyRemedy(env);
-		var restoreBlocked = rubyRemedyInfo !== null;
-		if (restoreBlocked) {
-			backupSection.appendChild(E('div', { 'class': 'alert-message warning', 'id': 'oc-ruby-warning' }, [
-				E('p', {}, _('OpenClash is installed, but restoring a backup needs Ruby and the Psych YAML module.')),
-				E('p', {}, rubyRemedyInfo.reason),
-				E('p', {}, _('Next step: %s').format(rubyRemedyInfo.action)),
-				E('p', {}, _('Backup creation, download and delete still work; only Restore is disabled.'))
-			]));
+		function renderBackupData(result) {
+			var keepChildren = 2;
+			while (backupSection.children.length > keepChildren)
+				backupSection.removeChild(backupSection.lastChild);
+			backupStatus.hidden = true;
+			var backupData = result || {};
+			var rubyRemedyInfo = rubyRemedy(env);
+			var restoreBlocked = rubyRemedyInfo !== null;
+			if (restoreBlocked) {
+				backupSection.appendChild(E('div', { 'class': 'alert-message warning', 'id': 'oc-ruby-warning' }, [
+					E('p', {}, _('OpenClash is installed, but restoring a backup needs Ruby and the Psych YAML module.')),
+					E('p', {}, rubyRemedyInfo.reason),
+					E('p', {}, _('Next step: %s').format(rubyRemedyInfo.action)),
+					E('p', {}, _('Backup creation, download and delete still work; only Restore is disabled.'))
+				]));
+			}
+
+			var backupError = backupData._rpcError || backupData.success === false || backupData.error;
+			var backups = (backupData.success === true && backupData.backups) ? backupData.backups : [];
+
+			if (backupError) {
+				backupSection.appendChild(utils.errorPanel(
+					_('Unable to load OpenClash backups.'),
+					_('Retry, or check that OpenClash is installed and its configuration path is valid.'),
+					backupData.error || backupData._rpcError
+				));
+				backupsStarted = false;
+				backupSection.appendChild(E('button', { 'class': 'btn cbi-button', 'click': loadBackups }, _('Retry')));
+			} else if (backups.length === 0) {
+				backupSection.appendChild(E('div', {},
+					_('No backups available. Backups are created automatically when the config is updated.')));
+			} else {
+				var headers = [_('Backup Time'), _('Size'), _('Actions')];
+				var table = E('table', { 'class': 'table cfi-openclash-backup-table' });
+				var thead = E('thead');
+				var headerRow = E('tr');
+				headers.forEach(function(title) {
+					headerRow.appendChild(E('th', {}, title));
+				});
+				thead.appendChild(headerRow);
+				table.appendChild(thead);
+
+				var tbody = E('tbody');
+
+				backups.forEach(function(backup) {
+					var row = E('tr', { 'class': 'tr' });
+					row.appendChild(E('td', { 'class': 'td', 'data-title': headers[0] }, backup.timestamp || backup.id || '-'));
+					row.appendChild(E('td', { 'class': 'td', 'data-title': headers[1] }, formatSize(backup.size)));
+
+					var actionsCell = E('td', { 'class': 'td', 'data-title': headers[2] });
+					var actions = E('div', { 'class': 'cfi-table-actions' });
+
+					actions.appendChild(E('button', {
+						'class': 'cbi-button cbi-button-apply',
+						'disabled': restoreBlocked ? '' : null,
+						'title': restoreBlocked ? rubyRemedyInfo.reason : null,
+						'click': function() {
+							ui.showModal(_('Confirm Restore'), [
+								E('div', { 'class': 'alert-message warning' },
+									_('Restore the backup from %s? A backup of the current configuration will be created first.').format(backup.timestamp || backup.id)),
+								E('div', { 'class': 'right' }, [
+									E('button', { 'class': 'btn', 'click': function() { ui.hideModal(); } }, _('Cancel')),
+									E('button', {
+										'class': 'cbi-button cbi-button-apply',
+										'click': function() {
+											ui.hideModal();
+											ui.showModal(_('Restoring...'), [E('p', {}, _('Please wait...'))]);
+											callOcRestoreBackup(backup.id).then(function(result) {
+												ui.hideModal();
+												if (!result || result.success !== true || result.error) {
+													utils.noticeError(_('Unable to restore backup.'), _('The backup was not applied; the current configuration is unchanged.'), (result && result.error) || _('Unknown'));
+												} else if (result.deferredUntilServiceStart || result.last_result === 'warning') {
+													ui.addNotification(null, E('p', {}, _('Nodes updated; OpenClash is disabled and the changes will take effect after it is started')), 'warning');
+													setTimeout(function() { location.reload(); }, 500);
+												} else {
+													ui.addNotification(null, E('p', {}, _('Backup restored successfully.')), 'info');
+													setTimeout(function() { location.reload(); }, 500);
+												}
+											}).catch(function(e) {
+												ui.hideModal();
+												utils.noticeError(_('Unable to restore backup.'), _('The backup was not applied; the current configuration is unchanged.'), e);
+											});
+										}
+									}, '\u21A9 ' + _('Restore'))
+								])
+							]);
+						}
+					}, '\u21A9 ' + _('Restore')));
+
+					actions.appendChild(E('button', {
+						'class': 'cbi-button cbi-button-reset',
+						'click': function() {
+							ui.showModal(_('Confirm Delete'), [
+								E('p', {}, _('Delete the backup from %s? This cannot be undone.').format(backup.timestamp || backup.id)),
+								E('div', { 'class': 'right' }, [
+									E('button', { 'class': 'btn', 'click': function() { ui.hideModal(); } }, _('Cancel')),
+									E('button', {
+										'class': 'cbi-button cbi-button-reset',
+										'click': function() {
+											ui.hideModal();
+											callOcDeleteBackup(backup.id).then(function(result) {
+												if (!result || result.success !== true || result.error) {
+													utils.noticeError(_('Unable to delete backup.'), _('The backup file is still present.'), (result && result.error) || _('Unknown'));
+												} else {
+													ui.addNotification(null, E('p', {}, _('Backup deleted')), 'info');
+													setTimeout(function() { location.reload(); }, 500);
+												}
+											}).catch(function(e) {
+												utils.noticeError(_('Unable to delete backup.'), _('The backup file is still present.'), e);
+											});
+										}
+									}, _('Delete'))
+								])
+							]);
+						}
+					}, _('Delete')));
+
+					actionsCell.appendChild(actions);
+					row.appendChild(actionsCell);
+					tbody.appendChild(row);
+				});
+
+				table.appendChild(tbody);
+				var backupList = E('div', {
+					'class': 'cfi-table-scroll' + (backups.length > 3 ? ' cfi-backup-list-scroll' : '')
+				}, table);
+				backupSection.appendChild(backupList);
+			}
 		}
 
-		var backupError = backupData._rpcError || backupData.success === false || backupData.error;
-		var backups = (backupData.success === true && backupData.backups) ? backupData.backups : [];
-
-		if (backupError) {
-			backupSection.appendChild(utils.errorPanel(
-				_('Unable to load OpenClash backups.'),
-				_('Retry, or check that OpenClash is installed and its configuration path is valid.'),
-				backupData.error || backupData._rpcError
-			));
-			backupSection.appendChild(E('button', { 'class': 'btn cbi-button', 'click': function() { location.reload(); } }, _('Retry')));
-		} else if (backups.length === 0) {
-			backupSection.appendChild(E('div', {},
-				_('No backups available. Backups are created automatically when the config is updated.')));
-		} else {
-			var headers = [_('Backup Time'), _('Size'), _('Actions')];
-			var table = E('table', { 'class': 'table cfi-openclash-backup-table' });
-			var thead = E('thead');
-			var headerRow = E('tr');
-			headers.forEach(function(title) {
-				headerRow.appendChild(E('th', {}, title));
+		function loadBackups() {
+			if (backupsStarted)
+				return;
+			backupsStarted = true;
+			backupStatus.hidden = false;
+			backupStatus.textContent = _('Loading...');
+			callOcListBackups().then(function(result) {
+				renderBackupData(result);
+			}).catch(function(error) {
+				renderBackupData(rpcFailure(error));
 			});
-			thead.appendChild(headerRow);
-			table.appendChild(thead);
-
-			var tbody = E('tbody');
-
-			backups.forEach(function(backup) {
-				var row = E('tr', { 'class': 'tr' });
-				row.appendChild(E('td', { 'class': 'td', 'data-title': headers[0] }, backup.timestamp || backup.id || '-'));
-				row.appendChild(E('td', { 'class': 'td', 'data-title': headers[1] }, formatSize(backup.size)));
-
-				var actionsCell = E('td', { 'class': 'td', 'data-title': headers[2] });
-				var actions = E('div', { 'class': 'cfi-table-actions' });
-
-				actions.appendChild(E('button', {
-					'class': 'cbi-button cbi-button-apply',
-					'disabled': restoreBlocked ? '' : null,
-					'title': restoreBlocked ? rubyRemedyInfo.reason : null,
-					'click': function() {
-						ui.showModal(_('Confirm Restore'), [
-							E('div', { 'class': 'alert-message warning' },
-								_('Restore the backup from %s? A backup of the current configuration will be created first.').format(backup.timestamp || backup.id)),
-							E('div', { 'class': 'right' }, [
-								E('button', { 'class': 'btn', 'click': function() { ui.hideModal(); } }, _('Cancel')),
-								E('button', {
-									'class': 'cbi-button cbi-button-apply',
-									'click': function() {
-										ui.hideModal();
-										ui.showModal(_('Restoring...'), [E('p', {}, _('Please wait...'))]);
-										callOcRestoreBackup(backup.id).then(function(result) {
-											ui.hideModal();
-											if (!result || result.success !== true || result.error) {
-												utils.noticeError(_('Unable to restore backup.'), _('The backup was not applied; the current configuration is unchanged.'), (result && result.error) || _('Unknown'));
-											} else if (result.deferredUntilServiceStart || result.last_result === 'warning') {
-												ui.addNotification(null, E('p', {}, _('Nodes updated; OpenClash is disabled and the changes will take effect after it is started')), 'warning');
-												setTimeout(function() { location.reload(); }, 500);
-											} else {
-												ui.addNotification(null, E('p', {}, _('Backup restored successfully.')), 'info');
-												setTimeout(function() { location.reload(); }, 500);
-											}
-										}).catch(function(e) {
-											ui.hideModal();
-											utils.noticeError(_('Unable to restore backup.'), _('The backup was not applied; the current configuration is unchanged.'), e);
-										});
-									}
-								}, '\u21A9 ' + _('Restore'))
-							])
-						]);
-					}
-				}, '\u21A9 ' + _('Restore')));
-
-				actions.appendChild(E('button', {
-					'class': 'cbi-button cbi-button-reset',
-					'click': function() {
-						ui.showModal(_('Confirm Delete'), [
-							E('p', {}, _('Delete the backup from %s? This cannot be undone.').format(backup.timestamp || backup.id)),
-							E('div', { 'class': 'right' }, [
-								E('button', { 'class': 'btn', 'click': function() { ui.hideModal(); } }, _('Cancel')),
-								E('button', {
-									'class': 'cbi-button cbi-button-reset',
-									'click': function() {
-										ui.hideModal();
-										callOcDeleteBackup(backup.id).then(function(result) {
-											if (!result || result.success !== true || result.error) {
-												utils.noticeError(_('Unable to delete backup.'), _('The backup file is still present.'), (result && result.error) || _('Unknown'));
-											} else {
-												ui.addNotification(null, E('p', {}, _('Backup deleted')), 'info');
-												setTimeout(function() { location.reload(); }, 500);
-											}
-										}).catch(function(e) {
-											utils.noticeError(_('Unable to delete backup.'), _('The backup file is still present.'), e);
-										});
-									}
-								}, _('Delete'))
-							])
-						]);
-					}
-				}, _('Delete')));
-
-				actionsCell.appendChild(actions);
-				row.appendChild(actionsCell);
-				tbody.appendChild(row);
-			});
-
-			table.appendChild(tbody);
-			backupSection.appendChild(E('div', { 'class': 'cfi-table-scroll' }, table));
 		}
 
 		return utils.renderWithFooter(m.render().then(function(node) {
 			/* Append backup section after the form */
 			node.appendChild(backupSection);
+			if (typeof window.IntersectionObserver === 'function') {
+				var backupObserver = new window.IntersectionObserver(function(entries) {
+					if (entries.some(function(entry) { return entry.isIntersecting; })) {
+						backupObserver.disconnect();
+						loadBackups();
+					}
+				}, { threshold: 0.01 });
+				backupObserver.observe(backupSection);
+			} else {
+					/* Keep the deferred request behavior in older browsers too. */
+					function loadBackupsWhenVisible() {
+						var rect = backupSection.getBoundingClientRect();
+						if (rect.bottom > 0 && rect.top < window.innerHeight) {
+							window.removeEventListener('scroll', loadBackupsWhenVisible);
+							window.removeEventListener('resize', loadBackupsWhenVisible);
+							loadBackups();
+						}
+					}
+					window.addEventListener('scroll', loadBackupsWhenVisible, { passive: true });
+					window.addEventListener('resize', loadBackupsWhenVisible);
+					window.setTimeout(loadBackupsWhenVisible, 0);
+			}
 			return node;
 		}), utils.FOOTER_OPTIONS);
 	}

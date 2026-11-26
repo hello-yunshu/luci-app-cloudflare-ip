@@ -5,7 +5,7 @@ const path=require('node:path');
 const assert=require('node:assert/strict');
 String.prototype.format=function(...args){let i=0;return this.replace(/%s/g,()=>args[i++]);};
 function E(tag,attrs={},children=[]){
- const n={tag,attrs,children:[],addEventListener(){},appendChild(c){this.children.push(c);if(c&&typeof c==='object')c.parentNode=this;return c;},insertBefore(c,reference){const index=reference==null?this.children.length:this.children.indexOf(reference);this.children.splice(index<0?this.children.length:index,0,c);if(c&&typeof c==='object')c.parentNode=this;return c;},removeChild(c){this.children.splice(this.children.indexOf(c),1);return c;},replaceChild(c,old){this.children[this.children.indexOf(old)]=c;c.parentNode=this;},get childNodes(){return this.children;},get firstChild(){return this.children[0];}};
+ const n={tag,attrs,children:[],addEventListener(){},appendChild(c){this.children.push(c);if(c&&typeof c==='object')c.parentNode=this;return c;},insertBefore(c,reference){const index=reference==null?this.children.length:this.children.indexOf(reference);this.children.splice(index<0?this.children.length:index,0,c);if(c&&typeof c==='object')c.parentNode=this;return c;},removeChild(c){this.children.splice(this.children.indexOf(c),1);return c;},replaceChild(c,old){this.children[this.children.indexOf(old)]=c;c.parentNode=this;},get childNodes(){return this.children;},get firstChild(){return this.children[0];},getBoundingClientRect(){return {top:1000,bottom:1200};}};
  for(const c of Array.isArray(children)?children:[children])n.appendChild(c);
  return n;
 }
@@ -29,20 +29,34 @@ const source=fs.readFileSync(path.join(__dirname,'../package/luci-app-cloudflare
  }
  const diagnosticsSource=fs.readFileSync(path.join(__dirname,'../package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/diagnostics.js'),'utf8');
  for(const response of [{success:false,error:'controlled diagnostics failure',runtime:{state:'stale-payload'}},{success:false},{},null,{success:true,runtime:{state:'ready'}}]) {
+  const observers=[],timers=[];let diagnosticsCalls=0;
   const utils={loadSharedCSS(){},appendFooter:x=>x,FOOTER_OPTIONS:{},callStatus:()=>Promise.resolve({}),
+   setBusy(){},resetBusy(){},
    errorPanel:(title,message,error)=>E('div',{},[title,message||'',String(error||'')]),
    errorText:error=>String(error==null?'':error),
    copyButton:()=>E('button',{}),
    noticeError(){}};
-  const view=new Function('view','ui','rpc','utils','E','_','window','L',diagnosticsSource)({extend:x=>x},{},{declare:({method})=>()=>Promise.resolve(method==='rill-diagnostics'?response:{success:true,ips:[]})},utils,E,x=>x,{setTimeout(){}},{url:p=>'/cgi-bin/luci/'+p});
+  const window={innerHeight:600,setTimeout(fn){timers.push(fn);},addEventListener(){},removeEventListener(){},IntersectionObserver:class{constructor(callback){this.callback=callback;observers.push(this);}observe(target){this.target=target;}disconnect(){this.disconnected=true;}}};
+  const view=new Function('view','ui','rpc','utils','E','_','window','L',diagnosticsSource)({extend:x=>x},{},{declare:({method})=>()=>{if(method==='rill-diagnostics'){diagnosticsCalls++;return Promise.resolve(response);}if(method==='ip-history')return Promise.resolve({success:true,ips:[]});return Promise.resolve({success:true,logs:''});}},utils,E,x=>x,window,{url:p=>'/cgi-bin/luci/'+p});
   const root=view.render(await view.load());
+  assert.equal(diagnosticsCalls,0,'diagnostics RPC ran before its section was reached');
+  while(timers.length){timers.shift()();await new Promise(resolve=>setImmediate(resolve));}
+  const observer=observers.find(item=>item.target&&item.target.attrs.id==='cfi-rill-diagnostics');
+  assert.ok(observer,'lazy diagnostics section was not observed');
+  observer.callback([{target:observer.target,isIntersecting:true}]);
+  await new Promise(resolve=>setImmediate(resolve));
   const text=flatten(root);
+  assert.equal(diagnosticsCalls,1,'diagnostics RPC did not run after section activation');
   if(response&&response.success===true){
    assert.ok(text.includes('ready'));assert.ok(!text.includes('Diagnostics unavailable'));
   }else{
    assert.ok(text.includes('Diagnostics unavailable'),'failed diagnostics were displayed as an empty success snapshot');
    assert.ok(!text.includes('stale-payload'),'failed response data was rendered as a valid snapshot');
    if(response&&response.error)assert.ok(text.includes(response.error));
+   const retry=find(root,n=>n.tag==='button'&&flatten(n).includes('Retry'));
+   assert.ok(retry,'failed diagnostics did not provide a retry action');
+   await retry.attrs.click.call(retry);
+   assert.equal(diagnosticsCalls,2,'retry did not invoke the diagnostics RPC');
   }
  }
  console.log('PASS actual diagnostics view distinguishes successful snapshots from failed/missing RPC replies');

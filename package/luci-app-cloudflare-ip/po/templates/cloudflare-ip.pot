@@ -184,6 +184,9 @@ msgstr ""
 msgid "Diagnostics unavailable"
 msgstr ""
 
+msgid "Diagnostics unavailable. Check the service status, then try again."
+msgstr ""
+
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/diagnostics.js:59
 msgid "Logs & Records"
 msgstr ""
@@ -848,6 +851,9 @@ msgstr ""
 
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js:87
 msgid "Config Backups"
+msgstr ""
+
+msgid "Backup list loads when this section is reached."
 msgstr ""
 
 msgid ""

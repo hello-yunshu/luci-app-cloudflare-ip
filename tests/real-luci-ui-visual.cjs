@@ -20,6 +20,9 @@ const allPages = ['overview', 'settings', 'sources', 'intelligence', 'openclash'
 const requestedPages = (process.env.CFIP_VISUAL_PAGES || '').split(',').map(name => name.trim()).filter(Boolean);
 const pages = requestedPages.length ? allPages.filter(name => requestedPages.includes(name)) : allPages;
 const scenario = process.env.CFIP_VISUAL_SCENARIO || 'default-installed-packages';
+const themeSet = process.env.LUCI_UI_THEME_SET || 'all';
+if (!['all', 'bootstrap-only'].includes(themeSet))
+  throw new Error('Unsupported LUCI_UI_THEME_SET: ' + themeSet);
 if (pages.length !== (requestedPages.length || allPages.length))
   throw new Error('CFIP_VISUAL_PAGES contains an unknown page: ' + requestedPages.join(','));
 const optionalPages = new Set(['openclash', 'passwall']);
@@ -44,7 +47,7 @@ const widths = [...new Set([
   ...responsiveBreakpoints.flatMap(width => [width - 1, width, width + 1])
 ])].sort((a, b) => a - b);
 const shortViewports = [{ width: 320, height: 568 }, { width: 568, height: 320 }];
-const themes = [
+const allThemes = [
   { id: 'bootstrap-default-light', media: 'bootstrap', theme: 'bootstrap', colorScheme: 'light', darkMode: 'false' },
   { id: 'bootstrap-default-dark', media: 'bootstrap', theme: 'bootstrap', colorScheme: 'dark', darkMode: 'true' },
   { id: 'bootstrap-light', media: 'bootstrap', theme: 'bootstrap-light', colorScheme: 'light', darkMode: 'false' },
@@ -52,11 +55,16 @@ const themes = [
   { id: 'aurora-light', media: 'aurora', theme: 'aurora', colorScheme: 'light', darkMode: 'false', auroraMode: 'light' },
   { id: 'aurora-dark', media: 'aurora', theme: 'aurora', colorScheme: 'dark', darkMode: 'true', auroraMode: 'dark' }
 ];
+const themes = themeSet === 'bootstrap-only'
+  ? allThemes.filter(theme => theme.media !== 'aurora')
+  : allThemes;
 const report = {
   schemaVersion: 1,
   sha: process.env.GITHUB_SHA || process.env.CFIP_UI_SHA || 'unknown',
   environment: 'real OpenWrt 24.10.8 rootfs with uhttpd/rpcd/LuCI; Chromium Playwright',
-  method: `initial views, common widths and adjacent values for CSS breakpoints, short portrait and landscape viewports, ${language} locale, Bootstrap default with system light/dark, explicit Bootstrap light/dark, and Aurora light/dark`,
+  method: `initial views, common widths and adjacent values for CSS breakpoints, short portrait and landscape viewports, ${language} locale, theme set ${themeSet}`,
+  themeSet,
+  themes: themes.map(theme => theme.id),
   scenario,
   language,
   notCovered: ['real 200% browser zoom', 'complete 51-point interaction matrix', 'physical router', 'Material theme',
@@ -138,12 +146,16 @@ async function measure(page, theme) {
       ? customSourcesSection.clientWidth - parseFloat(customSourcesSectionStyle.paddingLeft || 0) - parseFloat(customSourcesSectionStyle.paddingRight || 0) : null;
     const customSourcesEmptyStateWidthRatio = customSourcesEmptyState && customSourcesContentWidth > 0
       ? Math.round(customSourcesEmptyState.getBoundingClientRect().width / customSourcesContentWidth * 100) / 100 : null;
-    const diagnosticsLink = location.pathname.endsWith('/logs') && main && main.querySelector('.cfi-link-button');
-    const diagnosticsJson = location.pathname.endsWith('/logs') && main && main.querySelector('.cfi-log-pre');
+    const diagnosticsSection = location.pathname.endsWith('/logs') && main && main.querySelector('#cfi-rill-diagnostics');
+    const diagnosticsHeading = diagnosticsSection && diagnosticsSection.querySelector('h3');
+    const diagnosticsContent = diagnosticsSection && diagnosticsSection.querySelector('.cfi-rill-diagnostics-content');
+    const diagnosticsJson = diagnosticsContent && diagnosticsContent.querySelector('.cfi-log-pre');
+    const diagnosticsError = diagnosticsContent && diagnosticsContent.querySelector('[role="alert"]');
+    const diagnosticsLoaded = !!(diagnosticsContent && !diagnosticsContent.hidden && (diagnosticsJson || diagnosticsError));
     const logControls = location.pathname.endsWith('/logs') && main && main.querySelector('.cfi-log-controls');
     const logOutput = location.pathname.endsWith('/logs') && main && main.querySelector('#log-area');
-    const diagnosticsLinkGap = diagnosticsLink && diagnosticsJson
-      ? Math.round(diagnosticsJson.getBoundingClientRect().top - diagnosticsLink.getBoundingClientRect().bottom) : null;
+    const diagnosticsSectionGap = diagnosticsHeading && diagnosticsContent
+      ? Math.round(diagnosticsContent.getBoundingClientRect().top - diagnosticsHeading.getBoundingClientRect().bottom) : null;
     const logControlsGap = logControls && logOutput
       ? Math.round(logOutput.getBoundingClientRect().top - logControls.getBoundingClientRect().bottom) : null;
     const intelligenceCopyGaps = location.pathname.endsWith('/intelligence') && main
@@ -187,10 +199,12 @@ async function measure(page, theme) {
     const footerMark = footer && footer.querySelector('.ys-tool-footer-mark');
     const footerSocial = footer && footer.querySelector('.ys-tool-footer-link.github');
     const footerLabel = footerSocial && footerSocial.querySelector('.ys-tool-footer-link-label');
-    const footerCssFresh = links.some(el => (el.href || '').includes('cloudflare-ip.css') && (el.href || '').includes('ui=check-time-gap-3'));
+    const footerCssFresh = links.some(el => (el.href || '').includes('cloudflare-ip.css') && (el.href || '').includes('ui=rill-diagnostics-gap-1'));
     const openclashBackupHeaderVisible = location.pathname.endsWith('/openclash') &&
       !!document.querySelector('.cfi-openclash-backup-table > thead') &&
       getComputedStyle(document.querySelector('.cfi-openclash-backup-table > thead')).display !== 'none';
+    const openclashBackupsRendered = !location.pathname.endsWith('/openclash') ||
+      !!(document.querySelector('#oc-backups-section') && document.querySelector('#oc-backups-section').children.length > 2);
     const footerMarkHeight = footerMark ? footerMark.getBoundingClientRect().height : null;
     const footerSocialRect = footerSocial && footerSocial.getBoundingClientRect();
     const footerLabelRect = footerLabel && footerLabel.getBoundingClientRect();
@@ -240,11 +254,13 @@ async function measure(page, theme) {
       overviewLabelCount: overviewLabels.length,
       ipHistoryNativeHeader,
       customSourcesEmptyStateWidthRatio,
-      diagnosticsLinkGap,
+      diagnosticsSectionGap,
+      diagnosticsLoaded,
       logControlsGap,
       intelligenceCopyGap,
       openclashActionGapMin,
       openclashBackupHeaderVisible,
+      openclashBackupsRendered,
       envBadgesIntact,
       overviewLabelSeparator: overviewLabels.length ? getComputedStyle(overviewLabels[0], '::after').content : null,
       overviewLabelGap: overviewLabels.length ? parseFloat(getComputedStyle(overviewLabels[0], '::after').marginRight) : null,
@@ -258,11 +274,31 @@ async function measure(page, theme) {
     };
   }, theme.media);
 }
+async function activateDeferredSections(page, name, integrationInstalled) {
+  if (name === 'logs') {
+    await page.locator('#cfi-rill-diagnostics').scrollIntoViewIfNeeded();
+    await page.waitForFunction(() => {
+      const content = document.querySelector('#cfi-rill-diagnostics .cfi-rill-diagnostics-content');
+      return content && !content.hidden && (content.querySelector('.cfi-log-pre') || content.querySelector('[role="alert"]'));
+    }, null, { timeout: 15000 });
+  } else if (name === 'openclash' && integrationInstalled) {
+    await page.locator('#oc-backups-section').scrollIntoViewIfNeeded();
+    await page.waitForFunction(() => {
+      const section = document.querySelector('#oc-backups-section');
+      return section && section.children.length > 2;
+    }, null, { timeout: 15000 });
+  }
+  if (name === 'logs' || name === 'openclash') {
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.waitForTimeout(50);
+  }
+}
 function write() {
   fs.writeFileSync(path.join(output, 'report.json'), JSON.stringify(report, null, 2) + '\n');
 }
 (async () => {
   const browser = await chromium.launch({ headless: true, executablePath: process.env.PLAYWRIGHT_EXECUTABLE || undefined });
+report.browser = { version: browser.version(), playwrightVersion: require('playwright/package.json').version };
   try {
     for (const theme of themes) {
       shell("uci set luci.main.mediaurlbase='/luci-static/" + theme.media + "'; uci set luci.main.theme='" + theme.theme + "'; uci commit luci; rm -rf /tmp/luci-indexcache* /tmp/luci-modulecache*; /etc/init.d/uhttpd restart >/dev/null 2>&1");
@@ -294,6 +330,7 @@ function write() {
                 return m && m.innerText.trim().length > 20 && !/Loading view|加载视图/.test(m.innerText);
               }, null, { timeout: 20000 });
               await page.waitForTimeout(550);
+              await activateDeferredSections(page, name, integrationInstalled);
               routeIdentity = await page.evaluate(() => {
                 const main = document.querySelector('#maincontent');
                 const links = Array.from((main || document).querySelectorAll('a[href]'));
@@ -339,6 +376,10 @@ function write() {
                 failures.push('overview-controls-and-service-information-too-close');
               if (name === 'sources' && (!metrics.customSourcesEmptyStateWidthRatio || metrics.customSourcesEmptyStateWidthRatio < 0.9))
                 failures.push('custom-sources-empty-state-does-not-span-table');
+              if (name === 'logs' && !metrics.diagnosticsLoaded) failures.push('rill-diagnostics-not-loaded-after-section-activation');
+              if (name === 'logs' && (metrics.diagnosticsSectionGap == null || metrics.diagnosticsSectionGap < 12)) failures.push('diagnostics-heading-and-content-too-close');
+              if (name === 'openclash' && integrationInstalled && routeIdentity.registered && !metrics.openclashBackupsRendered)
+                failures.push('openclash-backup-list-not-rendered-after-section-activation');
               if (metrics.darkMode !== theme.darkMode)
                 failures.push('theme-dark-mode-mismatch: expected ' + theme.darkMode + ', got ' + metrics.darkMode);
               if (name === 'overview' && width <= 600) {
@@ -385,6 +426,7 @@ function write() {
                 return m && m.innerText.trim().length > 20 && !/Loading view|加载视图/.test(m.innerText);
               }, null, { timeout: 20000 });
               await page.waitForTimeout(550);
+              await activateDeferredSections(page, name, integrationInstalled);
               routeIdentity = await page.evaluate(() => {
                 const main = document.querySelector('#maincontent');
                 const links = Array.from((main || document).querySelectorAll('a[href]'));
@@ -425,10 +467,13 @@ function write() {
               if (metrics.truncated.length) failures.push('truncated-non-dropdown-text');
               if (!metrics.activeTabVisible) failures.push('active-tab-outside-visible-strip');
               if (name === 'logs' && !metrics.ipHistoryNativeHeader) failures.push('ip-history-header-missing-native-luci-classes');
-              if (name === 'logs' && (metrics.diagnosticsLinkGap == null || metrics.diagnosticsLinkGap < 12)) failures.push('diagnostics-link-and-json-too-close');
+              if (name === 'logs' && !metrics.diagnosticsLoaded) failures.push('rill-diagnostics-not-loaded-after-section-activation');
+              if (name === 'logs' && (metrics.diagnosticsSectionGap == null || metrics.diagnosticsSectionGap < 12)) failures.push('diagnostics-heading-and-content-too-close');
               if (name === 'logs' && (metrics.logControlsGap == null || metrics.logControlsGap < 12)) failures.push('log-controls-and-output-too-close');
               if (name === 'intelligence' && metrics.intelligenceCopyGap != null && metrics.intelligenceCopyGap < 8) failures.push('copy-button-too-close-to-previous-row');
               if (name === 'openclash' && metrics.openclashActionGapMin != null && metrics.openclashActionGapMin < 6) failures.push('openclash-row-actions-too-close');
+              if (name === 'openclash' && integrationInstalled && routeIdentity.registered && !metrics.openclashBackupsRendered)
+                failures.push('openclash-backup-list-not-rendered-after-section-activation');
               if (name === 'openclash' && viewport.width <= 600 && metrics.openclashBackupHeaderVisible) failures.push('openclash-mobile-table-header-collides-with-stacked-cell-labels');
               if (name === 'overview' && !metrics.envBadgesIntact) failures.push('environment-badge-wrapped');
               if (name === 'overview' && !metrics.overviewNativeRows) failures.push('overview-tables-missing-native-luci-row-classes');
@@ -497,8 +542,9 @@ function write() {
     await browser.close();
     write();
   }
-  console.log('VISUAL_MATRIX ' + JSON.stringify({ total: report.rows.length, passed: report.rows.filter(r => r.result === 'PASS').length, notApplicable: report.rows.filter(r => r.result === 'N/A').length, failed: report.errors.length }));
-if (report.rows.length !== themes.length * ((widths.length + shortViewports.length) * pages.length + 1) || report.errors.length) process.exitCode = 1;
+  const expected = themes.length * ((widths.length + shortViewports.length) * pages.length + 1);
+  console.log('VISUAL_MATRIX ' + JSON.stringify({ themeSet, themes: themes.map(theme => theme.id), total: report.rows.length, expected, passed: report.rows.filter(r => r.result === 'PASS').length, notApplicable: report.rows.filter(r => r.result === 'N/A').length, failed: report.errors.length }));
+  if (report.rows.length !== expected || report.errors.length) process.exitCode = 1;
 })().catch(error => {
   report.errors.push({ fatal: error.stack || error.message });
   write();

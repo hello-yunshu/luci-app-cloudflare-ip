@@ -537,7 +537,7 @@ function loadSharedCSS() {
 		var link = E('link', {
 			'id': 'cfi-shared-css',
 			'rel': 'stylesheet',
-			'href': L.resource('cloudflare-ip/cloudflare-ip.css') + '?v=@PKG_FULL_VERSION@&ui=check-time-gap-3'
+			'href': L.resource('cloudflare-ip/cloudflare-ip.css') + '?v=@PKG_FULL_VERSION@&ui=rill-diagnostics-gap-1'
 		});
 		document.head.appendChild(link);
 	}

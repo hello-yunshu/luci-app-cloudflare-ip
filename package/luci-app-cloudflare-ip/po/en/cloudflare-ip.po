@@ -170,6 +170,9 @@ msgstr "Per-domain probe timeout; the global hard limit still wins."
 msgid "Diagnostics unavailable"
 msgstr "Diagnostics unavailable"
 
+msgid "Diagnostics unavailable. Check the service status, then try again."
+msgstr "Diagnostics unavailable. Check the service status, then try again."
+
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/diagnostics.js:59
 msgid "Logs & Records"
 msgstr "Logs & Records"
@@ -818,6 +821,9 @@ msgstr "Number of OpenClash config backups to keep."
 #: package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js:87
 msgid "Config Backups"
 msgstr "Config Backups"
+
+msgid "Backup list loads when this section is reached."
+msgstr "Backup list loads when this section is reached."
 
 msgid "OpenClash is installed, but restoring a backup needs Ruby and the Psych YAML module."
 msgstr "OpenClash is installed, but restoring a backup needs Ruby and the Psych YAML module."

@@ -8,7 +8,8 @@ const assert = require('node:assert/strict');
 String.prototype.format = function(...args) { let i = 0; return this.replace(/%s/g, () => args[i++]); };
 function E(tag, attrs = {}, children = []) {
 	return { tag, attrs, children: Array.isArray(children) ? children : (children == null ? [] : [children]),
-		appendChild(child) { this.children.push(child); return child; } };
+		appendChild(child) { this.children.push(child); return child; },
+		removeChild(child) { this.children.splice(this.children.indexOf(child), 1); return child; } };
 }
 function flatten(node) {
 	if (node == null || node === false) return '';
@@ -25,14 +26,23 @@ function buttons(node, out = []) {
 }
 
 const source = fs.readFileSync(path.join(__dirname, '../package/luci-app-cloudflare-ip/htdocs/luci-static/resources/view/cloudflare-ip/openclash.js'), 'utf8');
-function makeView() {
+function makeView(env, backupResults = []) {
+	const observers = [];
+	let backupCalls = 0;
+	const window = { IntersectionObserver: class {
+		constructor(callback) { this.callback = callback; observers.push(this); }
+		observe(target) { this.target = target; }
+		disconnect() { this.disconnected = true; }
+	} };
+	const document = { getElementById() { return null; } };
 	const utils = {
 		loadSharedCSS() {},
 		renderWithFooter(node) { return node; },
 		createHandleSave() {},
 		createHandleSaveApply() {},
 		FOOTER_OPTIONS: {},
-		callCheckEnv: () => Promise.resolve({})
+		callCheckEnv: () => Promise.resolve(env || {}),
+		errorPanel: (title, message, error) => E('div', { 'class': 'alert-message danger' }, [title, message || '', String(error || '')])
 	};
 	const form = {
 		Map: class {
@@ -41,18 +51,39 @@ function makeView() {
 		},
 		TypedSection: 'typed'
 	};
-	return new Function('view','ui','rpc','uci','form','utils','E','_','setTimeout', source)(
+	const view = new Function('view','ui','rpc','uci','form','utils','E','_','setTimeout','window','document', source)(
 		{ extend: x => x },
 		{ showModal() {}, hideModal() {}, addNotification() {} },
-		{ declare: () => () => Promise.resolve({}) },
+		{ declare: ({ method }) => () => {
+			if (method === 'oc-list-backups') {
+				backupCalls++;
+				const result = backupResults.shift();
+				return result instanceof Error ? Promise.reject(result) : Promise.resolve(result || { success: true, backups: [] });
+			}
+			return Promise.resolve({ success: true });
+		} },
 		{ load: () => Promise.resolve(), get: () => undefined },
-		form, utils, E, x => x, () => {}
+		form, utils, E, x => x, fn => setTimeout(fn, 0), window, document
 	);
+	view._observers = observers;
+	Object.defineProperty(view, 'backupCalls', { get: () => backupCalls });
+	return view;
 }
-async function render(env) {
-	const view = makeView();
-	const backups = { success: true, backups: [{ id: '20261001', timestamp: '2026-10-01 10:00:00', size: 1024 }] };
-	return flatten(await view.render([{}, env, backups]));
+async function render(env, backupResults = []) {
+	const view = makeView(env, backupResults);
+	const loaded = await view.load();
+	assert.equal(view.backupCalls, 0, 'load() called the backup RPC eagerly');
+	const root = await view.render(loaded);
+	if (env.openclash_installed) {
+		assert.match(flatten(root), /Backup list loads when this section is reached\./);
+		assert.equal(view.backupCalls, 0, 'backup RPC ran before its section was reached');
+		const observer = view._observers.find(item => item.target && item.target.attrs.id === 'oc-backups-section');
+		assert.ok(observer, 'backup section was not observed');
+		observer.callback([{ isIntersecting: true, target: observer.target }]);
+		await new Promise(resolve => setTimeout(resolve, 0));
+		assert.equal(view.backupCalls, 1, 'backup RPC did not run after section activation');
+	}
+	return { root, text: flatten(root), view };
 }
 const base = { openclash_installed: true, openclash_running: true, package_manager: 'opkg' };
 const cases = [
@@ -69,17 +100,27 @@ const cases = [
 ];
 (async () => {
 	for (const item of cases) {
-		const text = await render(item.env);
+		const rendered = await render(item.env, [{ success: true, backups: [{ id: '20261001', timestamp: '2026-10-01 10:00:00', size: 1024 }] }]);
+		const text = rendered.text;
 		for (const expected of item.expect) assert.ok(text.includes(expected), item.name + ' missing: ' + expected);
 		for (const absent of item.absent) assert.ok(!text.includes(absent), item.name + ' unexpectedly contains: ' + absent);
 		if (item.disabled !== null) {
-			const restore = buttons(await (async () => {
-				const view = makeView();
-				return view.render([{}, item.env, { success: true, backups: [{ id: '20261001', size: 1024 }] }]);
-			})()).find(button => flatten(button).includes('Restore'));
+			const restore = buttons(rendered.root).find(button => flatten(button).includes('Restore'));
 			if (restore) assert.equal(restore.attrs.disabled, item.disabled ? '' : null, item.name + ' restore disabled state');
 		}
 		console.log('PASS ' + item.name);
 	}
+	const retry = await render({ ...base, ruby_psych: true, ruby_usable: true, ruby_status: 'available' }, [
+		{ success: false, error: 'controlled backup list failure' },
+		{ success: true, backups: [{ id: 'after-retry', timestamp: '2026-11-26 10:00:00', size: 2048 }] }
+	]);
+	assert.ok(retry.text.includes('controlled backup list failure'));
+	const retryButton = buttons(retry.root).find(button => flatten(button).includes('Retry'));
+	assert.ok(retryButton, 'backup list failure did not offer Retry');
+	retryButton.attrs.click.call(retryButton);
+	await new Promise(resolve => setTimeout(resolve, 0));
+	assert.equal(retry.view.backupCalls, 2);
+	assert.ok(flatten(retry.root).includes('2026-11-26 10:00:00'), 'Retry did not render the refreshed backup list');
 	console.log('PASS actual OpenClash view distinguishes missing Ruby, missing Psych, unusable Ruby and available states');
+	console.log('PASS backup list RPC waits for section visibility and retries after an error');
 })().catch(error => { console.error(error); process.exitCode = 1; });

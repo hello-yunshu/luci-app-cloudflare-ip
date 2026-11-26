@@ -19,6 +19,10 @@
 .cfi-log-area.is-empty,
 .cfi-log-area.is-loading { font-style: italic; }
 .cfi-log-area.is-error { font-weight: bold; }
+.cfi-rill-diagnostics-loading { font-style: italic; }
+#maincontent #cfi-rill-diagnostics > h3 {
+	margin-bottom: calc(var(--spacing, .25rem) * 4);
+}
 
 /* ===== Log Pre Blocks ===== */
 .cfi-log-pre {
@@ -80,6 +84,7 @@
 
 /* ===== 原生表格滚动容器（例外 E21） ===== */
 .cfi-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.cfi-backup-list-scroll { max-height: 18rem; overflow-y: auto; overscroll-behavior: contain; }
 /* 主题可能把 section 内的表格拉出容器（Vantage 用负侧边距把表格加宽，并带
  * !important），滚动容器会把这截裁掉：首列内边距被吃掉，单元格贴着卡片左缘，
  * 还多出一段横向滚动。容器内的表格把宽度和负边距交回容器。 */
@@ -88,6 +93,7 @@
 	margin-left: 0 !important;
 	margin-right: 0 !important;
 }
+#maincontent .cfi-table-scroll > table.cfi-openclash-backup-table { margin-bottom: 0 !important; }
 .cfi-table-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5em; }
 .cfi-source-status-table-wrap { margin-top: calc(var(--spacing, .25rem) * 3); }
 .cfi-inline-link { margin-block: calc(var(--spacing, .25rem) * 3) 0; }
@@ -112,6 +118,7 @@
  * 被 V8 判为裁切；容器内把负边距收回。 */
 @media screen and (max-width: 600px) {
 	.cfi-table-scroll > table.table .tr { margin: 0; }
+	.cfi-backup-list-scroll { max-height: min(30rem, 75vh); }
 	/* Stacked LuCI cells already display each column's data-title. Hide this
 	 * narrow table header so its three headings do not collide above the rows. */
 	#maincontent .cfi-openclash-backup-table > thead { display: none; }

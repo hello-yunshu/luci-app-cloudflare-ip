@@ -1049,7 +1049,11 @@ cfip_watchdog_ms() {
 
 cfip_watchdog_tick_init() {
     local dir before after
-    [[ -n "${CFIP_WATCHDOG_TICK:-}" ]] && return 0
+    case "${CFIP_WATCHDOG_TICK:-}" in
+        sleep|second) return 0 ;;
+        fifo) [[ -n "${CFIP_WATCHDOG_FD:-}" ]] && return 0 ;;
+    esac
+    CFIP_WATCHDOG_FD=""
     CFIP_WATCHDOG_TICK=second
     if [[ "${CFIP_SLEEP_FRACTIONAL:-}" == 1 ]]; then
         CFIP_WATCHDOG_TICK=sleep
@@ -1068,17 +1072,25 @@ cfip_watchdog_tick_init() {
     export CFIP_SLEEP_FRACTIONAL
     dir="$(mktemp -d "${TMPDIR:-/tmp}/cfip-tick.XXXXXX" 2>/dev/null)" || return 0
     if mkfifo "$dir/p" 2>/dev/null; then
-        if { exec 19<>"$dir/p"; } 2>/dev/null; then
+        # Allocate a free descriptor instead of assuming fd 19 is unused.
+        # rpcd's bash plugin process can already have fd 19 open; the group
+        # redirection below then restores that inherited descriptor and the
+        # timed read silently falls back to one-second polling.
+        if { exec {CFIP_WATCHDOG_FD}<>"$dir/p"; } 2>/dev/null; then
             # Only accept the FIFO tick if this interpreter really waits on it:
             # a bash without fractional read -t returns at once, which would
             # turn the watchdog loop into a busy poll.
             before="$(cfip_watchdog_ms)"
             if [[ -n "$before" ]]; then
-                read -r -t 0.02 -u 19 _cfip_watchdog_sink 2>/dev/null || true
+                read -r -t 0.02 -u "$CFIP_WATCHDOG_FD" _cfip_watchdog_sink 2>/dev/null || true
                 after="$(cfip_watchdog_ms)"
                 if [[ -n "$after" ]] && (( after - before >= 10 )); then
                     CFIP_WATCHDOG_TICK=fifo
                 fi
+            fi
+            if [[ "$CFIP_WATCHDOG_TICK" != fifo ]]; then
+                exec {CFIP_WATCHDOG_FD}>&-
+                CFIP_WATCHDOG_FD=""
             fi
         fi
     fi
@@ -1094,7 +1106,7 @@ cfip_watchdog_tick() {
     local slice="${1:-0.1}"
     case "${CFIP_WATCHDOG_TICK:-second}" in
         sleep) sleep "$slice" ;;
-        fifo) read -r -t "$slice" -u 19 _cfip_watchdog_sink 2>/dev/null || true ;;
+        fifo) read -r -t "$slice" -u "$CFIP_WATCHDOG_FD" _cfip_watchdog_sink 2>/dev/null || true ;;
         *) sleep 1 ;;
     esac
 }
@@ -1140,6 +1152,10 @@ cfip_run_with_timeout() {
         kill -0 "$watcher" 2>/dev/null && cfip_kill_operation_tree "$watcher" "$watcher_pgid" KILL
     fi
     wait "$watcher" 2>/dev/null || true
+    if [[ -n "${CFIP_WATCHDOG_FD:-}" ]]; then
+        exec {CFIP_WATCHDOG_FD}>&-
+        CFIP_WATCHDOG_FD=""
+    fi
     [[ "$CFIP_ACTIVE_PID" == "$pid" ]] && { CFIP_ACTIVE_PID=""; CFIP_ACTIVE_PGID=""; }
     [[ "$CFIP_ACTIVE_WATCHER_PID" == "$watcher" ]] && { CFIP_ACTIVE_WATCHER_PID=""; CFIP_ACTIVE_WATCHER_PGID=""; }
     if [[ "$timed_out" == true || -f "$marker" ]]; then rm -f "$marker"; return 124; fi

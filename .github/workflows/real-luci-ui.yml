@@ -25,6 +25,14 @@ on:
         required: false
         type: string
         default: ''
+      theme_set:
+        description: Theme profile for the visual matrix
+        required: false
+        type: choice
+        options:
+          - all
+          - bootstrap-only
+        default: all
 
 permissions:
   contents: read
@@ -115,6 +123,7 @@ jobs:
             node tests/real-luci-ui.cjs \
             --evidence "$GITHUB_WORKSPACE/real-luci-ui-evidence"
       - name: Install checksum-pinned Aurora theme in OpenWrt
+        if: ${{ inputs.theme_set != 'bootstrap-only' }}
         run: |
           set -euo pipefail
           curl -fL --retry 3 -o "$RUNNER_TEMP/luci-theme-aurora.ipk" \
@@ -125,6 +134,7 @@ jobs:
       - name: Capture all-page real theme and viewport visual matrix
         env:
           CFIP_VISUAL_PAGES: ${{ inputs.pages }}
+          LUCI_UI_THEME_SET: ${{ inputs.theme_set || 'all' }}
         run: |
           set -euo pipefail
           language='${{ inputs.language || 'en' }}'
@@ -164,6 +174,7 @@ jobs:
           set -euo pipefail
           language='${{ inputs.language || 'en' }}'
           NODE_PATH="$RUNNER_TEMP/ui/node_modules" \
+            LUCI_UI_THEME_SET='${{ inputs.theme_set || 'all' }}' \
             CFIP_UI_LANG="$language" \
             CFIP_VISUAL_SCENARIO='disposable-init-script-fixtures-installed-status-panels-and-route-forms' \
             CFIP_VISUAL_OUT="$GITHUB_WORKSPACE/real-luci-ui-evidence/visual/${language}-proxy-installed" \

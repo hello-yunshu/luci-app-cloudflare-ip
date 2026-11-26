@@ -364,13 +364,14 @@ function runtimeSummary(status) {
 function addCopyButton(field, text) {
 	if (!field || field.querySelector('.cfi-intel-copy'))
 		return;
+	var getText = (typeof text === 'function') ? text : function() { return text; };
 	var button = E('button', {
 		'class': 'cbi-button cfi-intel-copy',
 		'type': 'button',
 		'aria-label': _('Copy'),
 		'click': function() {
 			var self = this;
-			utils.copyText(text).then(function() {
+			utils.copyText(getText()).then(function() {
 				self.textContent = _('Copied');
 				self.setAttribute('aria-label', _('Copied'));
 				window.setTimeout(function() {
@@ -405,7 +406,38 @@ function decorateAvailableRuntime(option, status) {
 	};
 }
 
-function decorateIntelligence(node, status, diagnostics) {
+function renderRunHistoryTable(diagnostics) {
+	var rows = (diagnostics || {}).recentDecisions || [];
+	if (!rows.length)
+		return _('No history');
+	function cell(value) {
+		if (value == null || value === '') return null;
+		if (value === '—') return E('span', { 'class': 'cfi-empty-value' }, '—');
+		return String(value);
+	}
+	var body = rows.slice(-20).map(function(row) {
+		return E('tr', { 'class': 'tr' }, [
+			E('td', { 'class': 'td', 'data-title': _('Time') }, cell(row.time || row.at)),
+			E('td', { 'class': 'td', 'data-title': _('Result') }, cell(row.result)),
+			E('td', { 'class': 'td', 'data-title': _('Best IPs') }, cell((row.bestIps || []).join(', ') || row.finalIp)),
+			E('td', { 'class': 'td', 'data-title': _('Adaptive Measurement') }, cell(row.adaptiveMode)),
+			E('td', { 'class': 'td', 'data-title': _('Candidate Intelligence') }, cell(row.candidateMode)),
+			E('td', { 'class': 'td', 'data-title': _('Probes') }, cell(row.actualUniqueProbeCount)),
+			E('td', { 'class': 'td', 'data-title': _('Fallback') }, cell(row.fallbackUsed)),
+			E('td', { 'class': 'td', 'data-title': _('Duration') }, cell(row.measurementDurationMs == null ? null : row.measurementDurationMs + ' ms'))
+		]);
+	});
+	return E('table', { 'class': 'table' }, [
+		E('thead', {}, E('tr', {}, [
+			E('th', {}, _('Time')), E('th', {}, _('Result')), E('th', {}, _('Best IPs')),
+			E('th', {}, _('Adaptive Measurement')), E('th', {}, _('Candidate Intelligence')),
+			E('th', {}, _('Probes')), E('th', {}, _('Fallback')), E('th', {}, _('Duration'))
+		])),
+		E('tbody', {}, body)
+	]);
+}
+
+function decorateIntelligence(node, status, diagnostics, loadDiagnostics) {
 	if (!node || typeof node.querySelectorAll !== 'function')
 		return node;
 	diagnostics = diagnostics || {};
@@ -416,6 +448,31 @@ function decorateIntelligence(node, status, diagnostics) {
 			return [value(row.time || row.at), value(row.result), value((row.bestIps || []).join(',') || row.finalIp), value(row.adaptiveMode), value(row.candidateMode), value(row.actualUniqueProbeCount), value(row.fallbackUsed), value(row.measurementDurationMs) + ' ms'].join(' / ');
 		}).join(' | ');
 	}
+	function setDiagnosticValue(id, value) {
+		var row = node.querySelector('.cbi-value[id="' + id + '"]');
+		var output = row && row.querySelector('.cbi-value-field output');
+		if (!output)
+			return;
+		while (output.firstChild)
+			output.removeChild(output.firstChild);
+		if (value && typeof value !== 'string')
+			output.appendChild(value);
+		else
+			output.textContent = value || '';
+	}
+	function updateDiagnosticValues() {
+		setDiagnosticValue('cbi-cf_ip-main-_run_history', renderRunHistoryTable(diagnostics));
+		var prefix = diagnostics.prefixIntelligence || {};
+		setDiagnosticValue('cbi-cf_ip-rill-_prefix', _('tracked') + ': ' + (prefix.trackedPrefixes || 0) + ', ' + _('high quality') + ': ' + ((prefix.recentHighQuality || []).length) + ', ' + _('low quality') + ': ' + ((prefix.recentLowQuality || []).length));
+		var colo = diagnostics.coloIntelligence || {};
+		setDiagnosticValue('cbi-cf_ip-rill-_colo', _('observed') + ': ' + (colo.observedColoCount || 0) + ', ' + _('latest') + ': ' + (colo.latestObservedColo || _('Unknown')) + ', ' + _('Unknown') + ': ' + (colo.unknownCount || 0));
+		if (!status.sourcePolicy && diagnostics.sourcePolicy) {
+			var policy = diagnostics.sourcePolicy;
+			setDiagnosticValue('cbi-cf_ip-main-_source_policy', _('deterministic') + ': ' + (policy.deterministic ? _('yes') : _('no')) + ', ' + _('requested') + ': ' + utils.statusLabel('mode', policy.requested || '?') + ', ' + _('effective') + ': ' + utils.statusLabel('mode', policy.effective || '?'));
+		}
+	}
+	var diagnosticsLoaded = false;
+	var diagnosticsRequest = null;
 	var summaryRow = node.querySelector('.cbi-value[id$="-_state"]');
 	if (summaryRow && summaryRow.classList)
 		summaryRow.classList.add('cfi-intel-summary');
@@ -425,7 +482,7 @@ function decorateIntelligence(node, status, diagnostics) {
 			return;
 		var field = row.querySelector('.cbi-value-field');
 		if (field)
-			addCopyButton(field, row.id.endsWith('-_run_history') ? runHistoryText() : field.textContent.trim());
+			addCopyButton(field, row.id.endsWith('-_run_history') ? runHistoryText : field.textContent.trim());
 	});
 	var runRow = node.querySelector('.cbi-value[id$="-_run_history"]');
 	if (runRow && !runRow.querySelector('.cfi-link-button')) {
@@ -455,16 +512,66 @@ function decorateIntelligence(node, status, diagnostics) {
 	var liveSection = technicalSections.length ? technicalSections[technicalSections.length - 1] : null;
 	if (technicalSections.length && !node.querySelector('.cfi-technical-details')) {
 		var body = E('div', { 'class': 'cfi-collapse-body cfi-technical-details', 'id': 'cfi-technical-details-body' });
+		var diagnosticsStatus = E('div', { 'class': 'cfi-diagnostics-status', 'role': 'status', 'aria-live': 'polite', 'hidden': 'hidden' });
 		var toggle = E('button', {
 			'class': 'cbi-button cfi-collapse-toggle',
 			'type': 'button',
 			'aria-expanded': 'false',
 			'aria-controls': 'cfi-technical-details-body'
 		}, _('Show advanced diagnostics'));
-		function apply(open) {
+		var healthRow = node.querySelector('[id="cbi-cf_ip-main-_health_state"]');
+		var healthSection = healthRow && healthRow.closest('.cbi-section');
+		var healthRows = healthSection ? Array.from(healthSection.querySelectorAll('.cbi-value')) : [];
+		var healthPlaceholder = E('div', {
+			'class': 'cbi-value-description cfi-rill-diagnostics-loading',
+			'role': 'status', 'aria-live': 'polite'
+		}, _('Loading...'));
+		if (healthRow)
+			healthRow.parentNode.insertBefore(healthPlaceholder, healthRow);
+		if (healthSection)
+			healthSection.appendChild(diagnosticsStatus);
+		function updateContent() {
 			body.hidden = !open;
+			healthRows.forEach(function(row) { row.hidden = !diagnosticsLoaded; });
+			healthPlaceholder.hidden = diagnosticsLoaded || !diagnosticsStatus.hidden;
+		}
+		function apply(open) {
+			updateContent();
 			toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
 			toggle.textContent = open ? _('Hide advanced diagnostics') : _('Show advanced diagnostics');
+		}
+		function loadAdvancedDiagnostics() {
+			if (diagnosticsLoaded || diagnosticsRequest || typeof loadDiagnostics !== 'function')
+				return diagnosticsRequest;
+
+			body.setAttribute('aria-busy', 'true');
+			diagnosticsStatus.textContent = '';
+			diagnosticsStatus.hidden = true;
+			updateContent();
+			diagnosticsRequest = loadDiagnostics().then(function(result) {
+				if (!result || result.success === false)
+					throw new Error((result && result.error) || 'rill-diagnostics failed');
+				diagnostics = result;
+				updateDiagnosticValues();
+				diagnosticsLoaded = true;
+				updateContent();
+				body.removeAttribute('aria-busy');
+
+			}).catch(function() {
+				diagnosticsRequest = null;
+				body.removeAttribute('aria-busy');
+
+				diagnosticsStatus.hidden = false;
+				updateContent();
+				diagnosticsStatus.textContent = '';
+				diagnosticsStatus.appendChild(E('span', {}, _('Diagnostics unavailable')));
+				diagnosticsStatus.appendChild(E('button', {
+					'class': 'cbi-button',
+					'type': 'button',
+					'click': loadAdvancedDiagnostics
+				}, _('Retry')));
+			});
+			return diagnosticsRequest;
 		}
 		var open = false;
 		try { open = window.localStorage.getItem('cfi.intelligence.liveState') === '1'; } catch (e) {}
@@ -473,10 +580,37 @@ function decorateIntelligence(node, status, diagnostics) {
 			try { window.localStorage.setItem('cfi.intelligence.liveState', open ? '1' : '0'); } catch (e) {}
 			apply(open);
 		});
-		technicalSections.forEach(function(section) { body.appendChild(section); });
 		node.appendChild(toggle);
+
+		technicalSections.forEach(function(section) { body.appendChild(section); });
 		node.appendChild(body);
 		apply(open);
+
+		/* Restoring the disclosure does not start the request. Its placeholder
+		 * must enter the viewport, including when opened during this visit. */
+		if (typeof window.IntersectionObserver === 'function') {
+			var diagnosticsObserver = new window.IntersectionObserver(function(entries) {
+				if (open && entries.some(function(entry) { return entry.isIntersecting; })) {
+					diagnosticsObserver.disconnect();
+					loadAdvancedDiagnostics();
+				}
+			}, { threshold: 0.01 });
+			diagnosticsObserver.observe(healthPlaceholder);
+		} else {
+			function loadWhenVisible() {
+				var rect = healthPlaceholder.getBoundingClientRect();
+				if (open && rect.height > 0 && rect.bottom > 0 && rect.top < window.innerHeight) {
+					window.removeEventListener('scroll', loadWhenVisible);
+					window.removeEventListener('resize', loadWhenVisible);
+					toggle.removeEventListener('click', loadWhenVisible);
+					loadAdvancedDiagnostics();
+				}
+			}
+			window.addEventListener('scroll', loadWhenVisible, { passive: true });
+			window.addEventListener('resize', loadWhenVisible);
+			toggle.addEventListener('click', loadWhenVisible);
+			window.setTimeout(loadWhenVisible, 0);
+		}
 	}
 	var unknownCodes = utils.collectUnknownStatusCodes(status);
 	if (unknownCodes.length) {
@@ -497,7 +631,7 @@ return view.extend({
 		return Promise.all([
 			uci.load('cf_ip'),
 			callStatus().catch(function() { return { _statusError: true }; }),
-			callDiagnostics().catch(function() { return {}; }),
+			{},
 			callAdaptiveStatus().catch(function() { return {}; }),
 			callRuntimeManagerStatus().then(function(result) { return Object.assign({ helperAvailable: true }, result || {}); }).catch(function() { return { ok: false, helperAvailable: false, errorCode: 'manager-unavailable' }; })
 		]);
@@ -806,43 +940,7 @@ return view.extend({
 		o = s.option(form.DummyValue, '_context_policy', _('Current Context Policy'));
 		o.cfgvalue = function() { var p = adaptive.contextPolicy || {}; return (p.policyId || _('conservative-default')) + (p.supported ? '' : ' / ' + _('conservative default')); };
 		o = s.option(form.DummyValue, '_run_history', _('Recent Runs'));
-		o.cfgvalue = function() {
-			var rows = diagnostics.recentDecisions || [];
-			if (!rows.length)
-				return _('No history');
-			function cell(value) {
-				if (value == null || value === '')
-					return null;
-				if (value === '—')
-					return E('span', { 'class': 'cfi-empty-value' }, '—');
-				return String(value);
-			}
-			var body = rows.slice(-20).map(function(row) {
-				return E('tr', { 'class': 'tr' }, [
-					E('td', { 'class': 'td', 'data-title': _('Time') }, cell(row.time || row.at)),
-					E('td', { 'class': 'td', 'data-title': _('Result') }, cell(row.result)),
-					E('td', { 'class': 'td', 'data-title': _('Best IPs') }, cell((row.bestIps || []).join(', ') || row.finalIp)),
-					E('td', { 'class': 'td', 'data-title': _('Adaptive Measurement') }, cell(row.adaptiveMode)),
-					E('td', { 'class': 'td', 'data-title': _('Candidate Intelligence') }, cell(row.candidateMode)),
-					E('td', { 'class': 'td', 'data-title': _('Probes') }, cell(row.actualUniqueProbeCount)),
-					E('td', { 'class': 'td', 'data-title': _('Fallback') }, cell(row.fallbackUsed)),
-					E('td', { 'class': 'td', 'data-title': _('Duration') }, cell(row.measurementDurationMs == null ? null : row.measurementDurationMs + ' ms'))
-				]);
-			});
-			return E('table', { 'class': 'table' }, [
-				E('thead', {}, E('tr', {}, [
-					E('th', {}, _('Time')),
-					E('th', {}, _('Result')),
-					E('th', {}, _('Best IPs')),
-					E('th', {}, _('Adaptive Measurement')),
-					E('th', {}, _('Candidate Intelligence')),
-					E('th', {}, _('Probes')),
-					E('th', {}, _('Fallback')),
-					E('th', {}, _('Duration'))
-				])),
-				E('tbody', {}, body)
-			]);
-		};
+		o.cfgvalue = function() { return renderRunHistoryTable(diagnostics); };
 
 		s = m.section(form.TypedSection, 'rill', _('Runtime tuning'));
 		s.anonymous = true;
@@ -985,7 +1083,7 @@ return view.extend({
 	utils.createHandleSave(m, this);
 	utils.createHandleSaveApply(m, this);
 	var renderContents = m.renderContents.bind(m);
-	m.renderContents = function() { return renderContents().then(function(node) { decorateIntelligence(node, status, diagnostics); return decorateRuntimeManagement(node, runtimeManager); }); };
+	m.renderContents = function() { return renderContents().then(function(node) { decorateIntelligence(node, status, diagnostics, callDiagnostics); return decorateRuntimeManagement(node, runtimeManager); }); };
 	return utils.renderWithFooter(m.render(), utils.FOOTER_OPTIONS);
 	}
 });
