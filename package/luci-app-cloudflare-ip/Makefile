@@ -1,7 +1,8 @@
+PKG_MAKEFILE_DIR:=$(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-cloudflare-ip
-PKG_VERSION:=$(shell cat $(TOPDIR)/VERSION)
+include $(PKG_MAKEFILE_DIR)package-version.mk
 PKG_RELEASE:=3
 
 PKG_MAINTAINER:=yunshu

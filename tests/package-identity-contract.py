@@ -31,6 +31,7 @@ class Contracts(unittest.TestCase):
         (self.root/'contracts').mkdir()
         shutil.copy(ROOT/'release-channel.json',self.root/'release-channel.json')
         shutil.copy(ROOT/'VERSION',self.root/'VERSION')
+        shutil.copy(ROOT/'package-version.mk',self.root/'package-version.mk')
         shutil.copy(ROOT/'contracts/package-artifacts.json',self.root/'contracts/package-artifacts.json')
         self.make=self.root/'package/luci-app-cloudflare-ip/Makefile'
         self.make.write_text((ROOT/'package/luci-app-cloudflare-ip/Makefile').read_text())
@@ -152,6 +153,8 @@ class Contracts(unittest.TestCase):
         original=source(); self.make.write_text(self.make.read_text().replace('PKG_RELEASE:='+str(original['release']),'PKG_RELEASE:=23'))
         (self.root/'VERSION').write_text('3.2.0\n')
         package=self.root/'package/luci-app-cloudflare-ip'
+        (package/'package-version.mk').symlink_to('../../package-version.mk')
+        (package/'VERSION').symlink_to('../../VERSION')
         shutil.copytree(ROOT/'package/luci-app-cloudflare-ip/root',package/'root')
         shutil.copytree(ROOT/'package/luci-app-cloudflare-ip/htdocs',package/'htdocs')
         (self.root/'include').mkdir();(self.root/'rules.mk').write_text('')
