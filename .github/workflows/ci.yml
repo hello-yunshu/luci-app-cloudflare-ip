@@ -455,7 +455,9 @@ jobs:
             rm -f package/rill-runtime/VERSION
             cp "$rill_workspace/VERSION" package/rill-runtime/VERSION
           fi
-          cp "$rill_workspace/package-version.mk" package-version.mk
+          if [ -f "$rill_workspace/package-version.mk" ]; then
+            cp "$rill_workspace/package-version.mk" package-version.mk
+          fi
           {
             echo 'CONFIG_PACKAGE_flock=y'
             echo 'CONFIG_PACKAGE_rill-runtime=y'
