@@ -73,6 +73,7 @@ jobs:
           ./scripts/feeds install luci-base rpcd luci-i18n-base-zh-cn bash curl flock tar jq ca-bundle ca-certificates
           mkdir -p package/cloudflare-ip-local
           cp -a "$GITHUB_WORKSPACE/package/luci-app-cloudflare-ip" package/cloudflare-ip-local/
+          cp "$GITHUB_WORKSPACE/VERSION" VERSION
           make defconfig
 
       - name: Build the Cloudflare IP LuCI APK
