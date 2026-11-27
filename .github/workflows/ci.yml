@@ -447,8 +447,12 @@ jobs:
               ./scripts/prepare_rust_toolchain.sh
           )
           cp -r "$GITHUB_WORKSPACE/luci-app-cloudflare-ip/package/luci-app-cloudflare-ip" ./package/
+          cp "$GITHUB_WORKSPACE/luci-app-cloudflare-ip/VERSION" VERSION
           cp -r "$GITHUB_WORKSPACE/rill-openwrt-packages/package/rill-runtime-manager" ./package/
           cp -r "$GITHUB_WORKSPACE/rill-openwrt-packages/package/rill-runtime" ./package/
+          if [ -f "$rill_workspace/VERSION" ]; then
+            cp "$rill_workspace/VERSION" package/rill-runtime/VERSION
+          fi
           {
             echo 'CONFIG_PACKAGE_flock=y'
             echo 'CONFIG_PACKAGE_rill-runtime=y'

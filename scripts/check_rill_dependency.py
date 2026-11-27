@@ -94,7 +94,12 @@ def check_data(data: dict, package_dir: Path | None) -> list[str]:
             meta_package = meta.get("package", {})
             if meta_package.get("release") != release or f"PKG_RELEASE:={release}\n" not in make:
                 errors.append("package release does not match contract")
-            if f"PKG_VERSION:={package_version}\n" not in make or upstream.get("version") != package_version:
+            version_file = package_dir / "VERSION"
+            versioned_recipe = any(line.startswith("PKG_VERSION:=") and "$(RILL_VERSION_FILE)" in line
+                                   for line in make.splitlines())
+            version_matches = (version_file.is_file() and version_file.read_text(encoding="utf-8").strip() == package_version
+                               if versioned_recipe else f"PKG_VERSION:={package_version}" in make.splitlines())
+            if not version_matches or upstream.get("version") != package_version:
                 errors.append("Stable package version does not match its upstream identity")
             if upstream.get("commit") != resolved.get("upstreamCommit") or f"PKG_SOURCE_VERSION:={resolved.get('upstreamCommit')}" not in make:
                 errors.append("Stable package upstream commit does not match contract")
