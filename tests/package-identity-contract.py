@@ -30,15 +30,15 @@ class Contracts(unittest.TestCase):
         (self.root/'package/luci-app-cloudflare-ip').mkdir(parents=True)
         (self.root/'contracts').mkdir()
         shutil.copy(ROOT/'release-channel.json',self.root/'release-channel.json')
+        shutil.copy(ROOT/'VERSION',self.root/'VERSION')
         shutil.copy(ROOT/'contracts/package-artifacts.json',self.root/'contracts/package-artifacts.json')
         self.make=self.root/'package/luci-app-cloudflare-ip/Makefile'
         self.make.write_text((ROOT/'package/luci-app-cloudflare-ip/Makefile').read_text())
 
     def test_single_authority_future_versions_and_metadata(self):
         for version,release in [('3.2.0',7),('6.0.2',23),('9.8.7',105)]:
-            text=(ROOT/'package/luci-app-cloudflare-ip/Makefile').read_text()
-            original=source(); text=text.replace('PKG_VERSION:='+original['version'],'PKG_VERSION:='+version).replace('PKG_RELEASE:='+str(original['release']),'PKG_RELEASE:='+str(release))
-            self.make.write_text(text); identity=source(self.root)
+            original=source(); text=self.make.read_text().replace('PKG_RELEASE:='+str(original['release']),'PKG_RELEASE:='+str(release))
+            self.make.write_text(text); (self.root/'VERSION').write_text(version+'\n'); identity=source(self.root)
             self.assertEqual(identity['tag'],f'v{version}-{release}')
             for fmt in ('ipk','apk'):
                 meta=dict(name=identity['name'],version=version,release=release,packageVersion=identity['packageVersion'],format=fmt,architecture='all' if fmt=='ipk' else 'noarch')
@@ -50,16 +50,16 @@ class Contracts(unittest.TestCase):
             self.assertEqual(json.loads((ROOT/'contracts/rill-runtime.json').read_text())['openwrtPackage']['channel'],'stable')
 
     def test_invalid_authorities_and_channels(self):
-        original=self.make.read_text();current=source()
+        original=self.make.read_text();current=source(); original_version=(self.root/'VERSION').read_text()
         for value in ('-1','0','01','true','5;touch /tmp/no'):
             self.make.write_text(original.replace('PKG_RELEASE:='+str(current['release']),'PKG_RELEASE:='+value))
             with self.assertRaises(ValueError):source(self.root)
         self.make.write_text(original+'\nPKG_VERSION:=7.0.0\n')
         with self.assertRaises(ValueError):source(self.root)
         for value in ('01.2.3','bad','1.0','1.0.0;bad'):
-            self.make.write_text(original.replace('PKG_VERSION:='+current['version'],'PKG_VERSION:='+value))
+            self.make.write_text(original); (self.root/'VERSION').write_text(value+'\n')
             with self.assertRaises(ValueError):source(self.root)
-        self.make.write_text(original)
+        self.make.write_text(original); (self.root/'VERSION').write_text(original_version)
         for channel in ('stable','prerelease'):
             (self.root/'release-channel.json').write_text(json.dumps(dict(schemaVersion=1,channel=channel,reason='explicit policy')))
             self.assertEqual(source(self.root)['channel'],channel)
@@ -147,7 +147,8 @@ class Contracts(unittest.TestCase):
 
     def test_actual_make_macro_renders_version_surfaces(self):
         # Use GNU Make's actual double expansion and the real Build/Compile body.
-        original=source(); self.make.write_text(self.make.read_text().replace('PKG_VERSION:='+original['version'],'PKG_VERSION:=3.2.0').replace('PKG_RELEASE:='+str(original['release']),'PKG_RELEASE:=23'))
+        original=source(); self.make.write_text(self.make.read_text().replace('PKG_RELEASE:='+str(original['release']),'PKG_RELEASE:=23'))
+        (self.root/'VERSION').write_text('3.2.0\n')
         package=self.root/'package/luci-app-cloudflare-ip'
         shutil.copytree(ROOT/'package/luci-app-cloudflare-ip/root',package/'root')
         shutil.copytree(ROOT/'package/luci-app-cloudflare-ip/htdocs',package/'htdocs')
