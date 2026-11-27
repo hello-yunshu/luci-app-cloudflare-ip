@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ARTIFACT_VERSION = re.compile(r'(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)(?:-dev|\.1)?')
 VERSION = re.compile(r"(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)(?:-dev)?")
 NAME = 'luci-app-cloudflare-ip'
-VERSION_FROM_FILE = 'PKG_VERSION:=$(shell cat $(dir $(realpath $(lastword $(MAKEFILE_LIST))))../../VERSION)'
+VERSION_FROM_FILE = 'PKG_VERSION:=$(shell cat $(TOPDIR)/VERSION)'
 
 
 def positive_release(value: object) -> int:

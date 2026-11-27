@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-cloudflare-ip
-PKG_VERSION:=$(shell cat $(dir $(realpath $(lastword $(MAKEFILE_LIST))))../../VERSION)
+PKG_VERSION:=$(shell cat $(TOPDIR)/VERSION)
 PKG_RELEASE:=3
 
 PKG_MAINTAINER:=yunshu

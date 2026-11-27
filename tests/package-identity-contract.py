@@ -36,8 +36,10 @@ class Contracts(unittest.TestCase):
         self.make.write_text((ROOT/'package/luci-app-cloudflare-ip/Makefile').read_text())
 
     def test_single_authority_future_versions_and_metadata(self):
+        baseline_release=source()['release']
+        baseline_make=self.make.read_text()
         for version,release in [('3.2.0',7),('6.0.2',23),('9.8.7',105)]:
-            original=source(); text=self.make.read_text().replace('PKG_RELEASE:='+str(original['release']),'PKG_RELEASE:='+str(release))
+            text=baseline_make.replace('PKG_RELEASE:='+str(baseline_release),'PKG_RELEASE:='+str(release))
             self.make.write_text(text); (self.root/'VERSION').write_text(version+'\n'); identity=source(self.root)
             self.assertEqual(identity['tag'],f'v{version}-{release}')
             for fmt in ('ipk','apk'):
@@ -176,6 +178,8 @@ class Contracts(unittest.TestCase):
         self.assertIn(identity['packageVersion'],rpc);self.assertIn(identity['packageVersion'],ui)
         response=subprocess.check_output(['sh',str(self.root/'build/root/usr/libexec/rpcd/cf_ip'),'call','version'],text=True)
         self.assertEqual(json.loads(response)['package_version'],identity['packageVersion'])
+        if platform.system() == 'Darwin' and 'version 3.' in subprocess.check_output(['bash','--version'],text=True):
+            self.skipTest('The macOS system Bash 3.2 lacks associative arrays used by the OpenWrt Bash 5 CLI')
         cli_env=dict(env,CFIP_LIB_DIR=str(self.root/'build/root/usr/libexec/cf-ip'),CFIP_RUNTIME_DIR=str(self.root/'runtime'),CFIP_STATUS_DIR=str(self.root/'state'))
         cli=json.loads(subprocess.check_output(['bash',str(self.root/'build/root/usr/bin/cf-ip-auto-v2'),'--version'],text=True,env=cli_env))
         self.assertEqual(cli['package_version'],identity['packageVersion'])
