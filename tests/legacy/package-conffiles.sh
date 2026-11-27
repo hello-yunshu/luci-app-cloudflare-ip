@@ -2,7 +2,9 @@
 set -euo pipefail
 source "$(dirname "$0")/_helpers.sh"
 grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-dev)?$' "$ROOT/VERSION"
-grep -Fq 'PKG_VERSION:=$(shell cat $(TOPDIR)/VERSION)' "$PKG/Makefile"
+grep -Fq 'include $(PKG_MAKEFILE_DIR)package-version.mk' "$PKG/Makefile"
+test -L "$PKG/package-version.mk"
+test -L "$PKG/VERSION"
 grep -q 'PKGARCH:=all' "$PKG/Makefile"
 grep -q '^/etc/config/cf_ip$' "$PKG/Makefile"
 grep -q '^/etc/cf_ip$' "$PKG/Makefile"

@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ARTIFACT_VERSION = re.compile(r'(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)(?:-dev|\.1)?')
 VERSION = re.compile(r"(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)(?:-dev)?")
 NAME = 'luci-app-cloudflare-ip'
-VERSION_FROM_FILE = 'PKG_VERSION:=$(shell cat $(TOPDIR)/VERSION)'
+VERSION_FROM_FILE = 'include $(PKG_MAKEFILE_DIR)package-version.mk'
 
 
 def positive_release(value: object) -> int:
@@ -30,8 +30,11 @@ def source(root: Path = ROOT) -> dict:
         return values[0]
     version = (root / 'VERSION').read_text().strip()
     release_raw = field('PKG_RELEASE')
-    if len(re.findall(r'^PKG_VERSION:=', text, re.M)) != 1 or VERSION_FROM_FILE not in text:
-        raise ValueError('package Makefile must derive PKG_VERSION from the repository VERSION file')
+    helper = root / 'package-version.mk'
+    if VERSION_FROM_FILE not in text or 'PKG_VERSION:=' in text or not helper.is_file():
+        raise ValueError('package Makefile must include the shared VERSION rule')
+    if 'PKG_VERSION_FILE:=$(dir $(abspath $(lastword $(MAKEFILE_LIST))))VERSION' not in helper.read_text():
+        raise ValueError('shared VERSION rule must read the adjacent VERSION authority')
     if not VERSION.fullmatch(version) or not re.fullmatch(r'[1-9][0-9]*', release_raw):
         raise ValueError('invalid source version/release')
     if field('PKG_NAME') != NAME:
